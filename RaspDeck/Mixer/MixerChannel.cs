@@ -1,6 +1,9 @@
 using NAudio.CoreAudioApi;
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace RaspDeck
 {
@@ -24,7 +27,24 @@ namespace RaspDeck
         {
           Process process = Process.GetProcessById((int)session.GetProcessID);
           description = (process.ProcessName == "Spotify" ? process.ProcessName + ": " : "") + (process.MainWindowTitle != "" ? process.MainWindowTitle : process.ProcessName);
+          String SigBase64 = null;
           id = (int)session.GetProcessID;
+          try
+          {
+            Bitmap bImage = System.Drawing.Icon.ExtractAssociatedIcon(process.MainModule.FileName).ToBitmap();
+            System.IO.MemoryStream ms = new MemoryStream();
+            bImage.Save(ms, ImageFormat.Png);
+            byte[] byteImage = ms.ToArray();
+            SigBase64 = "data:image/png;base64," + Convert.ToBase64String(byteImage);
+          }
+          catch (Exception ex)
+          {
+
+          }
+          finally
+          {
+            icon = SigBase64;
+          }
         }
       }
       volume = (int)(session.SimpleAudioVolume.Volume * masterVolume * 100);
@@ -41,10 +61,11 @@ namespace RaspDeck
     {
       if (session != null)
       {
-        session.SimpleAudioVolume.Mute = data.Mute;
         float volume;
         volume = data.Volume / 100.0f;
-        if (data.Volume > 0)
+        if (data.Mute)
+          session.SimpleAudioVolume.Mute = data.Mute;
+        else if (data.Volume > 0)
         {
           var newVolume = volume / masterVolume;
           if (newVolume <= 1)

@@ -11,7 +11,7 @@ namespace RaspDeck.Controllers
   public class SoftwareController : ControllerBase
   {
     [HttpPost("activate")]
-    public IActionResult Activate([FromBody] ProgramData data)
+    public IActionResult Activate([FromBody] SoftwareData data)
     {
       if (data.Name != null)
       {

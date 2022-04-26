@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "cf96ba2f-66df-4b17-b48b-71ca00660561": {
+      "ProjectGuid": "cf96ba2f-66df-4b17-b48b-71ca00660561",
+      "DisplayName": "RaspDeck",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

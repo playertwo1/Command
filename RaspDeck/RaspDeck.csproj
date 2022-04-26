@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y $(ProjectDir)StaticFiles\*  $(ProjectDir)$(OutDir)StaticFiles\" />
+    <Exec Command="xcopy /y $(ProjectDir)Static\*  $(ProjectDir)$(OutDir)Static\" />
   </Target>
 
 </Project>

@@ -1,5 +1,9 @@
 using NAudio.CoreAudioApi;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 
 namespace RaspDeck
@@ -7,7 +11,7 @@ namespace RaspDeck
   class MixerMaster
   {
     private string id;
-    private string category;
+    private string title;
     private string description;
     private int volume;
     private string icon;
@@ -18,18 +22,33 @@ namespace RaspDeck
     {
       channels = new Dictionary<int, MixerChannel>();
     }
-    public MixerMaster(MMDevice device, string category)
+    public MixerMaster(MMDevice device)
     {
-      channels = new Dictionary<int, MixerChannel>();
+      newMaster(device);
+    }
+    public MixerMaster(string idString)
+    {
+      var devices = new MMDeviceEnumerator();
+      var device = devices.GetDevice(idString);
+      if (device.State.CompareTo(DeviceState.Unplugged) == 0 || device.State.CompareTo(DeviceState.NotPresent) == 0 || device.State.CompareTo(DeviceState.Disabled) == 0) device = null;
+      if (device != null)
+      {
+        newMaster(device);
+      }
+    }
+
+    private void newMaster(MMDevice device)
+    {
       id = device.ID;
-      this.category = category;
-      description = device.FriendlyName;
+      title = device.FriendlyName.Substring(0, device.FriendlyName.IndexOf("(")).Trim();
+      description = device.DeviceFriendlyName;
       volume = (int)(device.AudioEndpointVolume.MasterVolumeLevelScalar * 100);
-      icon = null;
       mute = device.AudioEndpointVolume.Mute;
-      if ("output".Equals(category))
+      icon = null;
+      if (device.DataFlow == DataFlow.Render)
       {
         var sessions = device.AudioSessionManager.Sessions;
+        channels = new Dictionary<int, MixerChannel>();
         for (int i = 0; i < sessions.Count; i++)
         {
           if (sessions[i].IsSystemSoundsSession) continue;
@@ -38,38 +57,12 @@ namespace RaspDeck
         }
       }
     }
-    public MixerMaster(string id, string category)
-    {
-      channels = new Dictionary<int, MixerChannel>();
-      var devices = new MMDeviceEnumerator();
-      var device = devices.GetDevice(id);
-      if (device.State.CompareTo(DeviceState.Unplugged) == 0 || device.State.CompareTo(DeviceState.NotPresent) == 0 || device.State.CompareTo(DeviceState.Disabled) == 0) device = null;
-      if (device != null)
-      {
-        this.id = device.ID;
-        this.category = category;
-        description = device.FriendlyName;
-        volume = (int)(device.AudioEndpointVolume.MasterVolumeLevelScalar * 100);
-        icon = null;
-        mute = device.AudioEndpointVolume.Mute;
-        if ("output".Equals(category))
-        {
-          var sessions = device.AudioSessionManager.Sessions;
-          for (int i = 0; i < sessions.Count; i++)
-          {
-            if (sessions[i].IsSystemSoundsSession) continue;
-            var channel = new MixerChannel(sessions[i], device.AudioEndpointVolume.MasterVolumeLevelScalar);
-            channels[(int)sessions[i].GetProcessID] = channel;
-          }
-        }
-      }
-    }
     public static List<MixerMaster> GetAllMixers(DataFlow dataFlow, DeviceState deviceState)
     {
       var devices = new List<MixerMaster>();
       foreach (MMDevice d in new MMDeviceEnumerator().EnumerateAudioEndPoints(dataFlow, deviceState))
       {
-        var master = new MixerMaster(d, ((dataFlow.CompareTo(DataFlow.Render) == 0) ? "output" : "input"));
+        var master = new MixerMaster(d);
         devices.Add(master);
       }
       return devices;
@@ -92,7 +85,9 @@ namespace RaspDeck
           GetChannel(data.Session).SetOptions(data, device.AudioEndpointVolume.MasterVolumeLevelScalar);
         else //Alterando Master!
         {
-          if (data.Volume > 0)
+          if (data.Mute)
+            device.AudioEndpointVolume.Mute = data.Mute;
+          else if (data.Volume > 0)
           {
             device.AudioEndpointVolume.MasterVolumeLevelScalar = volume;
           }
@@ -100,14 +95,13 @@ namespace RaspDeck
           {
             device.AudioEndpointVolume.Mute = true;
           }
-          device.AudioEndpointVolume.Mute = data.Mute;
         }
       }
-      return new MixerMaster(device, ((device.DataFlow.CompareTo(DataFlow.Render) == 0) ? "output" : "input"));
+      return new MixerMaster(device);
     }
 
     public string Id { get => id; set => id = value; }
-    public string Category { get => category; set => category = value; }
+    public string Title { get => title; set => title = value; }
     public string Description { get => description; set => description = value; }
     public int Volume { get => volume; set => volume = value; }
     public string Icon { get => icon; set => icon = value; }

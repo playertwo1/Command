@@ -16,10 +16,18 @@ namespace RaspDeck.Controllers
     [HttpGet("out/{id}")]
     public IActionResult GetOutput(string id)
     {
-      var device = new MixerMaster(id, "output");
+      var device = new MixerMaster(id);
       if (device == null)
         return BadRequest();
       return Ok(device);
+    }
+
+    [HttpPut("out/{id}")]
+    public IActionResult SetOutput(string id, [FromBody] MixerData data)
+    {
+      var device = new MixerMaster(id);
+      if (device == null) return BadRequest();
+      else return Ok(device.SetOptions(id, data));
     }
 
     [HttpGet("in")]
@@ -31,24 +39,16 @@ namespace RaspDeck.Controllers
     [HttpGet("in/{id}")]
     public IActionResult GetInput(string id)
     {
-      var device = new MixerMaster(id, "intput");
+      var device = new MixerMaster(id);
       if (device == null)
         return BadRequest();
-      return Ok(new MixerMaster(id, "input"));
-    }
-
-    [HttpPut("out/{id}")]
-    public IActionResult SetOutput(string id, [FromBody] MixerData data)
-    {
-      var device = new MixerMaster(id, "output");
-      if (device == null) return BadRequest();
-      else return Ok(device.SetOptions(id, data));
+      return Ok(device);
     }
 
     [HttpPut("in/{id}")]
     public IActionResult SetInput(string id, [FromBody] MixerData data)
     {
-      var device = new MixerMaster(id, "input");
+      var device = new MixerMaster(id);
       if (device == null) return BadRequest();
       else return Ok(device.SetOptions(id, data));
     }

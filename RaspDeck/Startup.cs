@@ -5,14 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
 using System.IO;
-
+using System.Reflection;
 
 namespace RaspDeck
 {
   class Startup
   {
+    string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+    string version = "v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Replace(".", "").Replace("0", "");
+    readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
     public Startup(IConfiguration configuration)
     {
       Configuration = configuration;
@@ -23,7 +25,15 @@ namespace RaspDeck
       services.AddControllers();
       services.AddSwaggerGen(c =>
       {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "StaticFiles", Version = "v1" });
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = appName, Version = version });
+      });
+      services.AddCors(options =>
+      {
+        options.AddPolicy(name: MyAllowSpecificOrigins,
+                          builder =>
+                          {
+                            builder.WithOrigins("http://localhost:5000");
+                          });
       });
     }
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -32,13 +42,14 @@ namespace RaspDeck
       {
         app.UseDeveloperExceptionPage();
         app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "StaticFiles v1"));
+        app.UseCors(MyAllowSpecificOrigins);
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", appName + " " + version));
       }
       app.UseFileServer(new FileServerOptions
       {
         FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
-        RequestPath = "/config",
+                    Path.Combine(Directory.GetCurrentDirectory(), "Static")),
+        RequestPath = "",
         EnableDefaultFiles = true
       });
       app.UseRouting();

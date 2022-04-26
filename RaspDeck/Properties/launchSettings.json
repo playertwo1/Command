@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "RaspDeck": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://0.0.0.0:5000"
+      }
+    }
+  }
+}
