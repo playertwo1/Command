@@ -16,8 +16,24 @@
     }
 })();
 
-function isCSSLinkLoaded(link) {
-    return Boolean(link.sheet);
+function isResourceLoaded(resource) {
+    let scripts = document.getElementsByTagName('script');
+    let links = document.getElementsByTagName('link');
+    let elements = undefined;
+    if(resource.type == 'text/css') elements = links;
+    else if(resource.type == 'text/javascript') elements = scripts;
+    let result = false;
+    if(elements != undefined) {
+        for(el of elements) {
+            if(resource.type == 'text/css') {
+                result = el.href == resource.href;
+            } else if(resource.type == 'text/javascript') {
+                result = el.src == resource.src;
+            }
+            if(result) break;
+        }
+    }
+    return result;
   }
 
 function loadResource(filename, type) {
@@ -29,13 +45,16 @@ function loadResource(filename, type) {
         resource.rel = 'stylesheet';
         resource.type = 'text/css';
         resource.href = dir + '.css';
-        if(isCSSLinkLoaded(resource)) {
+        if(isResourceLoaded(resource)) {
             resource = undefined;
         }
     } else if(type == 'js') {
         resource = document.createElement("script");
         resource.src = dir + '.js';
         resource.type = 'text/javascript';
+        if(isResourceLoaded(resource)) {
+            resource = undefined;
+        }
     }
     if(resource != undefined) head.appendChild(resource);
 }
@@ -50,12 +69,17 @@ async function loadHtml(filename) {
     return await fetchDataAsync(url);
 }
 
-async function newComponent(cpName) {
-    let result = await loadHtml(cpName);
+async function newComponent(data) {
+    let result = await loadHtml(data.name);
     if(result != undefined) {
-        loadResource(cpName, 'css');
-        loadResource(cpName, 'js');
-        return result;    
+        loadResource(data.name, 'css');
+        loadResource(data.name, 'js');
+        if(result != undefined && data.id != undefined) {
+            result = $.parseHTML(result);
+            $(result).attr('id', data.id);
+            sliders.push(data);
+        }
+        return result;
     }
     return undefined;
 }
