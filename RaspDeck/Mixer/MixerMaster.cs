@@ -106,6 +106,6 @@ namespace RaspDeck
     public int Volume { get => volume; set => volume = value; }
     public string Icon { get => icon; set => icon = value; }
     public bool Mute { get => mute; set => mute = value; }
-    public List<MixerChannel> Channels { get => channels.Values.ToList(); }
+    public List<MixerChannel> Channels { get => channels != null ? channels.Values.ToList() : null; }
   }
 }

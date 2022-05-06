@@ -32,7 +32,7 @@ namespace RaspDeck
         options.AddPolicy(name: MyAllowSpecificOrigins,
                           builder =>
                           {
-                            builder.WithOrigins("http://localhost:5000");
+                            builder.WithOrigins("http://192.168.68.102:5000");
                           });
       });
     }

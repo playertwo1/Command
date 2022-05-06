@@ -27,3 +27,4 @@ D:\GIT\RaspDeck\RaspDeck\obj\Debug\net5.0-windows\RaspDeck.dll
 D:\GIT\RaspDeck\RaspDeck\obj\Debug\net5.0-windows\ref\RaspDeck.dll
 D:\GIT\RaspDeck\RaspDeck\obj\Debug\net5.0-windows\RaspDeck.pdb
 D:\GIT\RaspDeck\RaspDeck\obj\Debug\net5.0-windows\RaspDeck.genruntimeconfig.cache
+D:\GIT\RaspDeck\RaspDeck\obj\Debug\net5.0-windows\RaspDeck.csproj.AssemblyReference.cache

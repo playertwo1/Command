@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../component/component.js"></script>
+    <script src="slider.js"></script>
+</head>
+<body>
+    <g5-slider id="test-g5" icon="https://cdn.worldvectorlogo.com/logos/unity-69.svg" orient="vertical"></g5-slider>
+
+    <script>
+        void function(){
+            document.getElementById('test-g5').setOnValueChange(value => {
+                alert(`Valor: ${JSON.stringify(value)}`)
+            })
+
+            // setTimeout(() => {
+            //     document.getElementById('test-g5').setAttribute('icon', 'https://cdn.worldvectorlogo.com/logos/unity-69.svg')
+            // }, 1000)
+        }()
+    </script>
+</body>
+</html>

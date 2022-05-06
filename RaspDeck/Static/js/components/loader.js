@@ -14,6 +14,7 @@
         };
         document.getElementsByTagName("head")[0].appendChild(script);
     }
+    loadResource('common','css');
 })();
 
 function isResourceLoaded(resource) {
@@ -37,10 +38,10 @@ function isResourceLoaded(resource) {
   }
 
 function loadResource(filename, type) {
-    let head = document.getElementsByTagName('head')[0];
     let resource = undefined;
-    const dir = `js/components/${filename}/${filename}`;
+    const dir = (('common' == filename) ? `js/components/${filename}` : `js/components/${filename}/${filename}`);
     if(type == 'css') {
+        let head = document.getElementsByTagName('head')[0];
         resource = document.createElement('link');
         resource.rel = 'stylesheet';
         resource.type = 'text/css';
@@ -48,38 +49,29 @@ function loadResource(filename, type) {
         if(isResourceLoaded(resource)) {
             resource = undefined;
         }
+        if(resource != undefined) head.appendChild(resource);
     } else if(type == 'js') {
+        body = document.getElementsByTagName('body')[0];
         resource = document.createElement("script");
         resource.src = dir + '.js';
         resource.type = 'text/javascript';
         if(isResourceLoaded(resource)) {
             resource = undefined;
         }
+        if(resource != undefined) body.appendChild(resource);
     }
-    if(resource != undefined) head.appendChild(resource);
 }
 
-async function fetchDataAsync(url) {
-    const response = await fetch(url);
-    return await response.text();
-}
-
-async function loadHtml(filename) {
-    const url = `js/components/${filename}/${filename}.html`;
-    return await fetchDataAsync(url);
-}
-
-async function newComponent(data) {
-    let result = await loadHtml(data.name);
-    if(result != undefined) {
-        loadResource(data.name, 'css');
-        loadResource(data.name, 'js');
-        if(result != undefined && data.id != undefined) {
-            result = $.parseHTML(result);
-            $(result).attr('id', data.id);
-            sliders.push(data);
+async function newComponent(container, data) {
+    let result = `<g5-slider></g5-slider>`;
+    let attributes = data.attributes;
+    if(attributes.id != undefined) {
+        result = $.parseHTML(result);
+        for(obj of Object.keys(attributes)) {
+            $(result).attr(obj, attributes[obj])
+            container.append(result)
+            $(result)[0].setCallback(data.callback)
         }
-        return result;
     }
-    return undefined;
+    return result;
 }
