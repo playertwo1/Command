@@ -21,10 +21,10 @@ function isCSSLinkLoaded(link) {
   }
 
 function loadResource(filename, type) {
-    let head = document.getElementsByTagName('head')[0];
     let resource = undefined;
     const dir = `js/components/${filename}/${filename}`;
     if(type == 'css') {
+        let head = document.getElementsByTagName('head')[0];
         resource = document.createElement('link');
         resource.rel = 'stylesheet';
         resource.type = 'text/css';
@@ -32,12 +32,14 @@ function loadResource(filename, type) {
         if(isCSSLinkLoaded(resource)) {
             resource = undefined;
         }
+        if(resource != undefined) head.appendChild(resource);
     } else if(type == 'js') {
+        body = document.getElementsByTagName('body')[0];
         resource = document.createElement("script");
         resource.src = dir + '.js';
         resource.type = 'text/javascript';
+        if(resource != undefined) body.appendChild(resource);
     }
-    if(resource != undefined) head.appendChild(resource);
 }
 
 async function fetchDataAsync(url) {
