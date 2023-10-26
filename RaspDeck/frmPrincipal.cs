@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace RaspDeck
+namespace AnyDeck
 {
     public partial class frmPrincipal : Form
     {

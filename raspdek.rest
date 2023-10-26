@@ -1,0 +1,24 @@
+@baseUrl = http://localhost:5000
+@apiVersion = /api/v1/
+
+# @name getOutputs
+GET {{baseUrl}}{{apiVersion}}mixer/out
+Content-Type: application/json
+
+###
+
+# @name getInputs
+GET {{baseUrl}}{{apiVersion}}mixer/in
+Content-Type: application/json
+
+###
+
+# @name setInputData
+PUT {{baseUrl}}{{apiVersion}}mixer/in/{0.0.1.00000000}.{835fc5b5-aab3-4503-8301-92d448abd99a}
+Content-Type: application/json
+
+{
+    "mute": true
+}
+
+###

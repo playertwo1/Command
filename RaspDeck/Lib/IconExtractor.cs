@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RaspDeck.Lib
+namespace AnyDeck.Lib
 {
   internal class IconExtractor
   {

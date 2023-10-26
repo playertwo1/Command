@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31112.23
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspDeck", "RaspDeck\RaspDeck.csproj", "{CF96BA2F-66DF-4B17-B48B-71CA00660561}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnyDeck", "RaspDeck\AnyDeck.csproj", "{CF96BA2F-66DF-4B17-B48B-71CA00660561}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

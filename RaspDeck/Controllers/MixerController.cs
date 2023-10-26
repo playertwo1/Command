@@ -1,56 +1,67 @@
+using AnyDeck.Services;
 using Microsoft.AspNetCore.Mvc;
 using NAudio.CoreAudioApi;
 
-namespace RaspDeck.Controllers
+namespace AnyDeck.Controllers
 {
-  [Route("api/[controller]")]
-  [ApiController]
-  public class MixerController : ControllerBase
-  {
-    [HttpGet("out")]
-    public IActionResult GetAllOutputs()
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    public class MixerController : ControllerBase
     {
-      return Ok(MixerMaster.GetAllMixers(DataFlow.Render, DeviceState.Active));
-    }
+        private readonly MixerService mixerService = new MixerService();
 
-    [HttpGet("out/{id}")]
-    public IActionResult GetOutput(string id)
-    {
-      var device = new MixerMaster(id);
-      if (device == null)
-        return BadRequest();
-      return Ok(device);
-    }
+        [HttpGet("out")]
+        public IActionResult GetAllOutputs()
+        {
+            return Ok(mixerService.FindAll());
+        }
 
-    [HttpPut("out/{id}")]
-    public IActionResult SetOutput(string id, [FromBody] MixerData data)
-    {
-      var device = new MixerMaster(id);
-      if (device == null) return BadRequest();
-      else return Ok(device.SetOptions(id, data));
-    }
+        [HttpGet("out/{id}")]
+        public IActionResult GetOutput(string id)
+        {
+            var mixer = mixerService.FindOne(id);
+            if (mixer != null)
+                return Ok(mixer);
+            return BadRequest();
+        }
 
-    [HttpGet("in")]
-    public IActionResult GetAllInputs()
-    {
-      return Ok(MixerMaster.GetAllMixers(DataFlow.Capture, DeviceState.Active));
-    }
+        [HttpPut("out/{id}")]
+        public IActionResult SetOutput(string id, [FromBody] MixerData data)
+        {
+            var device = new MixerMaster(id);
+            if (device == null) return BadRequest();
+            else return Ok(device.SetOptions(id, data));
+        }
 
-    [HttpGet("in/{id}")]
-    public IActionResult GetInput(string id)
-    {
-      var device = new MixerMaster(id);
-      if (device == null)
-        return BadRequest();
-      return Ok(device);
-    }
+        [HttpGet("in")]
+        public IActionResult GetAllInputs()
+        {
+            return Ok(MixerMaster.GetAllMixers(DataFlow.Capture, DeviceState.Active));
+        }
 
-    [HttpPut("in/{id}")]
-    public IActionResult SetInput(string id, [FromBody] MixerData data)
-    {
-      var device = new MixerMaster(id);
-      if (device == null) return BadRequest();
-      else return Ok(device.SetOptions(id, data));
+        [HttpGet("in/{id}")]
+        public IActionResult GetInput(string id)
+        {
+            var device = new MixerMaster(id);
+            if (device == null)
+                return BadRequest();
+            return Ok(device);
+        }
+
+        [HttpPut("in/{id}")]
+        public IActionResult SetInput(string id, [FromBody] MixerData data)
+        {
+            var device = new MixerMaster(id);
+            if (device == null) return BadRequest();
+            else return Ok(device.SetOptions(id, data));
+        }
+
+        [HttpPut("in/{serial}")]
+        public IActionResult SetInput(int serial, [FromBody] MixerData data)
+        {
+            var device = new MixerMaster(serial);
+            if (device == null) return BadRequest();
+            else return Ok(device.SetOptions(serial, data));
+        }
     }
-  }
 }

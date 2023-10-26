@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace RaspDeck
+namespace AnyDeck
 {
   static class Program
   {

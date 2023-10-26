@@ -1,5 +1,5 @@
 
-namespace RaspDeck
+namespace AnyDeck
 {
   partial class frmPrincipal
   {
@@ -36,20 +36,21 @@ namespace RaspDeck
             // 
             // ntiTray
             // 
-            this.ntiTray.BalloonTipTitle = "RaspDeck";
+            this.ntiTray.BalloonTipTitle = "AnyDeck";
             this.ntiTray.Icon = ((System.Drawing.Icon)(resources.GetObject("ntiTray.Icon")));
-            this.ntiTray.Text = "RaspDeck";
+            this.ntiTray.Text = "AnyDeck";
             this.ntiTray.Click += new System.EventHandler(this.ntiTray_Click);
             this.ntiTray.DoubleClick += new System.EventHandler(this.ntiTray_DoubleClick);
             // 
             // frmPrincipal
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(778, 424);
+            this.ClientSize = new System.Drawing.Size(545, 254);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "frmPrincipal";
-            this.Text = "RaspDeck";
+            this.Text = "AnyDeck";
             this.Resize += new System.EventHandler(this.frmPrincipal_Resize);
             this.ResumeLayout(false);
 
