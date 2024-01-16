@@ -33,8 +33,8 @@ namespace AnyDeck
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                             builder =>
                             {
-                                    builder.WithOrigins("http://localhost:5000");
-                                });
+                                builder.WithOrigins("http://localhost:5000");
+                            });
             });
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

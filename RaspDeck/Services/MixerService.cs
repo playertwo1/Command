@@ -9,7 +9,7 @@ namespace AnyDeck.Services
         public List<MixerEntity> FindAll()
         {
             List<MixerEntity> list = new List<MixerEntity>();
-            foreach(MixerMaster item in MixerMaster.GetAllMixers(DataFlow.Render, DeviceState.Active))
+            foreach (MixerMaster item in MixerMaster.GetAllMixers(DataFlow.Render, DeviceState.Active))
             {
                 list.Add(new MixerEntity(item));
             }

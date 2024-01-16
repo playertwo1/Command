@@ -55,13 +55,5 @@ namespace AnyDeck.Controllers
             if (device == null) return BadRequest();
             else return Ok(device.SetOptions(id, data));
         }
-
-        [HttpPut("in/{serial}")]
-        public IActionResult SetInput(int serial, [FromBody] MixerData data)
-        {
-            var device = new MixerMaster(serial);
-            if (device == null) return BadRequest();
-            else return Ok(device.SetOptions(serial, data));
-        }
     }
 }

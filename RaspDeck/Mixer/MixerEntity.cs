@@ -10,10 +10,10 @@ namespace AnyDeck.Mixer
         public MixerEntity(MixerMaster master)
         {
             this.device = master;
-            this.config = (MixerConfig) DBHelper.Retrieve(this.device.Id);
-            if(this.config == null)
+            this.config = (MixerConfig)DBHelper.Retrieve(this.device.Id);
+            if (this.config == null)
             {
-                this.config=new MixerConfig(true, master.Title);
+                this.config = new MixerConfig(true, master.Title);
             }
         }
 

@@ -23,7 +23,7 @@ namespace AnyDeck.Lib
             {
                 return _storage.Get<object>(key);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return null;
             }
