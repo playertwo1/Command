@@ -2,7 +2,6 @@ using System;
 using System.Windows.Forms;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Mono.Zeroconf;
 
 namespace AnyDeck
 {
@@ -22,13 +21,6 @@ namespace AnyDeck
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             FrmPrincipal = new frmPrincipal();
-            //RegisterService service = new RegisterService();
-            //service.Name = "anydeck";
-            //service.RegType = "_http._tcp";
-            //service.ReplyDomain = "local.";
-            //service.Port = 5000;
-            //service.Register();
-
             Application.Run(FrmPrincipal);
         }
 

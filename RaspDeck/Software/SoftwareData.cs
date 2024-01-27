@@ -8,10 +8,7 @@ namespace AnyDeck.Software
 {
     public class SoftwareData
     {
-        private string name;
-        private string action;
-
-        public string Name { get => name; set => name = value; }
-        public string Action { get => action; set => action = value; }
+        public string Name { get; set; }
+        public string Action { get; set; }
     }
 }

@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="LocalStorage" Version="2.1.0" />
-    <PackageReference Include="Mono.Zeroconf" Version="0.9.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />

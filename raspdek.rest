@@ -7,6 +7,24 @@ Content-Type: application/json
 
 ###
 
+# @name getOutput
+GET {{baseUrl}}{{apiVersion}}mixer/out/{0.0.0.00000000}.{3ad6b2f2-752b-4eb5-8922-fb3ab41f4161}
+Content-Type: application/json
+
+###
+
+# @name setOutputData
+PUT {{baseUrl}}{{apiVersion}}mixer/out/{0.0.0.00000000}.{548c2cc6-14d5-4c82-9ce6-aa90dd4d60d8}
+Content-Type: application/json
+
+{
+    "session": 37056,
+    "volume": 100,
+    "mute": false
+}
+
+###
+
 # @name getInputs
 GET {{baseUrl}}{{apiVersion}}mixer/in
 Content-Type: application/json

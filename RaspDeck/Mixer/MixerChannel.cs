@@ -9,26 +9,21 @@ namespace AnyDeck
 {
     class MixerChannel
     {
-        private int id;
-        private string description;
-        private int volume;
-        private string icon;
-        private bool mute;
         private readonly AudioSessionControl session;
 
         public MixerChannel() { }
         public MixerChannel(AudioSessionControl session, float masterVolume)
         {
-            id = 0;
-            description = "Windows";
+            Id = 0;
+            Description = "Windows";
             if (!session.IsSystemSoundsSession)
             {
                 if (ProcessExists(session.GetProcessID))
                 {
                     Process process = Process.GetProcessById((int)session.GetProcessID);
-                    description = (process.ProcessName == "Spotify" ? process.ProcessName + ": " : "") + (process.MainWindowTitle != "" ? process.MainWindowTitle : process.ProcessName);
+                    Description = (process.ProcessName == "Spotify" ? process.ProcessName + ": " : "") + (process.MainWindowTitle != "" ? process.MainWindowTitle : process.ProcessName);
                     String SigBase64 = null;
-                    id = (int)session.GetProcessID;
+                    Id = (int)session.GetProcessID;
                     try
                     {
                         Bitmap bImage = System.Drawing.Icon.ExtractAssociatedIcon(process.MainModule.FileName).ToBitmap();
@@ -43,12 +38,12 @@ namespace AnyDeck
                     }
                     finally
                     {
-                        icon = SigBase64;
+                        Icon = SigBase64;
                     }
                 }
             }
-            volume = (int)(session.SimpleAudioVolume.Volume * masterVolume * 100);
-            mute = session.SimpleAudioVolume.Mute;
+            Volume = (int)(session.SimpleAudioVolume.Volume * masterVolume * 100);
+            Mute = session.SimpleAudioVolume.Mute;
             this.session = session;
         }
 
@@ -62,28 +57,30 @@ namespace AnyDeck
             if (session != null)
             {
                 float volume;
-                volume = data.Volume / 100.0f;
-                if (data.Volume > 0)
+                volume = (data.Volume ?? -1.0f) / 100.0f;
+                var newVolume = volume / masterVolume;
+                bool mute = data.Mute == true;
+                if (mute && session.SimpleAudioVolume.Volume >= newVolume)
+                    session.SimpleAudioVolume.Mute = mute;
+                else
+                    if (newVolume > 0)
                 {
-                    session.SimpleAudioVolume.Mute = data.Mute;
-                    var newVolume = volume / masterVolume;
                     if (newVolume <= 1)
                         session.SimpleAudioVolume.Volume = newVolume;
                     else
                         session.SimpleAudioVolume.Volume = 1;
+                    session.SimpleAudioVolume.Mute = false;
                 }
                 else
-                {
-                    session.SimpleAudioVolume.Mute = true;
-                }
+                    session.SimpleAudioVolume.Mute = mute;
             }
         }
 
-        public int Id { get => id; set => id = value; }
-        public string Description { get => description; set => description = value; }
-        public int Volume { get => volume; set => volume = value; }
-        public string Icon { get => icon; set => icon = value; }
-        public bool Mute { get => mute; set => mute = value; }
+        public int Id { get; set; }
+        public string Description { get; set; }
+        public int Volume { get; set; }
+        public string Icon { get; set; }
+        public bool Mute { get; set; }
 
         private bool ProcessExists(uint processId)
         {

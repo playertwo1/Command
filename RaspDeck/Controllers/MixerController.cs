@@ -13,7 +13,7 @@ namespace AnyDeck.Controllers
         [HttpGet("out")]
         public IActionResult GetAllOutputs()
         {
-            return Ok(mixerService.FindAll());
+            return Ok(mixerService.FindAllOutputs());
         }
 
         [HttpGet("out/{id}")]
@@ -36,13 +36,13 @@ namespace AnyDeck.Controllers
         [HttpGet("in")]
         public IActionResult GetAllInputs()
         {
-            return Ok(MixerMaster.GetAllMixers(DataFlow.Capture, DeviceState.Active));
+            return Ok(mixerService.FindAllInputs());
         }
 
         [HttpGet("in/{id}")]
         public IActionResult GetInput(string id)
         {
-            var device = new MixerMaster(id);
+            var device = mixerService.FindOne(id);
             if (device == null)
                 return BadRequest();
             return Ok(device);

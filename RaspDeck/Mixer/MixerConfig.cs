@@ -8,16 +8,13 @@ namespace AnyDeck.Mixer
 {
     internal class MixerConfig
     {
-        private bool enabled;
-        private string customName;
-
         public MixerConfig(bool enabled, string customName)
         {
-            this.enabled = enabled;
-            this.customName = customName;
+            this.Enabled = enabled;
+            this.CustomName = customName;
         }
 
-        public bool Enabled { get => enabled; set => enabled = value; }
-        public string CustomName { get => customName; set => customName = value; }
+        public bool Enabled { get; set; }
+        public string CustomName { get; set; }
     }
 }

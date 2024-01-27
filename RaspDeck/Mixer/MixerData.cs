@@ -8,16 +8,12 @@ namespace AnyDeck
 {
     public class MixerData
     {
-        private int session;
-        private bool mute;
-        private int volume;
-
         public MixerData()
         {
-            session = -1;
+            Session = -1;
         }
-        public int Session { get => session; set => session = value; }
-        public bool Mute { get => mute; set => mute = value; }
-        public int Volume { get => volume; set => volume = value; }
+        public int Session { get; set; }
+        public bool? Mute { get; set; }
+        public int? Volume { get; set; }
     }
 }

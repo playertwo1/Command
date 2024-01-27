@@ -6,10 +6,20 @@ namespace AnyDeck.Services
 {
     internal class MixerService
     {
-        public List<MixerEntity> FindAll()
+        public List<MixerEntity> FindAllOutputs()
         {
             List<MixerEntity> list = new List<MixerEntity>();
             foreach (MixerMaster item in MixerMaster.GetAllMixers(DataFlow.Render, DeviceState.Active))
+            {
+                list.Add(new MixerEntity(item));
+            }
+            return list;
+        }
+
+        public List<MixerEntity> FindAllInputs()
+        {
+            List<MixerEntity> list = new List<MixerEntity>();
+            foreach(MixerMaster item in MixerMaster.GetAllMixers(DataFlow.Capture, DeviceState.Active))
             {
                 list.Add(new MixerEntity(item));
             }
