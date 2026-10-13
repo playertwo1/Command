@@ -1,0 +1,39 @@
+# Segredos e configuração local (nunca versionar)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Dados locais e backups
+*.db
+*.db-*
+*.sqlite*
+*.bak*
+backups/
+
+# Dependências, builds e caches
+node_modules/
+dist/
+build/
+.gradle/
+.idea/
+bin/
+obj/
+*.apk
+*.aab
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+
+# Candidatos upstream são pesquisa temporária; nunca entram no repositório Command.
+research/upstream/*
+!research/upstream/README.md
+!research/upstream/.gitignore
+
+# Capturas de evidência pesadas (registre o caminho na review)
+docs/reviews/**/captures/
+
+.DS_Store

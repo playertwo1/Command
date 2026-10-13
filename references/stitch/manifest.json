@@ -1,0 +1,128 @@
+[
+  {
+    "title": "COMMAND — Hermes AI",
+    "sourceScreen": "projects/5594973370148065118/screens/2bc07898173c4769af807415b95d8ad6",
+    "file": "references/stitch/screens/exploracao-hermes-ai.png",
+    "bytes": 54052,
+    "sha256": "BFBFAC96A77A1D46586DF8526145785BA6DF9FEDBC6FDCBC511E0B1F0830995A"
+  },
+  {
+    "title": "COMMAND — 01. Início",
+    "sourceScreen": "projects/5594973370148065118/screens/b3c711c8e66c4e7285c13a5a307c7471",
+    "file": "references/stitch/screens/01-inicio.png",
+    "bytes": 50152,
+    "sha256": "80B57F7A1E3F76F8D5968701C8D97DB7243B6B1AE6E2A55B0B86C088B44BF809"
+  },
+  {
+    "title": "COMMAND — Ações",
+    "sourceScreen": "projects/5594973370148065118/screens/3ca197a19e324cacb33a1ddd6e0fd891",
+    "file": "references/stitch/screens/exploracao-acoes.png",
+    "bytes": 56448,
+    "sha256": "26EEC974D0B335B997E4EF3574B6F8200301C3BCB41844388BAC26F91477B8CC"
+  },
+  {
+    "title": "COMMAND — 02. Computadores",
+    "sourceScreen": "projects/5594973370148065118/screens/c081f7c4430d482dbd7bdeea2661def4",
+    "file": "references/stitch/screens/02-computadores.png",
+    "bytes": 39644,
+    "sha256": "574C7C6C00F961ABD1ED3C9689B49CB746C8855193C9DD0B1144135924C31ACA"
+  },
+  {
+    "title": "COMMAND — 12. Pareamento de PC",
+    "sourceScreen": "projects/5594973370148065118/screens/6e61ef785cc0402e9a4809843aa00231",
+    "file": "references/stitch/screens/12-pareamento-pc.png",
+    "bytes": 32540,
+    "sha256": "37E8715CDB9497538E5273D4BDF8162A0D943361C711DD58FB9C9F06BADE501D"
+  },
+  {
+    "title": "COMMAND — Atividade",
+    "sourceScreen": "projects/5594973370148065118/screens/872ef554a2c9448ca890a6c080e14b79",
+    "file": "references/stitch/screens/exploracao-atividade.png",
+    "bytes": 49765,
+    "sha256": "822E6E18E6BB136E6CCB84806E7242127FD4B6AE472DE90EF6D6F263E2AC332A"
+  },
+  {
+    "title": "COMMAND — 08. Hermes AI",
+    "sourceScreen": "projects/5594973370148065118/screens/47b696e3bfc24faab903a7fc19b25f6c",
+    "file": "references/stitch/screens/08-hermes-ai.png",
+    "bytes": 54953,
+    "sha256": "5455FBED7EF25A88C2428C65AD8E81A9140E675062AE0C1699367B1919649BB2"
+  },
+  {
+    "title": "COMMAND — 04. Aplicativos e Processos",
+    "sourceScreen": "projects/5594973370148065118/screens/d69514ef56314157be1ec7d90c35ba48",
+    "file": "references/stitch/screens/04-aplicativos-processos.png",
+    "bytes": 42134,
+    "sha256": "D318258410839C35C470F73A897A461983A0813FC1452D3DD7CE56E45251EEC8"
+  },
+  {
+    "title": "COMMAND — 07. Ações",
+    "sourceScreen": "projects/5594973370148065118/screens/1f47a9b98e074055918852824fa4dd63",
+    "file": "references/stitch/screens/07-acoes.png",
+    "bytes": 36893,
+    "sha256": "EC9B96A63D0B2D726DB0509CF94AF5CBE9D1A1D4C77F1C42F07B271C5F038109"
+  },
+  {
+    "title": "COMMAND — Tela do PC",
+    "sourceScreen": "projects/5594973370148065118/screens/48c984c3d02f408880b8f949f62d9bde",
+    "file": "references/stitch/screens/exploracao-tela-pc.png",
+    "bytes": 76187,
+    "sha256": "58F7D2740F29B5954CA96EA341D9F517E51FAA5C099683C7248878FB312493B0"
+  },
+  {
+    "title": "COMMAND — Computadores",
+    "sourceScreen": "projects/5594973370148065118/screens/4fe867957f8b499aba9e05b651749c0d",
+    "file": "references/stitch/screens/exploracao-computadores.png",
+    "bytes": 52346,
+    "sha256": "81BFE5A649AF107777943E4B5AF6C03F78BECB1125744D9B29463FA5F241AE43"
+  },
+  {
+    "title": "COMMAND — 11. Configurações",
+    "sourceScreen": "projects/5594973370148065118/screens/17b62a4430ed45f8b2579194a3d2ad6a",
+    "file": "references/stitch/screens/11-configuracoes.png",
+    "bytes": 37361,
+    "sha256": "3B72BA60CA453DC49141FEC0A23642EE77DE55CA1DE8823574F14DC6477F5DA5"
+  },
+  {
+    "title": "COMMAND — 05. Tela do PC",
+    "sourceScreen": "projects/5594973370148065118/screens/8960d85385bb47308abc92cdc69ea19c",
+    "file": "references/stitch/screens/05-tela-pc.png",
+    "bytes": 70185,
+    "sha256": "142E728D1C564652B3720D75C3A7390AE38480E900A212368A4F1E44B72FA52E"
+  },
+  {
+    "title": "COMMAND — Início",
+    "sourceScreen": "projects/5594973370148065118/screens/66d797c86c274ab9bdeb495e3f92fffd",
+    "file": "references/stitch/screens/exploracao-inicio.png",
+    "bytes": 52220,
+    "sha256": "48DAE8134563B363CDE162692933FF097ACFA3B4B1491589EFB85A4A652BEC1F"
+  },
+  {
+    "title": "COMMAND — Aplicativos e Processos",
+    "sourceScreen": "projects/5594973370148065118/screens/a9f0efaf651a4c60b10f47b2b022852c",
+    "file": "references/stitch/screens/exploracao-aplicativos-processos.png",
+    "bytes": 43986,
+    "sha256": "18244ECD55F70EAC2994AAE6BC7E0C390FE08F34CEE4B9AD1EF50ED90C0B2EC2"
+  },
+  {
+    "title": "COMMAND — 10. Atividade",
+    "sourceScreen": "projects/5594973370148065118/screens/ce02290d6f3148cc85e2d5d962ac9804",
+    "file": "references/stitch/screens/10-atividade.png",
+    "bytes": 45225,
+    "sha256": "23E34FB5107F6E20994E3884AE66FBCB27025AC49B71D7080E31D9C5D503F629"
+  },
+  {
+    "title": "file_000000004478820eb3c5aa9c47239fbd.png",
+    "sourceScreen": "projects/5594973370148065118/screens/5258831429752505155",
+    "file": "references/stitch/assets/imagem-anexada-no-canvas.png",
+    "bytes": 263833,
+    "sha256": "3039154812AE97C3208ABD659A31C0D99108862C47796DABE9D715CCF49688BE"
+  },
+  {
+    "title": "High resolution Windows 11 desktop screenshot showing developer workspace: Visual Studio Code with dark violet/amethyst syntax theme and code editor, terminal running Cargo build, sleek system monitoring widgets, Discord/Slack in background, wallpaper with abstract dark geometry and subtle purple ambient glow, crisp 4k UI rendering.",
+    "sourceScreen": "projects/5594973370148065118/screens/ae74e508c4a848dfae1b12a4c9cbe80b",
+    "file": "references/stitch/assets/referencia-desktop-windows.jpg",
+    "bytes": 53754,
+    "sha256": "DD5B0659833793C2135B36A3C311FB92A5571FCA376C36049C986CD223CFB93A"
+  }
+]
