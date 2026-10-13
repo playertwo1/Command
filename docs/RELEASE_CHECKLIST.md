@@ -9,12 +9,23 @@ O `ROADMAP.md` contém o escopo e os critérios detalhados de F0–F9. Este arqu
 - Resultado técnico: **NOT_RUN** · Aprovação humana das bases: **PENDING**.
 
 ## F1–F8 — implementação e preparação do piloto
-- Critérios, tarefas e verificações estão descritos por fase em `ROADMAP.md`.
-- Registrar evidência de cada gate; não avançar com critérios obrigatórios pendentes.
+Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidência em `docs/evidence/Fn/`; não avançar com critério obrigatório pendente.
+
+| Fase | Entrega | Técnico | Evidência |
+|---|---|---|---|
+| F1 | Builds reproduzíveis + contrato v1 + `SECURITY.md` | NOT_RUN | — |
+| F2 | Pareamento, autenticação e revogação | NOT_RUN | — |
+| F3 | Telemetria real no aparelho | NOT_RUN | — |
+| F4 | FL-1, FL-2, FL-5 + Atividade | NOT_RUN | — |
+| F5 | FL-3 screenshot | NOT_RUN | — |
+| F6 | FL-4 transferência íntegra | NOT_RUN | — |
+| F7 | Revisão independente sem achado crítico/alto | NOT_RUN | — |
+| F8 | Instalação repetível + cinco fluxos sem Hermes | NOT_RUN | — |
+
 - Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de Hermes para controle direto.
 
 ## F9 — piloto e decisão do MVP
-- [ ] Sete dias corridos e pelo menos 30 execuções, com no mínimo seis por fluxo.
+- [ ] Sete dias corridos e pelo menos 30 execuções, com no mínimo seis por fluxo (FL-1…FL-5).
 - [ ] Taxa de sucesso, falhas críticas, integridade, duplicação e privacidade avaliadas.
 - [ ] Hermes ausente/desligado durante os cinco fluxos diretos.
 - [ ] Evidências reunidas em `docs/MVP_APPROVAL.md`.

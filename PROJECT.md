@@ -1,6 +1,6 @@
 # PROJECT — Command
 
-Contrato de visão do Command. O manual do MVP e o roadmap na raiz permanecem como fontes originais detalhadas.
+Contrato de visão do Command. O manual do MVP ([transcrição](docs/MANUAL_MVP.md)) e o `ROADMAP.md` trazem os detalhes.
 
 ## Problema
 Controlar o PC pessoal pelo celular hoje costuma exigir acesso remoto amplo ou alternar entre ferramentas. O Command deve oferecer operações comuns com estado real, limites claros e confirmação, sem expor um terminal remoto.
@@ -21,7 +21,7 @@ Todas as operações diretas devem funcionar com Hermes desligado. O escopo comp
 - Voz e delegação com poder de execução, integrações avançadas ou dependência operacional do Hermes.
 
 ## Restrições
-- Android nativo e Bridge Windows em sessão interativa; stack final condicionada ao G0.
+- Android nativo e Bridge Windows em sessão interativa; stack final condicionada à F0.
 - Rede local ou transporte privado opcional; Tailscale não substitui autenticação da API.
 - Permissões mínimas, allowlist local, pareamento revogável, audit trail sem dados pessoais.
 - Licenças e APIs upstream precisam ser verificadas no commit escolhido antes de copiar código.

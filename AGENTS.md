@@ -6,6 +6,7 @@ Contrato curto para Codex, Claude, Gemini e outros agentes. Comece por `STATE.md
 - `STATE.md` — estado atual e próxima ação.
 - `ROADMAP.md` — escopo aprovado, ordem e critérios detalhados.
 - `PROJECT.md` — visão, MVP e exclusões.
+- `docs/MANUAL_MVP.md` — transcrição do manual original (`.docx`), incluindo catálogo de repositórios e ideias pós-MVP.
 - `DESIGN.md` — referência visual; ler antes de qualquer trabalho de interface.
 - `docs/DECISIONS.md` — decisões e pendências.
 - `docs/RELEASE_CHECKLIST.md` — evidência técnica e aceite.

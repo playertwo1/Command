@@ -1,0 +1,12 @@
+# Mantém LF no repositório independentemente do core.autocrlf local.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.docx binary
+*.png binary
+*.jpg binary
+*.jar binary
+*.jks binary
+*.keystore binary
+*.pfx binary

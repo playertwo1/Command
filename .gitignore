@@ -4,6 +4,13 @@
 !.env.example
 *.pem
 *.key
+*.jks
+*.keystore
+*.pfx
+*.p12
+local.properties
+keystore.properties
+appsettings.*.local.json
 secrets/
 
 # Dados locais e backups
@@ -19,6 +26,12 @@ dist/
 build/
 .gradle/
 .idea/
+.vs/
+*.user
+*.suo
+TestResults/
+captures/
+.kotlin/
 bin/
 obj/
 *.apk

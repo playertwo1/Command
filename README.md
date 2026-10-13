@@ -20,9 +20,9 @@ O roadmap do MVP v0.1 foi aprovado e o projeto inicia **F0 — escolha de bases 
 
 ## Documentos de origem
 
-- [Manual do MVP](COMMAND_Manual_MVP.docx) — visão e requisitos iniciais.
+- [Manual do MVP](COMMAND_Manual_MVP.docx) — visão e requisitos iniciais; [transcrição em Markdown](docs/MANUAL_MVP.md) para leitura por agentes.
 - [Roadmap original](docs/history/ROADMAP-2026-10-10-original.md) — preservado como histórico.
-- [Plano aprovado](docs/plans/2026-10-12-mvp-inicial.md) — registro detalhado da aprovação e do escopo.
+- [Plano aprovado](docs/plans/2026-10-12-mvp-inicial.md) — texto exato aprovado em 2026-10-12 (não editar; mudanças vão para `ROADMAP.md`).
 
 A estrutura documental foi adaptada manualmente do kit [`ideias_standard`](https://github.com/playertwo1/ideias_standard); o exemplo de Command desse repositório descreve um escopo anterior e não foi copiado por cima dos documentos atuais.
 

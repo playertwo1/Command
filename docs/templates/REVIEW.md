@@ -11,7 +11,7 @@
 | AC-02 | {{...}} | {{...}} |
 
 ## Verificação
-- Gates de `docs/RELEASE_CHECKLIST.md`: {{G1–G8, invariantes, V1–V5 se UI}}
+- Gates de `docs/RELEASE_CHECKLIST.md`: {{fase F0–F9, fluxos FL-1…FL-5, critérios visuais se UI}}
 - Cenário real: {{...}}
 - Regressão: {{...}}
 - Escopo: sem mudança não pedida, sem teste alterado para passar: {{...}}
