@@ -1,3 +1,17 @@
+# [1.7.0](https://github.com/ggfto/DroidDeck/compare/v1.6.0...v1.7.0) (2026-10-15)
+
+
+### Bug Fixes
+
+* **app:** tela do Discord mostra que as credenciais estao salvas no PC ([60690a5](https://github.com/ggfto/DroidDeck/commit/60690a516f424bd73b9fd6d1d9d86808df733178))
+* **discord:** autorizacao revogada para de ser repetida em silencio ([b1e3777](https://github.com/ggfto/DroidDeck/commit/b1e3777f1fc193d75df09396e97d0b8d727911a1))
+* **discord:** falha persistente de conexao aparece no log ([0e2189f](https://github.com/ggfto/DroidDeck/commit/0e2189f73ed8c3240b478880e31d90abf5b16507))
+
+
+### Features
+
+* **app:** temas, cor de destaque, estilos de botao e modo so deck ([85d2785](https://github.com/ggfto/DroidDeck/commit/85d278570b867ad8d955e486a06d312ae9829696))
+
 # [1.6.0](https://github.com/ggfto/DroidDeck/compare/v1.5.0...v1.6.0) (2026-10-01)
 
 
