@@ -38,6 +38,18 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 | 🎥 **OBS Studio** | Cenas, gravação, transmissão, câmera virtual, replay buffer, silenciar fontes — com estado ao vivo. |
 | 🎵 **Soundboard** | Busque e toque sons do MyInstants, enviados para o seu microfone pelo VB-Cable. |
 | 💡 **Casa inteligente** | Lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, brilho e cores, com estado real. |
+| 🎨 **Temas** | Temas prontos, modo claro/escuro, cor de destaque e três estilos de botão. O modo "só o deck" abre direto no deck em tela cheia. |
+
+## 📸 Capturas de tela
+
+<p align="center">
+  <img src="website/docs/assets/screenshots/deck-neon.png" alt="Deck com o tema Neon" width="49%">
+  <img src="website/docs/assets/screenshots/deck-oled.png" alt="Deck com o tema OLED" width="49%">
+</p>
+<p align="center">
+  <img src="website/docs/assets/screenshots/appearance-top.png" alt="Tela Aparência com prévia ao vivo" width="49%">
+  <img src="website/docs/assets/screenshots/appearance-themes.png" alt="Temas, cor de destaque e estilo dos botões" width="49%">
+</p>
 
 ## 🚀 Começando
 

@@ -47,6 +47,7 @@ nav:
   - Buttons & actions:
       - Buttons & actions: guide/actions.md
       - Monitors: guide/monitors.md
+      - Appearance: guide/appearance.md
   - Integrations:
       - Discord: integrations/discord.md
       - OBS Studio: integrations/obs.md
@@ -96,6 +97,7 @@ plugins:
             Building from source: Compilando do código
             Home: Início
             Monitors: Monitores
+            Appearance: Aparência
             Mixer & media: Mixer e mídia
             Smart home (Tuya): Casa inteligente (Tuya)
 

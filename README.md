@@ -38,6 +38,18 @@ talks to it over your local network.
 | 🎥 **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, mute sources — with live state. |
 | 🎵 **Soundboard** | Search and play sounds from MyInstants, routed to your mic through VB-Cable. |
 | 💡 **Smart home** | Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
+| 🎨 **Themes** | Ready-made themes, light/dark mode, accent colour and three button styles. A "deck only" mode opens straight into a full-screen deck. |
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="website/docs/assets/screenshots/deck-neon.png" alt="Deck with the Neon theme" width="49%">
+  <img src="website/docs/assets/screenshots/deck-oled.png" alt="Deck with the OLED theme" width="49%">
+</p>
+<p align="center">
+  <img src="website/docs/assets/screenshots/appearance-top.png" alt="Appearance screen with live preview" width="49%">
+  <img src="website/docs/assets/screenshots/appearance-themes.png" alt="Themes, accent colour and button style" width="49%">
+</p>
 
 ## 🚀 Getting started
 
