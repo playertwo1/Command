@@ -18,16 +18,24 @@ class HomePageState extends State<HomePage> {
   final controller = HomeController();
   final PageController _pageController = PageController();
   int selectedIndex = 0;
+  void Function()? _deckOnlyCleanup;
 
   @override
   void initState() {
     super.initState();
+    // Modo só deck abre em tela cheia (e sai dela quando é desligado). Roda já na
+    // primeira vez, com o valor carregado no startup.
+    _deckOnlyCleanup = effect(() {
+      final deckOnly = ThemeController.instance.deckOnly.value;
+      untracked(() => controller.isFullscreen.value = deckOnly);
+    });
     // No web o foco é configurar o deck; não precisa do polling de mixer.
     if (!kIsWeb) controller.startPolling();
   }
 
   @override
   void dispose() {
+    _deckOnlyCleanup?.call();
     controller.dispose();
     _pageController.dispose();
     super.dispose();
@@ -88,6 +96,13 @@ class HomePageState extends State<HomePage> {
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         }
 
+        if (ThemeController.instance.deckOnly.value) {
+          return StreamDeckPage(
+            onToggleFullscreen: controller.toggleFullscreen,
+            isFullscreen: controller.isFullscreen.value,
+          );
+        }
+
         return PageView(
           controller: _pageController,
           onPageChanged: (index) {
@@ -109,7 +124,8 @@ class HomePageState extends State<HomePage> {
         );
       }),
       bottomNavigationBar: Watch((context) {
-        if (controller.isFullscreen.value) {
+        if (controller.isFullscreen.value ||
+            ThemeController.instance.deckOnly.value) {
           return const SizedBox.shrink();
         }
         return BottomNavigationBar(
@@ -124,7 +140,6 @@ class HomePageState extends State<HomePage> {
             ),
           ],
           currentIndex: selectedIndex,
-          selectedItemColor: Colors.blueAccent,
           onTap: (val) {
             _pageController.animateToPage(
               val,

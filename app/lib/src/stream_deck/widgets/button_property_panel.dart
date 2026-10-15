@@ -641,11 +641,11 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                     onChanged: (v) =>
                         setState(() => _mediaCommand = v ?? 'playpause'),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 6),
                     child: Text(
                       'Controla a mídia que está tocando no PC (Spotify, YouTube, navegador…).',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ],
@@ -664,20 +664,20 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                         .toList(),
                     onChanged: (val) => setState(() => _targetProfileId = val),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 6),
                     child: Text(
                       'Ao tocar, abre esse perfil como uma pasta (use um botão BACK para voltar).',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ],
                 if (_selectedActionType == 'back') ...[
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       'Botão de voltar: retorna para a pasta/perfil anterior.',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ],
@@ -814,7 +814,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blueAccent),
+                            border: Border.all(color: Theme.of(context).colorScheme.primary),
                             borderRadius: BorderRadius.circular(8),
                             color: Colors.black12,
                           ),
@@ -1151,7 +1151,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text('Canal salvo: ${_dcChannelName!}',
-                style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
       ]);
     } else if (op == 'userMute' || op == 'userVolume') {
@@ -1219,10 +1219,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       ));
     }
 
-    fields.add(const Padding(
+    fields.add(Padding(
       padding: EdgeInsets.only(top: 6),
       child: Text('Requer o Discord conectado no PC (config do DroidDeck).',
-          style: TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ));
     return fields;
   }
@@ -1257,10 +1257,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     ];
 
     if (_soundOperation == 'stop') {
-      fields.add(const Padding(
+      fields.add(Padding(
         padding: EdgeInsets.only(top: 6),
         child: Text('Para qualquer som que estiver tocando na soundboard.',
-            style: TextStyle(fontSize: 11, color: Colors.grey)),
+            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ));
       return fields;
     }
@@ -1388,12 +1388,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       ));
     }
 
-    fields.add(const Padding(
+    fields.add(Padding(
       padding: EdgeInsets.only(top: 6),
       child: Text(
           'O som toca no PC e sai pelo dispositivo configurado (cabo p/ Discord/OBS + monitor). '
           'Configure a saída em Configurações › Soundboard.',
-          style: TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ));
     return fields;
   }
@@ -1448,9 +1448,9 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     fields.addAll(_loadDiscordSoundsButtonRow());
 
     if (_dcSounds.isEmpty && !_dcSoundsLoading) {
-      fields.add(const Text(
+      fields.add(Text(
         'Nenhum som carregado. Conecte o Discord no PC, entre num canal de voz e toque em recarregar.',
-        style: TextStyle(fontSize: 12, color: Colors.grey),
+        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ));
     } else if (_dcSounds.isNotEmpty) {
       fields.add(ConstrainedBox(
@@ -1492,12 +1492,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       ));
     }
 
-    fields.add(const Padding(
+    fields.add(Padding(
       padding: EdgeInsets.only(top: 6),
       child: Text(
           'Toca a soundboard NATIVA do Discord no canal de voz atual (sem cabo). '
           'Você precisa estar num canal de voz. Não sai na live/OBS.',
-          style: TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ));
     return fields;
   }
@@ -1881,10 +1881,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         ),
       ],
       const SizedBox(height: 8),
-      const Text(
+      Text(
         'O estado do botao acompanha o aparelho em tempo real; use "Cor ativa" '
         'para ele acender quando estiver ligado.',
-        style: TextStyle(fontSize: 11, color: Colors.grey),
+        style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     ];
   }
@@ -1911,7 +1911,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         onChanged: (v) => setState(() => _tuyaValue = '${v.round()}'),
       ),
       Text('Faixa: ${min.round()} a ${max.round()}$unit',
-          style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ];
   }
 
@@ -2045,10 +2045,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       ));
     }
 
-    fields.add(const Padding(
+    fields.add(Padding(
       padding: EdgeInsets.only(top: 6),
       child: Text('Requer o OBS aberto e conectado (config do DroidDeck).',
-          style: TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ));
     return fields;
   }
@@ -2088,25 +2088,26 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   /// Mostra lado a lado como o botão fica desligado x ativo (com a cor escolhida).
   Widget _buildTogglePreview() {
     final icons = _previewIcons();
-    Widget chip(String label, Color color, IconData icon) {
+    // Mesmo DeckTile do deck: a prévia acompanha o estilo do tema atual.
+    Widget chip(String label, bool active, IconData icon) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
+          SizedBox(
             width: 56,
             height: 56,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
-                BoxShadow(blurRadius: 3, color: Colors.black38)
-              ],
+            child: DeckTile(
+              color: _selectedColor,
+              active: active,
+              activeColor: _activeColor,
+              child: Icon(icon, size: 26),
             ),
-            child: Icon(icon, color: Colors.white, size: 26),
           ),
           const SizedBox(height: 4),
           Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.white70)),
+              style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       );
     }
@@ -2114,15 +2115,16 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.black26,
+        color: DeckTheme.of(context).background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          chip('Desligado', _selectedColor, icons.$1),
-          const Icon(Icons.arrow_forward, color: Colors.white38, size: 20),
-          chip('Ativo', _activeColor, icons.$2),
+          chip('Desligado', false, icons.$1),
+          Icon(Icons.arrow_forward,
+              color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+          chip('Ativo', true, icons.$2),
         ],
       ),
     );
@@ -2153,14 +2155,14 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         height: 40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.withValues(alpha: 0.3) : Colors.grey[800],
+          color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3) : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(4),
           border: isSelected
-              ? Border.all(color: Colors.blue)
-              : Border.all(color: Colors.white10),
+              ? Border.all(color: Theme.of(context).colorScheme.primary)
+              : Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: iconName == null
-            ? const Icon(Icons.block, color: Colors.white54)
+            ? Icon(Icons.block, color: Theme.of(context).colorScheme.onSurfaceVariant)
             : Icon(_getIconData(iconName), color: Colors.white),
       ),
     );

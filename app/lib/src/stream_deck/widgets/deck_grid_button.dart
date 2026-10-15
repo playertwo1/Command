@@ -195,9 +195,11 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     });
   }
 
-  /// Cor exibida quando o botão está "ativo" (toggle ligado). Configurável; padrão vermelho.
-  Color _activeColor() =>
-      _parseColor(widget.button.activeColor) ?? Colors.red[900]!;
+  /// Cor exibida quando o botão está "ativo" (toggle ligado). Configurável; nula
+  /// usa a do tema.
+  Color? _activeColor() => _parseColor(widget.button.activeColor);
+
+  Color? get _color => _parseColor(widget.button.backgroundColor);
 
   /// Atualiza o estado local na hora do toque (otimista): o botão pinta imediatamente,
   /// sem depender da volta do broadcast. O broadcast do backend confirma/corrige depois.
@@ -263,47 +265,34 @@ class _DeckGridButtonState extends State<DeckGridButton> {
   }
 
   Widget _render(bool? muted) {
-    final baseColor = _parseColor(widget.button.backgroundColor) ?? Colors.grey[850];
-    final bg = muted == true ? _activeColor() : baseColor;
     // Label: o do botão; se vazio e for mídia, usa o rótulo padrão do comando.
     final label = (widget.button.label != null && widget.button.label!.isNotEmpty)
         ? widget.button.label!
         : (_mediaCommand != null ? _mediaDefaultLabel(_mediaCommand!) : null);
 
-    return GestureDetector(
+    return DeckTile(
+      color: _color,
+      active: muted == true,
+      activeColor: _activeColor(),
       onTap: _handleTap,
       onLongPress: widget.onLongPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildIcon(muted),
+          if (label != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 10,
+                overflow: TextOverflow.ellipsis,
+              ),
+              maxLines: 2,
             ),
           ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildIcon(muted),
-            if (label != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                maxLines: 2,
-              ),
-            ],
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -353,42 +342,27 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       defLabel = 'Mute';
     }
 
-    final baseColor =
-        _parseColor(widget.button.backgroundColor) ?? Colors.grey[850];
-    final bg = active ? _activeColor() : baseColor;
     final label =
         (widget.button.label != null && widget.button.label!.isNotEmpty)
             ? widget.button.label!
             : defLabel;
-    return GestureDetector(
+    return DeckTile(
+      color: _color,
+      active: active,
+      activeColor: _activeColor(),
       onTap: _handleTap,
       onLongPress: widget.onLongPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 30, color: Colors.white),
-            const SizedBox(height: 4),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    overflow: TextOverflow.ellipsis),
-                maxLines: 2),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 30),
+          const SizedBox(height: 4),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 10, overflow: TextOverflow.ellipsis),
+              maxLines: 2),
+        ],
       ),
     );
   }
@@ -411,87 +385,70 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     final level = tuyaLevel(status, functions, code);
     final rgb = tuyaColor(status);
 
-    final baseColor = _parseColor(widget.button.backgroundColor) ?? Colors.grey[850];
-    // Cor real do RGB tem prioridade sobre a "cor ativa" configurada: se o usuário
-    // pintou a sala de roxo, o botão mostra roxo. Só faz sentido com o aparelho aceso.
-    final bg = !on ? baseColor : (rgb ?? _activeColor());
-
-    // Sobre fundo claro (RGB pode ser amarelo/branco) o texto branco some.
-    final fg = bg != null && bg.computeLuminance() > 0.55 ? Colors.black87 : Colors.white;
-
     final label = (widget.button.label != null && widget.button.label!.isNotEmpty)
         ? widget.button.label!
         : (device?['name'] as String?);
 
-    return GestureDetector(
+    // Cor real do RGB tem prioridade sobre a "cor ativa" configurada: se o usuário
+    // pintou a sala de roxo, o botão mostra roxo. Só faz sentido com o aparelho aceso.
+    // Sobre fundo claro o DeckTile já troca o texto para escuro.
+    return DeckTile(
+      color: _color,
+      active: on,
+      activeColor: rgb ?? _activeColor(),
       onTap: _handleTap,
       onLongPress: widget.onLongPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Stack(
-            children: [
-              // Preenchimento proporcional ao nível, subindo do rodapé. Some quando o
-              // aparelho está apagado — nível de luz apagada não significa nada.
-              if (level != null && on)
-                Positioned.fill(
-                  child: FractionallySizedBox(
-                    alignment: Alignment.bottomCenter,
-                    heightFactor: level,
-                    child: Container(
-                      color: fg.withValues(alpha: 0.18),
-                    ),
+      child: Builder(builder: (context) {
+        final fg = DeckTile.foregroundOf(context);
+        return Stack(
+          children: [
+            // Preenchimento proporcional ao nível, subindo do rodapé. Some quando o
+            // aparelho está apagado — nível de luz apagada não significa nada.
+            if (level != null && on)
+              Positioned.fill(
+                child: FractionallySizedBox(
+                  alignment: Alignment.bottomCenter,
+                  heightFactor: level,
+                  child: Container(
+                    color: fg.withValues(alpha: 0.18),
                   ),
                 ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      tuyaIconFor(device?['category'] as String?, on),
-                      color: fg,
-                      size: 24,
-                    ),
-                    if (label != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: fg,
-                          fontSize: 10,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ],
-                    if (level != null && on)
-                      Text(
-                        '${(level * 100).round()}%',
-                        style: TextStyle(
-                          color: fg.withValues(alpha: 0.85),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                  ],
-                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    tuyaIconFor(device?['category'] as String?, on),
+                    size: 24,
+                  ),
+                  if (label != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ],
+                  if (level != null && on)
+                    Text(
+                      '${(level * 100).round()}%',
+                      style: TextStyle(
+                        color: fg.withValues(alpha: 0.85),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -543,41 +500,26 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         defLabel = 'OBS';
     }
 
-    final baseColor =
-        _parseColor(widget.button.backgroundColor) ?? Colors.grey[850];
-    final bg = active ? _activeColor() : baseColor;
     final label = (widget.button.label != null && widget.button.label!.isNotEmpty)
         ? widget.button.label!
         : defLabel;
-    return GestureDetector(
+    return DeckTile(
+      color: _color,
+      active: active,
+      activeColor: _activeColor(),
       onTap: _handleTap,
       onLongPress: widget.onLongPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 30, color: Colors.white),
-            const SizedBox(height: 4),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    overflow: TextOverflow.ellipsis),
-                maxLines: 2),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 30),
+          const SizedBox(height: 4),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 10, overflow: TextOverflow.ellipsis),
+              maxLines: 2),
+        ],
       ),
     );
   }
@@ -586,7 +528,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     // Toggle de mute: o ícone reflete o estado real.
     if (muted != null) {
       return Icon(muted ? Icons.volume_off : Icons.volume_up,
-          size: 32, color: Colors.white);
+          size: 32);
     }
     if (widget.button.iconBase64 != null &&
         widget.button.iconBase64!.isNotEmpty) {
@@ -594,12 +536,12 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     }
     if (widget.button.iconName != null && widget.button.iconName!.isNotEmpty) {
       return Icon(_getIconData(widget.button.iconName!),
-          size: 32, color: Colors.white);
+          size: 32);
     }
     // Botão de volume de dispositivo sem ícone custom: o ícone sai da operação.
     final mv = _mixerVolumeOp;
     if (mv != null) {
-      return Icon(_mixerVolumeIconData(mv), size: 32, color: Colors.white);
+      return Icon(_mixerVolumeIconData(mv), size: 32);
     }
     // Botão de mídia sem ícone custom: usa o ícone do comando.
     final mc = _mediaCommand;
@@ -608,11 +550,14 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         // Reativo: pause quando tocando, play quando pausado (dentro do Watch do build).
         final playing = Injector.get<SignalRService>().mediaPlaying.value;
         return Icon(playing ? Icons.pause : Icons.play_arrow,
-            size: 32, color: Colors.white);
+            size: 32);
       }
-      return Icon(_mediaIconData(mc), size: 32, color: Colors.white);
+      return Icon(_mediaIconData(mc), size: 32);
     }
-    return const Icon(Icons.touch_app, size: 32, color: Colors.white54);
+    return Builder(
+        builder: (context) => Icon(Icons.touch_app,
+            size: 32,
+            color: DeckTile.foregroundOf(context).withValues(alpha: 0.54)));
   }
 
   Widget _buildBase64Icon() {
@@ -630,7 +575,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
             const Icon(Icons.error, color: Colors.red),
       );
     } catch (_) {
-      return const Icon(Icons.broken_image, color: Colors.white54);
+      return const Icon(Icons.broken_image);
     }
   }
 

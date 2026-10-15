@@ -29,20 +29,22 @@ class CompanionCoreConfig extends StatelessWidget {
         return AsyncStateBuilder(
           loader: CompanionLoader(),
           builder: (navigatorObserver) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              routes: routes,
-              title: title,
-              navigatorObservers: [
-                navigatorObserver,
-                flutterGetItNavObserver,
-              ],
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              darkTheme: ThemeData.dark(),
-              themeMode: ThemeMode.system,
-            );
+            // Reconstrói o app quando a aparência muda (tela Aparência).
+            return Watch((context) {
+              final theme = ThemeController.instance.settings.value;
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                routes: routes,
+                title: title,
+                navigatorObservers: [
+                  navigatorObserver,
+                  flutterGetItNavObserver,
+                ],
+                theme: buildAppTheme(theme, Brightness.light),
+                darkTheme: buildAppTheme(theme, Brightness.dark),
+                themeMode: theme.mode,
+              );
+            });
           },
         );
       },

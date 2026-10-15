@@ -7,7 +7,10 @@ import 'src/home/home_page.dart';
 import 'src/config/config_page.dart';
 import 'src/welcome/welcome_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Carrega o tema antes do primeiro frame para não piscar o padrão.
+  await ThemeController.instance.load();
   runApp(const MyApp());
 }
 

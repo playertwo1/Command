@@ -15,15 +15,15 @@ class DynamicDeckButton extends StatelessWidget {
     required this.onLongPress,
   });
 
-  Color _safeParseColor(String? hexString) {
-    if (hexString == null || hexString.isEmpty) return Colors.grey[800]!;
+  Color? _parseColor(String? hexString) {
+    if (hexString == null || hexString.isEmpty) return null;
     try {
       final buffer = StringBuffer();
       if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
       buffer.write(hexString.replaceFirst('#', ''));
       return Color(int.parse(buffer.toString(), radix: 16));
     } catch (_) {
-      return Colors.grey[800]!;
+      return null;
     }
   }
 
@@ -44,31 +44,19 @@ class DynamicDeckButton extends StatelessWidget {
     final signalR = Injector.get<SignalRService>();
     final stats = signalR.systemStats.watch(context);
 
-    // Common Container Styles
-    final bgColor = _safeParseColor(button.backgroundColor);
-
-    return InkWell(
+    return DeckTile(
+      color: _parseColor(button.backgroundColor),
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black45, offset: Offset(2, 2), blurRadius: 4),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: _buildDynamicContent(context, stats, button.dynamicType!),
-        ),
-      ),
+      child: _buildDynamicContent(context, stats, button.dynamicType!),
     );
   }
 
   Widget _buildDynamicContent(
-      BuildContext context, SystemStats stats, String type) {
+    BuildContext context,
+    SystemStats stats,
+    String type,
+  ) {
     switch (type) {
       case 'cpu_monitor':
         return _buildCpuMonitor(stats);
@@ -79,9 +67,7 @@ class DynamicDeckButton extends StatelessWidget {
       case 'network_monitor':
         return _buildNetworkMonitor(stats);
       default:
-        return Center(
-            child:
-                Text('Unknown: $type', style: TextStyle(color: Colors.white)));
+        return Center(child: Text('Unknown: $type'));
     }
   }
 
@@ -126,18 +112,27 @@ class DynamicDeckButton extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.swap_vert, color: Colors.white, size: 18),
-          Text('↓ ${_fmtRate(stats.netDown)}',
-              style: const TextStyle(
-                  color: Colors.greenAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12)),
-          Text('↑ ${_fmtRate(stats.netUp)}',
-              style: const TextStyle(
-                  color: Colors.lightBlueAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12)),
-          const Text('NET', style: TextStyle(color: Colors.white70, fontSize: 9)),
+          const Icon(Icons.swap_vert, size: 18),
+          Text(
+            '↓ ${_fmtRate(stats.netDown)}',
+            style: const TextStyle(
+              color: Colors.greenAccent,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+          Text(
+            '↑ ${_fmtRate(stats.netUp)}',
+            style: const TextStyle(
+              color: Colors.lightBlueAccent,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+          const Opacity(
+            opacity: 0.7,
+            child: Text('NET', style: TextStyle(fontSize: 9)),
+          ),
         ],
       ),
     );
@@ -165,6 +160,7 @@ class DynamicDeckButton extends StatelessWidget {
     final color = _usageColor(percent);
     return LayoutBuilder(
       builder: (context, c) {
+        final fg = DeckTile.foregroundOf(context);
         final small = c.maxWidth < 70 || c.maxHeight < 70;
         return Stack(
           alignment: Alignment.center,
@@ -175,26 +171,39 @@ class DynamicDeckButton extends StatelessWidget {
                 child: CircularProgressIndicator(
                   value: p,
                   strokeWidth: small ? 4 : 6,
-                  backgroundColor: Colors.white12,
+                  backgroundColor: fg.withValues(alpha: 0.12),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                 ),
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: Colors.white, size: small ? 14 : 18),
-                Text(value,
-                    style: TextStyle(
-                        color: Colors.white,
+            // Encolhe o texto para caber dentro do anel em botões pequenos.
+            Padding(
+              padding: EdgeInsets.all(small ? 10 : 14),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: small ? 14 : 18),
+                    Text(
+                      value,
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: small ? 12 : 15)),
-                Text(label,
-                    style: TextStyle(
-                        color: Colors.white70, fontSize: small ? 8 : 9),
-                    maxLines: 1,
-                    overflow: TextOverflow.clip),
-              ],
+                        fontSize: small ? 12 : 15,
+                      ),
+                    ),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: fg.withValues(alpha: 0.7),
+                        fontSize: small ? 8 : 9,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );

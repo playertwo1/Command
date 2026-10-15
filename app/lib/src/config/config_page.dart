@@ -10,6 +10,7 @@ import 'discord_settings_page.dart';
 import 'obs_settings_page.dart';
 import 'tuya_settings_page.dart';
 import 'soundboard_settings_page.dart';
+import 'appearance_settings_page.dart';
 import '../welcome/welcome_page.dart';
 
 class ConfigPage extends StatefulWidget {
@@ -196,6 +197,16 @@ class ConfigPageState extends State<ConfigPage> {
               child: const Text('Salvar'),
             ),
             const Divider(height: 32),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.palette_outlined),
+              title: const Text('Aparência'),
+              subtitle: const Text('Tema, modo claro/escuro, cores e estilo dos botões'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),
+              ),
+            ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.discord),

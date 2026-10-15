@@ -155,9 +155,9 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Ao conectar pela 1ª vez, aprove a janela que abrir no Discord do PC.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ))),
@@ -248,10 +248,10 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Cada usuário usa o próprio app — o RPC do Discord só libera o dono do app, '
             'sem precisar de aprovação. Não compartilhe o seu Secret.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),

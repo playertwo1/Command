@@ -24,10 +24,13 @@ class AudioPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: onToggleFullscreen,
         mini: true,
-        backgroundColor: Colors.black45,
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withValues(alpha: 0.7),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         child: Icon(
           isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-          color: Colors.white,
         ),
       ),
       appBar: isFullscreen
@@ -132,31 +135,38 @@ class AudioPage extends StatelessWidget {
   }
 
   Widget _header(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey),
-          const SizedBox(width: 8),
-          Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              fontSize: 12,
-              letterSpacing: 0.5,
+    return Builder(builder: (context) {
+      final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: muted),
+            const SizedBox(width: 8),
+            Text(
+              title.toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: muted,
+                fontSize: 12,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _empty(String msg) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Center(
-        child: Text(msg, style: const TextStyle(color: Colors.grey)),
+    return Builder(
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: Text(msg,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ),
       ),
     );
   }

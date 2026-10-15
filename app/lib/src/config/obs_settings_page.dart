@@ -138,17 +138,17 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                       minimumSize: const Size.fromHeight(48)),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Jeito mais fácil: no OBS, "Mostrar Informações de Conexão" e aponte a câmera.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
-                const Row(children: [
+                Row(children: [
                   Expanded(child: Divider()),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Text('ou manualmente',
-                        style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                   ),
                   Expanded(child: Divider()),
                 ]),
@@ -214,9 +214,9 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'O OBS precisa estar aberto. A conexão é local (ws://host:porta).',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -268,8 +268,8 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
           step('2', 'Marque "Ativar Servidor WebSocket". Anote a Porta (padrão 4455).'),
           step('3', 'Se "Ativar Autenticação" estiver ligado, clique em "Mostrar Informações de Conexão" e copie a Senha.'),
           const SizedBox(height: 8),
-          const Text('Sem senha? Deixe o campo vazio.',
-              style: TextStyle(fontSize: 12, color: Colors.grey)),
+          Text('Sem senha? Deixe o campo vazio.',
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       ),
     );

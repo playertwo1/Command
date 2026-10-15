@@ -138,8 +138,6 @@ class WelcomePage extends StatelessWidget {
                 icon: const Icon(Icons.qr_code_scanner),
                 label: const Text('Já instalei no PC: parear'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -174,10 +172,11 @@ class _Step extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 14,
-            backgroundColor: Colors.amber,
+            backgroundColor: theme.colorScheme.primary,
             child: Text('$number',
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: theme.colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -209,10 +208,10 @@ class _SiteBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.amber.withValues(alpha: 0.12),
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.amber.withValues(alpha: 0.6)),
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),

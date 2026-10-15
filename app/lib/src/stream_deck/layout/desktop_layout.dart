@@ -5,6 +5,7 @@ import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/src/config/discord_settings_page.dart';
 import 'package:companion/src/config/obs_settings_page.dart';
 import 'package:companion/src/config/soundboard_settings_page.dart';
+import 'package:companion/src/config/appearance_settings_page.dart';
 import 'package:companion/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
@@ -45,8 +46,8 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
           Container(
             width: 250,
             decoration: BoxDecoration(
-              color: Colors.grey[900],
-              border: Border(right: BorderSide(color: Colors.white10)),
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              border: Border(right: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
             ),
             child: Column(
               children: [
@@ -54,7 +55,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                   padding: const EdgeInsets.all(16.0),
                   child: Text('PROFILES',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.grey, fontWeight: FontWeight.bold)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -68,8 +69,8 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                             Theme.of(context).primaryColor.withValues(alpha: 0.2),
                         title: Text(profile.name),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete,
-                              size: 20, color: Colors.white54),
+                          icon: Icon(Icons.delete,
+                              size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           tooltip: 'Delete Profile',
                           onPressed: () => _deleteProfile(profile),
                         ),
@@ -83,7 +84,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     },
                   ),
                 ),
-                Divider(color: Colors.white10),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton.icon(
@@ -106,7 +107,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     label: const Text('Configurar Discord'),
                     style: TextButton.styleFrom(
                       minimumSize: const Size(double.infinity, 36),
-                      foregroundColor: Colors.white70,
+                      foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -120,7 +121,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     label: const Text('Configurar OBS'),
                     style: TextButton.styleFrom(
                       minimumSize: const Size(double.infinity, 36),
-                      foregroundColor: Colors.white70,
+                      foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -135,7 +136,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     label: const Text('Configurar Soundboard'),
                     style: TextButton.styleFrom(
                       minimumSize: const Size(double.infinity, 36),
-                      foregroundColor: Colors.white70,
+                      foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -146,7 +147,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
           // Center: Grid
           Expanded(
             child: Container(
-              color: Colors.black87,
+              color: DeckTheme.of(context).background,
               child: Stack(
                 children: [
                   Center(
@@ -208,6 +209,14 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                           ),
                         ),
                         IconButton(
+                          icon: const Icon(Icons.palette_outlined),
+                          tooltip: 'Aparência',
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const AppearanceSettingsPage()),
+                          ),
+                        ),
+                        IconButton(
                           icon: Icon(Icons.edit),
                           tooltip: 'Rename Profile',
                           onPressed: () => _renameProfile(currentProfile),
@@ -230,8 +239,8 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
           Container(
             width: 350,
             decoration: BoxDecoration(
-              color: Colors.grey[900],
-              border: Border(left: BorderSide(color: Colors.white10)),
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              border: Border(left: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
             ),
             child: _selectedButton == null
                 ? const Center(child: Text('Select a button to edit'))
@@ -271,7 +280,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
         children: [
           Text(
             'Grade do celular: $cols × $rows (definida pelo aparelho)  ·  arraste para mover/trocar',
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
           ),
           const SizedBox(height: 16),
           Center(
@@ -321,7 +330,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
           border: Border.all(
             color: highlight
                 ? Colors.greenAccent
-                : (isSelectedPos ? Colors.blueAccent : Colors.transparent),
+                : (isSelectedPos ? Theme.of(context).colorScheme.primary : Colors.transparent),
             width: 3,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -334,14 +343,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                 DeckButton(id: '', row: row, column: col, label: '', action: null)),
             child: Container(
               decoration: decoration,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: const Icon(Icons.add, color: Colors.white24),
-              ),
+              child: const DeckEmptyTile(),
             ),
           );
         }

@@ -12,7 +12,7 @@ final class CompanionLoader extends AsyncOverlay {
                   child: SizedBox(
                       width: MediaQuery.sizeOf(context).width * .8,
                       child: LoadingAnimationWidget.staggeredDotsWave(
-                        color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 50,
                       )));
             });

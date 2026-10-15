@@ -85,7 +85,7 @@ class SplashPageState extends State<SplashPage> {
             ),
             const SizedBox(height: 200),
             LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.yellow,
+              color: Theme.of(context).colorScheme.primary,
               size: 50,
             ),
           ],

@@ -219,9 +219,9 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
             const Text('Escaneie com o app Smart Life',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Aba "Home" → ícone de scan no topo direito.',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -256,11 +256,11 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
             ),
           ),
           if (devices.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
                 'Nenhum dispositivo. Se acabou de adicionar um no app, toque em atualizar.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           ...devices.map((d) {
@@ -281,11 +281,11 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
             );
           }),
           const SizedBox(height: 8),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: Text(
               'Atualizar consome cota da API da Tuya — use só ao adicionar aparelhos.',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
+              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ],

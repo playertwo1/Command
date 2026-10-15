@@ -216,10 +216,10 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
           step('3', 'No Discord: Configurações de Voz → Dispositivo de entrada = "CABLE Output".'),
           step('4', 'No OBS: adicione uma "Captura de Entrada de Áudio" do "CABLE Output".'),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Quer sua voz + os sons juntos no Discord? Use o Voicemeeter pra mixar mic + soundboard '
             'numa saída virtual só. Na live/OBS mic e cabo entram como fontes separadas.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),

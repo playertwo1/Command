@@ -105,11 +105,11 @@ class _MediaControlWidgetState extends State<MediaControlWidget> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.music_note,
-                        size: 32, color: Colors.grey),
+                    child: Icon(Icons.music_note,
+                        size: 32, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 const SizedBox(width: 12),
                 // Track and artist
@@ -194,10 +194,10 @@ class _MediaControlWidgetState extends State<MediaControlWidget> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.music_note, size: 32, color: Colors.grey),
+              child: Icon(Icons.music_note, size: 32, color: Theme.of(context).colorScheme.onSurfaceVariant),
             );
           },
         ),
@@ -207,10 +207,10 @@ class _MediaControlWidgetState extends State<MediaControlWidget> {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.music_note, size: 32, color: Colors.grey),
+        child: Icon(Icons.music_note, size: 32, color: Theme.of(context).colorScheme.onSurfaceVariant),
       );
     }
   }

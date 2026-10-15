@@ -208,17 +208,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         column: col,
         action: DeckAction(type: 'none'),
       );
-      return InkWell(
+      return DeckEmptyTile(
         onTap: () => _editButton(novo),
         onLongPress: () => _editButton(novo),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[800]!),
-          ),
-          child: const Center(child: Icon(Icons.add, color: Colors.grey)),
-        ),
       );
     }
     return DynamicDeckButton(
@@ -261,7 +253,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.grid_off, size: 48, color: Colors.grey),
+            Icon(Icons.grid_off,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             const Text('No profiles found'),
             const SizedBox(height: 16),
@@ -282,13 +276,17 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     }
 
     return Scaffold(
+      backgroundColor: DeckTheme.of(context).background,
       floatingActionButton: FloatingActionButton(
         onPressed: widget.onToggleFullscreen,
         mini: true,
-        backgroundColor: Colors.black45,
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withValues(alpha: 0.7),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         child: Icon(
           widget.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-          color: Colors.white,
         ),
       ),
       appBar: widget.isFullscreen
@@ -346,7 +344,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                           decoration: BoxDecoration(
                             color: color,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                            border: Border.all(
+                                color: Theme.of(context).colorScheme.surface,
+                                width: 2),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black26,
@@ -361,7 +361,8 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings),
+                  icon: const Icon(Icons.edit),
+                  tooltip: 'Renomear perfil',
                   onPressed: () {
                     // Rename Profile Dialog
                     final nameController =
@@ -403,6 +404,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                       ),
                     );
                   },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  tooltip: 'Configurações',
+                  onPressed: () => Navigator.of(context).pushNamed('/config'),
                 ),
               ],
             ),
@@ -468,7 +474,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                 if (_navStack.isNotEmpty && _folderProfile(profiles) != null)
                   Positioned.fill(
                     child: Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
+                      color: DeckTheme.of(context).background,
                       child: _buildButtonGrid(
                           _folderProfile(profiles)!, profiles, g),
                     ),
