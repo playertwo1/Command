@@ -66,9 +66,9 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
         monitorEnabled: _monitorEnabled,
         volume: _volume.round(),
       );
-      _snack('Configuração da soundboard salva.');
+      _snack(tr('Configuração da soundboard salva.'));
     } catch (_) {
-      _snack('Não foi possível salvar (servidor acessível?).');
+      _snack(tr('Não foi possível salvar (servidor acessível?).'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -95,9 +95,9 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
                     _guideCard(),
                     const SizedBox(height: 16),
                     _deviceDropdown(
-                      label: 'Saída "cabo" (vai pro Discord/OBS)',
-                      helper:
-                          'Ex.: "CABLE Input" (VB-Cable). Vazio = dispositivo padrão do Windows.',
+                      label: tr('Saída "cabo" (vai pro Discord/OBS)'),
+                      helper: tr(
+                          'Ex.: "CABLE Input" (VB-Cable). Vazio = dispositivo padrão do Windows.'),
                       value: _cableDeviceId,
                       allowNull: true,
                       onChanged: (v) => setState(() => _cableDeviceId = v),
@@ -105,23 +105,23 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
                     const SizedBox(height: 16),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Tocar também no monitor'),
-                      subtitle: const Text('Pra você ouvir o som (fone/alto-falante)'),
+                      title: Text(tr('Tocar também no monitor')),
+                      subtitle: Text(tr('Pra você ouvir o som (fone/alto-falante)')),
                       value: _monitorEnabled,
                       onChanged: (v) => setState(() => _monitorEnabled = v),
                     ),
                     if (_monitorEnabled) ...[
                       const SizedBox(height: 8),
                       _deviceDropdown(
-                        label: 'Saída "monitor"',
-                        helper: 'Seu fone/alto-falante.',
+                        label: tr('Saída "monitor"'),
+                        helper: tr('Seu fone/alto-falante.'),
                         value: _monitorDeviceId,
                         allowNull: false,
                         onChanged: (v) => setState(() => _monitorDeviceId = v),
                       ),
                     ],
                     const SizedBox(height: 24),
-                    Text('Volume: ${_volume.round()}%'),
+                    Text(tr('Volume: {percent}%', {'percent': _volume.round()})),
                     Slider(
                       value: _volume,
                       min: 0,
@@ -137,7 +137,7 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
                           child: OutlinedButton.icon(
                             onPressed: _busy ? null : _stopTest,
                             icon: const Icon(Icons.stop),
-                            label: const Text('Parar tudo'),
+                            label: Text(tr('Parar tudo')),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -150,7 +150,7 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
                                     height: 16,
                                     child: CircularProgressIndicator(strokeWidth: 2))
                                 : const Icon(Icons.save),
-                            label: const Text('Salvar'),
+                            label: Text(tr('Salvar')),
                           ),
                         ),
                       ],
@@ -172,8 +172,8 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
     final ids = _devices.map((d) => d['id']).toSet();
     final items = <DropdownMenuItem<String?>>[
       if (allowNull)
-        const DropdownMenuItem<String?>(
-            value: null, child: Text('Dispositivo padrão do Windows')),
+        DropdownMenuItem<String?>(
+            value: null, child: Text(tr('Dispositivo padrão do Windows'))),
       ..._devices.map((d) => DropdownMenuItem<String?>(
             value: d['id'],
             child: Text(d['name'] ?? d['id'] ?? '',
@@ -208,17 +208,17 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
     return Card(
       child: ExpansionTile(
         leading: const Icon(Icons.help_outline),
-        title: const Text('Como levar o som pro Discord / live'),
+        title: Text(tr('Como levar o som pro Discord / live')),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
-          step('1', 'Instale o VB-Cable (grátis) e reinicie o PC.'),
-          step('2', 'Aqui, escolha a saída "cabo" = "CABLE Input (VB-Audio Virtual Cable)".'),
-          step('3', 'No Discord: Configurações de Voz → Dispositivo de entrada = "CABLE Output".'),
-          step('4', 'No OBS: adicione uma "Captura de Entrada de Áudio" do "CABLE Output".'),
+          step('1', tr('Instale o VB-Cable (grátis) e reinicie o PC.')),
+          step('2', tr('Aqui, escolha a saída "cabo" = "CABLE Input (VB-Audio Virtual Cable)".')),
+          step('3', tr('No Discord: Configurações de Voz → Dispositivo de entrada = "CABLE Output".')),
+          step('4', tr('No OBS: adicione uma "Captura de Entrada de Áudio" do "CABLE Output".')),
           const SizedBox(height: 8),
           Text(
-            'Quer sua voz + os sons juntos no Discord? Use o Voicemeeter pra mixar mic + soundboard '
-            'numa saída virtual só. Na live/OBS mic e cabo entram como fontes separadas.',
+            tr('Quer sua voz + os sons juntos no Discord? Use o Voicemeeter pra mixar mic + soundboard '
+                'numa saída virtual só. Na live/OBS mic e cabo entram como fontes separadas.'),
             style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],

@@ -14,11 +14,11 @@ class AppearanceSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aparência'),
+        title: Text(tr('Aparência')),
         actions: [
           TextButton(
             onPressed: () => _set(const ThemeSettings()),
-            child: const Text('Restaurar'),
+            child: Text(tr('Restaurar')),
           ),
         ],
       ),
@@ -34,14 +34,37 @@ class AppearanceSettingsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            const _SectionTitle('Idioma'),
+            Watch((context) {
+              return SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(value: 'auto', label: Text(tr('Automático'))),
+                  const ButtonSegment(value: 'pt', label: Text('Português')),
+                  const ButtonSegment(value: 'en', label: Text('English')),
+                ],
+                selected: {AppLanguage.choice.value},
+                onSelectionChanged: (v) => AppLanguage.set(v.first),
+              );
+            }),
+            const SizedBox(height: 8),
+            Text(
+              tr('Automático segue o idioma do aparelho.'),
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
             const _SectionTitle('Layout'),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               secondary: const Icon(Icons.grid_view),
-              title: const Text('Só o deck'),
-              subtitle: const Text(
-                'Esconde o controle de áudio e abre o deck em tela cheia. '
-                'Toque no botão de tela cheia para ver o menu.',
+              title: Text(tr('Só o deck')),
+              subtitle: Text(
+                tr(
+                  'Esconde o controle de áudio e abre o deck em tela cheia. '
+                  'Toque no botão de tela cheia para ver o menu.',
+                ),
               ),
               value: _ctrl.deckOnly.value,
               onChanged: _ctrl.setDeckOnly,
@@ -49,10 +72,12 @@ class AppearanceSettingsPage extends StatelessWidget {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               secondary: const Icon(Icons.swap_horiz),
-              title: const Text('Seguir o app em foco'),
-              subtitle: const Text(
-                'Troca de perfil sozinho quando um app com perfil próprio ganha o '
-                'foco no PC (configure em Perfil → Abrir com o app em foco).',
+              title: Text(tr('Seguir o app em foco')),
+              subtitle: Text(
+                tr(
+                  'Troca de perfil sozinho quando um app com perfil próprio ganha o '
+                  'foco no PC (configure em Perfil → Abrir com o app em foco).',
+                ),
               ),
               value: _ctrl.autoProfile.value,
               onChanged: _ctrl.setAutoProfile,
@@ -61,8 +86,8 @@ class AppearanceSettingsPage extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.vibration),
-              title: const Text('Vibrar ao tocar'),
-              subtitle: const Text('Também vibra forte quando um timer termina.'),
+              title: Text(tr('Vibrar ao tocar')),
+              subtitle: Text(tr('Também vibra forte quando um timer termina.')),
             ),
             SegmentedButton<Haptics>(
               segments: [
@@ -75,21 +100,21 @@ class AppearanceSettingsPage extends StatelessWidget {
             const SizedBox(height: 16),
             const _SectionTitle('Modo'),
             SegmentedButton<ThemeMode>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: ThemeMode.system,
-                  icon: Icon(Icons.brightness_auto),
-                  label: Text('Sistema'),
+                  icon: const Icon(Icons.brightness_auto),
+                  label: Text(tr('Sistema')),
                 ),
                 ButtonSegment(
                   value: ThemeMode.light,
-                  icon: Icon(Icons.light_mode),
-                  label: Text('Claro'),
+                  icon: const Icon(Icons.light_mode),
+                  label: Text(tr('Claro')),
                 ),
                 ButtonSegment(
                   value: ThemeMode.dark,
-                  icon: Icon(Icons.dark_mode),
-                  label: Text('Escuro'),
+                  icon: const Icon(Icons.dark_mode),
+                  label: Text(tr('Escuro')),
                 ),
               ],
               selected: {s.mode},
@@ -125,7 +150,7 @@ class AppearanceSettingsPage extends StatelessWidget {
                 _Swatch(
                   color: s.preset.accent,
                   selected: s.accent == null,
-                  tooltip: 'Do tema',
+                  tooltip: tr('Do tema'),
                   badge: Icons.auto_awesome,
                   onTap: () => _set(s.copyWith(accent: () => null)),
                 ),
@@ -144,7 +169,7 @@ class AppearanceSettingsPage extends StatelessWidget {
               runSpacing: 8,
               children: [
                 ChoiceChip(
-                  label: Text('Do tema (${s.preset.tileStyle.label})'),
+                  label: Text(tr('Do tema ({style})', {'style': s.preset.tileStyle.label})),
                   selected: s.tileStyle == null,
                   onSelected: (_) => _set(s.copyWith(tileStyle: () => null)),
                 ),
@@ -158,8 +183,10 @@ class AppearanceSettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'No estilo Moldura e Contorno, a cor de cada botão vira a cor do '
-              'ícone e do detalhe do canto.',
+              tr(
+                'No estilo Moldura e Contorno, a cor de cada botão vira a cor do '
+                'ícone e do detalhe do canto.',
+              ),
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -181,7 +208,7 @@ class _SectionTitle extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
-        text.toUpperCase(),
+        tr(text).toUpperCase(),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
@@ -228,7 +255,7 @@ class _DeckPreview extends StatelessWidget {
     final tiles = [
       tile(Icons.play_arrow, 'YouTube', const Color(0xFFE53935)),
       tile(Icons.discord, 'Discord', const Color(0xFF5865F2)),
-      tile(Icons.mic_off, 'Mute', null, active: true),
+      tile(Icons.mic_off, tr('Mudo'), null, active: true),
       tile(Icons.volume_up, 'Volume', const Color(0xFFFDD835)),
       const DeckEmptyTile(),
     ];

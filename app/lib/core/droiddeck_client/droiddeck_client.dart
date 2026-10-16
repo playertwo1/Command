@@ -1,6 +1,6 @@
-import 'package:companion/core/i18n/i18n.dart';
 import 'dart:typed_data';
 
+import 'package:companion/core/i18n/i18n.dart';
 import 'package:dio/dio.dart';
 import 'models/mixer_data.dart';
 import 'models/software_data.dart';
@@ -166,7 +166,7 @@ class DroidDeckClient {
       final data = e.response?.data;
       final msg = (data is Map && data['error'] != null)
           ? '${data['error']}'
-          : 'Falha ao conectar — o Discord está aberto no PC?';
+          : tr('Falha ao conectar — o Discord está aberto no PC?');
       throw Exception(msg);
     }
   }
@@ -221,7 +221,7 @@ class DroidDeckClient {
       final data = e.response?.data;
       final msg = (data is Map && data['error'] != null)
           ? '${data['error']}'
-          : 'Falha ao conectar no OBS (obs-websocket ativo?)';
+          : tr('Falha ao conectar no OBS (obs-websocket ativo?)');
       throw Exception(msg);
     }
   }
@@ -244,7 +244,7 @@ class DroidDeckClient {
           .post('/api/tuya/pair/start', data: {'userCode': userCode});
       return (r.data as Map).cast<String, dynamic>();
     } on DioException catch (e) {
-      throw Exception(_tuyaError(e, 'Falha ao gerar o QR de pareamento'));
+      throw Exception(_tuyaError(e, tr('Falha ao gerar o QR de pareamento')));
     }
   }
 
@@ -255,7 +255,7 @@ class DroidDeckClient {
       final r = await _dio.post('/api/tuya/pair/poll');
       return (r.data as Map)['scanned'] == true;
     } on DioException catch (e) {
-      throw Exception(_tuyaError(e, 'Falha ao verificar o pareamento'));
+      throw Exception(_tuyaError(e, tr('Falha ao verificar o pareamento')));
     }
   }
 
@@ -265,7 +265,7 @@ class DroidDeckClient {
       final r = await _dio.post('/api/tuya/devices/refresh');
       return (r.data as Map).cast<String, dynamic>();
     } on DioException catch (e) {
-      throw Exception(_tuyaError(e, 'Falha ao atualizar os dispositivos'));
+      throw Exception(_tuyaError(e, tr('Falha ao atualizar os dispositivos')));
     }
   }
 
@@ -276,7 +276,7 @@ class DroidDeckClient {
       await _dio.post('/api/tuya/command',
           data: {'deviceId': deviceId, 'code': code, 'value': value});
     } on DioException catch (e) {
-      throw Exception(_tuyaError(e, 'Falha ao enviar o comando'));
+      throw Exception(_tuyaError(e, tr('Falha ao enviar o comando')));
     }
   }
 

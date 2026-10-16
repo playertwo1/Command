@@ -11,9 +11,15 @@ class ActionCatalog {
   final schemas = signal<List<ActionSchema>>(fallbackActionCatalog);
   Future<void>? _loading;
 
-  /// Busca o catálogo no PC. Chamadas repetidas reaproveitam a primeira.
+  /// Idioma em que o catálogo foi buscado: o PC manda os textos traduzidos.
+  String? _language;
+
+  /// Busca o catálogo no PC. Chamadas repetidas reaproveitam a primeira; trocar o
+  /// idioma do app busca de novo.
   Future<void> load({bool force = false}) {
-    if (force) _loading = null;
+    final language = AppLanguage.current.value;
+    if (force || language != _language) _loading = null;
+    _language = language;
     return _loading ??= _fetch();
   }
 

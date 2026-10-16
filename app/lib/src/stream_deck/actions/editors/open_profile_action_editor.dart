@@ -1,3 +1,4 @@
+import 'package:companion/core/core.dart';
 import 'package:companion/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -28,9 +29,9 @@ class _OpenProfileActionEditorState extends State<OpenProfileActionEditor> {
       children: [
         DropdownButtonFormField<String>(
           value: profiles.any((p) => p.id == _profileId) ? _profileId : null,
-          decoration: const InputDecoration(
-            labelText: 'Abrir pasta/perfil',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: tr('Abrir pasta/perfil'),
+            border: const OutlineInputBorder(),
           ),
           items: profiles
               .map((p) => DropdownMenuItem(value: p.id, child: Text(p.name)))
@@ -40,8 +41,8 @@ class _OpenProfileActionEditorState extends State<OpenProfileActionEditor> {
             widget.args.onChanged({if (val != null) 'profileId': val});
           },
         ),
-        const EditorHint(
-            'Ao tocar, abre esse perfil como uma pasta (use um botão Voltar para retornar).'),
+        EditorHint(
+            tr('Ao tocar, abre esse perfil como uma pasta (use um botão Voltar para retornar).')),
       ],
     );
   }

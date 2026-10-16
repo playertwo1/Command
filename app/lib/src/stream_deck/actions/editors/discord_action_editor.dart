@@ -105,8 +105,8 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
 
       final c = configured ? Colors.blueGrey : Colors.orange;
       final msg = configured
-          ? 'Discord configurado, mas desconectado. Abra o Discord no PC e conecte.'
-          : 'Discord não configurado — esta ação não vai funcionar até configurar o app do Discord.';
+          ? tr('Discord configurado, mas desconectado. Abra o Discord no PC e conecte.')
+          : tr('Discord não configurado — esta ação não vai funcionar até configurar o app do Discord.');
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(10),
@@ -125,7 +125,7 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const DiscordSettingsPage()),
               ),
-              child: const Text('Configurar'),
+              child: Text(tr('Configurar')),
             ),
           ],
         ),
@@ -141,31 +141,31 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
       DropdownButtonFormField<String>(
         value: _op,
         isExpanded: true,
-        decoration: const InputDecoration(
-            labelText: 'Ação do Discord', border: OutlineInputBorder()),
-        items: const [
+        decoration: InputDecoration(
+            labelText: tr('Ação do Discord'), border: const OutlineInputBorder()),
+        items: [
           DropdownMenuItem(
-              value: 'toggleMute', child: Text('Microfone (mute on/off)')),
+              value: 'toggleMute', child: Text(tr('Microfone (mutar/desmutar)'))),
           DropdownMenuItem(
-              value: 'toggleDeafen', child: Text('Ensurdecer (deafen on/off)')),
+              value: 'toggleDeafen', child: Text(tr('Ensurdecer (liga/desliga)'))),
           DropdownMenuItem(
-              value: 'joinChannel', child: Text('Entrar em canal de voz')),
+              value: 'joinChannel', child: Text(tr('Entrar em canal de voz'))),
           DropdownMenuItem(
-              value: 'disconnect', child: Text('Desconectar da voz')),
+              value: 'disconnect', child: Text(tr('Desconectar da voz'))),
           DropdownMenuItem(
-              value: 'inputVolumeUp', child: Text('Volume do mic  +')),
+              value: 'inputVolumeUp', child: Text(tr('Volume do mic  +'))),
           DropdownMenuItem(
-              value: 'inputVolumeDown', child: Text('Volume do mic  −')),
+              value: 'inputVolumeDown', child: Text(tr('Volume do mic  −'))),
           DropdownMenuItem(
-              value: 'outputVolumeUp', child: Text('Volume de saída  +')),
+              value: 'outputVolumeUp', child: Text(tr('Volume de saída  +'))),
           DropdownMenuItem(
-              value: 'outputVolumeDown', child: Text('Volume de saída  −')),
+              value: 'outputVolumeDown', child: Text(tr('Volume de saída  −'))),
           DropdownMenuItem(
-              value: 'toggleVoiceMode', child: Text('Alternar PTT / Voz')),
+              value: 'toggleVoiceMode', child: Text(tr('Alternar PTT / Voz'))),
           DropdownMenuItem(
-              value: 'userMute', child: Text('Mutar usuário (toggle)')),
+              value: 'userMute', child: Text(tr('Mutar usuário (alternar)'))),
           DropdownMenuItem(
-              value: 'userVolume', child: Text('Volume de usuário')),
+              value: 'userVolume', child: Text(tr('Volume de usuário'))),
         ],
         onChanged: (v) {
           _update(() => _op = v ?? 'toggleMute');
@@ -181,9 +181,9 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
           value: _guilds.any((g) => g['id'] == _guildId) ? _guildId : null,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Servidor',
+            labelText: tr('Servidor'),
             border: const OutlineInputBorder(),
-            helperText: _guilds.isEmpty ? 'Carregando…' : null,
+            helperText: _guilds.isEmpty ? tr('Carregando…') : null,
           ),
           items: _guilds
               .map((g) => DropdownMenuItem(
@@ -204,8 +204,8 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
           value:
               _channels.any((c) => c['id'] == _channelId) ? _channelId : null,
           isExpanded: true,
-          decoration: const InputDecoration(
-              labelText: 'Canal de voz', border: OutlineInputBorder()),
+          decoration: InputDecoration(
+              labelText: tr('Canal de voz'), border: const OutlineInputBorder()),
           items: _channels
               .map((c) => DropdownMenuItem(
                   value: c['id'],
@@ -219,7 +219,7 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
           }),
         ),
         if (_channelName != null && _channelName!.isNotEmpty)
-          EditorHint('Canal salvo: ${_channelName!}'),
+          EditorHint(tr('Canal salvo: {name}', {'name': _channelName!})),
       ]);
     } else if (op == 'userMute' || op == 'userVolume') {
       fields.addAll([
@@ -229,10 +229,10 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
               : null,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Usuário na call',
+            labelText: tr('Usuário na call'),
             border: const OutlineInputBorder(),
             helperText:
-                _participants.isEmpty ? 'Entre numa call pra listar' : null,
+                _participants.isEmpty ? tr('Entre numa call pra listar') : null,
           ),
           items: _participants.map((p) {
             final name = (p['nick'] ?? p['username'] ?? p['id']).toString();
@@ -252,11 +252,11 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
           child: TextButton.icon(
             onPressed: _loadParticipants,
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Atualizar lista'),
+            label: Text(tr('Atualizar lista')),
           ),
         ),
         if (op == 'userVolume') ...[
-          Text('Volume: $_value%'),
+          Text(tr('Volume: {value}%', {'value': _value})),
           Slider(
             value: _value.clamp(0, 200).toDouble(),
             min: 0,
@@ -270,7 +270,7 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
     } else if (op.toLowerCase().contains('volume')) {
       fields.add(Row(
         children: [
-          const Text('Passo: '),
+          Text(tr('Passo: ')),
           Expanded(
             child: Slider(
               value: _delta.clamp(1, 50).toDouble(),
@@ -286,8 +286,8 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
       ));
     }
 
-    fields.add(const EditorHint(
-        'Requer o Discord conectado no PC (config do DroidDeck).'));
+    fields.add(EditorHint(
+        tr('Requer o Discord conectado no PC (config do DroidDeck).')));
     return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch, children: fields);
   }

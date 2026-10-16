@@ -97,11 +97,11 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
   String _paramLabel(String type) {
     switch (type) {
       case 'launch_app':
-        return 'Caminho do app (.exe)';
+        return tr('Caminho do app (.exe)');
       case 'mute':
-        return 'Nome do app (processo)';
+        return tr('Nome do app (processo)');
       default:
-        return 'Teclas (ex.: ^C = Ctrl+C)';
+        return tr('Teclas (ex.: ^C = Ctrl+C)');
     }
   }
 
@@ -111,7 +111,7 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
     try {
       await client.postJson('/api/macro/start');
     } catch (_) {
-      _snack('Não foi possível gravar (só funciona no configurador do PC).');
+      _snack(tr('Não foi possível gravar (só funciona no configurador do PC).'));
       return;
     }
     if (!mounted) return;
@@ -123,11 +123,11 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
     if (stepsJson == null || !mounted) return;
     final recorded = _decode(stepsJson);
     if (recorded.isEmpty) {
-      _snack('Nenhuma tecla gravada.');
+      _snack(tr('Nenhuma tecla gravada.'));
       return;
     }
     _update(() => _steps.addAll(recorded));
-    _snack('${recorded.length} passo(s) gravado(s).');
+    _snack(tr('{n} passo(s) gravado(s).', {'n': recorded.length}));
   }
 
   void _snack(String m) =>
@@ -139,8 +139,8 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Passos (executados em sequência):',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(tr('Passos (executados em sequência):'),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ..._steps.map((step) {
           final k = step['_k'];
@@ -156,17 +156,17 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
                         child: DropdownButtonFormField<String>(
                           value: step['type'] as String,
                           isDense: true,
-                          decoration: const InputDecoration(
-                              labelText: 'Tipo', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                              labelText: tr('Tipo'), border: const OutlineInputBorder()),
                           items: [
-                            if (!remote) ...const [
+                            if (!remote) ...[
                               DropdownMenuItem(
-                                  value: 'hotkey', child: Text('Hotkey')),
+                                  value: 'hotkey', child: Text(tr('Atalho'))),
                               DropdownMenuItem(
-                                  value: 'launch_app', child: Text('Abrir app')),
+                                  value: 'launch_app', child: Text(tr('Abrir app'))),
                             ],
-                            const DropdownMenuItem(
-                                value: 'mute', child: Text('Mutar app')),
+                            DropdownMenuItem(
+                                value: 'mute', child: Text(tr('Mutar app'))),
                           ],
                           onChanged: (v) =>
                               _update(() => step['type'] = v ?? 'hotkey'),
@@ -198,10 +198,10 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
                     key: ValueKey('d$k'),
                     initialValue: (step['delayMs'] as int).toString(),
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Esperar antes (ms)',
+                    decoration: InputDecoration(
+                      labelText: tr('Esperar antes (ms)'),
                       isDense: true,
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     onChanged: (v) {
                       step['delayMs'] = int.tryParse(v) ?? 0;
@@ -224,14 +224,14 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
                     '_k': _seq++,
                   })),
               icon: const Icon(Icons.add),
-              label: const Text('Adicionar passo'),
+              label: Text(tr('Adicionar passo')),
             ),
             // Gravar lê o teclado do PC: só no configurador, no próprio PC.
             if (!remote)
               TextButton.icon(
                 onPressed: _record,
                 icon: const Icon(Icons.fiber_manual_record, color: Colors.redAccent),
-                label: const Text('Gravar do teclado'),
+                label: Text(tr('Gravar do teclado')),
               ),
           ],
         ),
@@ -294,19 +294,19 @@ class _RecordingDialogState extends State<_RecordingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Row(children: [
-        Icon(Icons.fiber_manual_record, color: Colors.redAccent),
-        SizedBox(width: 8),
-        Text('Gravando'),
+      title: Row(children: [
+        const Icon(Icons.fiber_manual_record, color: Colors.redAccent),
+        const SizedBox(width: 8),
+        Text(tr('Gravando')),
       ]),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Vá para o programa e digite a sequência no teclado do PC. '
-              'Pausas de mais de meio segundo viram espera entre os passos.'),
+          Text(tr('Vá para o programa e digite a sequência no teclado do PC. '
+              'Pausas de mais de meio segundo viram espera entre os passos.')),
           const SizedBox(height: 16),
-          Text('$_keys tecla(s) · ${_seconds}s de $_max s',
+          Text(tr('{keys} tecla(s) · {seconds}s de {max} s', {'keys': _keys, 'seconds': _seconds, 'max': _max}),
               style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
@@ -314,7 +314,7 @@ class _RecordingDialogState extends State<_RecordingDialog> {
         FilledButton.icon(
           onPressed: _stop,
           icon: const Icon(Icons.stop),
-          label: const Text('Parar'),
+          label: Text(tr('Parar')),
         ),
       ],
     );

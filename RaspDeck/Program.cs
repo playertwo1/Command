@@ -292,6 +292,9 @@ namespace DroidDeck
                             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{appName} {version}"));
                         }
 
+                        // Idioma da resposta (Accept-Language) para L.T.
+                        app.UseLanguage();
+
                         // Enable static files for Web Editor
                         app.UseDefaultFiles();
                         app.UseStaticFiles();

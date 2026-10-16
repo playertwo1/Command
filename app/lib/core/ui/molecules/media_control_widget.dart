@@ -118,7 +118,7 @@ class _MediaControlWidgetState extends State<MediaControlWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.session.title ?? 'Unknown Track',
+                        widget.session.title ?? tr('Faixa desconhecida'),
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -128,7 +128,7 @@ class _MediaControlWidgetState extends State<MediaControlWidget> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.session.artist ?? 'Unknown Artist',
+                        widget.session.artist ?? tr('Artista desconhecido'),
                         style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

@@ -104,18 +104,18 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
     if (!paired) {
       return Card(
         color: Colors.orange.withValues(alpha: 0.12),
-        child: const Padding(
-          padding: EdgeInsets.all(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Conta Tuya nao vinculada',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
+              Text(tr('Conta Tuya não vinculada'),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
               Text(
-                'Vincule sua conta Smart Life em Configuracoes -> Casa inteligente '
-                'para escolher um dispositivo.',
-                style: TextStyle(fontSize: 12),
+                tr('Vincule sua conta Smart Life em Configurações → Casa inteligente '
+                    'para escolher um dispositivo.'),
+                style: const TextStyle(fontSize: 12),
               ),
             ],
           ),
@@ -136,10 +136,10 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
               : null,
           isExpanded: true,
           decoration: InputDecoration(
-            labelText: 'Dispositivo',
+            labelText: tr('Dispositivo'),
             border: const OutlineInputBorder(),
             helperText: devices.isEmpty
-                ? 'Nenhum dispositivo -- atualize em Configuracoes'
+                ? tr('Nenhum dispositivo — atualize em Configurações')
                 : null,
           ),
           items: devices.map((d) {
@@ -147,7 +147,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
             return DropdownMenuItem(
               value: dev['id'] as String,
               child: Text(
-                '${dev['name']}${dev['online'] == true ? '' : ' (offline)'}',
+                dev['online'] == true ? '${dev['name']}' : tr('{name} (offline)', {'name': dev['name']}),
                 overflow: TextOverflow.ellipsis,
               ),
             );
@@ -166,9 +166,9 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
                 ? _code
                 : null,
             isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'O que controlar',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr('O que controlar'),
+              border: const OutlineInputBorder(),
             ),
             items: (device['functions'] as Map? ?? const {})
                 .entries
@@ -191,15 +191,15 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
           if (type == 'Boolean')
             DropdownButtonFormField<String>(
               value: _op,
-              decoration: const InputDecoration(
-                labelText: 'Acao',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: tr('Ação'),
+                border: const OutlineInputBorder(),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
-                    value: 'toggle', child: Text('Alternar (liga/desliga)')),
+                    value: 'toggle', child: Text(tr('Alternar (liga/desliga)'))),
                 DropdownMenuItem(
-                    value: 'set', child: Text('Sempre ligar / sempre desligar')),
+                    value: 'set', child: Text(tr('Sempre ligar / sempre desligar'))),
               ],
               onChanged: (v) => _update(() => _op = v ?? 'toggle'),
             ),
@@ -207,7 +207,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
             const SizedBox(height: 12),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(_value == 'true' ? 'Ligar' : 'Desligar'),
+              title: Text(_value == 'true' ? tr('Ligar') : tr('Desligar')),
               value: _value == 'true',
               onChanged: (v) => _update(() => _value = v ? 'true' : 'false'),
             ),
@@ -218,9 +218,9 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
             TextFormField(
               initialValue: _value,
               decoration: InputDecoration(
-                labelText: 'Valor',
+                labelText: tr('Valor'),
                 border: const OutlineInputBorder(),
-                helperText: 'Tipo $type -- valor cru enviado a Tuya',
+                helperText: tr('Tipo {type} — valor cru enviado à Tuya', {'type': type}),
               ),
               onChanged: (v) {
                 _value = v;
@@ -231,12 +231,12 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
           OutlinedButton.icon(
             onPressed: _test,
             icon: const Icon(Icons.play_arrow),
-            label: const Text('Testar agora'),
+            label: Text(tr('Testar agora')),
           ),
         ],
-        const EditorHint(
-            'O estado do botao acompanha o aparelho em tempo real; use "Cor ativa" '
-            'para ele acender quando estiver ligado.'),
+        EditorHint(
+            tr('O estado do botão acompanha o aparelho em tempo real; use "Cor ativa" '
+                'para ele acender quando estiver ligado.')),
       ],
     );
   }
@@ -251,7 +251,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
 
     return [
       const SizedBox(height: 12),
-      Text('Valor: ${clamped.round()}$unit',
+      Text(tr('Valor: {value}{unit}', {'value': clamped.round(), 'unit': unit}),
           style: const TextStyle(fontSize: 12)),
       Slider(
         min: min,
@@ -262,7 +262,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
         label: '${clamped.round()}',
         onChanged: (v) => _update(() => _value = '${v.round()}'),
       ),
-      EditorHint('Faixa: ${min.round()} a ${max.round()}$unit'),
+      EditorHint(tr('Faixa: {min} a {max}{unit}', {'min': min.round(), 'max': max.round(), 'unit': unit})),
     ];
   }
 
@@ -275,9 +275,9 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
       DropdownButtonFormField<String>(
         value: range.contains(_value) ? _value : null,
         isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: 'Valor',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: tr('Valor'),
+          border: const OutlineInputBorder(),
         ),
         items:
             range.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
@@ -308,7 +308,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
           .sendTuyaCommand(_deviceId!, _code!, value);
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Comando enviado.')));
+            .showSnackBar(SnackBar(content: Text(tr('Comando enviado.'))));
       }
     } catch (e) {
       if (mounted) {

@@ -79,7 +79,7 @@ class DynamicDeckButton extends StatelessWidget {
       case 'network_monitor':
         return _buildNetworkMonitor(stats);
       default:
-        return Center(child: Text('Unknown: $type'));
+        return Center(child: Text(tr('Desconhecido: {type}', {'type': type})));
     }
   }
 

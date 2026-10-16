@@ -36,11 +36,11 @@ class AudioPage extends StatelessWidget {
       appBar: isFullscreen
           ? null
           : AppBar(
-              title: const Text('Áudio'),
+              title: Text(tr('Áudio')),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.settings),
-                  tooltip: 'Configurações',
+                  tooltip: tr('Configurações'),
                   onPressed: () => Navigator.of(context).pushNamed('/config'),
                 ),
               ],
@@ -144,7 +144,7 @@ class AudioPage extends StatelessWidget {
             Icon(icon, size: 18, color: muted),
             const SizedBox(width: 8),
             Text(
-              title.toUpperCase(),
+              tr(title).toUpperCase(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: muted,
@@ -163,7 +163,7 @@ class AudioPage extends StatelessWidget {
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
-          child: Text(msg,
+          child: Text(tr(msg),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ),

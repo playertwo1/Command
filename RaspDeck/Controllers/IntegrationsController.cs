@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DroidDeck.Integrations;
+using DroidDeck.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ namespace DroidDeck.Controllers
 
         [HttpGet("{name}")]
         public ActionResult<IntegrationStatus> Status(string name) =>
-            _integrations.TryGetValue(name, out var i) ? Ok(i.GetStatus()) : NotFound();
+            _integrations.TryGetValue(name, out var i) ? Ok(Translated(i.GetStatus())) : NotFound();
 
         [HttpPost("{name}")]
         public async Task<ActionResult<IntegrationStatus>> Configure(string name, [FromBody] Dictionary<string, string>? fields)
@@ -34,13 +35,13 @@ namespace DroidDeck.Controllers
             if (!_integrations.TryGetValue(name, out var i)) return NotFound();
             try
             {
-                return Ok(await i.ConfigureAsync(fields ?? new()));
+                return Ok(Translated(await i.ConfigureAsync(fields ?? new())));
             }
             catch (Exception ex)
             {
                 var status = i.GetStatus();
                 status.Message = ex.Message;
-                return Ok(status);
+                return Ok(Translated(status));
             }
         }
 
@@ -49,7 +50,7 @@ namespace DroidDeck.Controllers
         {
             if (!_integrations.TryGetValue(name, out var i)) return NotFound();
             await i.LogoutAsync();
-            return Ok(i.GetStatus());
+            return Ok(Translated(i.GetStatus()));
         }
 
         [HttpGet("{name}/options/{list}")]
@@ -57,7 +58,7 @@ namespace DroidDeck.Controllers
         {
             if (!_integrations.TryGetValue(name, out var i)) return NotFound();
             try { return Ok(await i.OptionsAsync(list, Request.Query)); }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [AllowAnonymous]
@@ -66,8 +67,18 @@ namespace DroidDeck.Controllers
         {
             var html = _integrations.TryGetValue(name, out var i)
                 ? await i.CallbackAsync(Request.Query)
-                : "Integração desconhecida.";
+                : L.T("Integração desconhecida.");
             return Content(html, "text/html; charset=utf-8");
+        }
+
+        /// <summary>
+        /// As mensagens nascem dentro das integracoes (as vezes em segundo plano, sem idioma),
+        /// entao a traducao e aqui, na saida. Texto com parte variavel fica em portugues.
+        /// </summary>
+        private static IntegrationStatus Translated(IntegrationStatus status)
+        {
+            if (status.Message != null) status.Message = L.T(status.Message);
+            return status;
         }
     }
 }

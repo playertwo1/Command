@@ -135,7 +135,7 @@ class StreamDeckController {
     if (e is! DioException || e.response?.statusCode != 403) return null;
     final data = e.response?.data;
     if (data is Map && data['error'] is String) return data['error'] as String;
-    return 'O PC recusou a alteração.';
+    return tr('O PC recusou a alteração.');
   }
 
   /// Salva o botão. Devolve a mensagem de recusa do PC (ex.: tentar criar no celular um

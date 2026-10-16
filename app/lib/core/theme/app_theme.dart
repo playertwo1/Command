@@ -1,3 +1,4 @@
+import 'package:companion/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 
 import 'deck_theme.dart';
@@ -8,17 +9,19 @@ import 'deck_theme.dart';
 class ThemePreset {
   const ThemePreset({
     required this.id,
-    required this.name,
+    required String name,
     required this.accent,
     required this.background,
     required this.surface,
     required this.tile,
     required this.outline,
     required this.tileStyle,
-  });
+  }) : ptName = name;
 
   final String id;
-  final String name;
+  /// Nome em português (chave de tradução); a tela usa [name].
+  final String ptName;
+  String get name => tr(ptName);
   final Color accent;
   final Color background;
   final Color surface;

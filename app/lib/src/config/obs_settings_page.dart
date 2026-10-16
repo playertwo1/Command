@@ -53,9 +53,9 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
       final host = _hostCtrl.text.trim().isEmpty ? 'localhost' : _hostCtrl.text.trim();
       await Injector.get<DroidDeckClient>()
           .setObsConfig(host, port, _passCtrl.text.isEmpty ? null : _passCtrl.text);
-      _snack('Config salva. Agora toque em "Conectar".');
+      _snack(tr('Config salva. Agora toque em "Conectar".'));
     } catch (_) {
-      _snack('Não foi possível salvar (servidor acessível?).');
+      _snack(tr('Não foi possível salvar (servidor acessível?).'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -67,7 +67,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
       final st = await Injector.get<DroidDeckClient>().connectObs();
       Injector.get<SignalRService>().obsState.value =
           Map<String, dynamic>.from(st);
-      _snack('OBS conectado!');
+      _snack(tr('OBS conectado!'));
     } catch (e) {
       _snack(e.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -90,7 +90,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
     if (raw == null || !mounted) return;
     final parsed = parseObsQr(raw);
     if (parsed == null) {
-      _snack('QR do OBS não reconhecido.');
+      _snack(tr('QR do OBS não reconhecido.'));
       return;
     }
     setState(() {
@@ -107,7 +107,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
       final st = await Injector.get<DroidDeckClient>().connectObs();
       Injector.get<SignalRService>().obsState.value =
           Map<String, dynamic>.from(st);
-      _snack('OBS conectado pelo QR!');
+      _snack(tr('OBS conectado pelo QR!'));
     } catch (e) {
       _snack(e.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -133,13 +133,13 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                 ElevatedButton.icon(
                   onPressed: _busy ? null : _scanObsQr,
                   icon: const Icon(Icons.qr_code_scanner),
-                  label: const Text('Ler QR do OBS'),
+                  label: Text(tr('Ler QR do OBS')),
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48)),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Jeito mais fácil: no OBS, "Mostrar Informações de Conexão" e aponte a câmera.',
+                  tr('Jeito mais fácil: no OBS, "Mostrar Informações de Conexão" e aponte a câmera.'),
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
@@ -147,7 +147,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                   Expanded(child: Divider()),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('ou manualmente',
+                    child: Text(tr('ou manualmente'),
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
                   ),
                   Expanded(child: Divider()),
@@ -169,8 +169,8 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                     child: TextField(
                       controller: _portCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                          labelText: 'Porta', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                          labelText: tr('Porta'), border: const OutlineInputBorder()),
                     ),
                   ),
                 ],
@@ -180,7 +180,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                 controller: _passCtrl,
                 obscureText: _obscure,
                 decoration: InputDecoration(
-                  labelText: 'Senha (obs-websocket)',
+                  labelText: tr('Senha (obs-websocket)'),
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
@@ -195,7 +195,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                     child: OutlinedButton.icon(
                       onPressed: _busy ? null : _save,
                       icon: const Icon(Icons.save),
-                      label: const Text('Salvar'),
+                      label: Text(tr('Salvar')),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -208,14 +208,14 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
                               height: 16,
                               child: CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.link),
-                      label: const Text('Conectar'),
+                      label: Text(tr('Conectar')),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
-                'O OBS precisa estar aberto. A conexão é local (ws://host:porta).',
+                tr('O OBS precisa estar aberto. A conexão é local (ws://host:porta).'),
                 style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
@@ -234,9 +234,13 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
       final rec = s['recording'] == true;
       final live = s['streaming'] == true;
       final text = connected
-          ? 'Conectado${scene != null && '$scene'.isNotEmpty ? ' — cena "$scene"' : ''}'
-              '${rec ? ' · GRAVANDO' : ''}${live ? ' · AO VIVO' : ''}'
-          : 'Desconectado. Abra o OBS, ative o obs-websocket e toque em Conectar.';
+          ? [
+              tr('Conectado'),
+              if (scene != null && '$scene'.isNotEmpty) tr('cena "{scene}"', {'scene': scene}),
+            ].join(' — ') +
+              (rec ? ' · ${tr('GRAVANDO')}' : '') +
+              (live ? ' · ${tr('AO VIVO')}' : '')
+          : tr('Desconectado. Abra o OBS, ative o obs-websocket e toque em Conectar.');
       return Card(
         color: color.withValues(alpha: 0.15),
         child: ListTile(
@@ -261,14 +265,14 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
     return Card(
       child: ExpansionTile(
         leading: const Icon(Icons.help_outline),
-        title: const Text('Como ativar o obs-websocket'),
+        title: Text(tr('Como ativar o obs-websocket')),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
-          step('1', 'No OBS (28+): menu Ferramentas → Configurações do Servidor WebSocket.'),
-          step('2', 'Marque "Ativar Servidor WebSocket". Anote a Porta (padrão 4455).'),
-          step('3', 'Se "Ativar Autenticação" estiver ligado, clique em "Mostrar Informações de Conexão" e copie a Senha.'),
+          step('1', tr('No OBS (28+): menu Ferramentas → Configurações do Servidor WebSocket.')),
+          step('2', tr('Marque "Ativar Servidor WebSocket". Anote a Porta (padrão 4455).')),
+          step('3', tr('Se "Ativar Autenticação" estiver ligado, clique em "Mostrar Informações de Conexão" e copie a Senha.')),
           const SizedBox(height: 8),
-          Text('Sem senha? Deixe o campo vazio.',
+          Text(tr('Sem senha? Deixe o campo vazio.'),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       ),

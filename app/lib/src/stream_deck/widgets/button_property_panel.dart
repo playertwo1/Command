@@ -190,8 +190,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   }
 
   void _suggestLabel(String label) {
-    if (_labelController.text.trim().isEmpty ||
-        _labelController.text == 'New Button') {
+    // Rótulo padrão de botão novo (em qualquer idioma) também é substituído.
+    final current = _labelController.text.trim();
+    if (current.isEmpty ||
+        current == tr('Novo botão') ||
+        current == 'Novo botão' ||
+        current == 'New Button') {
       _labelController.text = label;
     }
   }
@@ -226,35 +230,39 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         initiallyExpanded: used,
         shape: const Border(),
         leading: const Icon(Icons.touch_app_outlined),
-        title: const Text('Toque longo e toque duplo'),
+        title: Text(tr('Toque longo e toque duplo')),
         subtitle: Text(
           used
               ? [
                   if (_longPress != null)
-                    'Longo: ${_catalog.find(_longPress!.type)?.title ?? _longPress!.type}',
+                    tr('Longo: {action}', {
+                      'action': _catalog.find(_longPress!.type)?.title ?? _longPress!.type
+                    }),
                   if (_doubleTap != null)
-                    'Duplo: ${_catalog.find(_doubleTap!.type)?.title ?? _doubleTap!.type}',
+                    tr('Duplo: {action}', {
+                      'action': _catalog.find(_doubleTap!.type)?.title ?? _doubleTap!.type
+                    }),
                 ].join(' · ')
-              : 'Opcional',
+              : tr('Opcional'),
           style: const TextStyle(fontSize: 12),
         ),
         childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         children: [
           Text(
             _remote
-                ? 'Com um toque longo definido, segure o botão para executá-lo. Para '
-                    'editar o botão depois, use o lápis (modo de edição) na barra do deck.'
-                : 'Com um toque longo definido, segurar o botão no celular executa a '
-                    'ação; o celular edita pelo modo de edição (lápis na barra do deck).',
+                ? tr('Com um toque longo definido, segure o botão para executá-lo. Para '
+                    'editar o botão depois, use o lápis (modo de edição) na barra do deck.')
+                : tr('Com um toque longo definido, segurar o botão no celular executa a '
+                    'ação; o celular edita pelo modo de edição (lápis na barra do deck).'),
             style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
-          _picker('Toque longo', _longPress,
+          _picker(tr('Toque longo'), _longPress,
               (a) => setState(() => _longPress = a)),
           const SizedBox(height: 20),
-          _picker('Toque duplo', _doubleTap,
+          _picker(tr('Toque duplo'), _doubleTap,
               (a) => setState(() => _doubleTap = a)),
         ],
       ),
@@ -292,7 +300,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.button.id.isEmpty ? 'New Button' : 'Edit Button',
+                  widget.button.id.isEmpty ? tr('Novo botão') : tr('Editar botão'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 24),
@@ -300,14 +308,14 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 // Label
                 TextField(
                   controller: _labelController,
-                  decoration: const InputDecoration(
-                    labelText: 'Label',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: tr('Rótulo'),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                _picker('Ação', _tap, (a) => setState(() => _tap = a)),
+                _picker(tr('Ação'), _tap, (a) => setState(() => _tap = a)),
                 const SizedBox(height: 16),
                 _buildGestures(),
                 const SizedBox(height: 12),
@@ -321,12 +329,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Icon',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(tr('Ícone'),
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     TextButton.icon(
                       onPressed: _pickImage,
                       icon: const Icon(Icons.upload_file),
-                      label: const Text('Custom Image'),
+                      label: Text(tr('Imagem própria')),
                     ),
                   ],
                 ),
@@ -359,7 +367,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                           onPressed: () => setState(() => _iconBase64 = null),
                           style: TextButton.styleFrom(
                               foregroundColor: Colors.redAccent),
-                          child: const Text("Remove Image"),
+                          child: Text(tr('Remover imagem')),
                         )
                       ],
                     ),
@@ -379,8 +387,8 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 const SizedBox(height: 24),
 
                 // Color Config
-                const Text('Background Color',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(tr('Cor de fundo'),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 _colorRow(_selectedColor, (c) => _selectedColor = c),
 
@@ -389,10 +397,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                   const SizedBox(height: 20),
                   Text(
                     switch (_selectedActionType) {
-                      'discord' => 'Cor quando ativo (mutado/ensurdecido)',
-                      'timer' => 'Cor quando a contagem termina',
-                      'windows' => 'Cor quando o dispositivo é o padrão',
-                      _ => 'Cor quando ativo',
+                      'discord' => tr('Cor quando ativo (mutado/ensurdecido)'),
+                      'timer' => tr('Cor quando a contagem termina'),
+                      'windows' => tr('Cor quando o dispositivo é o padrão'),
+                      _ => tr('Cor quando ativo'),
                     },
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -418,18 +426,18 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 TextButton(
                   onPressed: _delete,
                   style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  child: const Text('Clear Button'),
+                  child: Text(tr('Limpar botão')),
                 ),
               const Spacer(),
               if (widget.onCancel != null)
                 TextButton(
                   onPressed: widget.onCancel,
-                  child: const Text('Cancel'),
+                  child: Text(tr('Cancelar')),
                 ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _save,
-                child: const Text('Save Changes'),
+                child: Text(tr('Salvar')),
               ),
             ],
           ),
@@ -498,10 +506,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          chip('Desligado', false, icons.$1),
+          chip(tr('Desligado'), false, icons.$1),
           Icon(Icons.arrow_forward,
               color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
-          chip('Ativo', true, icons.$2),
+          chip(tr('Ativo'), true, icons.$2),
         ],
       ),
     );
@@ -581,24 +589,24 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         initiallyExpanded: used,
         shape: const Border(),
         leading: const Icon(Icons.toggle_on_outlined),
-        title: const Text('Dois estados'),
+        title: Text(tr('Dois estados')),
         subtitle: Text(
           _toggle
-              ? 'Liga e desliga a cada toque'
-              : (_isStatefulAction ? 'Visual quando ativo' : 'Opcional'),
+              ? tr('Liga e desliga a cada toque')
+              : (_isStatefulAction ? tr('Visual quando ativo') : tr('Opcional')),
           style: const TextStyle(fontSize: 12),
         ),
         childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Alternar a cada toque'),
+            title: Text(tr('Alternar a cada toque')),
             subtitle: Text(
               _isStatefulAction
-                  ? 'Esta ação já mostra o próprio estado; ligue só se quiser um '
-                      'liga/desliga separado, guardado no PC.'
-                  : 'O botão fica ligado num toque e desligado no seguinte. O estado '
-                      'fica no PC e aparece igual em todos os celulares.',
+                  ? tr('Esta ação já mostra o próprio estado; ligue só se quiser um '
+                      'liga/desliga separado, guardado no PC.')
+                  : tr('O botão fica ligado num toque e desligado no seguinte. O estado '
+                      'fica no PC e aparece igual em todos os celulares.'),
               style: hint,
             ),
             value: _toggle,
@@ -606,12 +614,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
           ),
           if (_toggle) ...[
             const SizedBox(height: 8),
-            _picker('Ação quando ligado', _activeAction,
+            _picker(tr('Ação quando ligado'), _activeAction,
                 (a) => setState(() => _activeAction = a)),
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Roda no toque que desliga o botão. Sem ela, o mesmo toque roda sempre.',
+                tr('Roda no toque que desliga o botão. Sem ela, o mesmo toque roda sempre.'),
                 style: hint,
               ),
             ),
@@ -620,10 +628,10 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
             const SizedBox(height: 16),
             TextField(
               controller: _activeLabelController,
-              decoration: const InputDecoration(
-                labelText: 'Rótulo quando ativo',
-                hintText: 'Vazio = o mesmo rótulo',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: tr('Rótulo quando ativo'),
+                hintText: tr('Vazio = o mesmo rótulo'),
+                border: const OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
             ),
@@ -631,12 +639,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Ícone quando ativo',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(tr('Ícone quando ativo'),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 TextButton.icon(
                   onPressed: () => _pickImage(active: true),
                   icon: const Icon(Icons.upload_file),
-                  label: const Text('Imagem'),
+                  label: Text(tr('Imagem')),
                 ),
               ],
             ),
@@ -650,7 +658,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 ),
                 TextButton(
                   onPressed: () => setState(() => _activeIconBase64 = null),
-                  child: const Text('Remover imagem'),
+                  child: Text(tr('Remover imagem')),
                 ),
               ]),
             const SizedBox(height: 8),
@@ -747,23 +755,25 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         initiallyExpanded: type != null && type.isNotEmpty,
         shape: const Border(),
         leading: const Icon(Icons.insights_outlined),
-        title: const Text('Mostrar no botão'),
+        title: Text(tr('Mostrar no botão')),
         subtitle: Text(
-          (type?.isNotEmpty ?? false) ? (_infoLabels[type] ?? type!) : 'Opcional',
+          (type?.isNotEmpty ?? false)
+              ? (_infoLabels[type] != null ? tr(_infoLabels[type]!) : type!)
+              : tr('Opcional'),
           style: const TextStyle(fontSize: 12),
         ),
         childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         children: [
           DropdownButtonFormField<String?>(
             initialValue: (type?.isEmpty ?? true) ? null : type,
-            decoration: const InputDecoration(
-              labelText: 'Informação',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr('Informação'),
+              border: const OutlineInputBorder(),
             ),
             items: [
-              const DropdownMenuItem(value: null, child: Text('Nenhuma')),
+              DropdownMenuItem(value: null, child: Text(tr('Nenhuma'))),
               ...options.map(
-                  (e) => DropdownMenuItem(value: e.key, child: Text(e.value))),
+                  (e) => DropdownMenuItem(value: e.key, child: Text(tr(e.value)))),
             ],
             onChanged: _infoLocked
                 ? null
@@ -776,8 +786,8 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Botões que rodam um comando ou leem uma URL no PC só mudam no '
-                'configurador do PC (http://localhost:4787).',
+                tr('Botões que rodam um comando ou leem uma URL no PC só mudam no '
+                    'configurador do PC (http://localhost:4787).'),
                 style: hint,
               ),
             ),
@@ -786,7 +796,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(
-                'O toque continua executando a ação do botão, se houver uma.',
+                tr('O toque continua executando a ação do botão, se houver uma.'),
                 style: hint,
               ),
             ),
@@ -799,34 +809,34 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     switch (type) {
       case 'clock':
         return [
-          _infoSwitch('format24', '24 horas', true),
-          _infoSwitch('showSeconds', 'Mostrar os segundos', false),
-          _infoSwitch('showDate', 'Mostrar a data', true),
+          _infoSwitch('format24', tr('24 horas'), true),
+          _infoSwitch('showSeconds', tr('Mostrar os segundos'), false),
+          _infoSwitch('showDate', tr('Mostrar a data'), true),
         ];
       case 'weather':
         return [
-          _infoField('city', 'Cidade', hint: 'São Paulo'),
-          _infoSwitch('units', 'Em Fahrenheit', false, on: 'f', off: 'c'),
+          _infoField('city', tr('Cidade'), hint: 'São Paulo'),
+          _infoSwitch('units', tr('Em Fahrenheit'), false, on: 'f', off: 'c'),
         ];
       case 'command':
         return [
-          _infoField('command', 'Comando',
+          _infoField('command', tr('Comando'),
               hint: 'powershell -c "(Get-Date).DayOfYear"',
-              help: 'Roda no cmd do PC; o botão mostra a saída (até 10 s).',
+              help: tr('Roda no cmd do PC; o botão mostra a saída (até 10 s).'),
               maxLines: 2),
-          _infoField('format', 'Modelo',
-              hint: '{value}', help: '{value} é a saída. Ex.: "Dia {value}"'),
-          _infoField('interval', 'Atualizar a cada (segundos)',
+          _infoField('format', tr('Modelo'),
+              hint: '{value}', help: tr('{value} é a saída. Ex.: "Dia {value}"')),
+          _infoField('interval', tr('Atualizar a cada (segundos)'),
               hint: '60', number: true),
         ];
       case 'url':
         return [
-          _infoField('url', 'URL', hint: 'https://api.exemplo.com/status'),
-          _infoField('path', 'Campo do JSON',
-              hint: 'data.items[0].name', help: 'Vazio = a resposta inteira.'),
-          _infoField('format', 'Modelo',
-              hint: '{value}', help: '{value} é o valor lido.'),
-          _infoField('interval', 'Atualizar a cada (segundos)',
+          _infoField('url', tr('URL'), hint: 'https://api.exemplo.com/status'),
+          _infoField('path', tr('Campo do JSON'),
+              hint: 'data.items[0].name', help: tr('Vazio = a resposta inteira.')),
+          _infoField('format', tr('Modelo'),
+              hint: '{value}', help: tr('{value} é o valor lido.')),
+          _infoField('interval', tr('Atualizar a cada (segundos)'),
               hint: '60', number: true),
         ];
       default:

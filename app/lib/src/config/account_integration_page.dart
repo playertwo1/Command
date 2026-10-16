@@ -16,6 +16,7 @@ class IntegrationField {
 }
 
 /// Descrição de uma integração com conta (Home Assistant, Spotify, Twitch, YouTube).
+/// Os textos ficam em português e são traduzidos com [tr] na tela.
 /// O fluxo é o mesmo para todas, no PC: GET/POST/DELETE /api/integrations/{name}.
 class AccountIntegrationSpec {
   final String name;
@@ -50,11 +51,14 @@ class AccountIntegrationSpec {
 }
 
 String? _liveSummary(Map<String, dynamic> s) => s['live'] == true
-    ? 'ao vivo${s['viewers'] != null ? ', ${s['viewers']} assistindo' : ''}'
-    : 'fora do ar';
+    ? s['viewers'] != null
+        ? tr('ao vivo, {count} assistindo', {'count': s['viewers']})
+        : tr('ao vivo')
+    : tr('fora do ar');
 
-String? _spotifySummary(Map<String, dynamic> s) =>
-    s['track'] != null ? '${s['playing'] == true ? 'tocando' : 'pausado'}: ${s['track']}' : null;
+String? _spotifySummary(Map<String, dynamic> s) => s['track'] != null
+    ? '${s['playing'] == true ? tr('tocando') : tr('pausado')}: ${s['track']}'
+    : null;
 
 const homeAssistantSpec = AccountIntegrationSpec(
   name: 'homeassistant',
@@ -210,10 +214,10 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
       if (s['message'] != null) {
         _snack('${s['message']}');
       } else if (spec.browserLogin && s['loginPending'] == true) {
-        _snack('Continue o login no navegador do PC.');
+        _snack(tr('Continue o login no navegador do PC.'));
       }
     } catch (e) {
-      _snack('Não foi possível falar com o PC.');
+      _snack(tr('Não foi possível falar com o PC.'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -237,7 +241,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
     final connected = _status['connected'] == true;
     final redirect = _status['redirectUri'] as String?;
     return Scaffold(
-      appBar: AppBar(title: Text(spec.title)),
+      appBar: AppBar(title: Text(tr(spec.title))),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -254,7 +258,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                 child: ExpansionTile(
                   initiallyExpanded: _status['configured'] != true,
                   leading: const Icon(Icons.help_outline),
-                  title: const Text('Como configurar'),
+                  title: Text(tr('Como configurar')),
                   childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   children: [
                     for (var i = 0; i < spec.steps.length; i++)
@@ -265,7 +269,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                           children: [
                             Text('${i + 1}. ',
                                 style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Expanded(child: Text(spec.steps[i])),
+                            Expanded(child: Text(tr(spec.steps[i]))),
                           ],
                         ),
                       ),
@@ -274,7 +278,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
               ),
               if (redirect != null) ...[
                 const SizedBox(height: 12),
-                Text('Endereço de retorno (Redirect URI)', style: muted),
+                Text(tr('Endereço de retorno (Redirect URI)'), style: muted),
                 const SizedBox(height: 4),
                 Row(children: [
                   Expanded(
@@ -282,11 +286,11 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                         style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
                   ),
                   IconButton(
-                    tooltip: 'Copiar',
+                    tooltip: tr('Copiar'),
                     icon: const Icon(Icons.copy, size: 18),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: redirect));
-                      _snack('Copiado.');
+                      _snack(tr('Copiado.'));
                     },
                   ),
                 ]),
@@ -297,10 +301,10 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                   controller: _ctrls[f.key],
                   obscureText: f.secret,
                   decoration: InputDecoration(
-                    labelText: f.label,
+                    labelText: tr(f.label),
                     hintText: f.secret && _status['configured'] == true
-                        ? 'Guardado no PC (deixe vazio para manter)'
-                        : f.hint,
+                        ? tr('Guardado no PC (deixe vazio para manter)')
+                        : (f.hint == null ? null : tr(f.hint!)),
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -312,7 +316,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                     child: OutlinedButton.icon(
                       onPressed: _busy ? null : _logout,
                       icon: const Icon(Icons.logout),
-                      label: Text(connected ? 'Desconectar' : 'Esquecer'),
+                      label: Text(connected ? tr('Desconectar') : tr('Esquecer')),
                     ),
                   ),
                 if (connected || _status['configured'] == true)
@@ -326,13 +330,13 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2))
                         : Icon(spec.icon),
-                    label: Text(connected ? 'Conectar de novo' : spec.connectLabel),
+                    label: Text(connected ? tr('Conectar de novo') : tr(spec.connectLabel)),
                   ),
                 ),
               ]),
               if (spec.browserLogin) ...[
                 const SizedBox(height: 8),
-                Text('O login abre no navegador do PC, mesmo quando você toca aqui no celular.',
+                Text(tr('O login abre no navegador do PC, mesmo quando você toca aqui no celular.'),
                     style: muted),
               ],
             ],
@@ -351,10 +355,10 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
       final account = (live['account'] ?? _status['account']) as String?;
       final extra = connected ? spec.summary?.call(live) : null;
       final text = connected
-          ? 'Conectado${account != null ? ' — $account' : ''}${extra != null ? ' · $extra' : ''}'
+          ? '${tr('Conectado')}${account != null ? ' — $account' : ''}${extra != null ? ' · $extra' : ''}'
           : pending
-              ? 'Aguardando o login…'
-              : (_status['message'] as String? ?? 'Desconectado.');
+              ? tr('Aguardando o login…')
+              : (_status['message'] as String? ?? tr('Desconectado.'));
       return Card(
         color: color.withValues(alpha: 0.15),
         child: ListTile(
@@ -373,7 +377,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(children: [
-          const Text('Confirme este código na página que abriu no PC:'),
+          Text(tr('Confirme este código na página que abriu no PC:')),
           const SizedBox(height: 8),
           SelectableText(code,
               style: const TextStyle(

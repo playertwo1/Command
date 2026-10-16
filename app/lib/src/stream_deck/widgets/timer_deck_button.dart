@@ -118,27 +118,29 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
     switch (mode) {
       case 'counter':
         big = '${(t['count'] as num?)?.toInt() ?? 0}';
-        small = 'Contador';
+        small = tr('Contador');
         icon = Icons.exposure_plus_1;
         break;
       case 'stopwatch':
         big = _clock(elapsed, roundUp: false);
-        small = running ? 'Cronômetro' : (elapsed > 0 ? 'Pausado' : 'Cronômetro');
+        small = running
+            ? tr('Cronômetro')
+            : (elapsed > 0 ? tr('Pausado') : tr('Cronômetro'));
         icon = Icons.timer_outlined;
         break;
       case 'pomodoro':
         final remaining = (duration - elapsed).clamp(0, duration);
         big = _clock(remaining);
         final cycles = (t['cycles'] as num?)?.toInt() ?? 0;
-        small = '${t['phase'] == 'break' ? 'Pausa' : 'Foco'} · $cycles';
+        small = '${t['phase'] == 'break' ? tr('Pausa') : tr('Foco')} · $cycles';
         progress = duration > 0 ? elapsed / duration : null;
         icon = t['phase'] == 'break' ? Icons.coffee : Icons.psychology;
         break;
       default:
         final remaining = (duration - elapsed).clamp(0, duration);
         big = _clock(remaining);
-        small = finished ? 'Fim!' : (running ? 'Timer' : 'Pausado');
-        if (!running && !finished && elapsed == 0) small = 'Timer';
+        small = finished ? tr('Fim!') : (running ? tr('Timer') : tr('Pausado'));
+        if (!running && !finished && elapsed == 0) small = tr('Timer');
         progress = duration > 0 ? elapsed / duration : null;
         icon = Icons.hourglass_bottom;
     }
@@ -147,8 +149,8 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
     final label = (widget.button.label?.isNotEmpty ?? false)
         ? widget.button.label!
         : switch (op) {
-            'reset' => 'Zerar',
-            'skip' => 'Pular',
+            'reset' => tr('Zerar'),
+            'skip' => tr('Pular'),
             'decrement' => '−',
             _ => small,
           };

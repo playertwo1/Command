@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DroidDeck.Hubs;
+using DroidDeck.Lib;
 using DroidDeck.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -76,7 +77,7 @@ namespace DroidDeck.Controllers
 
             System.Collections.Generic.List<Models.DeckProfile> profiles;
             try { profiles = BackupService.Read(ms); }
-            catch (InvalidDataException ex) { return BadRequest(new { error = ex.Message }); }
+            catch (InvalidDataException ex) { return BadRequest(new { error = L.T(ex.Message) }); }
 
             if (!ActionPolicy.IsLocal(HttpContext.Connection.RemoteIpAddress))
             {
@@ -86,8 +87,8 @@ namespace DroidDeck.Controllers
                     if (violation != null)
                         return StatusCode(StatusCodes.Status403Forbidden, new
                         {
-                            error = "O backup tem botões que abrem programas, enviam atalhos ou fazem requisições. " +
-                                    "Importe pelo configurador no PC (http://localhost:4787)."
+                            error = L.T("O backup tem botões que abrem programas, enviam atalhos ou fazem requisições. " +
+                                        "Importe pelo configurador no PC (http://localhost:4787).")
                         });
                 }
             }

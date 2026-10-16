@@ -96,7 +96,7 @@ namespace DroidDeck.Integrations
 
         /// <summary>Retorno do login OAuth no navegador. Devolve o texto da pagina mostrada.</summary>
         public virtual Task<string> CallbackAsync(IQueryCollection query) =>
-            Task.FromResult("Esta integração não usa login pelo navegador.");
+            Task.FromResult(L.T("Esta integração não usa login pelo navegador."));
 
         /// <summary>Listas para os selects do editor (entidades, playlists...).</summary>
         public virtual Task<List<Actions.FieldOption>> OptionsAsync(string list, IQueryCollection query) =>
@@ -185,10 +185,15 @@ namespace DroidDeck.Integrations
 
         public static string RedirectUriFor(string name) => $"http://127.0.0.1:4787/api/integrations/{name}/callback";
 
-        protected static string Html(string title, string body) =>
-            $"<!doctype html><meta charset=utf-8><title>{title}</title>" +
-            "<body style=\"font-family:system-ui;background:#111;color:#eee;display:grid;place-items:center;height:90vh\">" +
-            $"<div style=\"text-align:center\"><h2>{title}</h2><p>{body}</p></div>";
+        /// <summary>Pagina simples de retorno do login. Titulo e texto sao escapados: o erro vem da URL.</summary>
+        protected static string Html(string title, string body)
+        {
+            title = System.Net.WebUtility.HtmlEncode(title);
+            body = System.Net.WebUtility.HtmlEncode(body);
+            return $"<!doctype html><meta charset=utf-8><title>{title}</title>" +
+                "<body style=\"font-family:system-ui;background:#111;color:#eee;display:grid;place-items:center;height:90vh\">" +
+                $"<div style=\"text-align:center\"><h2>{title}</h2><p>{body}</p></div>";
+        }
 
         /// <summary>Espera, sem estourar se o servico estiver parando.</summary>
         protected static async Task Wait(TimeSpan delay, CancellationToken ct)

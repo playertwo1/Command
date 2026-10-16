@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DroidDeck.Audio;
 using DroidDeck.Hubs;
+using DroidDeck.Lib;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using NAudio.CoreAudioApi;
@@ -62,13 +63,13 @@ namespace DroidDeck.Actions.Providers
             Stateful = true,
             Fields =
             {
-                ActionField.Select("operation", "AÃ§Ã£o",
-                    ("setDefaultAudio", "Trocar o dispositivo de Ã¡udio padrÃ£o"),
+                ActionField.Select("operation", "Ação",
+                    ("setDefaultAudio", "Trocar o dispositivo de áudio padrão"),
                     ("lock", "Travar o computador"),
                     ("sleep", "Suspender"),
                     ("displayOff", "Desligar a tela")),
                 ActionField.Select("deviceKind", "Tipo",
-                    ("output", "SaÃ­da (fone, caixa de som)"),
+                    ("output", "Saída (fone, caixa de som)"),
                     ("input", "Entrada (microfone)"))
                     .When("operation", "setDefaultAudio"),
                 ActionField.Dynamic("deviceId", "Dispositivo", "/api/actions/windows/audio-devices?kind={deviceKind}")
@@ -80,7 +81,7 @@ namespace DroidDeck.Actions.Providers
                     Kind = FieldKind.Select,
                     Default = None,
                     OptionsSource = "/api/actions/windows/audio-devices?kind={deviceKind}&optional=true",
-                    Help = "Com um segundo dispositivo, cada toque alterna entre os dois (fone â†” caixa de som).",
+                    Help = "Com um segundo dispositivo, cada toque alterna entre os dois (fone ↔ caixa de som).",
                 }.When("operation", "setDefaultAudio"),
             },
         };
@@ -142,7 +143,7 @@ namespace DroidDeck.Actions.Providers
             var list = DefaultAudioEndpoint.List(input)
                 .Select(d => new Actions.FieldOption(d.Id, d.Name))
                 .ToList();
-            if (optional) list.Insert(0, new Actions.FieldOption(None, "Nenhum (sÃ³ define o de cima)"));
+            if (optional) list.Insert(0, new Actions.FieldOption(None, L.T("Nenhum (só define o de cima)")));
             return list;
         }
 

@@ -59,7 +59,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
     final id = _idCtrl.text.trim();
     final secret = _secretCtrl.text.trim();
     if (id.isEmpty || secret.isEmpty) {
-      _snack('Preencha o Client ID e o Client Secret.');
+      _snack(tr('Preencha o Client ID e o Client Secret.'));
       return;
     }
     setState(() => _busy = true);
@@ -67,9 +67,9 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
       await Injector.get<DroidDeckClient>().setDiscordConfig(id, secret);
       // Não limpa o campo: antes o secret sumia ao salvar e parecia que não
       // tinha salvo. Ele fica visível (mascarado) confirmando que foi enviado.
-      _snack('Credenciais salvas. Agora toque em "Conectar".');
+      _snack(tr('Credenciais salvas. Agora toque em "Conectar".'));
     } catch (_) {
-      _snack('Não foi possível salvar (servidor acessível?).');
+      _snack(tr('Não foi possível salvar (servidor acessível?).'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -81,7 +81,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
       final state = await Injector.get<DroidDeckClient>().connectDiscord();
       Injector.get<SignalRService>().discordState.value =
           Map<String, dynamic>.from(state);
-      _snack('Discord conectado!');
+      _snack(tr('Discord conectado!'));
     } catch (e) {
       _snack(e.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -118,7 +118,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
             decoration: InputDecoration(
               labelText: 'Client Secret',
               hintText: _secretSaved
-                  ? 'Salvo no PC (preencha só para trocar)'
+                  ? tr('Salvo no PC (preencha só para trocar)')
                   : null,
               floatingLabelBehavior:
                   _secretSaved ? FloatingLabelBehavior.always : null,
@@ -136,7 +136,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
                 child: OutlinedButton.icon(
                   onPressed: _busy ? null : _save,
                   icon: const Icon(Icons.save),
-                  label: const Text('Salvar credenciais'),
+                  label: Text(tr('Salvar credenciais')),
                 ),
               ),
               const SizedBox(width: 12),
@@ -149,14 +149,14 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.link),
-                  label: const Text('Conectar'),
+                  label: Text(tr('Conectar')),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Ao conectar pela 1ª vez, aprove a janela que abrir no Discord do PC.',
+            tr('Ao conectar pela 1ª vez, aprove a janela que abrir no Discord do PC.'),
             style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
@@ -177,18 +177,18 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
       if (!configured) {
         color = Colors.orange;
         icon = Icons.warning_amber_rounded;
-        text = 'Não configurado — preencha o Client ID e o Secret abaixo.';
+        text = tr('Não configurado — preencha o Client ID e o Secret abaixo.');
       } else if (!connected) {
         color = Colors.blueGrey;
         icon = Icons.link_off;
-        text = 'Configurado, mas desconectado. Com o Discord aberto no PC, toque em '
-            '"Conectar" (não precisa preencher os campos de novo).';
+        text = tr('Configurado, mas desconectado. Com o Discord aberto no PC, toque em '
+            '"Conectar" (não precisa preencher os campos de novo).');
       } else {
         color = Colors.green;
         icon = Icons.check_circle;
         text = (channel != null && '$channel'.isNotEmpty)
-            ? 'Conectado — no canal "$channel".'
-            : 'Conectado.';
+            ? tr('Conectado — no canal "{channel}".', {'channel': channel})
+            : tr('Conectado.');
       }
 
       return Card(
@@ -216,17 +216,17 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
     return Card(
       child: ExpansionTile(
         leading: const Icon(Icons.help_outline),
-        title: const Text('Como obter o Client ID e o Secret'),
+        title: Text(tr('Como obter o Client ID e o Secret')),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
-          step('1', 'Acesse discord.com/developers/applications e clique em "New Application".'),
-          step('2', 'Em OAuth2, copie o Client ID e o Client Secret (Reset Secret se preciso).'),
-          step('3', 'Ainda em OAuth2 → Redirects, adicione o endereço abaixo e Salve:'),
+          step('1', tr('Acesse discord.com/developers/applications e clique em "New Application".')),
+          step('2', tr('Em OAuth2, copie o Client ID e o Client Secret (Reset Secret se preciso).')),
+          step('3', tr('Ainda em OAuth2 → Redirects, adicione o endereço abaixo e Salve:')),
           const SizedBox(height: 8),
           InkWell(
             onTap: () {
               Clipboard.setData(const ClipboardData(text: redirectUri));
-              _snack('Redirect copiado.');
+              _snack(tr('Redirect copiado.'));
             },
             child: Container(
               padding: const EdgeInsets.all(10),
@@ -249,8 +249,8 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Cada usuário usa o próprio app — o RPC do Discord só libera o dono do app, '
-            'sem precisar de aprovação. Não compartilhe o seu Secret.',
+            tr('Cada usuário usa o próprio app — o RPC do Discord só libera o dono do app, '
+                'sem precisar de aprovação. Não compartilhe o seu Secret.'),
             style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],

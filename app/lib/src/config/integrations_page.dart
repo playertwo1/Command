@@ -1,3 +1,4 @@
+import 'package:companion/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'account_integration_page.dart';
@@ -24,7 +25,7 @@ class IntegrationsPage extends StatelessWidget {
       };
 
   static const _entries = [
-    ('discord', Icons.headset_mic, 'Discord', 'Mute, canais de voz, volume por usuário'),
+    ('discord', Icons.headset_mic, 'Discord', 'Mudo, canais de voz, volume por usuário'),
     ('obs', Icons.videocam, 'OBS Studio', 'Cenas, gravação, transmissão, fontes'),
     ('twitch', Icons.sensors, 'Twitch', 'Marcador, clipe, anúncio, chat e enquete'),
     ('youtube', Icons.smart_display_outlined, 'YouTube', 'Chat da live e espectadores'),
@@ -37,7 +38,7 @@ class IntegrationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Integrações')),
+      appBar: AppBar(title: Text(tr('Integrações'))),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -46,8 +47,8 @@ class IntegrationsPage extends StatelessWidget {
               for (final (key, icon, title, subtitle) in _entries)
                 ListTile(
                   leading: Icon(icon),
-                  title: Text(title),
-                  subtitle: Text(subtitle),
+                  title: Text(tr(title)),
+                  subtitle: Text(tr(subtitle)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => pageFor(key)!)),

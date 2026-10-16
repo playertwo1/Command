@@ -53,7 +53,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text('PROFILES',
+                  child: Text(tr('PERFIS'),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                 ),
@@ -71,7 +71,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                         trailing: IconButton(
                           icon: Icon(Icons.delete,
                               size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          tooltip: 'Delete Profile',
+                          tooltip: tr('Excluir perfil'),
                           onPressed: () => _deleteProfile(profile),
                         ),
                         onTap: () {
@@ -90,7 +90,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                   child: ElevatedButton.icon(
                     onPressed: _createNewProfile,
                     icon: Icon(Icons.add),
-                    label: Text('New Profile'),
+                    label: Text(tr('Novo perfil')),
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(double.infinity, 40),
                     ),
@@ -103,7 +103,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                       MaterialPageRoute(builder: (_) => const IntegrationsPage()),
                     ),
                     icon: const Icon(Icons.extension_outlined, size: 18),
-                    label: const Text('Integrações'),
+                    label: Text(tr('Integrações')),
                     style: TextButton.styleFrom(
                       minimumSize: const Size(double.infinity, 36),
                       foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -127,7 +127,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                 children: [
                   Center(
                     child: currentProfile == null
-                        ? const Text('No Profile Selected')
+                        ? Text(tr('Nenhum perfil selecionado'))
                         : _buildDeckGrid(currentProfile),
                   ),
                   Positioned(
@@ -162,7 +162,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.extension_outlined),
-                          tooltip: 'Integrações',
+                          tooltip: tr('Integrações'),
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const IntegrationsPage()),
@@ -170,7 +170,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.palette_outlined),
-                          tooltip: 'Aparência',
+                          tooltip: tr('Aparência'),
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const AppearanceSettingsPage()),
@@ -178,13 +178,16 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                         ),
                         IconButton(
                           icon: Icon(Icons.edit),
-                          tooltip: 'Perfil (nome e troca automática)',
+                          tooltip: tr('Perfil (nome e troca automática)'),
                           onPressed: () => _renameProfile(currentProfile),
                         ),
                         IconButton(
                           icon: Icon(widget.isFullscreen
                               ? Icons.fullscreen_exit
                               : Icons.fullscreen),
+                          tooltip: widget.isFullscreen
+                              ? tr('Sair da tela cheia')
+                              : tr('Tela cheia'),
                           onPressed: widget.onToggleFullscreen,
                         ),
                       ],
@@ -203,7 +206,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
               border: Border(left: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
             ),
             child: _selectedButton == null
-                ? const Center(child: Text('Select a button to edit'))
+                ? Center(child: Text(tr('Selecione um botão para editar')))
                 : ButtonPropertyPanel(
                     key: ValueKey(_selectedButton!
                         .id), // Force rebuild on selection change
@@ -239,7 +242,8 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
       child: Column(
         children: [
           Text(
-            'Grade do celular: $cols × $rows (definida pelo aparelho)  ·  arraste para mover/trocar',
+            tr('Grade do celular: {cols} × {rows} (definida pelo aparelho)  ·  arraste para mover/trocar',
+                {'cols': cols, 'rows': rows}),
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
           ),
           const SizedBox(height: 16),
@@ -343,15 +347,15 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('New Profile'),
+        title: Text(tr('Novo perfil')),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(labelText: 'Profile Name'),
+          decoration: InputDecoration(labelText: tr('Nome do perfil')),
           autofocus: true,
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: Text(tr('Cancelar'))),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
@@ -370,7 +374,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                 Navigator.pop(ctx);
               }
             },
-            child: Text('Create'),
+            child: Text(tr('Criar')),
           ),
         ],
       ),
@@ -381,19 +385,19 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Delete Profile?'),
-        content: Text(
-            'Are you sure you want to delete "${profile.name}"? This action cannot be undone.'),
+        title: Text(tr('Excluir perfil?')),
+        content: Text(tr(
+            'Excluir "{name}"? Não dá para desfazer.', {'name': profile.name})),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: Text(tr('Cancelar'))),
           TextButton(
             onPressed: () {
               widget.controller.deleteProfile(profile.id);
               Navigator.pop(ctx);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(tr('Excluir')),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DroidDeck.Hubs;
+using DroidDeck.Lib;
 using DroidDeck.Models;
 using DroidDeck.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -120,8 +121,8 @@ namespace DroidDeck.Controllers
 
         private ObjectResult PrivilegedOnlyOnPc(string? label) => StatusCode(403, new
         {
-            error = "Botões que abrem programas, enviam atalhos, ativam janelas ou fazem requisições HTTP só podem ser criados ou alterados no configurador do PC (http://localhost:4787)."
-                + (string.IsNullOrWhiteSpace(label) ? "" : $" Botão: \"{label}\".")
+            error = L.T("Botões que abrem programas, enviam atalhos, ativam janelas ou fazem requisições HTTP só podem ser criados ou alterados no configurador do PC (http://localhost:4787).")
+                + (string.IsNullOrWhiteSpace(label) ? "" : L.T(" Botão: \"{label}\".", ("label", label)))
         });
 
         // ---- Grade física do deck (o celular envia quantos botões cabem na tela) ----

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DroidDeck.Services;
+using DroidDeck.Lib;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DroidDeck.Controllers
@@ -39,7 +40,7 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> Play([FromBody] PlayDto? dto)
         {
             if (string.IsNullOrWhiteSpace(dto?.Url))
-                return BadRequest(new { error = "url é obrigatório" });
+                return BadRequest(new { error = L.T("url é obrigatório") });
             await _soundboard.PlayAsync(dto!.Id ?? "", dto.Url!, dto.Title);
             return Ok(_soundboard.GetStatePayload());
         }

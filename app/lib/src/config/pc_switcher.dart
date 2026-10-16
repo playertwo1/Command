@@ -54,7 +54,7 @@ class _PcMenuButtonState extends State<PcMenuButton> {
     if (_pcs.length < 2) return const SizedBox.shrink();
     return PopupMenuButton<SavedPc>(
       icon: const Icon(Icons.computer),
-      tooltip: 'Trocar de PC',
+      tooltip: tr('Trocar de PC'),
       onSelected: (pc) {
         if (pc.id != PcStore.currentId) switchToPc(context, pc);
       },

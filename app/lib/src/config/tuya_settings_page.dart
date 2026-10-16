@@ -55,7 +55,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
   Future<void> _startPairing() async {
     final code = _userCodeCtrl.text.trim();
     if (code.isEmpty) {
-      _snack('Informe o código de usuário primeiro.');
+      _snack(tr('Informe o código de usuário primeiro.'));
       return;
     }
 
@@ -96,7 +96,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
               Map<String, dynamic>.from(state);
         }
         if (mounted) setState(() => _qrBase64 = null);
-        _snack('Conta vinculada!');
+        _snack(tr('Conta vinculada!'));
       } catch (e) {
         // 410 = QR expirado: para o laço e deixa o usuário gerar outro.
         timer.cancel();
@@ -112,7 +112,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
       final state = await Injector.get<DroidDeckClient>().refreshTuyaDevices();
       Injector.get<SignalRService>().tuyaState.value =
           Map<String, dynamic>.from(state);
-      _snack('Dispositivos atualizados.');
+      _snack(tr('Dispositivos atualizados.'));
     } catch (e) {
       _snack(e.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -142,17 +142,17 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _userCodeCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Código de usuário',
-                    hintText: 'ex.: BxYZNPJ',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: tr('Código de usuário'),
+                    hintText: tr('ex.: BxYZNPJ'),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
                   onPressed: _busy ? null : _startPairing,
                   icon: const Icon(Icons.qr_code_2),
-                  label: Text(_qrBase64 == null ? 'Gerar QR' : 'Gerar outro QR'),
+                  label: Text(_qrBase64 == null ? tr('Gerar QR') : tr('Gerar outro QR')),
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48)),
                 ),
@@ -181,10 +181,13 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
           paired ? Icons.cloud_done : Icons.cloud_off,
           color: paired ? Colors.green : Colors.grey,
         ),
-        title: Text(paired ? 'Conta vinculada' : 'Não vinculado'),
+        title: Text(paired ? tr('Conta vinculada') : tr('Não vinculado')),
         subtitle: Text(paired
-            ? '$deviceCount dispositivo(s) · estado ao vivo ${pushOn ? "ativo" : "reconectando..."}'
-            : 'Vincule sua conta Smart Life para usar botões de casa inteligente.'),
+            ? tr('{count} dispositivo(s) · estado ao vivo {state}', {
+                'count': deviceCount,
+                'state': pushOn ? tr('ativo') : tr('reconectando...'),
+              })
+            : tr('Vincule sua conta Smart Life para usar botões de casa inteligente.')),
       ),
     );
   }
@@ -195,15 +198,15 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('Onde achar o código de usuário',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text('No app Smart Life (ou Tuya Smart):\n'
+          children: [
+            Text(tr('Onde achar o código de usuário'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(tr('No app Smart Life (ou Tuya Smart):\n'
                 '1. Aba "Eu" (canto inferior direito)\n'
                 '2. Ícone de engrenagem (canto superior direito)\n'
                 '3. "Conta e segurança"\n'
-                '4. Role até o fim: "Código de usuário"'),
+                '4. Role até o fim: "Código de usuário"')),
           ],
         ),
       ),
@@ -216,11 +219,11 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Escaneie com o app Smart Life',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(tr('Escaneie com o app Smart Life'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
-              'Aba "Home" → ícone de scan no topo direito.',
+              tr('Aba "Home" → ícone de scan no topo direito.'),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -230,8 +233,8 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
             const SizedBox(height: 8),
             Text(
               _secondsLeft > 0
-                  ? 'Expira em ${_secondsLeft}s'
-                  : 'Expirado — gere outro',
+                  ? tr('Expira em {seconds}s', {'seconds': _secondsLeft})
+                  : tr('Expirado — gere outro'),
               style: TextStyle(
                 fontSize: 12,
                 color: _secondsLeft > 20 ? Colors.grey : Colors.orange,
@@ -248,10 +251,10 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
       child: Column(
         children: [
           ListTile(
-            title: const Text('Dispositivos'),
+            title: Text(tr('Dispositivos')),
             trailing: IconButton(
               icon: const Icon(Icons.refresh),
-              tooltip: 'Buscar novos dispositivos na conta',
+              tooltip: tr('Buscar novos dispositivos na conta'),
               onPressed: _busy ? null : _refreshDevices,
             ),
           ),
@@ -259,7 +262,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
             Padding(
               padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
-                'Nenhum dispositivo. Se acabou de adicionar um no app, toque em atualizar.',
+                tr('Nenhum dispositivo. Se acabou de adicionar um no app, toque em atualizar.'),
                 style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -284,7 +287,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
           Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: Text(
-              'Atualizar consome cota da API da Tuya — use só ao adicionar aparelhos.',
+              tr('Atualizar consome cota da API da Tuya — use só ao adicionar aparelhos.'),
               style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
@@ -296,22 +299,22 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
   Widget _oemWarningCard() {
     return Card(
       color: Colors.orange.withValues(alpha: 0.08),
-      child: const Padding(
-        padding: EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Usa app de marca?',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
+            Text(tr('Usa app de marca?'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
             Text(
-              'O scan só funciona nos apps Smart Life e Tuya Smart. Apps de marca '
-              '(Nova Digital, Positivo, RSmart...) recusam com "please use the '
-              'designated app to scan the code".\n\n'
-              'Solução: remova o aparelho do app da marca e pareie de novo pelo '
-              'Smart Life — é o mesmo hardware, funciona igual. Compartilhar o '
-              'dispositivo não resolve.',
-              style: TextStyle(fontSize: 12),
+              tr('O scan só funciona nos apps Smart Life e Tuya Smart. Apps de marca '
+                  '(Nova Digital, Positivo, RSmart...) recusam com "please use the '
+                  'designated app to scan the code".\n\n'
+                  'Solução: remova o aparelho do app da marca e pareie de novo pelo '
+                  'Smart Life — é o mesmo hardware, funciona igual. Compartilhar o '
+                  'dispositivo não resolve.'),
+              style: const TextStyle(fontSize: 12),
             ),
           ],
         ),

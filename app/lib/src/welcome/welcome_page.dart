@@ -1,3 +1,4 @@
+import 'package:companion/core/core.dart';
 import 'package:companion/src/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,8 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
-  static const _shareText =
-      'Baixe o DroidDeck para Windows: ${Constants.siteUrl}';
+  static String get _shareText =>
+      tr('Baixe o DroidDeck para Windows: {url}', {'url': Constants.siteUrl});
 
   void _goToPairing(BuildContext context) {
     // Aberta a partir da configuração, só volta; no primeiro uso, segue para ela.
@@ -28,7 +29,7 @@ class WelcomePage extends StatelessWidget {
         mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível abrir o navegador.')),
+        SnackBar(content: Text(tr('Não foi possível abrir o navegador.'))),
       );
     }
   }
@@ -37,7 +38,7 @@ class WelcomePage extends StatelessWidget {
     await Clipboard.setData(const ClipboardData(text: Constants.siteUrl));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link copiado.')),
+        SnackBar(content: Text(tr('Link copiado.'))),
       );
     }
   }
@@ -59,27 +60,27 @@ class WelcomePage extends StatelessWidget {
               Image.asset('assets/images/logo.png', height: 88),
               const SizedBox(height: 24),
               Text(
-                'Bem-vindo ao DroidDeck',
+                tr('Bem-vindo ao DroidDeck'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Text(
-                'Este celular vira um painel de botões para o seu PC. Para '
-                'funcionar, ele precisa do programa DroidDeck rodando no '
-                'computador (Windows 10 ou 11).',
+                tr('Este celular vira um painel de botões para o seu PC. Para '
+                    'funcionar, ele precisa do programa DroidDeck rodando no '
+                    'computador (Windows 10 ou 11).'),
                 textAlign: TextAlign.center,
                 style: muted,
               ),
               const SizedBox(height: 28),
               _Step(
                 number: 1,
-                title: 'No PC, baixe o DroidDeck',
+                title: tr('No PC, baixe o DroidDeck'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Abra este endereço no navegador do computador:',
+                    Text(tr('Abra este endereço no navegador do computador:'),
                         style: muted),
                     const SizedBox(height: 10),
                     _SiteBox(onTap: () => _copyLink(context)),
@@ -91,7 +92,7 @@ class WelcomePage extends StatelessWidget {
                             onPressed: () => SharePlus.instance
                                 .share(ShareParams(text: _shareText)),
                             icon: const Icon(Icons.share, size: 18),
-                            label: const Text('Enviar link'),
+                            label: Text(tr('Enviar link')),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -99,15 +100,15 @@ class WelcomePage extends StatelessWidget {
                           child: OutlinedButton.icon(
                             onPressed: () => _copyLink(context),
                             icon: const Icon(Icons.copy, size: 18),
-                            label: const Text('Copiar'),
+                            label: Text(tr('Copiar')),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Dica: "Enviar link" manda pelo WhatsApp ou e-mail para '
-                      'você abrir no PC.',
+                      tr('Dica: "Enviar link" manda pelo WhatsApp ou e-mail para '
+                          'você abrir no PC.'),
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -115,20 +116,20 @@ class WelcomePage extends StatelessWidget {
               ),
               _Step(
                 number: 2,
-                title: 'Abra o DroidDeck.exe',
+                title: tr('Abra o DroidDeck.exe'),
                 child: Text(
-                  'Descompacte o arquivo e abra o DroidDeck.exe. Ele não abre '
-                  'janela: fica como um ícone na bandeja, perto do relógio.',
+                  tr('Descompacte o arquivo e abra o DroidDeck.exe. Ele não abre '
+                      'janela: fica como um ícone na bandeja, perto do relógio.'),
                   style: muted,
                 ),
               ),
               _Step(
                 number: 3,
-                title: 'Pareie este celular',
+                title: tr('Pareie este celular'),
                 child: Text(
-                  'Clique com o botão direito no ícone do DroidDeck → '
-                  '"Parear dispositivo (QR)" e escaneie o código aqui no app. '
-                  'Celular e PC precisam estar na mesma rede Wi-Fi.',
+                  tr('Clique com o botão direito no ícone do DroidDeck → '
+                      '"Parear dispositivo (QR)" e escaneie o código aqui no app. '
+                      'Celular e PC precisam estar na mesma rede Wi-Fi.'),
                   style: muted,
                 ),
               ),
@@ -136,7 +137,7 @@ class WelcomePage extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => _goToPairing(context),
                 icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Já instalei no PC: parear'),
+                label: Text(tr('Já instalei no PC: parear')),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   textStyle: const TextStyle(fontWeight: FontWeight.w600),
@@ -145,7 +146,7 @@ class WelcomePage extends StatelessWidget {
               const SizedBox(height: 4),
               TextButton(
                 onPressed: () => _openSite(context),
-                child: const Text('Ver o site neste celular'),
+                child: Text(tr('Ver o site neste celular')),
               ),
             ],
           ),

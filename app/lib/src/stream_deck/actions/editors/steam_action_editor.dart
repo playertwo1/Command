@@ -43,11 +43,11 @@ class _SteamActionEditorState extends State<SteamActionEditor> {
       if (mounted) {
         setState(() {
           _games = list;
-          _error = list.isEmpty ? 'Nenhum jogo da Steam encontrado neste PC.' : null;
+          _error = list.isEmpty ? tr('Nenhum jogo da Steam encontrado neste PC.') : null;
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _error = 'Não foi possível listar os jogos.');
+      if (mounted) setState(() => _error = tr('Não foi possível listar os jogos.'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -82,9 +82,9 @@ class _SteamActionEditorState extends State<SteamActionEditor> {
             color: Colors.green.withValues(alpha: 0.12),
             child: ListTile(
               leading: const Icon(Icons.sports_esports, color: Colors.green),
-              title: Text(selected?.$2 ?? 'Jogo $_appId',
+              title: Text(selected?.$2 ?? tr('Jogo {id}', {'id': _appId}),
                   overflow: TextOverflow.ellipsis),
-              subtitle: const Text('Jogo selecionado'),
+              subtitle: Text(tr('Jogo selecionado')),
             ),
           ),
         const SizedBox(height: 8),
@@ -97,11 +97,11 @@ class _SteamActionEditorState extends State<SteamActionEditor> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Buscar jogo',
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  labelText: tr('Buscar jogo'),
+                  prefixIcon: const Icon(Icons.search),
                   isDense: true,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 onChanged: (v) => setState(() => _filter = v),
               ),
@@ -127,8 +127,8 @@ class _SteamActionEditorState extends State<SteamActionEditor> {
             ),
           ),
         ],
-        const EditorHint(
-            'Ao escolher, o botão ganha o nome e a capa do jogo. Tocar abre o jogo pela Steam no PC.'),
+        EditorHint(
+            tr('Ao escolher, o botão ganha o nome e a capa do jogo. Tocar abre o jogo pela Steam no PC.')),
       ],
     );
   }

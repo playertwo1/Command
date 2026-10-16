@@ -24,7 +24,8 @@ class ActionPicker extends StatefulWidget {
   final List<DeckProfile> profiles;
   final ValueChanged<String> suggestLabel;
   final ValueChanged<String> suggestIcon;
-  final String label;
+  /// Rótulo do seletor; null = "Ação".
+  final String? label;
 
   const ActionPicker({
     super.key,
@@ -34,7 +35,7 @@ class ActionPicker extends StatefulWidget {
     required this.suggestLabel,
     required this.suggestIcon,
     this.profiles = const [],
-    this.label = 'Ação',
+    this.label,
   });
 
   /// Abrir app, atalho, ativar janela e HTTP executam código (ou acessam a rede) a
@@ -139,7 +140,7 @@ class _ActionPickerState extends State<ActionPicker> {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final items = <DropdownMenuItem<String>>[
-      const DropdownMenuItem(value: 'none', child: Text('Nenhuma')),
+      DropdownMenuItem(value: 'none', child: Text(tr('Nenhuma'))),
       for (final entry in categories.entries) ...[
         DropdownMenuItem<String>(
           enabled: false,
@@ -165,14 +166,14 @@ class _ActionPickerState extends State<ActionPicker> {
       ],
       // Tipo que este PC não anuncia (botão de uma versão mais nova/antiga).
       if (!known && _type != 'none')
-        DropdownMenuItem(value: _type, child: Text('$_type (desconhecido)')),
+        DropdownMenuItem(value: _type, child: Text(tr('{type} (desconhecido)', {'type': _type}))),
     ];
 
     return DropdownButtonFormField<String>(
       value: _type,
       isExpanded: true,
       decoration: InputDecoration(
-        labelText: widget.label,
+        labelText: widget.label ?? tr('Ação'),
         border: const OutlineInputBorder(),
       ),
       items: items,
@@ -224,14 +225,14 @@ class _ActionPickerState extends State<ActionPicker> {
     final String summary;
     switch (a.type) {
       case 'hotkey':
-        summary = 'Atalho: ${a.parameters['keys'] ?? ''}';
+        summary = tr('Atalho: {keys}', {'keys': a.parameters['keys'] ?? ''});
       case 'launch_app':
       case 'launchApp':
-        summary = 'Abre: ${a.parameters['path'] ?? ''}';
+        summary = tr('Abre: {path}', {'path': a.parameters['path'] ?? ''});
       case 'http':
-        summary = 'Requisição: ${a.parameters['url'] ?? ''}';
+        summary = tr('Requisição: {url}', {'url': a.parameters['url'] ?? ''});
       case 'multi':
-        summary = 'Multi-ação';
+        summary = tr('Multi-ação');
       default:
         summary = _catalog.find(a.type)?.title ?? a.type;
     }
@@ -254,10 +255,10 @@ class _ActionPickerState extends State<ActionPicker> {
                 Text(summary,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                const Text(
-                  'Ações que abrem programas, enviam atalhos ou fazem requisições '
-                  'só podem ser alteradas no configurador do PC (http://localhost:4787). '
-                  'Aqui você pode mudar o nome, o ícone e as cores.',
+                Text(
+                  tr('Ações que abrem programas, enviam atalhos ou fazem requisições '
+                      'só podem ser alteradas no configurador do PC (http://localhost:4787). '
+                      'Aqui você pode mudar o nome, o ícone e as cores.'),
                 ),
               ],
             ),

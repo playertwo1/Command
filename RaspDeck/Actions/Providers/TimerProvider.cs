@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DroidDeck.Lib;
 using DroidDeck.Models;
 using DroidDeck.Services;
 
@@ -110,7 +111,7 @@ namespace DroidDeck.Actions.Providers
         /// <summary>Opcoes do campo "target": este botao ou qualquer botao-timer salvo.</summary>
         public List<FieldOption> Targets()
         {
-            var options = new List<FieldOption> { new(Self, "Este botão") };
+            var options = new List<FieldOption> { new(Self, L.T("Este botão")) };
             foreach (var profile in _config.GetProfiles())
             {
                 foreach (var b in profile.Buttons ?? new List<DeckButton>())

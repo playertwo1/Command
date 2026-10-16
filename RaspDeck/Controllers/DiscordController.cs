@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DroidDeck.Services;
+using DroidDeck.Lib;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DroidDeck.Controllers
@@ -28,7 +29,7 @@ namespace DroidDeck.Controllers
         public IActionResult Config([FromBody] CredsDto? dto)
         {
             if (string.IsNullOrWhiteSpace(dto?.ClientId) || string.IsNullOrWhiteSpace(dto?.ClientSecret))
-                return BadRequest("clientId e clientSecret obrigatórios");
+                return BadRequest(L.T("clientId e clientSecret obrigatórios"));
             _discord.SetCredentials(dto.ClientId!, dto.ClientSecret!);
             return Ok();
         }
@@ -43,7 +44,7 @@ namespace DroidDeck.Controllers
             }
             catch (System.Exception ex)
             {
-                return StatusCode(502, new { error = ex.Message });
+                return StatusCode(502, new { error = L.T(ex.Message) });
             }
         }
 
@@ -54,21 +55,21 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> Guilds()
         {
             try { return Ok(await _discord.GetGuildsAsync()); }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [HttpGet("channels/{guildId}")]
         public async Task<IActionResult> Channels(string guildId)
         {
             try { return Ok(await _discord.GetChannelsAsync(guildId)); }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [HttpGet("voice-channel")]
         public async Task<IActionResult> VoiceChannel()
         {
             try { await _discord.RefreshVoiceChannelAsync(); return Ok(_discord.GetStatePayload()); }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [HttpPost("mute")]
@@ -79,7 +80,7 @@ namespace DroidDeck.Controllers
                 await _discord.SetMuteAsync(dto?.Mute);
                 return Ok(new { mute = _discord.SelfMute });
             }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [HttpPost("deafen")]
@@ -90,7 +91,7 @@ namespace DroidDeck.Controllers
                 await _discord.SetDeafAsync(dto?.Deaf);
                 return Ok(new { deaf = _discord.SelfDeaf });
             }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         // ---- Soundboard nativa do Discord ----
@@ -98,7 +99,7 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> SoundboardSounds()
         {
             try { return Ok(await _discord.GetSoundboardSoundsAsync()); }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         public class PlaySoundDto
@@ -111,13 +112,13 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> PlaySoundboard([FromBody] PlaySoundDto? dto)
         {
             if (string.IsNullOrWhiteSpace(dto?.SoundId))
-                return BadRequest(new { error = "soundId é obrigatório" });
+                return BadRequest(new { error = L.T("soundId é obrigatório") });
             try
             {
                 await _discord.PlaySoundboardSoundAsync(dto!.SoundId!, dto.GuildId);
                 return Ok();
             }
-            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
     }
 }

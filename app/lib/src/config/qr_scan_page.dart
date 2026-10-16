@@ -1,3 +1,4 @@
+import 'package:companion/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -7,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class QrScanPage extends StatefulWidget {
   /// Prefixos aceitos (case-insensitive). Padrão: QR de pareamento.
   final List<String> acceptPrefixes;
+  /// Título e dica em português; a tela traduz com [tr].
   final String title;
   final String hint;
 
@@ -42,7 +44,7 @@ class _QrScanPageState extends State<QrScanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(tr(widget.title))),
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -62,7 +64,7 @@ class _QrScanPageState extends State<QrScanPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               color: Colors.black54,
               child: Text(
-                widget.hint,
+                tr(widget.hint),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white),
               ),

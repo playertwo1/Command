@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using DroidDeck.Services;
+using DroidDeck.Lib;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DroidDeck.Controllers
@@ -34,10 +35,10 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> StartPairing([FromBody] PairDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto?.UserCode))
-                return BadRequest(new { error = "userCode obrigatorio" });
+                return BadRequest(new { error = L.T("userCode obrigatorio") });
 
             try { return Ok(await _tuya.StartPairingAsync(dto.UserCode!.Trim())); }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         /// <summary>
@@ -48,8 +49,8 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> PollPairing()
         {
             try { return Ok(new { scanned = await _tuya.PollPairingAsync() }); }
-            catch (InvalidOperationException ex) { return StatusCode(410, new { error = ex.Message }); }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (InvalidOperationException ex) { return StatusCode(410, new { error = L.T(ex.Message) }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         [HttpGet("state")]
@@ -59,7 +60,7 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> Connect()
         {
             try { await _tuya.ConnectAsync(); return Ok(_tuya.GetStatePayload()); }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         /// <summary>Reenumera na nuvem. Caro em cota: so a pedido explicito do usuario.</summary>
@@ -67,7 +68,7 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> RefreshDevices()
         {
             try { await _tuya.RefreshDevicesAsync(); return Ok(_tuya.GetStatePayload()); }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
 
         /// <summary>Usado pelo botao "testar" do editor.</summary>
@@ -75,14 +76,14 @@ namespace DroidDeck.Controllers
         public async Task<IActionResult> Command([FromBody] CommandDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto?.DeviceId) || string.IsNullOrWhiteSpace(dto?.Code))
-                return BadRequest(new { error = "deviceId e code obrigatorios" });
+                return BadRequest(new { error = L.T("deviceId e code obrigatorios") });
 
             try
             {
                 await _tuya.SendCommandAsync(dto.DeviceId!, dto.Code!, dto.Value);
                 return Ok();
             }
-            catch (Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+            catch (Exception ex) { return StatusCode(502, new { error = L.T(ex.Message) }); }
         }
     }
 }

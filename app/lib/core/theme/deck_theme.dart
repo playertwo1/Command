@@ -1,3 +1,4 @@
+import 'package:companion/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 
 /// Como os botões do deck são desenhados.
@@ -11,8 +12,11 @@ enum DeckTileStyle {
   /// Moldura dupla com canto chanfrado e triângulo na cor do botão.
   frame('Moldura');
 
-  const DeckTileStyle(this.label);
-  final String label;
+  const DeckTileStyle(this.ptLabel);
+
+  /// Rótulo em português (chave de tradução); a tela usa [label].
+  final String ptLabel;
+  String get label => tr(ptLabel);
 }
 
 /// Cores e estilo da grade do deck. Fica no [ThemeData] como extensão, então

@@ -110,11 +110,11 @@ class _DeckGridButtonState extends State<DeckGridButton> {
   String _mediaDefaultLabel(String cmd) {
     switch (cmd) {
       case 'next':
-        return 'Próxima';
+        return tr('Próxima');
       case 'previous':
-        return 'Anterior';
+        return tr('Anterior');
       case 'stop':
-        return 'Parar';
+        return tr('Parar');
       case 'pause':
         return 'Pause';
       case 'play':
@@ -416,31 +416,31 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     if (op.contains('deaf')) {
       active = ds['deaf'] == true;
       icon = active ? Icons.headset_off : Icons.headset_mic;
-      defLabel = 'Deafen';
+      defLabel = tr('Ensurdecer');
     } else if (op == 'joinchannel') {
       final ch = params['channelId'];
       active = ch != null && ch.isNotEmpty && ds['channelId'] == ch;
       icon = active ? Icons.headset : Icons.login;
       defLabel = (params['channelName']?.isNotEmpty ?? false)
           ? params['channelName']!
-          : 'Canal';
+          : tr('Canal');
     } else if (op == 'disconnect' || op == 'leavechannel') {
       icon = Icons.call_end;
-      defLabel = 'Sair';
+      defLabel = tr('Sair');
     } else if (op.contains('inputvolume')) {
       icon = op.contains('up') ? Icons.mic : Icons.mic_none;
       defLabel = op.contains('up') ? 'Mic +' : 'Mic −';
     } else if (op.contains('outputvolume')) {
       icon = op.contains('up') ? Icons.volume_up : Icons.volume_down;
-      defLabel = op.contains('up') ? 'Som +' : 'Som −';
+      defLabel = op.contains('up') ? tr('Som +') : tr('Som −');
     } else if (op.contains('voicemode') || op.contains('ptt')) {
       active = ds['voiceMode'] == 'PUSH_TO_TALK';
       icon = active ? Icons.record_voice_over : Icons.graphic_eq;
-      defLabel = active ? 'PTT' : 'Voz';
+      defLabel = active ? 'PTT' : tr('Voz');
     } else if (op.startsWith('usermute')) {
       icon = Icons.person_off;
       defLabel =
-          (params['userName']?.isNotEmpty ?? false) ? params['userName']! : 'Mutar';
+          (params['userName']?.isNotEmpty ?? false) ? params['userName']! : tr('Mutar');
     } else if (op == 'uservolume') {
       icon = Icons.person;
       defLabel =
@@ -449,7 +449,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       // toggleMute (padrão)
       active = ds['mute'] == true;
       icon = active ? Icons.mic_off : Icons.mic;
-      defLabel = 'Mute';
+      defLabel = tr('Mutar');
     }
 
     final label =
@@ -555,22 +555,22 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         final sc = params['scene'];
         active = sc != null && sc.isNotEmpty && ds['currentScene'] == sc;
         icon = Icons.movie_outlined;
-        defLabel = (sc?.isNotEmpty ?? false) ? sc! : 'Cena';
+        defLabel = (sc?.isNotEmpty ?? false) ? sc! : tr('Cena');
         break;
       case 'togglerecord':
         active = ds['recording'] == true;
         icon = Icons.fiber_manual_record;
-        defLabel = active ? 'Gravando' : 'Gravar';
+        defLabel = active ? tr('Gravando') : tr('Gravar');
         break;
       case 'togglestream':
         active = ds['streaming'] == true;
         icon = Icons.sensors;
-        defLabel = active ? 'No ar' : 'Live';
+        defLabel = active ? tr('No ar') : 'Live';
         break;
       case 'togglevirtualcam':
         active = ds['virtualCam'] == true;
         icon = Icons.videocam;
-        defLabel = 'Câmera virtual';
+        defLabel = tr('Câmera virtual');
         break;
       case 'togglereplaybuffer':
         active = ds['replayBuffer'] == true;
@@ -579,38 +579,38 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         break;
       case 'savereplay':
         icon = Icons.save_alt;
-        defLabel = 'Salvar replay';
+        defLabel = tr('Salvar replay');
         break;
       case 'toggleinputmute':
         icon = Icons.mic_off;
         defLabel = (params['inputName']?.isNotEmpty ?? false)
             ? params['inputName']!
-            : 'Mutar fonte';
+            : tr('Mutar fonte');
         break;
       case 'togglesourcevisibility':
         icon = Icons.visibility;
         defLabel = (params['sourceName']?.isNotEmpty ?? false)
             ? params['sourceName']!
-            : 'Fonte';
+            : tr('Fonte');
         break;
       case 'togglefilter':
         icon = Icons.auto_fix_high;
         defLabel = (params['filterName']?.isNotEmpty ?? false)
             ? params['filterName']!
-            : 'Filtro';
+            : tr('Filtro');
         break;
       case 'togglerecordpause':
         active = ds['recordPaused'] == true;
         icon = active ? Icons.play_arrow : Icons.pause;
-        defLabel = active ? 'Retomar' : 'Pausar gravação';
+        defLabel = active ? tr('Retomar') : tr('Pausar gravação');
         break;
       case 'createchapter':
         icon = Icons.bookmark_add;
-        defLabel = 'Capítulo';
+        defLabel = tr('Capítulo');
         break;
       case 'screenshot':
         icon = Icons.photo_camera;
-        defLabel = 'Captura';
+        defLabel = tr('Captura');
         break;
       default:
         icon = Icons.videocam;
@@ -724,18 +724,18 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       );
     }
     final (IconData icon, bool active, String label) = switch (op) {
-      'next' => (Icons.skip_next, false, 'Próxima'),
-      'previous' => (Icons.skip_previous, false, 'Anterior'),
+      'next' => (Icons.skip_next, false, tr('Próxima')),
+      'previous' => (Icons.skip_previous, false, tr('Anterior')),
       'like' => (
           sp['liked'] == true ? Icons.favorite : Icons.favorite_border,
           sp['liked'] == true,
-          'Curtir'
+          tr('Curtir')
         ),
-      'shuffle' => (Icons.shuffle, sp['shuffle'] == true, 'Aleatório'),
+      'shuffle' => (Icons.shuffle, sp['shuffle'] == true, tr('Aleatório')),
       'repeat' => (
           sp['repeat'] == 'track' ? Icons.repeat_one : Icons.repeat,
           sp['repeat'] != null && sp['repeat'] != 'off',
-          'Repetir'
+          tr('Repetir')
         ),
       'volume' => (
           (int.tryParse(widget.button.action?.parameters['step'] ?? '') ?? 10) < 0
@@ -761,17 +761,19 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     final live = st['live'] == true;
     final viewers = st['viewers'];
     final (IconData icon, String label) = switch (op) {
-      'marker' => (Icons.bookmark_add, 'Marcador'),
-      'clip' => (Icons.movie_creation_outlined, 'Clipe'),
-      'ad' => (Icons.campaign, 'Anúncio'),
+      'marker' => (Icons.bookmark_add, tr('Marcador')),
+      'clip' => (Icons.movie_creation_outlined, tr('Clipe')),
+      'ad' => (Icons.campaign, tr('Anúncio')),
       'chat' => (Icons.chat, 'Chat'),
-      'poll' => (Icons.poll_outlined, 'Enquete'),
-      'title' => (Icons.title, 'Título'),
+      'poll' => (Icons.poll_outlined, tr('Enquete')),
+      'title' => (Icons.title, tr('Título')),
       _ => (
           type == 'twitch' ? Icons.sensors : Icons.smart_display,
           live
-              ? (viewers != null ? '$viewers assistindo' : 'Ao vivo')
-              : 'Fora do ar'
+              ? (viewers != null
+                  ? tr('{n} assistindo', {'n': viewers})
+                  : tr('Ao vivo'))
+              : tr('Fora do ar')
         ),
     };
     return _tile(
@@ -790,15 +792,15 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     switch (op) {
       case 'lock':
         icon = Icons.lock;
-        defLabel = 'Travar';
+        defLabel = tr('Travar');
         break;
       case 'sleep':
         icon = Icons.bedtime;
-        defLabel = 'Suspender';
+        defLabel = tr('Suspender');
         break;
       case 'displayoff':
         icon = Icons.desktop_access_disabled;
-        defLabel = 'Desligar tela';
+        defLabel = tr('Desligar tela');
         break;
       default:
         final input = params['deviceKind'] == 'input';
@@ -812,7 +814,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         icon = input
             ? Icons.mic
             : (hasAlt && !onMain ? Icons.speaker : Icons.headphones);
-        defLabel = input ? 'Microfone' : 'Saída de áudio';
+        defLabel = input ? tr('Microfone') : tr('Saída de áudio');
     }
 
     final hasIcon = (widget.button.iconName?.isNotEmpty ?? false) ||

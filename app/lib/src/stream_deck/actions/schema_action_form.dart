@@ -94,7 +94,7 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
       final data = e.response?.data;
       if (data is Map && data['error'] is String) return data['error'] as String;
     }
-    return 'Não foi possível carregar a lista.';
+    return tr('Não foi possível carregar a lista.');
   }
 
   @override
@@ -223,7 +223,7 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
         if (value != null && value.isNotEmpty && !known)
           DropdownMenuItem(
               value: value,
-              child: Text('$value (salvo)', overflow: TextOverflow.ellipsis)),
+              child: Text(tr('{value} (salvo)', {'value': value}), overflow: TextOverflow.ellipsis)),
       ],
       onChanged: (v) {
         if (v == null) return;
@@ -238,7 +238,7 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
     final url = _resolve(f.optionsSource!);
     if (url == null) {
       return InputDecorator(
-        decoration: _decoration(f, helper: 'Escolha o campo acima primeiro.'),
+        decoration: _decoration(f, helper: tr('Escolha o campo acima primeiro.')),
         child: const SizedBox(height: 20),
       );
     }
@@ -258,7 +258,7 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
                 child: CircularProgressIndicator(strokeWidth: 2)),
           )
         : IconButton(
-            tooltip: 'Recarregar a lista',
+            tooltip: tr('Recarregar a lista'),
             icon: const Icon(Icons.refresh),
             onPressed: () => _fetch(url, force: true),
           );
@@ -269,14 +269,14 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
         key: ValueKey('f_${f.key}_text'),
         initialValue: _values[f.key] ?? '',
         decoration: _decoration(f,
-            helper: error != null ? '$error Digite o nome.' : f.help,
+            helper: error != null ? tr('{error} Digite o nome.', {'error': error}) : f.help,
             suffix: refresh),
         onChanged: (v) => _set(f.key, v),
       );
     }
 
     return _select(f, options,
-        helper: options.isEmpty && !loading ? 'Lista vazia.' : f.help,
+        helper: options.isEmpty && !loading ? tr('Lista vazia.') : f.help,
         suffix: refresh);
   }
 }
@@ -317,7 +317,8 @@ class IntegrationWarning extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${schema.title} não está conectado — esta ação não funciona até conectar.',
+                tr('{name} não está conectado — esta ação não funciona até conectar.',
+                    {'name': schema.title}),
                 style: const TextStyle(fontSize: 12),
               ),
             ),
@@ -325,7 +326,7 @@ class IntegrationWarning extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => page)),
-                child: const Text('Configurar'),
+                child: Text(tr('Configurar')),
               ),
           ],
         ),

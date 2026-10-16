@@ -222,11 +222,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'O PC não respondeu. Confira se o DroidDeck está aberto nele.',
+            tr('O PC não respondeu. Confira se o DroidDeck está aberto nele.'),
           ),
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
   }
@@ -348,7 +348,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     if (existing == null) {
       final novo = DeckButton(
         id: '',
-        label: 'New Button',
+        label: tr('Novo botão'),
         row: row,
         column: col,
         action: DeckAction(type: 'none'),
@@ -417,11 +417,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            const Text('No profiles found'),
+            Text(tr('Nenhum perfil encontrado')),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: controller.loadProfiles,
-              child: const Text('Refresh'),
+              child: Text(tr('Atualizar')),
             ),
           ],
         ),
@@ -460,13 +460,13 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                 leading: _navStack.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        tooltip: 'Voltar',
+                        tooltip: tr('Voltar'),
                         onPressed: () => _goBack(profiles),
                       )
                     : null,
                 title: Text(
                   _navStack.isNotEmpty
-                      ? (_folderProfile(profiles)?.name ?? 'Pasta')
+                      ? (_folderProfile(profiles)?.name ?? tr('Pasta'))
                       : (currentProfile?.name ?? 'StreamDeck'),
                 ),
                 actions: [
@@ -493,16 +493,17 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                               showDialog(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
-                                  title: const Text('Connection Debug'),
+                                  title: Text(tr('Diagnóstico da conexão')),
                                   content: SingleChildScrollView(
                                     child: Text(
-                                      "Status: $status\n\nURL: $currentUrl\n\nLast Data:\n$debugData",
+                                      tr('Status: {status}\n\nURL: {url}\n\nÚltimos dados:\n{data}',
+                                          {'status': status, 'url': currentUrl, 'data': debugData}),
                                     ),
                                   ),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(ctx),
-                                      child: const Text('Close'),
+                                      child: Text(tr('Fechar')),
                                     ),
                                   ],
                                 ),
@@ -536,12 +537,12 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                   const PcMenuButton(),
                   IconButton(
                     icon: Icon(_editMode ? Icons.check : Icons.edit),
-                    tooltip: _editMode ? 'Concluir edição' : 'Editar botões',
+                    tooltip: _editMode ? tr('Concluir edição') : tr('Editar botões'),
                     onPressed: () => setState(() => _editMode = !_editMode),
                   ),
                   IconButton(
                     icon: const Icon(Icons.tune),
-                    tooltip: 'Perfil',
+                    tooltip: tr('Perfil'),
                     onPressed: currentProfile == null
                         ? null
                         : () => ProfileSettingsDialog.show(
@@ -552,7 +553,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings),
-                    tooltip: 'Configurações',
+                    tooltip: tr('Configurações'),
                     onPressed: () => Navigator.of(context).pushNamed('/config'),
                   ),
                 ],
@@ -601,9 +602,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                               Expanded(
                                 child: Text(
                                   controller.offline.value
-                                      ? 'PC desconectado. Mostrando o último deck salvo neste aparelho.'
-                                      : 'O PC não respondeu e este aparelho ainda não tem um deck dele salvo. '
-                                          'Confira se o DroidDeck está aberto nele e na mesma rede.',
+                                      ? tr('PC desconectado. Mostrando o último deck salvo neste aparelho.')
+                                      : tr('O PC não respondeu e este aparelho ainda não tem um deck dele salvo. '
+                                          'Confira se o DroidDeck está aberto nele e na mesma rede.'),
                                   style: const TextStyle(color: Colors.white),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -655,7 +656,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                               vertical: 4,
                             ),
                             child: Text(
-                              'Modo de edição: toque num botão para editar',
+                              tr('Modo de edição: toque num botão para editar'),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.onPrimary,

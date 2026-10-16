@@ -57,7 +57,7 @@ class MixerDeviceCard extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
-              child: Text(device.title ?? item.id ?? 'Desconhecido'),
+              child: Text(device.title ?? item.id ?? tr('Desconhecido')),
             ),
             IconButton(
               icon: Icon(
@@ -93,9 +93,9 @@ class MixerDeviceCard extends StatelessWidget {
               },
             ),
           if (channels.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('Nenhum app reproduzindo áudio'),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(tr('Nenhum app reproduzindo áudio')),
             )
           else
             ...channels.map((channel) {
@@ -172,8 +172,8 @@ class MixerList extends StatelessWidget {
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Text(isInput
-                        ? 'Nenhum dispositivo de entrada encontrado.'
-                        : 'Nenhum dispositivo de saída encontrado.'),
+                        ? tr('Nenhum dispositivo de entrada encontrado.')
+                        : tr('Nenhum dispositivo de saída encontrado.')),
                   ),
                 ),
               ],

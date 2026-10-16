@@ -73,20 +73,20 @@ class HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     isAuthError
-                        ? 'Falha de autenticação (chave inválida ou expirada).\nRefaça o pareamento.'
-                        : 'Erro: $err',
+                        ? tr('Falha de autenticação (chave inválida ou expirada).\nRefaça o pareamento.')
+                        : tr('Erro: {error}', {'error': err}),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   if (!isAuthError)
                     ElevatedButton(
                         onPressed: controller.fetchOutputs,
-                        child: const Text('Tentar novamente')),
+                        child: Text(tr('Tentar novamente'))),
                   TextButton.icon(
                     onPressed: () =>
                         Navigator.of(context).pushReplacementNamed('/config'),
                     icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text('Refazer pareamento'),
+                    label: Text(tr('Refazer pareamento')),
                   ),
                 ],
               ),
@@ -121,12 +121,12 @@ class HomePageState extends State<HomePage> {
                 if (err.isNotEmpty)
                   MaterialBanner(
                     leading: const Icon(Icons.wifi_off),
-                    content: const Text(
-                        'O PC não respondeu. Confira se o DroidDeck está aberto nele.'),
+                    content: Text(tr(
+                        'O PC não respondeu. Confira se o DroidDeck está aberto nele.')),
                     actions: [
                       TextButton(
                         onPressed: controller.fetchOutputs,
-                        child: const Text('Tentar novamente'),
+                        child: Text(tr('Tentar novamente')),
                       ),
                     ],
                   ),
@@ -152,12 +152,12 @@ class HomePageState extends State<HomePage> {
           return const SizedBox.shrink();
         }
         return BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
+          items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.tune),
-              label: 'Áudio',
+              icon: const Icon(Icons.tune),
+              label: tr('Áudio'),
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.grid_view),
               label: 'Deck',
             ),

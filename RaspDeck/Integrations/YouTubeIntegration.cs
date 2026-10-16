@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DroidDeck.Actions;
 using DroidDeck.Hubs;
+using DroidDeck.Lib;
 using DroidDeck.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
@@ -100,12 +101,14 @@ namespace DroidDeck.Integrations
         public override async Task<string> CallbackAsync(IQueryCollection query)
         {
             if (_pendingState == null || query["state"] != _pendingState)
-                return Html("YouTube", "Este link de login expirou. Comece de novo pelo DroidDeck.");
+                return Html("YouTube", L.T("Este link de login expirou. Comece de novo pelo DroidDeck."));
             _pendingState = null;
             if (!string.IsNullOrEmpty(query["error"]))
             {
                 _error = query["error"] == "access_denied" ? "Login cancelado." : $"O Google recusou: {query["error"]}";
-                return Html("YouTube", _error);
+                return Html("YouTube", query["error"] == "access_denied"
+                    ? L.T("Login cancelado.")
+                    : L.T("O Google recusou: {error}", ("error", query["error"].ToString())));
             }
             try
             {
@@ -125,12 +128,12 @@ namespace DroidDeck.Integrations
                 Set(("channel", items.Value[0].GetProperty("snippet").GetProperty("title").GetString()));
                 _nextRefresh = DateTime.MinValue;
                 await BroadcastAsync();
-                return Html("YouTube conectado", $"Canal {Channel}. Pode fechar esta aba.");
+                return Html(L.T("YouTube conectado"), L.T("Canal {channel}. Pode fechar esta aba.", ("channel", Channel)));
             }
             catch (Exception ex)
             {
                 _error = ex.Message;
-                return Html("YouTube", "Não deu certo: " + ex.Message);
+                return Html("YouTube", L.T("Não deu certo: {error}", ("error", L.T(ex.Message))));
             }
         }
 

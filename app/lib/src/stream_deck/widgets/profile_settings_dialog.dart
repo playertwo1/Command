@@ -88,7 +88,7 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
         .toList();
 
     return AlertDialog(
-      title: const Text('Perfil'),
+      title: Text(tr('Perfil')),
       content: SizedBox(
         width: 480,
         child: SingleChildScrollView(
@@ -98,18 +98,18 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
             children: [
               TextField(
                 controller: _name,
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: tr('Nome'),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('Abrir com o app em foco',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(tr('Abrir com o app em foco'),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(
-                'Quando um destes programas estiver em primeiro plano no PC, o deck '
-                'vai para este perfil sozinho. Ao sair dele, volta para onde estava.',
+                tr('Quando um destes programas estiver em primeiro plano no PC, o deck '
+                    'vai para este perfil sozinho. Ao sair dele, volta para onde estava.'),
                 style: TextStyle(fontSize: 12, color: muted),
               ),
               const SizedBox(height: 12),
@@ -130,17 +130,17 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                   Expanded(
                     child: TextField(
                       controller: _app,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome do processo',
+                      decoration: InputDecoration(
+                        labelText: tr('Nome do processo'),
                         hintText: 'obs64, Code, chrome…',
                         isDense: true,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       onSubmitted: _add,
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Adicionar',
+                    tooltip: tr('Adicionar'),
                     icon: const Icon(Icons.add),
                     onPressed: () => _add(_app.text),
                   ),
@@ -153,7 +153,7 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
                 )
               else if (suggestions.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text('Abertos no PC agora:', style: TextStyle(fontSize: 12, color: muted)),
+                Text(tr('Abertos no PC agora:'), style: TextStyle(fontSize: 12, color: muted)),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -178,9 +178,9 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
+          child: Text(tr('Cancelar')),
         ),
-        FilledButton(onPressed: _save, child: const Text('Salvar')),
+        FilledButton(onPressed: _save, child: Text(tr('Salvar'))),
       ],
     );
   }

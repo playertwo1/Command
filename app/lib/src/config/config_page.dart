@@ -53,7 +53,7 @@ class ConfigPageState extends State<ConfigPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('PCs pareados', style: Theme.of(context).textTheme.titleSmall),
+        Text(tr('PCs pareados'), style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
         for (final pc in _pcs)
           ListTile(
@@ -66,14 +66,14 @@ class ConfigPageState extends State<ConfigPage> {
             onTap: pc.id == PcStore.currentId ? null : () => switchToPc(context, pc),
             trailing: PopupMenuButton<String>(
               onSelected: (v) => v == 'rename' ? _renamePc(pc) : _removePc(pc),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'rename', child: Text('Renomear')),
-                PopupMenuItem(value: 'remove', child: Text('Esquecer este PC')),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'rename', child: Text(tr('Renomear'))),
+                PopupMenuItem(value: 'remove', child: Text(tr('Esquecer este PC'))),
               ],
             ),
           ),
         Text(
-          'Para acrescentar outro PC, pareie com o QR dele (ou digite o IP abaixo).',
+          tr('Para acrescentar outro PC, pareie com o QR dele (ou digite o IP abaixo).'),
           style: TextStyle(
               fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
@@ -86,13 +86,13 @@ class ConfigPageState extends State<ConfigPage> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nome do PC'),
+        title: Text(tr('Nome do PC')),
         content: TextField(controller: ctrl, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Cancelar'))),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-              child: const Text('Salvar')),
+              child: Text(tr('Salvar'))),
         ],
       ),
     );
@@ -121,16 +121,16 @@ class ConfigPageState extends State<ConfigPage> {
       if (result != 'Not Found') {
         _ipController.text = result;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Servidor encontrado: $result')),
+          SnackBar(content: Text(tr('Servidor encontrado: {server}', {'server': result}))),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Servidor não encontrado')),
+          SnackBar(content: Text(tr('Servidor não encontrado'))),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
+        SnackBar(content: Text(tr('Erro: {error}', {'error': e}))),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -141,7 +141,7 @@ class ConfigPageState extends State<ConfigPage> {
     var ip = _ipController.text.trim();
     if (ip.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor insira um IP válido')),
+        SnackBar(content: Text(tr('Por favor insira um IP válido'))),
       );
       return;
     }
@@ -202,7 +202,7 @@ class ConfigPageState extends State<ConfigPage> {
         key == null ||
         key.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('QR de pareamento inválido')),
+        SnackBar(content: Text(tr('QR de pareamento inválido'))),
       );
       return;
     }
@@ -224,7 +224,7 @@ class ConfigPageState extends State<ConfigPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pareado com sucesso!')),
+        SnackBar(content: Text(tr('Pareado com sucesso!'))),
       );
       Navigator.of(context).pushReplacementNamed('/home');
     }
@@ -234,7 +234,7 @@ class ConfigPageState extends State<ConfigPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuração'),
+        title: Text(tr('Configuração')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -253,13 +253,13 @@ class ConfigPageState extends State<ConfigPage> {
                   MaterialPageRoute(builder: (_) => const WelcomePage()),
                 ),
                 icon: const Icon(Icons.help_outline),
-                label: const Text('Ainda não instalou no PC? Veja como'),
+                label: Text(tr('Ainda não instalou no PC? Veja como')),
               ),
             ),
             TextField(
               controller: _ipController,
-              decoration: const InputDecoration(
-                labelText: 'IP do Servidor',
+              decoration: InputDecoration(
+                labelText: tr('IP do Servidor'),
                 hintText: '192.168.x.x',
               ),
             ),
@@ -269,25 +269,25 @@ class ConfigPageState extends State<ConfigPage> {
                 : ElevatedButton.icon(
                     onPressed: _findServer,
                     icon: const Icon(Icons.search),
-                    label: const Text('Pesquisar Servidor'),
+                    label: Text(tr('Pesquisar Servidor')),
                   ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _pairWithQr,
               icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Parear (QR)'),
+              label: Text(tr('Parear (QR)')),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _saveAndGoBack,
-              child: const Text('Salvar'),
+              child: Text(tr('Salvar')),
             ),
             const Divider(height: 32),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.palette_outlined),
-              title: const Text('Aparência'),
-              subtitle: const Text('Tema, cores, estilo dos botões e vibração'),
+              title: Text(tr('Aparência')),
+              subtitle: Text(tr('Tema, cores, estilo dos botões, vibração e idioma')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),
@@ -297,9 +297,9 @@ class ConfigPageState extends State<ConfigPage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.extension_outlined),
-              title: const Text('Integrações'),
-              subtitle: const Text(
-                  'Discord, OBS, Twitch, YouTube, Spotify, Soundboard, Home Assistant e Tuya'),
+              title: Text(tr('Integrações')),
+              subtitle: Text(tr(
+                  'Discord, OBS, Twitch, YouTube, Spotify, Soundboard, Home Assistant e Tuya')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const IntegrationsPage()),

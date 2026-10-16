@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using DroidDeck.Lib;
 using DroidDeck.Lib.Input;
 using DroidDeck.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace DroidDeck.Controllers
         private bool Local => ActionPolicy.IsLocal(HttpContext.Connection.RemoteIpAddress);
 
         private ObjectResult OnlyOnPc() =>
-            StatusCode(403, new { error = "Gravar macro só funciona no configurador do PC (http://localhost:4787)." });
+            StatusCode(403, new { error = L.T("Gravar macro só funciona no configurador do PC (http://localhost:4787).") });
 
         [HttpGet]
         public ActionResult Status()

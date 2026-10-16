@@ -102,10 +102,10 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
         value: _operation,
         isExpanded: true,
         decoration:
-            const InputDecoration(labelText: 'Ação', border: OutlineInputBorder()),
-        items: const [
-          DropdownMenuItem(value: 'play', child: Text('Tocar um som')),
-          DropdownMenuItem(value: 'stop', child: Text('Parar tudo')),
+            InputDecoration(labelText: tr('Ação'), border: const OutlineInputBorder()),
+        items: [
+          DropdownMenuItem(value: 'play', child: Text(tr('Tocar um som'))),
+          DropdownMenuItem(value: 'stop', child: Text(tr('Parar tudo'))),
         ],
         onChanged: (v) => _update(() => _operation = v ?? 'play'),
       ),
@@ -113,23 +113,23 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
     ];
 
     if (_operation == 'stop') {
-      fields.add(const EditorHint(
-          'Para qualquer som que estiver tocando na soundboard.'));
+      fields.add(EditorHint(
+          tr('Para qualquer som que estiver tocando na soundboard.')));
     } else {
       // operação "play": escolhe a fonte do som
       fields
         ..add(DropdownButtonFormField<String>(
           value: _source,
           isExpanded: true,
-          decoration: const InputDecoration(
-              labelText: 'Fonte', border: OutlineInputBorder()),
-          items: const [
+          decoration: InputDecoration(
+              labelText: tr('Fonte'), border: const OutlineInputBorder()),
+          items: [
             DropdownMenuItem(
                 value: 'myinstants',
-                child: Text('MyInstants (toca no PC → cabo/OBS)')),
+                child: Text(tr('MyInstants (toca no PC → cabo/OBS)'))),
             DropdownMenuItem(
                 value: 'discord',
-                child: Text('Soundboard do Discord (canal de voz)')),
+                child: Text(tr('Soundboard do Discord (canal de voz)'))),
           ],
           onChanged: (v) {
             _update(() {
@@ -158,7 +158,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
         child: ListTile(
           leading: Icon(icon, color: Colors.green),
           title: Text(_title!, overflow: TextOverflow.ellipsis),
-          subtitle: const Text('Som selecionado'),
+          subtitle: Text(tr('Som selecionado')),
           trailing: IconButton(
             icon: const Icon(Icons.play_arrow),
             tooltip: tooltip,
@@ -172,7 +172,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
       if (_title != null && _title!.isNotEmpty) ...[
         _selectedCard(
           Icons.music_note,
-          'Testar no PC',
+          tr('Testar no PC'),
           _url == null ? null : () => _client.playSound(_id ?? '', _url!, _title ?? ''),
         ),
         const SizedBox(height: 8),
@@ -183,10 +183,10 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
             child: TextField(
               controller: _searchController,
               textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                labelText: 'Buscar som no MyInstants',
-                hintText: 'ex.: risada, bruh, aplausos…',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: tr('Buscar som no MyInstants'),
+                hintText: tr('ex.: risada, bruh, aplausos…'),
+                border: const OutlineInputBorder(),
               ),
               onSubmitted: (_) => _search(),
             ),
@@ -221,7 +221,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
                 selected: selected,
                 leading: IconButton(
                   icon: const Icon(Icons.play_circle_outline),
-                  tooltip: 'Ouvir (toca no PC)',
+                  tooltip: tr('Ouvir (toca no PC)'),
                   onPressed: () => _client.playSound(s.id, s.mp3, s.title),
                 ),
                 title: Text(s.title, overflow: TextOverflow.ellipsis),
@@ -240,9 +240,9 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
             },
           ),
         ),
-      const EditorHint(
-          'O som toca no PC e sai pelo dispositivo configurado (cabo p/ Discord/OBS + monitor). '
-          'Configure a saída em Configurações › Soundboard.'),
+      EditorHint(
+          tr('O som toca no PC e sai pelo dispositivo configurado (cabo p/ Discord/OBS + monitor). '
+              'Configure a saída em Configurações › Soundboard.')),
     ];
   }
 
@@ -251,7 +251,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
       if (_title != null && _title!.isNotEmpty) ...[
         _selectedCard(
           Icons.graphic_eq,
-          'Testar no canal de voz',
+          tr('Testar no canal de voz'),
           _dcSoundId == null
               ? null
               : () => _client.playDiscordSoundboard(_dcSoundId!, _dcGuildId),
@@ -260,9 +260,9 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
       ],
       Row(
         children: [
-          const Expanded(
-            child: Text('Sons da soundboard do Discord',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(tr('Sons da soundboard do Discord'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           _dcLoading
               ? const SizedBox(
@@ -271,7 +271,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
                   child: CircularProgressIndicator(strokeWidth: 2))
               : IconButton(
                   icon: const Icon(Icons.refresh),
-                  tooltip: 'Recarregar',
+                  tooltip: tr('Recarregar'),
                   onPressed: _loadDiscordSounds,
                 ),
         ],
@@ -279,7 +279,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
       const SizedBox(height: 8),
       if (_dcSounds.isEmpty && !_dcLoading)
         Text(
-          'Nenhum som carregado. Conecte o Discord no PC, entre num canal de voz e toque em recarregar.',
+          tr('Nenhum som carregado. Conecte o Discord no PC, entre num canal de voz e toque em recarregar.'),
           style: TextStyle(
               fontSize: 12,
               color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -301,7 +301,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
                 selected: selected,
                 leading: IconButton(
                   icon: const Icon(Icons.play_circle_outline),
-                  tooltip: 'Ouvir (no canal de voz)',
+                  tooltip: tr('Ouvir (no canal de voz)'),
                   onPressed: () =>
                       _client.playDiscordSoundboard(sid, s['guildId']),
                 ),
@@ -322,9 +322,9 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
             },
           ),
         ),
-      const EditorHint(
-          'Toca a soundboard NATIVA do Discord no canal de voz atual (sem cabo). '
-          'Você precisa estar num canal de voz. Não sai na live/OBS.'),
+      EditorHint(
+          tr('Toca a soundboard NATIVA do Discord no canal de voz atual (sem cabo). '
+              'Você precisa estar num canal de voz. Não sai na live/OBS.')),
     ];
   }
 }

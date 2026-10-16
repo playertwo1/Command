@@ -90,7 +90,7 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
 
   String _deviceLabel(MixerEntity e) => e.device.title?.trim().isNotEmpty == true
       ? e.device.title!.trim()
-      : (e.id ?? 'Dispositivo');
+      : (e.id ?? tr('Dispositivo'));
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +103,14 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
       children: [
         DropdownButtonFormField<String>(
           value: _target,
-          decoration: const InputDecoration(
-            labelText: 'Alvo',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: tr('Alvo'),
+            border: const OutlineInputBorder(),
           ),
-          items: const [
-            DropdownMenuItem(value: 'app', child: Text('Aplicativo (processo)')),
+          items: [
+            DropdownMenuItem(value: 'app', child: Text(tr('Aplicativo (processo)'))),
             DropdownMenuItem(
-                value: 'device', child: Text('Dispositivo do Windows')),
+                value: 'device', child: Text(tr('Dispositivo do Windows'))),
           ],
           onChanged: (val) {
             _update(() {
@@ -126,15 +126,15 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
         if (isDevice) ...[
           DropdownButtonFormField<String>(
             value: _deviceKind,
-            decoration: const InputDecoration(
-              labelText: 'Tipo',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr('Tipo'),
+              border: const OutlineInputBorder(),
             ),
-            items: const [
+            items: [
               DropdownMenuItem(
-                  value: 'output', child: Text('Saída (alto-falante/fone)')),
+                  value: 'output', child: Text(tr('Saída (alto-falante/fone)'))),
               DropdownMenuItem(
-                  value: 'input', child: Text('Entrada (microfone)')),
+                  value: 'input', child: Text(tr('Entrada (microfone)'))),
             ],
             onChanged: (val) => _update(() {
               _deviceKind = val ?? 'output';
@@ -146,17 +146,17 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
           DropdownButtonFormField<String>(
             value: knownIds.contains(_deviceId) ? _deviceId : null,
             decoration: InputDecoration(
-              labelText: 'Dispositivo',
+              labelText: tr('Dispositivo'),
               border: const OutlineInputBorder(),
               helperText: _deviceId == 'default'
-                  ? 'Acompanha a troca de fone/monitor'
-                  : 'Id fixo: se você trocar de dispositivo, o botão para de valer',
+                  ? tr('Acompanha a troca de fone/monitor')
+                  : tr('Id fixo: se você trocar de dispositivo, o botão para de valer'),
             ),
             // Um id salvo que não está na lista (dispositivo desconectado) continua
             // selecionável, senão salvar de novo trocaria a configuração sem avisar.
             items: [
-              const DropdownMenuItem(
-                  value: 'default', child: Text('Padrão do Windows')),
+              DropdownMenuItem(
+                  value: 'default', child: Text(tr('Padrão do Windows'))),
               ...devices.map((d) => DropdownMenuItem(
                     value: d.id,
                     child: Text(_deviceLabel(d), overflow: TextOverflow.ellipsis),
@@ -164,7 +164,7 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
               if (!knownIds.contains(_deviceId))
                 DropdownMenuItem(
                   value: _deviceId,
-                  child: const Text('Dispositivo salvo (desconectado)'),
+                  child: Text(tr('Dispositivo salvo (desconectado)')),
                 ),
             ],
             onChanged: (val) => _update(() => _deviceId = val ?? 'default'),
@@ -178,28 +178,28 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
         ],
         DropdownButtonFormField<String>(
           value: _operation,
-          decoration: const InputDecoration(
-            labelText: 'Operação',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: tr('Operação'),
+            border: const OutlineInputBorder(),
           ),
           items: [
-            const DropdownMenuItem(
-                value: 'toggleMute', child: Text('Alternar mudo')),
-            const DropdownMenuItem(value: 'mute', child: Text('Mutar')),
-            const DropdownMenuItem(value: 'unmute', child: Text('Desmutar')),
+            DropdownMenuItem(
+                value: 'toggleMute', child: Text(tr('Alternar mudo'))),
+            DropdownMenuItem(value: 'mute', child: Text(tr('Mutar'))),
+            DropdownMenuItem(value: 'unmute', child: Text(tr('Desmutar'))),
             if (isDevice) ...[
               const DropdownMenuItem(value: 'volumeUp', child: Text('Volume +')),
               const DropdownMenuItem(
                   value: 'volumeDown', child: Text('Volume −')),
-              const DropdownMenuItem(
-                  value: 'setVolume', child: Text('Definir volume')),
+              DropdownMenuItem(
+                  value: 'setVolume', child: Text(tr('Definir volume'))),
             ],
           ],
           onChanged: (val) => _update(() => _operation = val ?? 'toggleMute'),
         ),
         if (isDevice && _operation == 'setVolume') ...[
           const SizedBox(height: 16),
-          Text('Volume: $_volume%'),
+          Text(tr('Volume: {value}%', {'value': _volume})),
           Slider(
             value: _volume.toDouble(),
             min: 0,
@@ -212,7 +212,7 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
         if (isDevice &&
             (_operation == 'volumeUp' || _operation == 'volumeDown')) ...[
           const SizedBox(height: 16),
-          Text('Passo: $_step pontos'),
+          Text(tr('Passo: {n} pontos', {'n': _step})),
           Slider(
             value: _step.toDouble(),
             min: 1,
@@ -226,11 +226,11 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
           const SizedBox(height: 16),
           TextFormField(
             initialValue: _processName,
-            decoration: const InputDecoration(
-              labelText: 'Nome do app (processo)',
+            decoration: InputDecoration(
+              labelText: tr('Nome do app (processo)'),
               hintText: 'Spotify, Discord, chrome…',
-              helperText: 'Sem .exe — o nome do processo no Windows',
-              border: OutlineInputBorder(),
+              helperText: tr('Sem .exe — o nome do processo no Windows'),
+              border: const OutlineInputBorder(),
             ),
             onChanged: (v) {
               _processName = v;

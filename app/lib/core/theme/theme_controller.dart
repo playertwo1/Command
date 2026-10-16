@@ -1,3 +1,4 @@
+import 'package:companion/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,8 +107,11 @@ enum Haptics {
   medium('Média'),
   heavy('Forte');
 
-  const Haptics(this.label);
-  final String label;
+  const Haptics(this.ptLabel);
+
+  /// Rótulo em português (chave de tradução); a tela usa [label].
+  final String ptLabel;
+  String get label => tr(ptLabel);
 
   void play() {
     switch (this) {

@@ -118,7 +118,11 @@ class _InfoDeckButtonState extends State<InfoDeckButton> {
           if (_label != null) _small(_label!),
           _big(time),
           if (date)
-            _small('${_weekdays[now.weekday - 1]}, ${two(now.day)}/${two(now.month)}'),
+            // Dia/mês em português, mês/dia em inglês.
+            _small('${tr(_weekdays[now.weekday - 1])}, ' +
+                (AppLanguage.current.value == 'en'
+                    ? '${two(now.month)}/${two(now.day)}'
+                    : '${two(now.day)}/${two(now.month)}')),
         ],
       ),
     );
@@ -191,7 +195,7 @@ class _InfoDeckButtonState extends State<InfoDeckButton> {
         children: [
           const Icon(Icons.music_off, size: 28),
           const SizedBox(height: 4),
-          _small(_label ?? 'Nada tocando'),
+          _small(_label ?? tr('Nada tocando')),
         ],
       );
     }

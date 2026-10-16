@@ -40,9 +40,9 @@ class _BackupButtonsState extends State<BackupButtons> {
     if (e is DioException) {
       final data = e.response?.data;
       if (data is Map && data['error'] is String) return data['error'] as String;
-      if (e.response == null) return 'O PC não respondeu.';
+      if (e.response == null) return tr('O PC não respondeu.');
     }
-    return 'Não deu certo: $e';
+    return tr('Não deu certo: {error}', {'error': e});
   }
 
   Future<String> _export() async {
@@ -60,25 +60,27 @@ class _BackupButtonsState extends State<BackupButtons> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Importar backup?'),
-        content: const Text(
+        title: Text(tr('Importar backup?')),
+        content: Text(tr(
           'Os perfis do arquivo entram no deck. Um perfil que já existe aqui (o mesmo '
           'perfil, de um backup anterior) é substituído pela versão do arquivo.',
-        ),
+        )),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar')),
+              child: Text(tr('Cancelar'))),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Importar')),
+              child: Text(tr('Importar'))),
         ],
       ),
     );
     if (ok != true) return '';
     final count = await _client.importBackup(bytes);
     widget.onImported?.call();
-    return count == 1 ? '1 perfil importado.' : '$count perfis importados.';
+    return count == 1
+        ? tr('1 perfil importado.')
+        : tr('{n} perfis importados.', {'n': count});
   }
 
   @override
@@ -100,9 +102,9 @@ class _BackupButtonsState extends State<BackupButtons> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          button(Icons.download, 'Exportar backup', () => _run(_export)),
+          button(Icons.download, tr('Exportar backup'), () => _run(_export)),
           if (canPickBackup)
-            button(Icons.upload, 'Importar backup', () => _run(_import)),
+            button(Icons.upload, tr('Importar backup'), () => _run(_import)),
         ],
       );
     }
@@ -113,9 +115,9 @@ class _BackupButtonsState extends State<BackupButtons> {
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.save_alt),
-          title: const Text('Exportar backup do deck'),
-          subtitle: const Text(
-              'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.'),
+          title: Text(tr('Exportar backup do deck')),
+          subtitle: Text(tr(
+              'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.')),
           trailing: _busy
               ? const SizedBox(
                   width: 20,
@@ -128,7 +130,7 @@ class _BackupButtonsState extends State<BackupButtons> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.upload_file),
-            title: const Text('Importar backup'),
+            title: Text(tr('Importar backup')),
             onTap: _busy ? null : () => _run(_import),
           ),
       ],
