@@ -218,6 +218,29 @@ namespace DroidDeck.Services
         public Task ToggleReplayBufferAsync() => RequestVoid("ToggleReplayBuffer");
         public Task SaveReplayAsync() => RequestVoid("SaveReplayBuffer");
         public Task ToggleInputMuteAsync(string input) => RequestVoid("ToggleInputMute", new { inputName = input });
+        /// <summary>
+        /// Evento RecordStateChanged. Pausar chega com outputActive=false (visto no OBS 32), mas a
+        /// gravacao continua: o que vale e o outputState.
+        /// </summary>
+        public void ApplyRecordState(JsonElement data)
+        {
+            var state = data.TryGetProperty("outputState", out var rs) ? rs.GetString() : null;
+            if (state == "OBS_WEBSOCKET_OUTPUT_PAUSED")
+            {
+                Recording = true;
+                RecordPaused = true;
+                return;
+            }
+            if (state == "OBS_WEBSOCKET_OUTPUT_RESUMED")
+            {
+                Recording = true;
+                RecordPaused = false;
+                return;
+            }
+            if (data.TryGetProperty("outputActive", out var ra)) Recording = ra.GetBoolean();
+            RecordPaused = false;
+        }
+
         public Task ToggleRecordPauseAsync() => RequestVoid("ToggleRecordPause");
 
         /// <summary>Marcador de capitulo na gravacao (OBS 30.2+, formato Hybrid MP4).</summary>
@@ -415,11 +438,7 @@ namespace DroidDeck.Services
                     if (data.TryGetProperty("sceneName", out var sn)) CurrentScene = sn.GetString();
                     break;
                 case "RecordStateChanged":
-                    if (data.TryGetProperty("outputActive", out var ra)) Recording = ra.GetBoolean();
-                    // Pausar/retomar chega aqui como outputState, com outputActive ainda true.
-                    if (data.TryGetProperty("outputState", out var rs))
-                        RecordPaused = rs.GetString() == "OBS_WEBSOCKET_OUTPUT_PAUSED";
-                    if (!Recording) RecordPaused = false;
+                    ApplyRecordState(data);
                     break;
                 case "StreamStateChanged":
                     if (data.TryGetProperty("outputActive", out var sa)) Streaming = sa.GetBoolean();
