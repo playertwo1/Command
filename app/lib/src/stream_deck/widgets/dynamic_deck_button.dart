@@ -3,6 +3,7 @@ import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
 import 'package:flutter/material.dart';
 
+import '../buttons/colors.dart';
 import 'info_deck_button.dart';
 
 class DynamicDeckButton extends StatelessWidget {
@@ -17,17 +18,6 @@ class DynamicDeckButton extends StatelessWidget {
     required this.onLongPress,
   });
 
-  Color? _parseColor(String? hexString) {
-    if (hexString == null || hexString.isEmpty) return null;
-    try {
-      final buffer = StringBuffer();
-      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-      buffer.write(hexString.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (_) {
-      return null;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +38,7 @@ class DynamicDeckButton extends StatelessWidget {
         button: button,
         onTap: onTap,
         onLongPress: onLongPress,
-        color: _parseColor(button.backgroundColor),
+        color: parseHexColor(button.backgroundColor),
       );
     }
 
@@ -57,7 +47,7 @@ class DynamicDeckButton extends StatelessWidget {
     final stats = signalR.systemStats.watch(context);
 
     return DeckTile(
-      color: _parseColor(button.backgroundColor),
+      color: parseHexColor(button.backgroundColor),
       onTap: onTap,
       onLongPress: onLongPress,
       child: _buildDynamicContent(context, stats, button.dynamicType!),

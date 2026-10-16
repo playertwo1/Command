@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using DroidDeck.Lib;
@@ -207,73 +207,12 @@ namespace DroidDeck
                             });
                         });
 
-                        // Register audio control service (Windows-only)
+                        // Servicos do DroidDeck, por area (ver ServiceRegistration.cs).
                         if (System.OperatingSystem.IsWindows())
                         {
-                            services.AddSingleton<Services.IAudioControlService, Services.AudioControlService>();
-                        }
-
-                        // Register the activator service only on Windows (it uses Win32 APIs)
-                        if (System.OperatingSystem.IsWindows())
-                        {
-                            services.AddSingleton<DroidDeck.Services.IAppActivator, DroidDeck.Services.AppActivator>();
-                            services.AddSingleton<Services.MediaControlService>();
-                            services.AddSingleton<Services.StreamDeckConfigService>();
-                            services.AddSingleton<Services.DiscordRpcService>();
-                            services.AddHostedService<Services.DiscordAutoConnect>();
-                            services.AddSingleton<Services.ObsService>();
-                            services.AddHostedService<Services.ObsAutoConnect>();
-                            services.AddSingleton<Services.TuyaService>();
-                            services.AddHostedService<Services.TuyaAutoConnect>();
-                            services.AddSingleton<Services.SoundboardService>();
-                            services.AddSingleton<Services.ActionExecutorService>();
-                            services.AddHostedService<Services.SystemMonitorService>();
-
-                            // Tipos de acao do deck (ver Actions/IActionProvider.cs). A ordem
-                            // aqui e a ordem do seletor de tipo no editor.
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.HotkeyProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.LaunchAppProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.ActivateWindowProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MediaProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MixerProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MultiProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.DiscordProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.ObsProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.SoundboardProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.TuyaProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.WindowsProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.HttpProvider>();
-                            services.AddSingleton<Services.TimerService>();
-                            services.AddHostedService(sp => sp.GetRequiredService<Services.TimerService>());
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.TimerProvider>();
-                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.SteamProvider>();
-                            services.AddSingleton<Services.SteamLibrary>();
-                            services.AddSingleton<Services.BackupService>();
-                            // Integracoes com conta: tela de configuracao em /api/integrations/{nome}.
-                            services.AddSingleton<Integrations.HomeAssistantIntegration>();
-                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.HomeAssistantIntegration>());
-                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.HomeAssistantIntegration>());
-                            services.AddSingleton<Actions.IActionProvider, Integrations.HomeAssistantProvider>();
-                            services.AddSingleton<Integrations.SpotifyIntegration>();
-                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.SpotifyIntegration>());
-                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.SpotifyIntegration>());
-                            services.AddSingleton<Actions.IActionProvider, Integrations.SpotifyProvider>();
-                            services.AddSingleton<Integrations.TwitchIntegration>();
-                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.TwitchIntegration>());
-                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.TwitchIntegration>());
-                            services.AddSingleton<Actions.IActionProvider, Integrations.TwitchProvider>();
-                            services.AddSingleton<Integrations.YouTubeIntegration>();
-                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.YouTubeIntegration>());
-                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.YouTubeIntegration>());
-                            services.AddSingleton<Actions.IActionProvider, Integrations.YouTubeProvider>();
-                            services.AddSingleton<Services.ButtonToggleService>();
-                            services.AddSingleton<Lib.Input.MacroRecorder>();
-                            services.AddSingleton<Services.InfoService>();
-                            services.AddHostedService(sp => sp.GetRequiredService<Services.InfoService>());
-                            services.AddSingleton<Services.ForegroundWatcher>();
-                            services.AddHostedService(sp => sp.GetRequiredService<Services.ForegroundWatcher>());
-                            foreach (var clientOnly in Actions.Providers.ClientOnlyProvider.All())
-                                services.AddSingleton(clientOnly);
+                            services.AddDeckCore()
+                                    .AddActionProviders()
+                                    .AddIntegrations();
                         }
 
                         services.AddSignalR();

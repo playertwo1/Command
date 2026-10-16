@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:companion/core/i18n/i18n.dart';
 import 'package:dio/dio.dart';
 import 'models/mixer_data.dart';
-import 'models/software_data.dart';
 import 'models/audio_target.dart';
 import 'models/mixer_entity.dart';
 import 'models/mixer_master.dart';
@@ -80,13 +79,6 @@ class DroidDeckClient {
       data: data.toJson(),
     );
     return MixerMaster.fromJson(response.data as Map<String, dynamic>);
-  }
-
-  Future<void> activate(SoftwareData data) async {
-    await _dio.post(
-      '/api/Software/activate',
-      data: data.toJson(),
-    );
   }
 
   Future<Map<String, dynamic>> mute(AudioTarget target) async {

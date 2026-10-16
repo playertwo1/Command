@@ -36,7 +36,41 @@ class IntegrationsPage extends StatelessWidget {
   ];
 
   @override
+  Widget build(BuildContext context) => const _IntegrationList();
+}
+
+/// A lista, com quem está conectado (GET /api/integrations). Recarrega ao voltar de uma tela.
+class _IntegrationList extends StatefulWidget {
+  const _IntegrationList();
+
+  @override
+  State<_IntegrationList> createState() => _IntegrationListState();
+}
+
+class _IntegrationListState extends State<_IntegrationList> {
+  Map<String, bool> _connected = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final list = await Injector.get<DroidDeckClient>().getJson('/api/integrations') as List;
+      if (!mounted) return;
+      setState(() => _connected = {
+            for (final i in list) '${(i as Map)['name']}': i['connected'] == true,
+          });
+    } catch (_) {
+      // PC antigo, sem a lista: fica sem os indicadores.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Integrações'))),
       body: Center(
@@ -44,14 +78,25 @@ class IntegrationsPage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 560),
           child: ListView(
             children: [
-              for (final (key, icon, title, subtitle) in _entries)
+              for (final (key, icon, title, subtitle) in IntegrationsPage._entries)
                 ListTile(
                   leading: Icon(icon),
                   title: Text(tr(title)),
                   subtitle: Text(tr(subtitle)),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => pageFor(key)!)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_connected[key] == true && key != 'soundboard')
+                        Text(tr('Conectado'),
+                            style: TextStyle(fontSize: 12, color: Colors.green.shade400)),
+                      Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+                    ],
+                  ),
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => IntegrationsPage.pageFor(key)!));
+                    _load();
+                  },
                 ),
             ],
           ),

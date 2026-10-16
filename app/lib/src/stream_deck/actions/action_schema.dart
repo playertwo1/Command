@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../buttons/button_icons.dart';
+
 /// Descrição de um tipo de ação, vinda de GET /api/actions/schema. O editor monta o
 /// formulário a partir dos campos; tipos com [editor] usam uma tela própria.
 class ActionSchema {
@@ -130,32 +132,8 @@ class FieldOption {
   }
 }
 
-/// Ícones que o schema pode citar pelo nome. Nome desconhecido vira um ícone genérico.
-IconData actionIcon(String name) => _icons[name] ?? Icons.extension;
-
-const _icons = <String, IconData>{
-  'keyboard': Icons.keyboard,
-  'launch': Icons.rocket_launch,
-  'web_asset': Icons.web_asset,
-  'play': Icons.play_arrow,
-  'volume_up': Icons.volume_up,
-  'playlist_play': Icons.playlist_play,
-  'headset_mic': Icons.headset_mic,
-  'videocam': Icons.videocam,
-  'campaign': Icons.campaign,
-  'lightbulb': Icons.lightbulb,
-  'folder': Icons.folder,
-  'arrow_back': Icons.arrow_back,
-  'http': Icons.http,
-  'timer': Icons.timer,
-  'computer': Icons.computer,
-  'sports_esports': Icons.sports_esports,
-  'extension': Icons.extension,
-  'home': Icons.home,
-  'music_note': Icons.music_note,
-  'sensors': Icons.sensors,
-  'smart_display': Icons.smart_display,
-};
+/// Ícone de um tipo de ação pelo nome que o PC manda. Nome desconhecido vira genérico.
+IconData actionIcon(String name) => buttonIconData(name);
 
 /// Catálogo usado quando o PC ainda roda uma versão sem /api/actions/schema.
 /// Espelha o que esses servidores aceitam.

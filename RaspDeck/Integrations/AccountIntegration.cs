@@ -56,7 +56,7 @@ namespace DroidDeck.Integrations
     /// configuracao cifrada em %LocalAppData%\DroidDeck\{nome}.json, publica o estado ao vivo
     /// e expoe o mesmo fluxo para a tela do app (configurar, entrar, sair).
     /// </summary>
-    public abstract class AccountIntegration : BackgroundService
+    public abstract class AccountIntegration : BackgroundService, IIntegration
     {
         protected readonly ILogger Logger;
         protected readonly IHubContext<DeckHub> Hub;
@@ -80,6 +80,10 @@ namespace DroidDeck.Integrations
         public abstract string StateEvent { get; }
 
         public abstract IntegrationStatus GetStatus();
+
+        public bool IsConnected => GetStatus().Connected;
+
+        public string? AccountName => GetStatus().Account;
 
         public abstract object GetState();
 
