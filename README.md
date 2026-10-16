@@ -41,7 +41,11 @@ talks to it over your local network.
 | 💬 **Discord** | Mute/deafen, join channels, voice volume, push-to-talk, per-user volume, native soundboard. |
 | 🎥 **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, mute and show/hide sources, filters, chapter markers, screenshots — with live state. |
 | 🎵 **Soundboard** | Search and play sounds from MyInstants, routed to your mic through VB-Cable. |
-| 💡 **Smart home** | Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
+| 💡 **Smart home** | Home Assistant, and Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
+| 🎧 **Spotify** | Player, like, shuffle, playlists and the album cover on the button (Premium). |
+| 📡 **Twitch & YouTube** | Markers, clips, ads, polls and chat; live status and viewers. |
+| 🔁 **Two states & info** | Toggle buttons with their own icon and label; clock, weather, now playing, command output and URL values on a button; record macros from the keyboard. |
+| 🖥️ **Several PCs** | Pair one phone with more than one PC and switch from the deck's top bar. |
 | 🎨 **Themes** | Ready-made themes, light/dark mode, accent colour and three button styles. A "deck only" mode opens straight into a full-screen deck, and buttons can vibrate on tap. |
 
 ## 📸 Screenshots
@@ -67,8 +71,8 @@ talks to it over your local network.
 4. **Configure** — open `http://localhost:4787/` on the PC to edit your buttons. Changes show up on the phone instantly.
 
 > [!NOTE]
-> The app interface is currently in Portuguese. The [documentation](https://me.gf2.in/DroidDeck/docs/)
-> is available in English and Portuguese.
+> The app follows the phone's language (English or Portuguese). The
+> [documentation](https://me.gf2.in/DroidDeck/docs/) is available in both.
 
 Having trouble (SmartScreen, firewall, phone not finding the PC)? See
 [Installation](https://me.gf2.in/DroidDeck/docs/getting-started/installation/) and
@@ -82,6 +86,10 @@ Having trouble (SmartScreen, firewall, phone not finding the PC)? See
 | OBS Studio (obs-websocket) | [OBS Studio](https://me.gf2.in/DroidDeck/docs/integrations/obs/) |
 | Soundboard (MyInstants + VB-Cable) | [Soundboard](https://me.gf2.in/DroidDeck/docs/integrations/soundboard/) |
 | Tuya / Smart Life (Nova Digital, Positivo, RSmart, Elgin…) | [Smart home](https://me.gf2.in/DroidDeck/docs/integrations/tuya/) |
+| Home Assistant (long-lived token) | [Home Assistant](https://me.gf2.in/DroidDeck/docs/integrations/homeassistant/) |
+| Spotify (your own Spotify app, Premium) | [Spotify](https://me.gf2.in/DroidDeck/docs/integrations/spotify/) |
+| Twitch (your own Twitch app) | [Twitch](https://me.gf2.in/DroidDeck/docs/integrations/twitch/) |
+| YouTube (your own Google OAuth client) | [YouTube](https://me.gf2.in/DroidDeck/docs/integrations/youtube/) |
 | Per-app mixer & media | [Mixer & media](https://me.gf2.in/DroidDeck/docs/integrations/mixer-media/) |
 
 ## 🧩 How it works

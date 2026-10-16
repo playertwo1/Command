@@ -21,12 +21,18 @@ dele mudam de acordo com o tipo.
 | [OBS](../integrations/obs.md) | PC | Cenas, gravação, transmissão e mais. |
 | [Soundboard](../integrations/soundboard.md) | PC | Toca um som. |
 | [Tuya](../integrations/tuya.md) | PC | Controla dispositivos de casa inteligente. |
+| [Home Assistant](../integrations/homeassistant.md) | PC | Luzes, tomadas, cenas, scripts e sensores. |
+| [Spotify](../integrations/spotify.md) | PC | Player, curtir, aleatório, playlists e a capa no botão. |
+| [Twitch](../integrations/twitch.md) | PC | Marcador, clipe, anúncio, chat, enquete e título. |
+| [YouTube](../integrations/youtube.md) | PC | Chat da live e espectadores. |
 | [Timer, pomodoro e contador](#timer) | PC | Relógio ao vivo no botão. |
 | [Windows](#windows) | PC | Troca o áudio padrão, trava, suspende ou desliga a tela. |
 | [Requisição HTTP](#http) | PC | Chama um webhook ou qualquer API. |
 | [Jogo da Steam](#steam) | PC | Abre um jogo instalado, com a capa no botão. |
 
-Cada botão também pode ter uma ação de [toque longo e de toque duplo](#gestures).
+Cada botão também pode ter uma ação de [toque longo e de toque duplo](#gestures), ser um
+[botão de dois estados](#two-states) e [mostrar uma informação](monitors.md) (relógio, clima, o que
+está tocando...).
 
 ## Atalho de teclado { #hotkey }
 
@@ -101,6 +107,17 @@ de ele rodar (**Esperar antes (ms)**). O editor oferece três tipos de passo:
 
 Exemplo — "Iniciar reunião": abrir o app de reunião, esperar 3000 ms, enviar `^+m`.
 
+### Gravar do teclado { #record }
+
+No configurador do PC, **Gravar do teclado** grava o que você digitar no teclado do PC e transforma
+em passos de atalho: vá até o programa, digite a sequência e clique em **Parar**.
+
+- Teclas digitadas em sequência viram um passo só (`oi{ENTER}`); uma pausa de mais de meio segundo
+  começa um passo novo, com a espera arredondada para 100 ms.
+- A gravação para sozinha depois de 60 segundos.
+- Por ler o teclado inteiro, só funciona no configurador aberto no próprio PC; o celular não tem esse
+  botão. Revise os passos antes de salvar: tudo o que foi digitado entra, inclusive senhas.
+
 ## Timer, pomodoro e contador { #timer }
 
 O botão mostra o tempo ao vivo. O relógio fica no PC, então todos os celulares veem o mesmo tempo e
@@ -151,6 +168,19 @@ Além do toque normal, um botão pode ter uma ação para **segurar** e outra pa
 - Num botão com toque longo, segurar executa a ação; para editar o botão no celular, use o
   [modo de edição](profiles.md#modo-de-edicao).
 
+## Dois estados { #two-states }
+
+Na seção **Dois estados** do editor:
+
+- **Alternar a cada toque** deixa o botão ligado num toque e desligado no seguinte, para ações sem
+  estado próprio (um atalho que liga e desliga algo num jogo, por exemplo). O estado fica no PC: todos
+  os celulares mostram o mesmo e ele continua depois de reiniciar.
+- **Ação quando ligado** (opcional) roda no toque que desliga o botão. Exemplo: o toque liga a gravação
+  por um atalho e o seguinte manda o atalho de parar. Sem ela, o mesmo toque roda sempre.
+- **Rótulo quando ativo** e **Ícone quando ativo** trocam o visual quando o botão está ativo — pelo
+  alternar ou pelo estado da própria ação (mudo do Discord, gravação do OBS, lâmpada acesa...).
+  A **cor quando ativo** fica junto das cores do botão.
+
 ## Estado do botão
 
 Alguns botões refletem o estado ao vivo:
@@ -164,3 +194,7 @@ Alguns botões refletem o estado ao vivo:
 | Tuya | Liga/desliga, nível de brilho e a cor real da lâmpada |
 | Timer | Tempo restante ou decorrido, fase do pomodoro e cor ativa no fim |
 | Windows (áudio) | Cor ativa enquanto o dispositivo é o padrão |
+| Home Assistant | Aceso com a entidade ligada (com o brilho e a cor da luz), ou o valor do sensor |
+| Spotify | Play/pause, curtida, aleatório e repetir; a capa no "mostrar o que está tocando" |
+| Twitch / YouTube | Ao vivo e espectadores, no "só mostrar" |
+| Dois estados | Cor, rótulo e ícone do ativo enquanto ligado |

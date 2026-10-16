@@ -36,6 +36,11 @@ white.
 
 ![Deck with the OLED theme and amber accent](../../assets/screenshots/deck-oled.png)
 
+## Language
+
+**Language** picks the app's language: **Automatic** (the phone's), **Português** or **English**. Action
+types and messages from the PC follow the same language.
+
 ## Follow the focused app
 
 **Seguir o app em foco** (follow the focused app) lets this phone switch profiles on its own when a

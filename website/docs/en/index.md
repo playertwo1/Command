@@ -23,7 +23,10 @@ local network.
 | :simple-steam: **Steam** | Pick an installed game and the button gets its cover; tap to launch it. |
 | :material-folder-multiple: **Profiles** | Folders, long-press and double-tap actions, automatic switching by the focused app, backups, and an offline copy of the deck. |
 | :material-music-box-multiple: **Soundboard** | Search and play sounds from MyInstants, routed to your mic through VB-Cable. |
-| :material-lightbulb-on: **Smart home** | Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
+| :material-lightbulb-on: **Smart home** | Home Assistant, and Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
+| :simple-spotify: **Spotify** | Player, like, shuffle, playlists and the album cover on the button (Premium). |
+| :simple-twitch: **Twitch & YouTube** | Markers, clips, ads, polls and chat; live status and viewers. |
+| :material-toggle-switch: **Two states & info** | Toggle buttons with their own icon and label, plus clock, weather, now playing, command output and URL values. |
 
 ## How it works
 
@@ -47,5 +50,6 @@ flowchart LR
 - Phone and PC on the same local network.
 
 !!! note "Language"
-    The app interface is currently in Portuguese, with a few English labels. This documentation is
-    available in English and Portuguese — use the language selector at the top.
+    The app follows the phone's language (English or Portuguese); you can change it under
+    **Settings → Appearance → Language**. This documentation is available in English and Portuguese —
+    use the language selector at the top.

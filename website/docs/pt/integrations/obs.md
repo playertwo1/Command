@@ -25,8 +25,8 @@ O estado vem direto dos eventos do OBS, então mudanças feitas no próprio OBS 
 
 1. No OBS: **Ferramentas → Configurações do servidor WebSocket**. Marque **Ativar servidor WebSocket**.
    Anote a porta (padrão `4455`) e a senha (ou desmarque a autenticação).
-2. No DroidDeck, abra as configurações do OBS (celular: **configurações → OBS**; configurador: o botão
-   do OBS na barra lateral).
+2. No DroidDeck, abra as configurações do OBS (celular: **Configuração → Integrações → OBS**;
+   configurador: **Integrações** na barra lateral).
 3. Preencha **Host** (`localhost`), **Porta** e **Senha**, clique em **Salvar** e depois em **Conectar**.
 
 No celular você também pode tocar em **Ler QR do OBS** e ler o QR de **Mostrar informações de

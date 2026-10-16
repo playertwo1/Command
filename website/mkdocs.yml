@@ -46,7 +46,7 @@ nav:
       - Configurator: getting-started/configurator.md
   - Buttons & actions:
       - Buttons & actions: guide/actions.md
-      - Monitors: guide/monitors.md
+      - Monitors & info: guide/monitors.md
       - Profiles: guide/profiles.md
       - Appearance: guide/appearance.md
   - Integrations:
@@ -54,6 +54,10 @@ nav:
       - OBS Studio: integrations/obs.md
       - Soundboard: integrations/soundboard.md
       - Smart home (Tuya): integrations/tuya.md
+      - Home Assistant: integrations/homeassistant.md
+      - Spotify: integrations/spotify.md
+      - Twitch: integrations/twitch.md
+      - YouTube: integrations/youtube.md
       - Mixer & media: integrations/mixer-media.md
   - Troubleshooting: troubleshooting.md
   - Reference:
@@ -97,7 +101,7 @@ plugins:
             API: API
             Building from source: Compilando do código
             Home: Início
-            Monitors: Monitores
+            Monitors & info: Monitores e informação
             Appearance: Aparência
             Profiles: Perfis
             Mixer & media: Mixer e mídia

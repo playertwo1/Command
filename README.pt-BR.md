@@ -41,7 +41,11 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 | 💬 **Discord** | Silenciar/ensurdecer, entrar em canais, volume de voz, push-to-talk, volume por usuário, soundboard nativo. |
 | 🎥 **OBS Studio** | Cenas, gravação, transmissão, câmera virtual, replay buffer, silenciar e mostrar/ocultar fontes, filtros, marcadores de capítulo, capturas — com estado ao vivo. |
 | 🎵 **Soundboard** | Busque e toque sons do MyInstants, enviados para o seu microfone pelo VB-Cable. |
-| 💡 **Casa inteligente** | Lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, brilho e cores, com estado real. |
+| 💡 **Casa inteligente** | Home Assistant, e lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, brilho e cores, com estado real. |
+| 🎧 **Spotify** | Player, curtir, aleatório, playlists e a capa do álbum no botão (Premium). |
+| 📡 **Twitch e YouTube** | Marcadores, clipes, anúncios, enquetes e chat; ao vivo e espectadores. |
+| 🔁 **Dois estados e informação** | Botões liga/desliga com ícone e rótulo próprios; relógio, clima, tocando agora, saída de comando e valores de URL no botão; macros gravadas pelo teclado. |
+| 🖥️ **Vários PCs** | Um celular pareado com mais de um PC, trocando pela barra do deck. |
 | 🎨 **Temas** | Temas prontos, modo claro/escuro, cor de destaque e três estilos de botão. O modo "só o deck" abre direto no deck em tela cheia, e os botões podem vibrar ao tocar. |
 
 ## 📸 Capturas de tela
@@ -78,6 +82,10 @@ Algum problema (SmartScreen, firewall, celular não encontra o PC)? Veja
 | OBS Studio (obs-websocket) | [OBS Studio](https://me.gf2.in/DroidDeck/docs/pt/integrations/obs/) |
 | Soundboard (MyInstants + VB-Cable) | [Soundboard](https://me.gf2.in/DroidDeck/docs/pt/integrations/soundboard/) |
 | Tuya / Smart Life (Nova Digital, Positivo, RSmart, Elgin…) | [Casa inteligente](https://me.gf2.in/DroidDeck/docs/pt/integrations/tuya/) |
+| Home Assistant (token de longa duração) | [Home Assistant](https://me.gf2.in/DroidDeck/docs/pt/integrations/homeassistant/) |
+| Spotify (seu próprio app do Spotify, Premium) | [Spotify](https://me.gf2.in/DroidDeck/docs/pt/integrations/spotify/) |
+| Twitch (seu próprio app da Twitch) | [Twitch](https://me.gf2.in/DroidDeck/docs/pt/integrations/twitch/) |
+| YouTube (seu próprio cliente OAuth do Google) | [YouTube](https://me.gf2.in/DroidDeck/docs/pt/integrations/youtube/) |
 | Mixer por app e mídia | [Mixer e mídia](https://me.gf2.in/DroidDeck/docs/pt/integrations/mixer-media/) |
 
 ## 🧩 Como funciona

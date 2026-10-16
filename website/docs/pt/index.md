@@ -23,7 +23,10 @@ bandeja do sistema; o celular conversa com ele pela rede local.
 | :simple-steam: **Steam** | Escolha um jogo instalado e o botão ganha a capa dele; um toque abre o jogo. |
 | :material-folder-multiple: **Perfis** | Pastas, ações de toque longo e toque duplo, troca automática pelo app em foco, backup e uma cópia offline do deck. |
 | :material-music-box-multiple: **Soundboard** | Busque e toque sons do MyInstants, enviados ao seu microfone pelo VB-Cable. |
-| :material-lightbulb-on: **Casa inteligente** | Lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, dimmer e cores, com estado real. |
+| :material-lightbulb-on: **Casa inteligente** | Home Assistant, e lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, dimmer e cores, com estado real. |
+| :simple-spotify: **Spotify** | Player, curtir, aleatório, playlists e a capa do álbum no botão (Premium). |
+| :simple-twitch: **Twitch e YouTube** | Marcadores, clipes, anúncios, enquetes e chat; ao vivo e espectadores. |
+| :material-toggle-switch: **Dois estados e informação** | Botões liga/desliga com ícone e rótulo próprios, e relógio, clima, tocando agora, saída de comando e valores de URL. |
 
 ## Como funciona
 
@@ -47,5 +50,6 @@ flowchart LR
 - Celular e PC na mesma rede local.
 
 !!! note "Idioma"
-    A interface do app está em português. Esta documentação está disponível em português e em
-    inglês — use o seletor de idioma no topo.
+    O app segue o idioma do celular (português ou inglês); dá para trocar em **Configuração →
+    Aparência → Idioma**. Esta documentação está disponível em português e em inglês — use o seletor de
+    idioma no topo.

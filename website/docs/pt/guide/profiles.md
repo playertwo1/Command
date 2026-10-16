@@ -41,6 +41,16 @@ O celular guarda o último deck que recebeu. Se o PC estiver desligado ou fora d
 esse deck na hora, com o aviso **PC desconectado**, e os botões avisam que o PC não respondeu. Quando
 a conexão volta, o deck é recarregado sozinho.
 
+## Vários PCs { #pcs }
+
+Um celular pode controlar mais de um PC. Para acrescentar outro, pareie com o QR dele (ou digite o
+IP) em **Configuração**: ele entra na lista **PCs pareados**, com o nome do Windows.
+
+- Para trocar, toque no PC na lista, ou use o ícone de computador na barra do deck (aparece com dois
+  ou mais PCs).
+- Cada PC tem o seu deck, as suas integrações e o seu deck guardado para o [modo offline](#offline).
+- No menu de cada PC: **Renomear** e **Esquecer este PC**.
+
 ## Modo de edição
 
 No celular, segurar um botão abre o editor. Num botão que tem uma ação de **toque longo**, segurar

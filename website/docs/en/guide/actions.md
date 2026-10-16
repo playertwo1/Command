@@ -21,12 +21,18 @@ change according to the type.
 | [OBS](../integrations/obs.md) | PC | Scenes, recording, streaming and more. |
 | [Soundboard](../integrations/soundboard.md) | PC | Plays a sound. |
 | [Tuya](../integrations/tuya.md) | PC | Controls smart-home devices. |
+| [Home Assistant](../integrations/homeassistant.md) | PC | Lights, plugs, scenes, scripts and sensors. |
+| [Spotify](../integrations/spotify.md) | PC | Player, like, shuffle, playlists and the cover on the button. |
+| [Twitch](../integrations/twitch.md) | PC | Marker, clip, ad, chat, poll and title. |
+| [YouTube](../integrations/youtube.md) | PC | Live chat and viewers. |
 | [Timer, pomodoro & counter](#timer) | PC | A live clock on the button. |
 | [Windows](#windows) | PC | Switches the default audio device, locks, sleeps or turns the screen off. |
 | [HTTP request](#http) | PC | Calls a webhook or any API. |
 | [Steam game](#steam) | PC | Opens an installed game, with its cover on the button. |
 
-Each button can also have a [long-press and a double-tap](#gestures) action.
+Each button can also have a [long-press and a double-tap](#gestures) action, be a
+[two-state button](#two-states) and [show information](monitors.md) (clock, weather, what's
+playing...).
 
 ## Hotkey
 
@@ -102,6 +108,18 @@ runs. The editor offers three step kinds:
 
 Example — "Start meeting": open the meeting app, wait 3000 ms, send `^+m`.
 
+### Record from the keyboard { #record }
+
+In the PC configurator, **Record from keyboard** records what you type on the PC's keyboard and turns
+it into hotkey steps: go to the program, type the sequence and click **Stop**.
+
+- Keys typed in a row become a single step (`hi{ENTER}`); a pause longer than half a second starts a
+  new step, with the delay rounded to 100 ms.
+- Recording stops on its own after 60 seconds.
+- Because it reads the whole keyboard, it only works in the configurator open on the PC itself; the
+  phone doesn't have this button. Review the steps before saving: everything typed goes in, passwords
+  included.
+
 ## Timer, pomodoro & counter { #timer }
 
 The button shows the time live. The clock runs on the PC, so every phone sees the same time and the
@@ -153,6 +171,20 @@ tap.
 - On a button with a long-press action, holding runs it; to edit that button on the phone, use
   [edit mode](profiles.md#edit-mode).
 
+## Two states { #two-states }
+
+In the editor's **Two states** section:
+
+- **Toggle on each tap** turns the button on with one tap and off with the next, for actions with no
+  state of their own (a hotkey that toggles something in a game, for example). The state lives on the
+  PC: every phone shows the same one and it survives a restart.
+- **Action when on** (optional) runs on the tap that turns the button off. Example: one tap starts
+  recording with a hotkey and the next sends the stop hotkey. Without it, the same action runs every
+  time.
+- **Label when active** and **Icon when active** change the look while the button is active — through
+  the toggle or through the action's own state (Discord mute, OBS recording, a light on...). The
+  **active colour** sits with the button's colours.
+
 ## Button state
 
 Some buttons reflect live state:
@@ -166,3 +198,7 @@ Some buttons reflect live state:
 | Tuya | On/off, brightness level and the lamp's real colour |
 | Timer | Time left or elapsed, pomodoro phase and active colour at the end |
 | Windows (audio) | Active colour while the device is the default |
+| Home Assistant | Lit while the entity is on (with the light's brightness and colour), or the sensor value |
+| Spotify | Play/pause, liked, shuffle and repeat; the cover on "show what's playing" |
+| Twitch / YouTube | Live and viewers, on "status only" |
+| Two states | Active colour, label and icon while on |

@@ -32,6 +32,11 @@ do canto, em vez do preenchimento. Cores neutras, como o cinza padrão do editor
 
 ![Deck com o tema OLED e destaque âmbar](../../assets/screenshots/deck-oled.png)
 
+## Idioma
+
+**Idioma** escolhe o idioma do app: **Automático** (o do aparelho), **Português** ou **English**. Os
+tipos de ação e as mensagens que vêm do PC seguem o mesmo idioma.
+
 ## Seguir o app em foco
 
 **Seguir o app em foco** deixa este celular trocar de perfil sozinho quando um programa com perfil

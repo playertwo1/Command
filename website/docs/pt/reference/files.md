@@ -9,6 +9,7 @@
 | `Profiles\<id>.json` | Um arquivo por perfil: nome e botões. Ícones personalizados ficam embutidos em base64. |
 | `layout.json` | Tamanho da grade informado pelo celular (`rows`, `columns`). |
 | `counters.json` | Valores dos botões de contador, para sobreviverem a um reinício. |
+| `toggles.json` | Botões de dois estados ligados. |
 
 **`%LocalAppData%\DroidDeck\`** — chaves e integrações:
 
@@ -20,6 +21,8 @@
 | `soundboard.json` | Dispositivos de saída e volume do soundboard. |
 | `SoundCache\*.mp3` | Sons baixados do MyInstants (até 5 MB cada). Limitado a 200 MB: os tocados há mais tempo saem primeiro. Pode apagar sem problema. |
 | `tuya.json` | Código de usuário da Tuya, token de sessão e registro do app (`ClientId`, `Schema`). |
+| `homeassistant.json` | Endereço e token de acesso do Home Assistant. |
+| `spotify.json`, `twitch.json`, `youtube.json` | Client ID (e o Client Secret do YouTube) e os tokens da conta. |
 
 **`%LocalAppData%\DroidDeck.log`** — o arquivo de log.
 
@@ -27,7 +30,8 @@
 As atualizações substituem esta pasta; seus dados ficam nas pastas acima e são mantidos.
 
 !!! info "Os segredos são cifrados"
-    `apikey`, `discord.json`, `obs.json` e `tuya.json` são cifrados com a DPAPI do Windows e só podem
+    `apikey` e os arquivos das integrações (`discord.json`, `obs.json`, `tuya.json`,
+    `homeassistant.json`, `spotify.json`, `twitch.json`, `youtube.json`) são cifrados com a DPAPI do Windows e só podem
     ser lidos pela sua conta do Windows neste PC. Arquivos de versões antigas, em texto puro, são
     cifrados automaticamente na primeira leitura. Para editar um deles à mão (ex.: o `ClientId` da
     Tuya), salve-o como JSON puro; o DroidDeck cifra de novo na próxima inicialização.

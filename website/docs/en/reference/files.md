@@ -9,6 +9,7 @@
 | `Profiles\<id>.json` | One file per profile: name and buttons. Custom icons are embedded as base64. |
 | `layout.json` | Grid size reported by the phone (`rows`, `columns`). |
 | `counters.json` | Values of the counter buttons, so they survive a restart. |
+| `toggles.json` | Two-state buttons that are on. |
 
 **`%LocalAppData%\DroidDeck\`** — keys and integrations:
 
@@ -20,6 +21,8 @@
 | `soundboard.json` | Soundboard output devices and volume. |
 | `SoundCache\*.mp3` | Downloaded MyInstants sounds (up to 5 MB each). Capped at 200 MB: the least recently played are removed first. Safe to delete. |
 | `tuya.json` | Tuya user code, session token and app registration (`ClientId`, `Schema`). |
+| `homeassistant.json` | Home Assistant address and access token. |
+| `spotify.json`, `twitch.json`, `youtube.json` | Client ID (and YouTube's Client Secret) plus the account's tokens. |
 
 **`%LocalAppData%\DroidDeck.log`** — the log file.
 
@@ -27,7 +30,8 @@
 Updates replace this folder; your data lives in the folders above and is kept.
 
 !!! info "Secrets are encrypted"
-    `apikey`, `discord.json`, `obs.json` and `tuya.json` are encrypted with Windows DPAPI and can only
+    `apikey` and the integration files (`discord.json`, `obs.json`, `tuya.json`, `homeassistant.json`,
+    `spotify.json`, `twitch.json`, `youtube.json`) are encrypted with Windows DPAPI and can only
     be read by your Windows account on this PC. Files from older versions, saved in plain text, are
     encrypted automatically the first time they are read. To edit one by hand (e.g. a Tuya `ClientId`),
     save it as plain JSON; DroidDeck encrypts it again on the next start.

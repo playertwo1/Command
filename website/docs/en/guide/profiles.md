@@ -42,6 +42,16 @@ The phone keeps the last deck it received. If the PC is off or off the network, 
 deck right away with a **PC desconectado** (PC disconnected) notice, and buttons tell you the PC didn't
 answer. When the connection comes back the deck reloads on its own.
 
+## Several PCs { #pcs }
+
+A phone can control more than one PC. To add another, pair with its QR code (or type its IP) in
+**Settings**: it joins the **Paired PCs** list, with its Windows name.
+
+- To switch, tap the PC in the list, or use the computer icon in the deck's top bar (shown with two or
+  more PCs).
+- Each PC has its own deck, its own integrations and its own saved copy for [offline mode](#offline).
+- Each PC's menu has **Rename** and **Forget this PC**.
+
 ## Edit mode
 
 On the phone, holding a button opens the editor. On a button that has a **long-press** action,

@@ -11,7 +11,7 @@ the same platform.
 Linking is done in the **phone app**:
 
 1. In the **Smart Life** (or **Tuya Smart**) app: **Me → ⚙️ → Account and Security → User Code**. Copy the code.
-2. In DroidDeck on the phone: **settings → Casa inteligente (Tuya)**. Paste the code and tap **Gerar QR**.
+2. In DroidDeck on the phone: **Settings → Integrations → Smart home (Tuya)**. Paste the code and tap **Gerar QR**.
 3. Scan the QR with the Smart Life app (**Home** tab → scan icon) within 2 minutes. The app asks
    you to confirm a login for **"Home Assistant"** — see why below.
 

@@ -78,6 +78,10 @@ All parameter values are strings.
 | `obs` | `operation`: `setScene` (`scene`)·`toggleRecord`·`startRecord`·`stopRecord`·`toggleStream`·`toggleVirtualCam`·`toggleReplayBuffer`·`saveReplay`·`toggleInputMute` (`inputName`) |
 | `soundboard` | `operation`: `play`·`stop`; `source`: `myinstants` (`id`, `url`, `title`) or `discord` (`soundId`, `guildId`) |
 | `tuya` | `deviceId`, `code`, `operation`: `toggle`·`set`; `value`, `valueType` |
+| `homeassistant` | `operation`: `toggle`·`turn_on`·`turn_off`·`brightness` (`step`)·`scene`·`script`·`display`·`service` (`service` = `domain.service`, `data` JSON); `entityId` |
+| `spotify` | `operation`: `playPause`·`next`·`previous`·`like`·`shuffle`·`repeat`·`volume` (`step`)·`playlist` (`uri`, `shuffleOn`)·`nowPlaying` |
+| `twitch` | `operation`: `marker` (`description`)·`clip`·`ad` (`length`)·`chat` (`message`)·`poll` (`question`, `choices` one per line, `duration`)·`title` (`title`)·`status` |
+| `youtube` | `operation`: `chat` (`message`)·`status` |
 
 `open_profile` and `back` exist only on the phone.
 
@@ -96,6 +100,12 @@ A profile is `{id, name, rows, columns, isDefault, buttons, autoSwitchApps}`; a 
 `longPressAction` and `doubleTapAction` (each `{type, parameters}` or `null`). The privileged-action
 rule applies to all three.
 
+Two-state buttons add `toggle` (bool), `activeAction` (run on the tap that turns it off),
+`activeLabel`, `activeIconName` and `activeIconBase64`. Info buttons use `dynamicType` (`cpu_monitor`,
+`memory_monitor`, `gpu_monitor`, `network_monitor`, `clock`, `weather`, `now_playing`, `command`,
+`url`) with `dynamicParameters` (`city`, `units`, `command`, `url`, `path`, `format`, `interval`…);
+`command` and `url` follow the privileged-action rule.
+
 ## Library — backup, Steam, apps
 
 | Method | Path | Description |
@@ -105,6 +115,9 @@ rule applies to all three.
 | GET | `/api/steam/games` | Installed Steam games (`{value: appId, label: name}`). |
 | GET | `/api/steam/icon/{appId}` | `{iconBase64}`: a square PNG cut from the game's cover. |
 | GET | `/api/system/apps` | Programs with a visible window (for automatic profile switching). |
+| GET | `/api/system/info` | `{name, version}` — the PC's Windows name, used to label paired PCs. |
+| GET | `/api/info` | Current values of the info buttons, what's playing and the two-state buttons that are on. |
+| GET / POST | `/api/macro`, `/api/macro/start`, `/api/macro/stop` | Keyboard macro recording. Only from the PC itself (`403` otherwise); `stop` returns `{steps}` in the multi-action format. |
 
 ## Action types — `/api/actions`
 
@@ -123,6 +136,10 @@ rule applies to all three.
 | `/api/obs` | `POST config` `{host, port, password}` · `POST connect` · `GET state` · `GET scenes` · `GET audio-inputs` · `GET sources` · `GET scene-items?scene=` · `GET filters?source=` |
 | `/api/Soundboard` | `GET search?q=` · `GET trending` · `POST play` · `POST stop` · `GET state` · `GET devices` · `GET/POST config` |
 | `/api/tuya` | `POST pair/start` `{userCode}` · `POST pair/poll` (410 when the QR expired) · `GET state` · `POST connect` · `POST devices/refresh` · `POST command` `{deviceId, code, value}` |
+| `/api/integrations/{name}` | `homeassistant`, `spotify`, `twitch`, `youtube`. `GET` status `{connected, configured, account, message, loginPending, userCode, verificationUri, redirectUri, fields}` · `POST` the setup fields (connects or starts sign-in in the PC's browser) · `DELETE` forget the account · `GET options/{list}` (`entities?operation=`, `playlists`) · `GET callback` (OAuth return, no API key) |
+
+Responses follow the request's `Accept-Language`: with `en`, action types, field labels and error
+messages come in English.
 
 ## SignalR hub — `/deckHub`
 
@@ -145,6 +162,12 @@ Connect with `?access_token=<key>`. The hub only pushes events; commands go thro
 | `ReceiveWindowsState` | `{defaultOutput, defaultInput}` — default audio device ids |
 | `ReceiveAutoProfile` | `{profileId, app}` — profile of the focused app; `profileId` null when the app has none |
 | `ReceivePlaybackState` | `{playing, title}` — soundboard |
+| `ReceiveButtonToggles` | `{buttonId: true}` — two-state buttons that are on |
+| `ReceiveInfoState` | `{buttonId: {text, sub, code, isDay, error}}` — weather, command and URL buttons |
+| `ReceiveNowPlaying` | `{title, artist, playing, thumbnailBase64}` |
+| `ReceiveHomeAssistantState` | `{connected, entities: {id: {state, name, unit, brightness, color}}}` — entities used by buttons |
+| `ReceiveSpotifyState` | `{connected, account, playing, track, artist, liked, shuffle, repeat, volume, device, coverBase64}` |
+| `ReceiveTwitchState`, `ReceiveYouTubeState` | `{connected, account, live, viewers, title}` |
 
 On connect, the new client receives the current Discord, layout, OBS and Tuya state.
 
