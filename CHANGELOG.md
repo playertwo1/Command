@@ -1,3 +1,11 @@
+## [1.9.1](https://github.com/ggfto/DroidDeck/compare/v1.9.0...v1.9.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **log:** divide o log em 5 MB, so avisos das requisicoes do ASP.NET e apaga o log antigo gigante ([3dfd543](https://github.com/ggfto/DroidDeck/commit/3dfd543b347cf188ade4740f438fb908bcdcf260))
+* **midia:** erro de thread errada recria o gerenciador de midia em vez de repetir a cada consulta ([742104e](https://github.com/ggfto/DroidDeck/commit/742104ec8850db8279e140b4dcc93257862cc499))
+
 # [1.9.0](https://github.com/ggfto/DroidDeck/compare/v1.8.0...v1.9.0) (2026-10-16)
 
 
