@@ -34,6 +34,8 @@ namespace DroidDeck
                 .OnBeforeUninstallFastCallback(_ => frmPrincipal.RemoveAutoStartIfOurs())
                 .Run();
 
+            Lib.Log.DropOversizedLegacyLog();
+
             // Bind em todas as interfaces — senão o celular na mesma rede recebe "connection
             // refused" (Kestrel sozinho escuta só em localhost). Em dev o launchSettings já
             // define ASPNETCORE_URLS, mas o .exe publicado não lê launchSettings, então

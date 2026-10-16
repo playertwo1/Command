@@ -28,7 +28,7 @@ namespace DroidDeck.Controllers
         [HttpGet("sessions")]
         public async Task<IActionResult> GetAllSessions()
         {
-            _logger.LogInformation("GetAllSessions called");
+            _logger.LogDebug("GetAllSessions called");
             var sessions = await _mediaService.GetAllSessionsAsync();
             return Ok(sessions);
         }
@@ -36,7 +36,7 @@ namespace DroidDeck.Controllers
         [HttpGet("sessions/{id}")]
         public async Task<IActionResult> GetSession(string id)
         {
-            _logger.LogInformation("GetSession called for {id}", id);
+            _logger.LogDebug("GetSession called for {id}", id);
             var session = await _mediaService.GetSessionByIdAsync(id);
             if (session != null)
                 return Ok(session);
@@ -46,7 +46,7 @@ namespace DroidDeck.Controllers
         [HttpPost("sessions/{id}/command")]
         public async Task<IActionResult> SendCommand(string id, [FromBody] MediaCommandData command)
         {
-            _logger.LogInformation("SendCommand called for {id}: {command}", id, command.Command);
+            _logger.LogDebug("SendCommand called for {id}: {command}", id, command.Command);
             var result = await _mediaService.SendCommandAsync(id, command.Command);
 
             if (result.Success)

@@ -8,6 +8,7 @@ namespace DroidDeck.Lib
     {
         #region Constants
         private const bool GenerateStartingLogs = true;
+        private const long MaxLogSize = 5 * 1024 * 1024;
         #endregion // Constants
 
         #region Attributes
@@ -31,8 +32,14 @@ namespace DroidDeck.Lib
                     var logfile = new NLog.Targets.FileTarget("logfile")
                     {
                         FileName = GetPlaformFolder(),
-                        Layout = "${longdate}|${level}|${message}|${exception:format=tostring}"
+                        Layout = "${longdate}|${level}|${message}|${exception:format=tostring}",
+                        ArchiveAboveSize = MaxLogSize,
+                        MaxArchiveFiles = 2
                     };
+                    // Mesmas regras do NLog.config: das requisições do ASP.NET e do HttpClient, só avisos e erros.
+                    config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile, "Microsoft.Hosting.Lifetime", true);
+                    config.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Info, new NLog.Targets.NullTarget(), "Microsoft.*", true);
+                    config.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Info, new NLog.Targets.NullTarget(), "System.Net.Http.*", true);
                     config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
                     NLog.LogManager.Configuration = config;
                 }
@@ -152,6 +159,25 @@ namespace DroidDeck.Lib
         #endregion // External Methods
 
         #region Helper Methods
+        /// <summary>
+        /// Até a v1.9.0 o log nunca era dividido e chegava a centenas de MB. Esse arquivo antigo
+        /// viraria um arquivo de histórico e ficaria no disco por meses; melhor apagar de uma vez.
+        /// Chamar no começo do Main, antes de o NLog abrir o arquivo.
+        /// </summary>
+        public static void DropOversizedLegacyLog()
+        {
+            try
+            {
+                var path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DroidDeck.log");
+                var file = new FileInfo(path);                if (file.Exists && file.Length > 10 * MaxLogSize) file.Delete();
+            }
+            catch
+            {
+                // Em uso por outra instância ou sem permissão: fica para a próxima.
+            }
+        }
+
         private static string GetPlaformFolder()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))

@@ -28,7 +28,7 @@ namespace DroidDeck.Controllers
         [HttpGet("out")]
         public IActionResult GetAllOutputs()
         {
-            _logger.LogInformation("GetAllOutputs called");
+            _logger.LogDebug("GetAllOutputs called");
             return Ok(_mixerService.FindAllOutputs());
         }
 
@@ -44,7 +44,7 @@ namespace DroidDeck.Controllers
         [HttpPut("out/{id}")]
         public async Task<IActionResult> SetOutput(string id, [FromBody] MixerData data)
         {
-            _logger.LogInformation("SetOutput called for {id}", id);
+            _logger.LogDebug("SetOutput called for {id}", id);
             var device = new MixerMaster(id);
             if (device.Id == null) return NotFound(); // id inexistente/desconectado
 
@@ -72,7 +72,7 @@ namespace DroidDeck.Controllers
         [HttpGet("in")]
         public IActionResult GetAllInputs()
         {
-            _logger.LogInformation("GetAllInputs called");
+            _logger.LogDebug("GetAllInputs called");
             return Ok(_mixerService.FindAllInputs());
         }
 
@@ -88,7 +88,7 @@ namespace DroidDeck.Controllers
         [HttpPut("in/{id}")]
         public async Task<IActionResult> SetInput(string id, [FromBody] MixerData data)
         {
-            _logger.LogInformation("SetInput called for {id}", id);
+            _logger.LogDebug("SetInput called for {id}", id);
             var device = new MixerMaster(id);
             if (device.Id == null) return NotFound(); // id inexistente/desconectado
 
