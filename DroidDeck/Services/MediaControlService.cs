@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
@@ -284,6 +285,13 @@ namespace DroidDeck.Services
                 ?? sessions.FirstOrDefault();
         }
 
+        private const int RPC_E_WRONG_THREAD = unchecked((int)0x8001010E);
+
+        private static string SafeId(GlobalSystemMediaTransportControlsSession s)
+        {
+            try { return s.SourceAppUserModelId; } catch { return "?"; }
+        }
+
         private static bool IsPlaying(GlobalSystemMediaTransportControlsSession s)
         {
             try
@@ -344,9 +352,17 @@ namespace DroidDeck.Services
                     Duration = timelineProperties.EndTime.TotalSeconds
                 };
             }
+            catch (COMException ex) when (ex.HResult == RPC_E_WRONG_THREAD)
+            {
+                // Proxy do manager preso a outra thread: pular a sessão e seguir repetia o erro a
+                // cada consulta para sempre (o log mostrou um por minuto durante 40 minutos).
+                // Subir faz o RunAsync descartar o manager e criar outro na próxima chamada.
+                throw;
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting session info");
+                _logger.LogError(ex, "Mídia: falha lendo a sessão '{Id}' (thread {Thread}, {Apt})",
+                    SafeId(session), Environment.CurrentManagedThreadId, Thread.CurrentThread.GetApartmentState());
                 return null;
             }
         }
