@@ -55,8 +55,9 @@ talks to it over your local network.
 
 **Requirements:** Windows 10 1809+ (64-bit) · Android 7.0+ · phone and PC on the same local network.
 
-1. **Windows** — download `DroidDeck-win-x64.zip` from the [latest release](https://github.com/ggfto/DroidDeck/releases/latest),
-   extract it and run `DroidDeck.exe`. It lives in the system tray. No .NET install needed.
+1. **Windows** — download and run `DroidDeck-Setup.exe` from the [latest release](https://github.com/ggfto/DroidDeck/releases/latest).
+   It lives in the system tray and updates itself. (Prefer no installer? Use `DroidDeck-win-x64.zip`,
+   extract it and run `DroidDeck.exe`.) No .NET install needed.
 2. **Android** — install `DroidDeck.apk` from the same release.
 3. **Pair** — right-click the tray icon → **Parear dispositivo (QR)…** and scan the code with the app.
 4. **Configure** — open `http://localhost:4787/` on the PC to edit your buttons. Changes show up on the phone instantly.

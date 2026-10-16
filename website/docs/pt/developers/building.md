@@ -63,8 +63,13 @@ vem dos commits ([Conventional Commits](https://www.conventionalcommits.org)):
 | `fix:`, `perf:` | patch |
 | `feat!:` ou `BREAKING CHANGE` | major |
 
-Ele atualiza o `CHANGELOG.md`, cria a tag e a GitHub Release, e anexa o `DroidDeck-win-x64.zip`
-(backend autocontido com o configurador web embutido) e o `DroidDeck.apk`. Se não houver nenhum
+Ele atualiza o `CHANGELOG.md`, cria a tag e a GitHub Release, e anexa o `DroidDeck-Setup.exe`
+(instalador), o `DroidDeck-win-x64.zip` (o mesmo backend autocontido com o configurador web embutido,
+sem instalador) e o `DroidDeck.apk`. Um primeiro job roda o semantic-release em dry-run para saber a
+próxima versão, porque o instalador é empacotado com ela ([Velopack](https://velopack.io),
+`--packId DroidDeckPC`). O feed do Velopack (`releases.win.json`, o `.nupkg` e afins) também vai
+anexado: as cópias instaladas procuram por ele na última release para se atualizar, então **não apague
+esses arquivos**. Se não houver nenhum
 commit que gere release desde a última versão, nada é publicado.
 
 ## Este site

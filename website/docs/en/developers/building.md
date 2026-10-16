@@ -64,7 +64,12 @@ the commits ([Conventional Commits](https://www.conventionalcommits.org)):
 | `feat!:` or `BREAKING CHANGE` | major |
 
 It updates `CHANGELOG.md`, creates the tag and the GitHub Release, and attaches
-`DroidDeck-win-x64.zip` (self-contained backend with the web configurator embedded) and `DroidDeck.apk`.
+`DroidDeck-Setup.exe` (installer), `DroidDeck-win-x64.zip` (the same self-contained backend with the web
+configurator embedded, without installer) and `DroidDeck.apk`. A first job runs semantic-release in
+dry-run to learn the next version, because the installer is packed with it
+([Velopack](https://velopack.io), `--packId DroidDeckPC`). The Velopack feed (`releases.win.json`,
+the `.nupkg` and friends) is attached too: installed copies look for it in the latest release to update
+themselves, so **don't delete those assets**.
 If there is no releasable commit since the last version, nothing is published.
 
 ## This website

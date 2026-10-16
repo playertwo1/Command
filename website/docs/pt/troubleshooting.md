@@ -4,7 +4,7 @@
 
 1. **Mesma rede**: celular e PC precisam estar na mesma rede local. Redes Wi-Fi de convidados e o
    "isolamento de AP" impedem que os dispositivos se enxerguem.
-2. **Firewall**: libere TCP 4787 e UDP 7573 em redes privadas (veja [Instalação](getting-started/installation.md#firewall))
+2. **Firewall**: use **Liberar no firewall (rede local)** no menu da bandeja, ou libere TCP 4787 e UDP 7573 à mão (veja [Instalação](getting-started/installation.md#firewall))
    e confira se o Windows marca sua rede como **Privada**.
 3. **O DroidDeck está rodando**: procure o ícone na bandeja. No PC, `http://localhost:4787/api/ping`
    deve retornar `{"ok":true,...}`.

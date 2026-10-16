@@ -18,9 +18,22 @@ namespace DroidDeck
     {
         public static frmPrincipal? FrmPrincipal { get; private set; }
 
+        /// <summary>Primeira execucao depois de instalar pelo DroidDeck-Setup.exe.</summary>
+        public static bool FirstRunAfterInstall { get; private set; }
+
+        public static readonly AppUpdater Updater = new();
+
         [STAThread]
         public static void Main(string[] args)
         {
+            // Precisa ser a primeira coisa: o instalador/atualizador do Velopack chama o
+            // proprio exe com argumentos de hook e espera que ele saia logo. Fora de uma
+            // copia instalada (zip, dotnet run) nao faz nada.
+            Velopack.VelopackApp.Build()
+                .OnFirstRun(_ => FirstRunAfterInstall = true)
+                .OnBeforeUninstallFastCallback(_ => frmPrincipal.RemoveAutoStartIfOurs())
+                .Run();
+
             // Bind em todas as interfaces — senão o celular na mesma rede recebe "connection
             // refused" (Kestrel sozinho escuta só em localhost). Em dev o launchSettings já
             // define ASPNETCORE_URLS, mas o .exe publicado não lê launchSettings, então

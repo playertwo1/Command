@@ -55,8 +55,9 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 
 **Requisitos:** Windows 10 1809+ (64 bits) · Android 7.0+ · celular e PC na mesma rede local.
 
-1. **Windows** — baixe o `DroidDeck-win-x64.zip` da [versão mais recente](https://github.com/ggfto/DroidDeck/releases/latest),
-   descompacte e rode o `DroidDeck.exe`. Ele fica na bandeja do sistema. Não precisa instalar o .NET.
+1. **Windows** — baixe e rode o `DroidDeck-Setup.exe` da [versão mais recente](https://github.com/ggfto/DroidDeck/releases/latest).
+   Ele fica na bandeja do sistema e se atualiza sozinho. (Prefere sem instalar? Use o `DroidDeck-win-x64.zip`,
+   descompacte e rode o `DroidDeck.exe`.) Não precisa instalar o .NET.
 2. **Android** — instale o `DroidDeck.apk` da mesma release.
 3. **Parear** — clique com o botão direito no ícone da bandeja → **Parear dispositivo (QR)…** e escaneie o código com o app.
 4. **Configurar** — abra `http://localhost:4787/` no PC para editar seus botões. As mudanças aparecem no celular na hora.

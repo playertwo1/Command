@@ -4,7 +4,7 @@
 
 1. **Same network**: phone and PC must be on the same local network. Guest Wi-Fi networks and
    "AP isolation" block devices from seeing each other.
-2. **Firewall**: allow TCP 4787 and UDP 7573 on private networks (see [Installation](getting-started/installation.md#firewall)),
+2. **Firewall**: use **Liberar no firewall (rede local)** in the tray menu, or allow TCP 4787 and UDP 7573 by hand (see [Installation](getting-started/installation.md#firewall)),
    and make sure Windows marks your network as **Private**.
 3. **DroidDeck is running**: look for the tray icon. On the PC, `http://localhost:4787/api/ping`
    should return `{"ok":true,...}`.

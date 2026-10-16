@@ -12,9 +12,40 @@ permissions:
   pull-requests: write
 
 jobs:
+  # O instalador (Velopack) precisa saber a versao ANTES de empacotar, mas quem decide a
+  # versao e o semantic-release, la no fim. O dry-run calcula a mesma versao sem publicar.
+  version:
+    name: Próxima versão
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - run: npm install
+
+      - id: next
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release --dry-run | tee dry-run.log
+          version=$(grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' dry-run.log || true)
+          echo "Próxima versão: ${version:-nenhuma}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
   backend:
     name: Backend (Windows .exe)
+    needs: version
     runs-on: windows-latest
+    env:
+      # Sem commit que gere release, empacota com uma versao qualquer: nada e publicado.
+      VERSION: ${{ needs.version.outputs.version || '0.0.0' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -37,7 +68,7 @@ jobs:
         run: dotnet test DroidDeck.sln -c Release --filter "Category!=RequiresDesktop"
 
       - name: Publish self-contained (win-x64)
-        run: dotnet publish RaspDeck/DroidDeck.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+        run: dotnet publish RaspDeck/DroidDeck.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:Version=${{ env.VERSION }} -o publish
 
       - name: Embute o web no publish (wwwroot ao lado do exe)
         shell: pwsh
@@ -49,10 +80,24 @@ jobs:
         shell: pwsh
         run: Compress-Archive -Path publish/* -DestinationPath DroidDeck-win-x64.zip -Force
 
+      # Instalador com atualizacao automatica. O app procura releases.win.json e o .nupkg
+      # na ultima Release do GitHub, entao os dois vao anexados junto com o Setup.
+      - name: Instalador (Velopack)
+        shell: pwsh
+        run: |
+          dotnet tool install -g vpk --version 1.2.161
+          vpk pack --packId DroidDeckPC --packVersion $env:VERSION --packDir publish `
+            --mainExe DroidDeck.exe --packTitle DroidDeck --packAuthors "Gabriel Freitas" `
+            --icon RaspDeck/volume-_2_.ico --outputDir velopack
+          Move-Item velopack/DroidDeckPC-win-Setup.exe velopack/DroidDeck-Setup.exe
+          Remove-Item velopack/DroidDeckPC-win-Portable.zip
+
       - uses: actions/upload-artifact@v7
         with:
           name: backend
-          path: DroidDeck-win-x64.zip
+          path: |
+            DroidDeck-win-x64.zip
+            velopack/
 
   app:
     name: App (Android APK)
