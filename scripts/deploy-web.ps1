@@ -2,7 +2,7 @@
 # Usage:  .\scripts\deploy-web.ps1
 $root = Split-Path -Parent $PSScriptRoot          # repo root (parent of scripts/)
 $app = Join-Path $root 'app'
-$wwwroot = Join-Path $root 'RaspDeck\wwwroot'
+$wwwroot = Join-Path $root 'DroidDeck\wwwroot'
 
 Write-Host "Building Flutter web in $app ..."
 Push-Location $app

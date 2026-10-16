@@ -4,29 +4,34 @@ DroidDeck is a monorepo with two halves that evolve together:
 
 ```
 DroidDeck/
-  RaspDeck/      C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
+  DroidDeck/     C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
   app/           Flutter app: the phone runtime and the web configurator (same code).
   tests/         Backend tests.
   scripts/       Utilities (deploying the web build to wwwroot).
   website/       This documentation and the project's landing page.
 ```
 
-## Backend (`RaspDeck/`)
+## Backend (`DroidDeck/`)
 
 - **Host**: `Program.cs` starts ASP.NET Core on `0.0.0.0:4787` and the WinForms tray
-  (`frmPrincipal.cs`), unless `--headless` is passed.
+  (`frmPrincipal.cs`), unless `--headless` is passed. Services are registered by area in
+  `ServiceRegistration.cs` (`AddDeckCore`, `AddActionProviders`, `AddIntegrations`).
 - **Auth**: `Auth/` — API-key authentication handler (header, bearer or `access_token` query),
   constant-time comparison. The key is generated in `%LocalAppData%\DroidDeck\apikey`.
-- **Controllers**: `Controllers/` — REST endpoints per area (StreamDeck, Mixer, Media, Discord, OBS,
-  Soundboard, Tuya).
+- **Actions**: `Actions/` — `IActionProvider` and the schema; `Actions/Providers/` has the built-in
+  types (hotkey, media, mixer, multi, timer, Windows, HTTP, Steam…).
+- **Integrations**: `Integrations/<Name>/` — one folder per integration with its service, its action
+  provider and, where it has one, its controller and reconnect service (`Discord`, `Obs`, `Tuya`,
+  `Soundboard`, `HomeAssistant`, `Spotify`, `Twitch`, `YouTube`). They all implement `IIntegration`
+  (listed at `GET /api/integrations`); the account-based ones derive from `AccountIntegration`
+  (encrypted settings, OAuth, one settings screen in the app).
+- **Controllers**: `Controllers/` — REST endpoints for the deck, audio, media, library, info and macro.
 - **Hub**: `Hubs/DeckHub.cs` — SignalR hub at `/deckHub`; pushes state to clients.
-- **Services**: `Services/`
-    - `ActionExecutorService` — dispatches a button action by `type` to the right service.
-    - `StreamDeckConfigService` — profile and layout persistence.
-    - `SystemMonitorService` — CPU/GPU/RAM/network sampling, broadcast every second.
-    - `MixerService`, `AudioControlService`, `MediaControlService` — NAudio Core Audio and WinRT media sessions.
-    - `DiscordRpcService`, `ObsService`, `SoundboardService`, `TuyaService` — integrations, each with
-      an `*AutoConnect` hosted service that reconnects in the background.
+- **Services**: `Services/` — the deck itself: `ActionExecutorService` (dispatch by type),
+  `ActionPolicy` (privileged actions), `StreamDeckConfigService` (profiles), `ButtonToggleService`
+  (two-state buttons), `InfoService` (info buttons), `TimerService`, `ForegroundWatcher`,
+  `BackupService`, `SystemMonitorService`, and the audio/media services.
+- **Localization**: `Lib/Localization*.cs` — `L.T("…")` answers in English when the request asks for it.
 - **Discovery**: `Lib/DiscoveryServer.cs` — UDP 7573 responder.
 - **Static web**: the Flutter web build is served from `wwwroot/`.
 
@@ -41,10 +46,18 @@ One Flutter codebase, two roles:
 
 Key places:
 
+Key places:
+
 - `lib/core/droiddeck_client/` — API models (`DeckButton`, profiles…).
-- `lib/src/stream_deck/` — grid, buttons and the property panel editor.
+- `lib/core/i18n/` — `tr("…")` and the English dictionaries (`en/*.dart`).
+- `lib/src/stream_deck/buttons/` — how each action type draws its button (`renderers.dart` maps type
+  → renderer; `button_look.dart` has the shared tile, two-state look and icons).
+- `lib/src/stream_deck/widgets/` — grid, info buttons and the button editor (`editor/` holds its
+  sections).
+- `lib/src/stream_deck/actions/` — action picker, schema form and custom action editors.
 - `lib/src/services/signalr_service.dart` — hub connection with endless reconnection.
-- `lib/src/config/` — settings pages (pairing, Discord, OBS, Tuya, soundboard).
+- `lib/src/connection/` — connection keys and the list of paired PCs.
+- `lib/src/config/` — settings pages (pairing, appearance, integrations).
 
 ## Contract
 
@@ -57,16 +70,16 @@ The app and the backend share:
 
 ## Adding a new action type
 
-Each action type is an **`IActionProvider`** (`RaspDeck/Actions/`). It executes the action and
+Each action type is an **`IActionProvider`** (`DroidDeck/Actions/`). It executes the action and
 describes its fields in an `ActionSchema`; the app's editor builds the form from
 `GET /api/actions/schema`, so a simple type needs no Flutter code at all:
 
-1. Implement `IActionProvider` in `RaspDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
+1. Implement `IActionProvider` in `DroidDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
    Fields are text, multiline, number, toggle or select; a select can load its options from an endpoint
    (`OptionsSource`, with `{field}` placeholders) and any field can depend on another (`When`).
-2. Register it in `Program.cs` (`services.AddSingleton<IActionProvider, MyProvider>()`).
+2. Register it in `ServiceRegistration.AddActionProviders` (`services.AddSingleton<IActionProvider, MyProvider>()`).
 3. If it has live state, implement `IStatefulActionProvider` (`StateEvent`, `GetState()`): `DeckHub`
    sends it on connect and the app listens to it.
-4. Only if needed: a custom renderer in `deck_grid_button.dart` (live state on the button), a custom
+4. Only if needed: a renderer in `app/lib/src/stream_deck/buttons/` (live state on the button), a custom
    editor in `app/lib/src/stream_deck/actions/editors/` (`Editor = "name"`), or a settings page.
 5. If it runs code or reaches the network from the PC, add it to `ActionPolicy`'s privileged types.

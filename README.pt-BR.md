@@ -102,7 +102,7 @@ Monorepo com as duas metades do projeto, que evoluem juntas:
 
 ```
 DroidDeck/
-  RaspDeck/   Backend C# (.NET 8 / WinForms tray + ASP.NET Core + SignalR). Serve a API e o configurador web.
+  DroidDeck/  Backend C# (.NET 8 / WinForms tray + ASP.NET Core + SignalR). Serve a API e o configurador web.
   app/        App Flutter: runtime no celular + configurador web (mesmo código).
   tests/      Testes do backend.
   scripts/    Utilitários (deploy do web para o wwwroot).
@@ -116,9 +116,9 @@ O app e o backend compartilham um contrato: **REST** (`/api/...`), **SignalR** (
 
 ```powershell
 # Backend: app de bandeja + servidor web em http://localhost:4787
-dotnet run --project RaspDeck
+dotnet run --project DroidDeck
 
-# Configurador web: flutter build web + copia para RaspDeck/wwwroot
+# Configurador web: flutter build web + copia para DroidDeck/wwwroot
 .\scripts\deploy-web.ps1
 
 # APK Android

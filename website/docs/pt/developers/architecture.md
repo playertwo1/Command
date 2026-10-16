@@ -4,31 +4,36 @@ O DroidDeck é um monorepo com duas metades que evoluem juntas:
 
 ```
 DroidDeck/
-  RaspDeck/      C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
+  DroidDeck/     C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
   app/           Flutter app: the phone runtime and the web configurator (same code).
   tests/         Backend tests.
   scripts/       Utilities (deploying the web build to wwwroot).
   website/       This documentation and the project's landing page.
 ```
 
-## Backend (`RaspDeck/`)
+## Backend (`DroidDeck/`)
 
-- **Host**: `Program.cs` sobe o ASP.NET Core em `0.0.0.0:4787` e o ícone da bandeja em WinForms
-  (`frmPrincipal.cs`), a não ser que `--headless` seja passado.
-- **Auth**: `Auth/` — handler de autenticação por chave de API (header, bearer ou query `access_token`),
+- **Host**: `Program.cs` sobe o ASP.NET Core em `0.0.0.0:4787` e o ícone da bandeja
+  (`frmPrincipal.cs`), a menos que receba `--headless`. Os serviços são registrados por área em
+  `ServiceRegistration.cs` (`AddDeckCore`, `AddActionProviders`, `AddIntegrations`).
+- **Auth**: `Auth/` — autenticação por chave de API (header, bearer ou `access_token` na query),
   com comparação em tempo constante. A chave é gerada em `%LocalAppData%\DroidDeck\apikey`.
-- **Controllers**: `Controllers/` — endpoints REST por área (StreamDeck, Mixer, Media, Discord, OBS,
-  Soundboard, Tuya).
-- **Hub**: `Hubs/DeckHub.cs` — hub SignalR em `/deckHub`; envia o estado para os clientes.
-- **Services**: `Services/`
-    - `ActionExecutorService` — despacha a ação de um botão, pelo `type`, para o serviço certo.
-    - `StreamDeckConfigService` — persistência de perfis e layout.
-    - `SystemMonitorService` — amostragem de CPU/GPU/RAM/rede, transmitida a cada segundo.
-    - `MixerService`, `AudioControlService`, `MediaControlService` — Core Audio via NAudio e sessões de mídia do WinRT.
-    - `DiscordRpcService`, `ObsService`, `SoundboardService`, `TuyaService` — integrações, cada uma
-      com um hosted service `*AutoConnect` que reconecta em segundo plano.
-- **Descoberta**: `Lib/DiscoveryServer.cs` — responde em UDP 7573.
-- **Web estática**: o build web do Flutter é servido a partir de `wwwroot/`.
+- **Ações**: `Actions/` — `IActionProvider` e o schema; `Actions/Providers/` tem os tipos embutidos
+  (atalho, mídia, mixer, multiação, timer, Windows, HTTP, Steam…).
+- **Integrações**: `Integrations/<Nome>/` — uma pasta por integração, com o serviço, o provedor de ação
+  e, quando tem, o controlador e o serviço de reconexão (`Discord`, `Obs`, `Tuya`, `Soundboard`,
+  `HomeAssistant`, `Spotify`, `Twitch`, `YouTube`). Todas implementam `IIntegration` (listadas em
+  `GET /api/integrations`); as que usam conta herdam de `AccountIntegration` (configuração cifrada,
+  OAuth e uma tela de configuração única no app).
+- **Controladores**: `Controllers/` — endpoints REST do deck, áudio, mídia, biblioteca, informação e macro.
+- **Hub**: `Hubs/DeckHub.cs` — hub SignalR em `/deckHub`; envia o estado aos clientes.
+- **Serviços**: `Services/` — o deck em si: `ActionExecutorService` (despacho por tipo),
+  `ActionPolicy` (ações privilegiadas), `StreamDeckConfigService` (perfis), `ButtonToggleService`
+  (dois estados), `InfoService` (botões de informação), `TimerService`, `ForegroundWatcher`,
+  `BackupService`, `SystemMonitorService` e os serviços de áudio e mídia.
+- **Idioma**: `Lib/Localization*.cs` — `L.T("…")` responde em inglês quando o pedido pede.
+- **Descoberta**: `Lib/DiscoveryServer.cs` — responde no UDP 7573.
+- **Web estático**: o build web do Flutter é servido de `wwwroot/`.
 
 ## App (`app/`)
 
@@ -41,10 +46,18 @@ Uma única base de código Flutter, com dois papéis:
 
 Pontos principais:
 
+Lugares principais:
+
 - `lib/core/droiddeck_client/` — modelos da API (`DeckButton`, perfis…).
-- `lib/src/stream_deck/` — grade, botões e o editor do painel de propriedades.
+- `lib/core/i18n/` — `tr("…")` e os dicionários de inglês (`en/*.dart`).
+- `lib/src/stream_deck/buttons/` — como cada tipo de ação desenha o botão (`renderers.dart` liga o tipo
+  ao desenhista; `button_look.dart` tem o botão comum, o visual de dois estados e os ícones).
+- `lib/src/stream_deck/widgets/` — grade, botões de informação e o editor do botão (`editor/` tem as
+  seções dele).
+- `lib/src/stream_deck/actions/` — seletor de ação, formulário do schema e editores próprios.
 - `lib/src/services/signalr_service.dart` — conexão com o hub, com reconexão sem fim.
-- `lib/src/config/` — páginas de configuração (pareamento, Discord, OBS, Tuya, soundboard).
+- `lib/src/connection/` — chaves de conexão e a lista de PCs pareados.
+- `lib/src/config/` — telas de configuração (pareamento, aparência, integrações).
 
 ## Contrato
 
@@ -57,17 +70,17 @@ O app e o backend compartilham:
 
 ## Adicionando um novo tipo de ação
 
-Cada tipo de ação é um **`IActionProvider`** (`RaspDeck/Actions/`). Ele executa a ação e descreve
+Cada tipo de ação é um **`IActionProvider`** (`DroidDeck/Actions/`). Ele executa a ação e descreve
 seus campos num `ActionSchema`; o editor do app monta o formulário a partir de
 `GET /api/actions/schema`, então um tipo simples não precisa de nenhum código em Flutter:
 
-1. Implemente `IActionProvider` em `RaspDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
+1. Implemente `IActionProvider` em `DroidDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
    Os campos são texto, texto longo, número, liga/desliga ou seleção; uma seleção pode carregar as
    opções de um endpoint (`OptionsSource`, com `{campo}` substituído) e qualquer campo pode depender
    de outro (`When`).
-2. Registre em `Program.cs` (`services.AddSingleton<IActionProvider, MeuProvider>()`).
+2. Registre em `ServiceRegistration.AddActionProviders` (`services.AddSingleton<IActionProvider, MeuProvider>()`).
 3. Se tiver estado ao vivo, implemente `IStatefulActionProvider` (`StateEvent`, `GetState()`): o
    `DeckHub` envia ao conectar e o app passa a ouvir.
-4. Só se precisar: um renderizador próprio em `deck_grid_button.dart` (estado ao vivo no botão), uma
+4. Só se precisar: um desenhista em `app/lib/src/stream_deck/buttons/` (estado ao vivo no botão), uma
    tela própria em `app/lib/src/stream_deck/actions/editors/` (`Editor = "nome"`) ou uma página de configuração.
 5. Se executar código ou acessar a rede a partir do PC, inclua o tipo entre os privilegiados do `ActionPolicy`.

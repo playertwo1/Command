@@ -9,7 +9,7 @@
 
 ```powershell
 # run (tray app + server at http://localhost:4787)
-cd RaspDeck
+cd DroidDeck
 dotnet run
 
 # build the solution
@@ -27,7 +27,7 @@ Set `ASPNETCORE_ENVIRONMENT=Development` to enable Swagger at `/swagger`.
 ```powershell
 cd app
 
-# web configurator -> builds and copies to RaspDeck/wwwroot
+# web configurator -> builds and copies to DroidDeck/wwwroot
 ..\scripts\deploy-web.ps1
 
 # Android APK
