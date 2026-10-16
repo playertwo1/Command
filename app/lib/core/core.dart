@@ -6,6 +6,7 @@ export 'helpers/messages.dart';
 export 'companionLoader/companion_loader.dart';
 export 'restClient/rest_client.dart';
 export 'companion_core_config.dart';
+export 'i18n/i18n.dart';
 
 export 'package:loading_animation_widget/loading_animation_widget.dart';
 export 'package:asyncstate/asyncstate.dart';

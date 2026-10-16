@@ -32,7 +32,11 @@ class CompanionCoreConfig extends StatelessWidget {
             // Reconstrói o app quando a aparência muda (tela Aparência).
             return Watch((context) {
               final theme = ThemeController.instance.settings.value;
+              // Trocar o idioma remonta o app inteiro (os textos vêm de tr()).
+              final language = AppLanguage.current.value;
               return MaterialApp(
+                key: ValueKey(language),
+                locale: Locale(language),
                 debugShowCheckedModeBanner: false,
                 routes: routes,
                 title: title,

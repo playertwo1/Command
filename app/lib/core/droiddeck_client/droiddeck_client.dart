@@ -1,3 +1,4 @@
+import 'package:companion/core/i18n/i18n.dart';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -21,6 +22,11 @@ class DroidDeckClient {
   })  : _dio = dio ?? Dio(),
         baseUrl = baseUrl {
     _dio.options.baseUrl = baseUrl;
+    // O PC traduz o que manda (tipos de ação, erros) pelo idioma do app.
+    _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+      options.headers['Accept-Language'] = AppLanguage.header;
+      handler.next(options);
+    }));
   }
 
   void setBaseUrl(String url) {

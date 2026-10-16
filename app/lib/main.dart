@@ -11,6 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Carrega o tema antes do primeiro frame para não piscar o padrão.
   await ThemeController.instance.load();
+  await AppLanguage.load();
   runApp(const MyApp());
 }
 
