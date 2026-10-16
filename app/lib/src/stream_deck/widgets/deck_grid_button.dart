@@ -199,6 +199,22 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         return _renderWindows(ws);
       });
     }
+    // Integrações com conta: o botão mostra o estado que o PC publica.
+    if (type == 'homeassistant' ||
+        type == 'spotify' ||
+        type == 'twitch' ||
+        type == 'youtube') {
+      return Watch((context) {
+        final sr = Injector.get<SignalRService>();
+        return switch (type) {
+          'homeassistant' =>
+            _renderHomeAssistant(sr.stateOf('ReceiveHomeAssistantState')),
+          'spotify' => _renderSpotify(sr.stateOf('ReceiveSpotifyState')),
+          _ => _renderLive(type!, sr.stateOf(
+              type == 'twitch' ? 'ReceiveTwitchState' : 'ReceiveYouTubeState')),
+        };
+      });
+    }
     // Botão de casa inteligente: acende conforme o estado real do aparelho.
     final tuya = _tuyaTarget;
     if (tuya != null) {
@@ -605,6 +621,164 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         ? widget.button.label!
         : defLabel;
     return _tile(active: active, icon: Icon(icon, size: 30), label: label);
+  }
+
+  String? get _ownLabel =>
+      (widget.button.label?.isNotEmpty ?? false) ? widget.button.label : null;
+
+  bool get _hasOwnIcon =>
+      (widget.button.iconName?.isNotEmpty ?? false) ||
+      (widget.button.iconBase64?.isNotEmpty ?? false);
+
+  // ---- Home Assistant ----
+
+  static const _haOnStates = {
+    'on', 'open', 'opening', 'playing', 'unlocked', 'home', 'heat', 'cool',
+    'heat_cool', 'auto', 'dry', 'fan_only', 'cleaning', 'active',
+  };
+
+  static IconData _haIcon(String domain, bool on) => switch (domain) {
+        'light' => on ? Icons.lightbulb : Icons.lightbulb_outline,
+        'switch' || 'input_boolean' => on ? Icons.toggle_on : Icons.toggle_off,
+        'fan' => Icons.mode_fan_off_outlined,
+        'cover' => on ? Icons.blinds : Icons.blinds_closed,
+        'lock' => on ? Icons.lock_open : Icons.lock,
+        'media_player' => on ? Icons.play_circle : Icons.speaker,
+        'climate' => Icons.thermostat,
+        'scene' => Icons.palette_outlined,
+        'script' => Icons.play_arrow,
+        'automation' => Icons.smart_toy_outlined,
+        'sensor' || 'binary_sensor' => Icons.sensors,
+        'person' || 'device_tracker' => Icons.person,
+        'vacuum' => Icons.cleaning_services,
+        _ => Icons.home,
+      };
+
+  Widget _renderHomeAssistant(Map<String, dynamic> ha) {
+    final params = widget.button.action?.parameters ?? const <String, String>{};
+    final id = params['entityId'] ?? '';
+    final op = (params['operation'] ?? 'toggle').toLowerCase();
+    final domain = id.contains('.') ? id.split('.').first : '';
+    final entities = ha['entities'] as Map? ?? const {};
+    final e = entities[id] is Map ? Map<String, dynamic>.from(entities[id] as Map) : null;
+    final state = '${e?['state'] ?? ''}';
+    final name = (e?['name'] as String?) ?? (id.contains('.') ? id.split('.').last : 'Home Assistant');
+
+    // "Só mostrar": o valor do sensor no lugar do ícone.
+    if (op == 'display') {
+      final unit = e?['unit'] as String?;
+      final value = state.isEmpty ? '—' : (unit != null ? '$state $unit' : state);
+      return _tile(
+        active: false,
+        icon: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(value,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ),
+        label: _ownLabel ?? name,
+      );
+    }
+    final on = _haOnStates.contains(state);
+    final brightness = e?['brightness'] as int?;
+    final color = _parseColor(e?['color'] as String?);
+    final label = _ownLabel ?? name;
+    return _tile(
+      active: on && domain != 'scene' && domain != 'script',
+      activeColor: color,
+      icon: _hasOwnIcon ? _buildIcon(null) : Icon(_haIcon(domain, on), size: 30),
+      label: on && brightness != null ? '$label · $brightness%' : label,
+    );
+  }
+
+  // ---- Spotify ----
+
+  Widget _renderSpotify(Map<String, dynamic> sp) {
+    final op = (widget.button.action?.parameters['operation'] ?? 'playPause')
+        .toLowerCase();
+    final playing = sp['playing'] == true;
+    if (op == 'nowplaying') {
+      final cover = sp['coverBase64'] as String?;
+      Widget icon = const Icon(Icons.music_note, size: 30);
+      if (cover != null && cover.isNotEmpty) {
+        icon = Flexible(
+          child: LayoutBuilder(builder: (context, c) {
+            final side = c.maxWidth.isFinite ? c.maxWidth * 0.6 : 48.0;
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: SizedBox(
+                width: side,
+                height: side,
+                child: Image.memory(base64Decode(cover),
+                    fit: BoxFit.cover, gaplessPlayback: true),
+              ),
+            );
+          }),
+        );
+      }
+      final track = sp['track'] as String?;
+      return _tile(
+        active: false,
+        icon: icon,
+        label: _ownLabel ??
+            (track == null ? 'Spotify' : '$track\n${sp['artist'] ?? ''}'),
+      );
+    }
+    final (IconData icon, bool active, String label) = switch (op) {
+      'next' => (Icons.skip_next, false, 'Próxima'),
+      'previous' => (Icons.skip_previous, false, 'Anterior'),
+      'like' => (
+          sp['liked'] == true ? Icons.favorite : Icons.favorite_border,
+          sp['liked'] == true,
+          'Curtir'
+        ),
+      'shuffle' => (Icons.shuffle, sp['shuffle'] == true, 'Aleatório'),
+      'repeat' => (
+          sp['repeat'] == 'track' ? Icons.repeat_one : Icons.repeat,
+          sp['repeat'] != null && sp['repeat'] != 'off',
+          'Repetir'
+        ),
+      'volume' => (
+          (int.tryParse(widget.button.action?.parameters['step'] ?? '') ?? 10) < 0
+              ? Icons.volume_down
+              : Icons.volume_up,
+          false,
+          sp['volume'] != null ? 'Vol ${sp['volume']}%' : 'Volume'
+        ),
+      'playlist' => (Icons.queue_music, false, 'Playlist'),
+      _ => (playing ? Icons.pause : Icons.play_arrow, false, 'Spotify'),
+    };
+    return _tile(
+      active: active,
+      icon: _hasOwnIcon ? _buildIcon(null) : Icon(icon, size: 30),
+      label: _ownLabel ?? label,
+    );
+  }
+
+  // ---- Twitch / YouTube ----
+
+  Widget _renderLive(String type, Map<String, dynamic> st) {
+    final op = (widget.button.action?.parameters['operation'] ?? '').toLowerCase();
+    final live = st['live'] == true;
+    final viewers = st['viewers'];
+    final (IconData icon, String label) = switch (op) {
+      'marker' => (Icons.bookmark_add, 'Marcador'),
+      'clip' => (Icons.movie_creation_outlined, 'Clipe'),
+      'ad' => (Icons.campaign, 'Anúncio'),
+      'chat' => (Icons.chat, 'Chat'),
+      'poll' => (Icons.poll_outlined, 'Enquete'),
+      'title' => (Icons.title, 'Título'),
+      _ => (
+          type == 'twitch' ? Icons.sensors : Icons.smart_display,
+          live
+              ? (viewers != null ? '$viewers assistindo' : 'Ao vivo')
+              : 'Fora do ar'
+        ),
+    };
+    return _tile(
+      active: op == 'status' && live,
+      icon: _hasOwnIcon ? _buildIcon(null) : Icon(icon, size: 30),
+      label: op == 'status' ? label : (_ownLabel ?? label),
+    );
   }
 
   Widget _renderWindows(Map<String, dynamic> ws) {

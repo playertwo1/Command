@@ -376,6 +376,16 @@ class DroidDeckClient {
     return response.data;
   }
 
+  Future<dynamic> postJson(String path, [Object? body]) async {
+    final response = await _dio.post(path, data: body);
+    return response.data;
+  }
+
+  Future<dynamic> deleteJson(String path) async {
+    final response = await _dio.delete(path);
+    return response.data;
+  }
+
   Future<void> executeAction(DeckAction action) async {
     await _dio.post(
       '/api/StreamDeck/execute',

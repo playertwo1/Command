@@ -3,14 +3,11 @@ import 'package:companion/src/services/server_discovery_service.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
 import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
+import 'package:companion/src/config/integrations_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'qr_scan_page.dart';
-import 'discord_settings_page.dart';
-import 'obs_settings_page.dart';
-import 'tuya_settings_page.dart';
-import 'soundboard_settings_page.dart';
 import 'appearance_settings_page.dart';
 import '../welcome/welcome_page.dart';
 
@@ -211,42 +208,13 @@ class ConfigPageState extends State<ConfigPage> {
             const BackupButtons(),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.discord),
-              title: const Text('Plugin do Discord'),
-              subtitle: const Text('Configurar app, conectar, mute/canal de voz'),
+              leading: const Icon(Icons.extension_outlined),
+              title: const Text('Integrações'),
+              subtitle: const Text(
+                  'Discord, OBS, Twitch, YouTube, Spotify, Soundboard, Home Assistant e Tuya'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const DiscordSettingsPage()),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.videocam),
-              title: const Text('Plugin do OBS'),
-              subtitle: const Text('Conectar, trocar cena, gravar/transmitir'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ObsSettingsPage()),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.home_outlined),
-              title: const Text('Casa inteligente (Tuya)'),
-              subtitle: const Text('Smart Life, Nova Digital e outras marcas Tuya'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const TuyaSettingsPage()),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.library_music),
-              title: const Text('Soundboard'),
-              subtitle: const Text('Sons do MyInstants: saída de áudio e volume'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SoundboardSettingsPage()),
+                MaterialPageRoute(builder: (_) => const IntegrationsPage()),
               ),
             ),
           ],

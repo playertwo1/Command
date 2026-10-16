@@ -151,6 +151,10 @@ const _icons = <String, IconData>{
   'computer': Icons.computer,
   'sports_esports': Icons.sports_esports,
   'extension': Icons.extension,
+  'home': Icons.home,
+  'music_note': Icons.music_note,
+  'sensors': Icons.sensors,
+  'smart_display': Icons.smart_display,
 };
 
 /// Catálogo usado quando o PC ainda roda uma versão sem /api/actions/schema.

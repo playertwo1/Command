@@ -2,10 +2,8 @@ import 'package:companion/src/stream_deck/stream_deck_controller.dart';
 import 'package:companion/src/stream_deck/widgets/button_property_panel.dart';
 import 'package:companion/src/stream_deck/widgets/dynamic_deck_button.dart';
 import 'package:companion/src/services/signalr_service.dart';
-import 'package:companion/src/config/discord_settings_page.dart';
-import 'package:companion/src/config/obs_settings_page.dart';
-import 'package:companion/src/config/soundboard_settings_page.dart';
 import 'package:companion/src/config/appearance_settings_page.dart';
+import 'package:companion/src/config/integrations_page.dart';
 import 'package:companion/core/core.dart';
 import 'package:companion/src/stream_deck/widgets/profile_settings_dialog.dart';
 import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
@@ -99,43 +97,13 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const DiscordSettingsPage()),
-                    ),
-                    icon: const Icon(Icons.headset_mic, size: 18),
-                    label: const Text('Configurar Discord'),
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 36),
-                      foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                   child: TextButton.icon(
                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ObsSettingsPage()),
+                      MaterialPageRoute(builder: (_) => const IntegrationsPage()),
                     ),
-                    icon: const Icon(Icons.videocam, size: 18),
-                    label: const Text('Configurar OBS'),
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 36),
-                      foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const SoundboardSettingsPage()),
-                    ),
-                    icon: const Icon(Icons.library_music, size: 18),
-                    label: const Text('Configurar Soundboard'),
+                    icon: const Icon(Icons.extension_outlined, size: 18),
+                    label: const Text('Integrações'),
                     style: TextButton.styleFrom(
                       minimumSize: const Size(double.infinity, 36),
                       foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -193,26 +161,11 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                           }),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.headset_mic),
-                          tooltip: 'Configurar Discord',
+                          icon: const Icon(Icons.extension_outlined),
+                          tooltip: 'Integrações',
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (_) => const DiscordSettingsPage()),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.videocam),
-                          tooltip: 'Configurar OBS',
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ObsSettingsPage()),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.library_music),
-                          tooltip: 'Configurar Soundboard',
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const SoundboardSettingsPage()),
+                                builder: (_) => const IntegrationsPage()),
                           ),
                         ),
                         IconButton(

@@ -1,10 +1,7 @@
 import 'package:companion/core/core.dart';
-import 'package:companion/src/config/discord_settings_page.dart';
-import 'package:companion/src/config/obs_settings_page.dart';
-import 'package:companion/src/config/soundboard_settings_page.dart';
-import 'package:companion/src/config/tuya_settings_page.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/src/stream_deck/actions/action_schema.dart';
+import 'package:companion/src/config/integrations_page.dart';
 import 'package:flutter/material.dart';
 
 /// Formulário montado a partir do [ActionSchema]. Avisa o painel a cada mudança com
@@ -290,19 +287,7 @@ class IntegrationWarning extends StatelessWidget {
 
   const IntegrationWarning({super.key, required this.schema});
 
-  static Widget? settingsPage(String? key) {
-    switch (key) {
-      case 'obs':
-        return const ObsSettingsPage();
-      case 'discord':
-        return const DiscordSettingsPage();
-      case 'tuya':
-        return const TuyaSettingsPage();
-      case 'soundboard':
-        return const SoundboardSettingsPage();
-    }
-    return null;
-  }
+  static Widget? settingsPage(String? key) => IntegrationsPage.pageFor(key);
 
   @override
   Widget build(BuildContext context) {

@@ -249,6 +249,23 @@ namespace DroidDeck
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.SteamProvider>();
                             services.AddSingleton<Services.SteamLibrary>();
                             services.AddSingleton<Services.BackupService>();
+                            // Integracoes com conta: tela de configuracao em /api/integrations/{nome}.
+                            services.AddSingleton<Integrations.HomeAssistantIntegration>();
+                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.HomeAssistantIntegration>());
+                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.HomeAssistantIntegration>());
+                            services.AddSingleton<Actions.IActionProvider, Integrations.HomeAssistantProvider>();
+                            services.AddSingleton<Integrations.SpotifyIntegration>();
+                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.SpotifyIntegration>());
+                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.SpotifyIntegration>());
+                            services.AddSingleton<Actions.IActionProvider, Integrations.SpotifyProvider>();
+                            services.AddSingleton<Integrations.TwitchIntegration>();
+                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.TwitchIntegration>());
+                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.TwitchIntegration>());
+                            services.AddSingleton<Actions.IActionProvider, Integrations.TwitchProvider>();
+                            services.AddSingleton<Integrations.YouTubeIntegration>();
+                            services.AddSingleton<Integrations.AccountIntegration>(sp => sp.GetRequiredService<Integrations.YouTubeIntegration>());
+                            services.AddHostedService(sp => sp.GetRequiredService<Integrations.YouTubeIntegration>());
+                            services.AddSingleton<Actions.IActionProvider, Integrations.YouTubeProvider>();
                             services.AddSingleton<Services.ButtonToggleService>();
                             services.AddSingleton<Services.InfoService>();
                             services.AddHostedService(sp => sp.GetRequiredService<Services.InfoService>());
