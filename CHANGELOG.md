@@ -1,3 +1,20 @@
+# [1.9.0](https://github.com/ggfto/DroidDeck/compare/v1.8.0...v1.9.0) (2026-10-16)
+
+
+### Bug Fixes
+
+* **obs:** pausar a gravacao nao mostra mais o botao como parado ([04586ee](https://github.com/ggfto/DroidDeck/commit/04586ee453df9501577c26e6101a0321ef10eeee))
+
+
+### Features
+
+* app e PC em ingles (segue o idioma do celular, com escolha em Aparencia) ([8001310](https://github.com/ggfto/DroidDeck/commit/8001310820fc97d9f9924cd1361411137598708d))
+* **app:** base de idiomas (tr, escolha do idioma, Accept-Language) ([05144e5](https://github.com/ggfto/DroidDeck/commit/05144e5c4ef789dd00109226c977371e0601643f))
+* **app:** varios PCs pareados, com troca pela barra do deck e deck guardado por PC ([7c0f5a5](https://github.com/ggfto/DroidDeck/commit/7c0f5a590b4aa3e1d26bfbea6354a1a45e07537c))
+* botoes de dois estados (liga/desliga no PC, rotulo e icone do ativo) e botoes de informacao (relogio, clima, tocando agora, comando, URL) ([8a4a763](https://github.com/ggfto/DroidDeck/commit/8a4a7631ddf64fd2a49d181f65b1b650de2bf117))
+* gravar macro pelo teclado do PC na multi-acao (so no configurador local) ([1b8f5ab](https://github.com/ggfto/DroidDeck/commit/1b8f5abd34c98ed25fa225b07d60c2c439ee1eb8))
+* integracoes com Home Assistant, Spotify, Twitch e YouTube, com tela de conta comum e lista de integracoes ([e72b225](https://github.com/ggfto/DroidDeck/commit/e72b225b0537be3026c880db18c0e9d87758b9c1))
+
 # [1.8.0](https://github.com/ggfto/DroidDeck/compare/v1.7.0...v1.8.0) (2026-10-16)
 
 
