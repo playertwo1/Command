@@ -52,7 +52,7 @@ Você também pode editar no próprio celular:
 
 | Propriedade | Descrição |
 |---|---|
-| **Label** | Texto exibido no botão. Botões de mídia e de soundboard o preenchem sozinhos quando vazio. |
+| **Rótulo** | Texto exibido no botão. Botões de mídia e de soundboard o preenchem sozinhos quando vazio. |
 | **Ícone** | Um dos ícones embutidos, ou uma imagem personalizada da sua galeria (até 512×512, guardada no perfil). |
 | **Background Color** | Cor do botão. |
 | **Cor ativa** | Cor usada quando o estado do botão está "ligado" (microfone silenciado, lâmpada acesa…). Disponível para ações com estado ao vivo e para botões de dois estados. |
