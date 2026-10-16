@@ -1,3 +1,20 @@
+# [1.8.0](https://github.com/ggfto/DroidDeck/compare/v1.7.0...v1.8.0) (2026-10-16)
+
+
+### Bug Fixes
+
+* **app:** versiona a pasta backup/ do app, que o .gitignore do Visual Studio ignorava ([d3b9d96](https://github.com/ggfto/DroidDeck/commit/d3b9d9643aee6e3e5e68f8f3a63f31cd3955c588))
+* **deck:** salvar um perfil nao muda mais a ordem dos perfis ([87c7346](https://github.com/ggfto/DroidDeck/commit/87c7346b4b0149c4bf2a2d8d86aafc6bc5211be2))
+* **timer:** zerar um contador volta a contagem para 0 ([37650e5](https://github.com/ggfto/DroidDeck/commit/37650e560c8cbd106a3990bd37f219c25e8b0fb2))
+
+
+### Features
+
+* **app:** vibracao ao tocar nos botoes do deck ([1d39da4](https://github.com/ggfto/DroidDeck/commit/1d39da47d2e060ec76c645e4fff09843c0c6a41b))
+* perfil pelo app em foco, backup, toque longo/duplo, deck offline e jogos da Steam ([18e736d](https://github.com/ggfto/DroidDeck/commit/18e736d772725b1ab015c3b24e7ee6fe9d84a605))
+* timer/pomodoro/contador, requisicao HTTP, acoes do Windows e mais acoes do OBS ([143d5d8](https://github.com/ggfto/DroidDeck/commit/143d5d810c9759fa413bc1bd1bd2f5761cbd07ba))
+* **windows:** instalador com atualizacao automatica e liberacao do firewall ([29cab1c](https://github.com/ggfto/DroidDeck/commit/29cab1cff73a493482d53ac9766d163e3c434be8))
+
 # [1.7.0](https://github.com/ggfto/DroidDeck/compare/v1.6.0...v1.7.0) (2026-10-15)
 
 
