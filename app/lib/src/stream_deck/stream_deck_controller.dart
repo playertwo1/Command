@@ -1,3 +1,4 @@
+import 'package:companion/src/core/pc_store.dart';
 import 'dart:convert';
 
 import 'package:companion/core/core.dart'; // Contains DroidDeckClient, DeckProfile, etc.
@@ -17,8 +18,9 @@ class StreamDeckController {
   /// Mostrando o último deck salvo no aparelho porque o PC não respondeu.
   final offline = signal(false);
 
-  static const _cacheKey = 'deck_cache';
-  static const _lastProfileKey = 'deck_last_profile';
+  // Cada PC pareado tem o seu deck guardado.
+  static String get _cacheKey => PcStore.scoped('deck_cache');
+  static String get _lastProfileKey => PcStore.scoped('deck_last_profile');
 
   Future<void> loadProfiles() async {
     // Primeira carga: mostra na hora o último deck salvo; o do PC substitui quando chegar.

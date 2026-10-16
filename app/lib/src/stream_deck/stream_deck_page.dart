@@ -1,3 +1,4 @@
+import 'package:companion/src/config/pc_switcher.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/src/stream_deck/layout/desktop_layout.dart';
 import 'package:companion/src/stream_deck/actions/action_catalog.dart';
@@ -532,6 +533,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                       ),
                     ),
                   ),
+                  const PcMenuButton(),
                   IconButton(
                     icon: Icon(_editMode ? Icons.check : Icons.edit),
                     tooltip: _editMode ? 'Concluir edição' : 'Editar botões',
@@ -600,7 +602,8 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                                 child: Text(
                                   controller.offline.value
                                       ? 'PC desconectado. Mostrando o último deck salvo neste aparelho.'
-                                      : 'Offline: $error',
+                                      : 'O PC não respondeu e este aparelho ainda não tem um deck dele salvo. '
+                                          'Confira se o DroidDeck está aberto nele e na mesma rede.',
                                   style: const TextStyle(color: Colors.white),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

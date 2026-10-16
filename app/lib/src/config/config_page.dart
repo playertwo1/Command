@@ -4,6 +4,8 @@ import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
 import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
 import 'package:companion/src/config/integrations_page.dart';
+import 'package:companion/src/config/pc_switcher.dart';
+import 'package:companion/src/core/pc_store.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,11 +30,87 @@ class ConfigPageState extends State<ConfigPage> {
     _loadIP();
   }
 
+  List<SavedPc> _pcs = [];
+
   Future<void> _loadIP() async {
     final prefs = await SharedPreferences.getInstance();
+    var pcs = await PcStore.load();
+    // PC migrado da versão antiga ainda sem nome: pergunta ao PC em uso.
+    final current = pcs.where((p) => p.id == PcStore.currentId).firstOrNull;
+    if (current != null && (current.name == 'PC' || current.name == current.ip)) {
+      await fetchPcName(current);
+      pcs = await PcStore.load();
+    }
+    if (!mounted) return;
     setState(() {
+      _pcs = pcs;
       _ipController.text = prefs.getString(Constants.ipAddrKey) ?? '';
     });
+  }
+
+  /// PCs pareados: tocar troca de PC; o menu renomeia ou esquece.
+  Widget _buildPcList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('PCs pareados', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 4),
+        for (final pc in _pcs)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(pc.id == PcStore.currentId
+                ? Icons.radio_button_checked
+                : Icons.radio_button_unchecked),
+            title: Text(pc.name),
+            subtitle: Text('${pc.ip}:${pc.port}'),
+            onTap: pc.id == PcStore.currentId ? null : () => switchToPc(context, pc),
+            trailing: PopupMenuButton<String>(
+              onSelected: (v) => v == 'rename' ? _renamePc(pc) : _removePc(pc),
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'rename', child: Text('Renomear')),
+                PopupMenuItem(value: 'remove', child: Text('Esquecer este PC')),
+              ],
+            ),
+          ),
+        Text(
+          'Para acrescentar outro PC, pareie com o QR dele (ou digite o IP abaixo).',
+          style: TextStyle(
+              fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _renamePc(SavedPc pc) async {
+    final ctrl = TextEditingController(text: pc.name);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Nome do PC'),
+        content: TextField(controller: ctrl, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+              child: const Text('Salvar')),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    await PcStore.rename(pc.id, name);
+    _loadIP();
+  }
+
+  Future<void> _removePc(SavedPc pc) async {
+    final wasCurrent = pc.id == PcStore.currentId;
+    await PcStore.remove(pc.id);
+    final next = await PcStore.current();
+    if (!mounted) return;
+    if (wasCurrent && next != null) {
+      await switchToPc(context, next);
+    } else {
+      _loadIP();
+    }
   }
 
   Future<void> _findServer() async {
@@ -89,6 +167,9 @@ class ConfigPageState extends State<ConfigPage> {
     await prefs.setString(Constants.ipAddrKey, ip); // Save raw IP for UI
     await prefs.setString(Constants.portKey, port); // persiste a porta p/ o splash
     final apiKey = prefs.getString(Constants.apiKeyKey); // mantém a chave do pareamento
+    final host = ip.contains(':') ? ip.substring(0, ip.indexOf(':')) : ip;
+    final pc = await PcStore.upsert(ip: host, port: port, apiKey: apiKey);
+    fetchPcName(pc);
 
     // Update Singletons immediately
     final client = Injector.get<DroidDeckClient>();
@@ -131,6 +212,9 @@ class ConfigPageState extends State<ConfigPage> {
     await prefs.setString(Constants.ipAddrKey, ip);
     await prefs.setString(Constants.portKey, port); // persiste a porta p/ o splash
     await prefs.setString(Constants.apiKeyKey, key);
+    // Parear com outro PC acrescenta à lista; o mesmo IP atualiza a chave.
+    final pc = await PcStore.upsert(ip: ip, port: port, apiKey: key);
+    await fetchPcName(pc);
 
     final client = Injector.get<DroidDeckClient>();
     client.setBaseUrl(baseUrl);
@@ -158,6 +242,10 @@ class ConfigPageState extends State<ConfigPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+            if (_pcs.isNotEmpty) ...[
+              _buildPcList(),
+              const Divider(height: 24),
+            ],
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(

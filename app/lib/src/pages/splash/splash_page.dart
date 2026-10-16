@@ -1,3 +1,4 @@
+import 'package:companion/src/core/pc_store.dart';
 import 'package:companion/src/core/constants.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
@@ -38,6 +39,8 @@ class SplashPageState extends State<SplashPage> {
       if (mounted) Navigator.of(context).pushReplacementNamed('/home');
       return;
     }
+    // Lista de PCs pareados (migra o PC único das versões antigas).
+    await PcStore.load();
     final sp = await SharedPreferences.getInstance();
     final ip = sp.getString(Constants.ipAddrKey);
     final port = sp.getString(Constants.portKey) ?? Constants.defaultPort;

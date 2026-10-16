@@ -45,6 +45,14 @@ namespace DroidDeck.Controllers
         [HttpGet("api/system/apps")]
         public IActionResult Apps() => Ok(ForegroundWatcher.RunningApps());
 
+        /// <summary>Nome do PC e versao: o celular usa para identificar cada PC pareado.</summary>
+        [HttpGet("api/system/info")]
+        public IActionResult Info() => Ok(new
+        {
+            name = System.Environment.MachineName,
+            version = typeof(LibraryController).Assembly.GetName().Version?.ToString(3),
+        });
+
         // ---- Backup ----
 
         [HttpGet("api/backup")]
