@@ -52,14 +52,19 @@ class HomePageState extends State<HomePage> {
     }
     return Scaffold(
       body: Watch((context) {
-        if (controller.isLoading.value && controller.outputs.value.isEmpty) {
+        final deckOnly = ThemeController.instance.deckOnly.value;
+        // O deck tem carregamento e modo offline próprios; a espera aqui é só do áudio.
+        if (!deckOnly &&
+            controller.isLoading.value &&
+            controller.outputs.value.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (controller.error.value != null) {
-          final err = controller.error.value ?? '';
-          // 401/403 = pareamento invalido: retry so falha de novo. Oferece voltar
-          // ao pareamento pra nao prender o usuario nesta tela.
-          final isAuthError = err.contains('401') || err.contains('403');
+        final err = controller.error.value ?? '';
+        // 401/403 = pareamento invalido: retry so falha de novo. Oferece voltar
+        // ao pareamento pra nao prender o usuario nesta tela. Outros erros (PC
+        // desligado) nao bloqueiam: o deck abre com o ultimo perfil salvo.
+        final isAuthError = err.contains('401') || err.contains('403');
+        if (isAuthError) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -96,7 +101,7 @@ class HomePageState extends State<HomePage> {
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         }
 
-        if (ThemeController.instance.deckOnly.value) {
+        if (deckOnly) {
           return StreamDeckPage(
             onToggleFullscreen: controller.toggleFullscreen,
             isFullscreen: controller.isFullscreen.value,
@@ -111,10 +116,28 @@ class HomePageState extends State<HomePage> {
             });
           },
           children: [
-            AudioPage(
-              controller: controller,
-              isFullscreen: controller.isFullscreen.value,
-              onToggleFullscreen: controller.toggleFullscreen,
+            Column(
+              children: [
+                if (err.isNotEmpty)
+                  MaterialBanner(
+                    leading: const Icon(Icons.wifi_off),
+                    content: const Text(
+                        'O PC não respondeu. Confira se o DroidDeck está aberto nele.'),
+                    actions: [
+                      TextButton(
+                        onPressed: controller.fetchOutputs,
+                        child: const Text('Tentar novamente'),
+                      ),
+                    ],
+                  ),
+                Expanded(
+                  child: AudioPage(
+                    controller: controller,
+                    isFullscreen: controller.isFullscreen.value,
+                    onToggleFullscreen: controller.toggleFullscreen,
+                  ),
+                ),
+              ],
             ),
             StreamDeckPage(
               onToggleFullscreen: controller.toggleFullscreen,

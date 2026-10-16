@@ -37,6 +37,14 @@ class DeckButton {
   @JsonKey(name: 'dynamicType')
   final String? dynamicType;
 
+  /// Ação do toque longo. Sem ela, o toque longo abre o editor no celular.
+  @JsonKey(name: 'longPressAction')
+  final DeckAction? longPressAction;
+
+  /// Ação do toque duplo. Com ela, o toque simples espera um instante para diferenciar.
+  @JsonKey(name: 'doubleTapAction')
+  final DeckAction? doubleTapAction;
+
   DeckButton({
     required this.id,
     required this.row,
@@ -48,7 +56,40 @@ class DeckButton {
     this.activeColor,
     this.action,
     this.dynamicType,
+    this.longPressAction,
+    this.doubleTapAction,
   });
+
+  /// Cópia com campos trocados. Use isto em vez do construtor ao mexer num botão
+  /// existente, senão campos novos (gestos...) se perdem no caminho.
+  DeckButton copyWith({
+    String? id,
+    int? row,
+    int? column,
+    String? label,
+    DeckAction? action,
+  }) =>
+      DeckButton(
+        id: id ?? this.id,
+        row: row ?? this.row,
+        column: column ?? this.column,
+        label: label ?? this.label,
+        iconBase64: iconBase64,
+        iconName: iconName,
+        backgroundColor: backgroundColor,
+        activeColor: activeColor,
+        action: action ?? this.action,
+        dynamicType: dynamicType,
+        longPressAction: longPressAction,
+        doubleTapAction: doubleTapAction,
+      );
+
+  /// Ação de um gesto: 'tap', 'longPress' ou 'doubleTap'.
+  DeckAction? actionFor(String gesture) => switch (gesture) {
+        'longPress' => longPressAction,
+        'doubleTap' => doubleTapAction,
+        _ => action,
+      };
 
   factory DeckButton.fromJson(Map<String, dynamic> json) =>
       _$DeckButtonFromJson(json);

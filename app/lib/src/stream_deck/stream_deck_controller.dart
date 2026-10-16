@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:companion/core/core.dart'; // Contains DroidDeckClient, DeckProfile, etc.
+import 'package:companion/src/stream_deck/actions/action_catalog.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StreamDeckController {
   final DroidDeckClient _client = Injector.get<DroidDeckClient>();
@@ -10,25 +14,93 @@ class StreamDeckController {
   final profiles = signal<List<DeckProfile>>([]);
   final currentProfile = signal<DeckProfile?>(null);
 
+  /// Mostrando o último deck salvo no aparelho porque o PC não respondeu.
+  final offline = signal(false);
+
+  static const _cacheKey = 'deck_cache';
+  static const _lastProfileKey = 'deck_last_profile';
+
   Future<void> loadProfiles() async {
+    // Primeira carga: mostra na hora o último deck salvo; o do PC substitui quando chegar.
+    // Com o PC desligado (sem "connection refused"), a espera pode passar de 20 s.
+    if (profiles.value.isEmpty) {
+      final cached = await _loadCache();
+      if (cached.isNotEmpty && profiles.value.isEmpty) {
+        profiles.value = cached;
+        _selectInitial(cached);
+      }
+    }
     try {
-      isLoading.value = true;
+      isLoading.value = profiles.value.isEmpty;
       error.value = null;
       final result = await _client.getProfiles();
       profiles.value = result;
-
-      if (currentProfile.value == null && result.isNotEmpty) {
-        currentProfile.value = result.first;
-      }
+      offline.value = false;
+      // Se o app abriu sem o PC, o catálogo de ações (e os estados ao vivo que ele
+      // assina, como os timers) ainda não carregou: tenta agora. Já carregado = nada.
+      ActionCatalog.instance.load();
+      _selectInitial(result);
+      _saveCache(result);
     } catch (e) {
       error.value = e.toString();
+      // Sem PC: fica o último deck que o aparelho viu (carregado acima), avisando.
+      offline.value = profiles.value.isNotEmpty;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> executeButtonAction(DeckButton button) async {
-    if (button.action == null) return;
+  /// Abre no perfil em que o usuário estava da última vez (ou mantém o atual).
+  Future<void> _selectInitial(List<DeckProfile> list) async {
+    if (list.isEmpty) return;
+    final current = currentProfile.value;
+    if (current != null) {
+      // Recarga: pega a versão nova do mesmo perfil.
+      currentProfile.value =
+          list.firstWhere((p) => p.id == current.id, orElse: () => list.first);
+      return;
+    }
+    String? last;
+    try {
+      last = (await SharedPreferences.getInstance()).getString(_lastProfileKey);
+    } catch (_) {}
+    currentProfile.value =
+        list.firstWhere((p) => p.id == last, orElse: () => list.first);
+  }
+
+  /// Lembra o perfil visível para abrir nele da próxima vez.
+  Future<void> rememberProfile(String id) async {
+    try {
+      await (await SharedPreferences.getInstance()).setString(_lastProfileKey, id);
+    } catch (_) {}
+  }
+
+  Future<void> _saveCache(List<DeckProfile> list) async {
+    if (kIsWeb) return; // o configurador roda no próprio PC
+    try {
+      final json = jsonEncode(list.map((p) => p.toJson()).toList());
+      await (await SharedPreferences.getInstance()).setString(_cacheKey, json);
+    } catch (_) {}
+  }
+
+  Future<List<DeckProfile>> _loadCache() async {
+    if (kIsWeb) return const [];
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(_cacheKey);
+      if (raw == null) return const [];
+      return (jsonDecode(raw) as List)
+          .map((e) => DeckProfile.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Executa a ação de um gesto ('tap', 'longPress', 'doubleTap'). Devolve false se o
+  /// PC não respondeu, para a tela avisar.
+  Future<bool> executeButtonAction(DeckButton button,
+      {String gesture = 'tap'}) async {
+    if (button.actionFor(gesture) == null) return true;
 
     // O PC executa a ação salva no perfil, pelo id do botão: o celular não escolhe o
     // que roda. Procura o perfil dono do botão (a página atual, ou uma pasta aberta).
@@ -38,12 +110,19 @@ class StreamDeckController {
         : profiles.value
             .where((p) => p.buttons.any((b) => b.id == button.id))
             .firstOrNull;
-    if (owner == null) return;
+    if (owner == null) return true;
 
     try {
-      await _client.pressButton(owner.id, button.id);
+      await _client.pressButton(owner.id, button.id, gesture: gesture);
+      return true;
     } catch (e) {
       debugPrint('Error executing action: $e');
+      if (e is DioException && e.response != null) {
+        // O PC respondeu, mas o botão não existe mais lá: o deck daqui está velho.
+        if (e.response!.statusCode == 404) loadProfiles();
+        return true;
+      }
+      return false;
     }
   }
 
@@ -84,13 +163,7 @@ class StreamDeckController {
         updatedButtons.add(newButton);
       }
 
-      final updatedProfile = DeckProfile(
-        id: profile.id,
-        name: profile.name,
-        rows: profile.rows,
-        columns: profile.columns,
-        buttons: updatedButtons,
-      );
+      final updatedProfile = profile.copyWith(buttons: updatedButtons);
 
       // Save to backend
       await _client.saveProfile(updatedProfile);
@@ -188,40 +261,19 @@ class StreamDeckController {
     }
     buttons[srcIdx] = _copyWithPos(buttons[srcIdx], newRow, newCol);
 
-    await updateProfileFull(DeckProfile(
-      id: profile.id,
-      name: profile.name,
-      rows: profile.rows,
-      columns: profile.columns,
-      isDefault: profile.isDefault,
-      buttons: buttons,
-    ));
+    await updateProfileFull(profile.copyWith(buttons: buttons));
   }
 
   /// Ajusta as dimensões (linhas/colunas) do perfil atual.
   Future<void> setGridSize(int rows, int columns) async {
     final profile = currentProfile.value;
     if (profile == null) return;
-    await updateProfileFull(DeckProfile(
-      id: profile.id,
-      name: profile.name,
+    await updateProfileFull(profile.copyWith(
       rows: rows.clamp(1, 10),
       columns: columns.clamp(1, 10),
-      isDefault: profile.isDefault,
-      buttons: profile.buttons,
     ));
   }
 
-  DeckButton _copyWithPos(DeckButton b, int row, int col) => DeckButton(
-        id: b.id,
-        row: row,
-        column: col,
-        label: b.label,
-        iconBase64: b.iconBase64,
-        iconName: b.iconName,
-        backgroundColor: b.backgroundColor,
-        activeColor: b.activeColor,
-        action: b.action,
-        dynamicType: b.dynamicType,
-      );
+  DeckButton _copyWithPos(DeckButton b, int row, int col) =>
+      b.copyWith(row: row, column: col);
 }

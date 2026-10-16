@@ -299,7 +299,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildIcon(muted),
+          _isCoverArt ? _buildCover() : _buildIcon(muted),
           if (label != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -314,6 +314,31 @@ class _DeckGridButtonState extends State<DeckGridButton> {
           ],
         ],
       ),
+    );
+  }
+
+  /// Botão de jogo com a capa como ícone: a imagem ocupa o botão, não 32 px.
+  bool get _isCoverArt =>
+      widget.button.action?.type == 'steam' &&
+      (widget.button.iconBase64?.isNotEmpty ?? false);
+
+  Widget _buildCover() {
+    return Flexible(
+      child: LayoutBuilder(builder: (context, c) {
+        final side = c.maxWidth.isFinite ? c.maxWidth * 0.78 : 64.0;
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            width: side,
+            height: side,
+            child: Image.memory(
+              base64Decode(widget.button.iconBase64!),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(Icons.sports_esports),
+            ),
+          ),
+        );
+      }),
     );
   }
 

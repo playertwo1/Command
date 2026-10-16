@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'models/mixer_data.dart';
 import 'models/software_data.dart';
@@ -328,11 +330,28 @@ class DroidDeckClient {
 
   /// Aperta um botão salvo: o PC lê a ação do perfil. É o caminho do deck — o
   /// /execute com ação avulsa recusa (403), de fora do PC, ações que rodam código.
-  Future<void> pressButton(String profileId, String buttonId) async {
+  Future<void> pressButton(String profileId, String buttonId,
+      {String gesture = 'tap'}) async {
     await _dio.post(
       '/api/StreamDeck/press',
-      data: {'profileId': profileId, 'buttonId': buttonId},
+      data: {'profileId': profileId, 'buttonId': buttonId, 'gesture': gesture},
     );
+  }
+
+  /// Backup dos perfis (.droiddeck, um zip).
+  Future<List<int>> exportBackup() async {
+    final response = await _dio.get<List<int>>('/api/backup',
+        options: Options(responseType: ResponseType.bytes));
+    return response.data ?? const [];
+  }
+
+  /// Restaura um .droiddeck. Devolve quantos perfis entraram.
+  Future<int> importBackup(List<int> bytes) async {
+    // Bytes direto (não Stream): no navegador o Dio só envia corpo binário assim.
+    final response = await _dio.post('/api/backup',
+        data: Uint8List.fromList(bytes),
+        options: Options(contentType: 'application/octet-stream'));
+    return ((response.data as Map?)?['imported'] as num?)?.toInt() ?? 0;
   }
 
   /// Catálogo dos tipos de ação (GET /api/actions/schema). Servidores anteriores

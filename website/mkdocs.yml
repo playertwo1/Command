@@ -47,6 +47,7 @@ nav:
   - Buttons & actions:
       - Buttons & actions: guide/actions.md
       - Monitors: guide/monitors.md
+      - Profiles: guide/profiles.md
       - Appearance: guide/appearance.md
   - Integrations:
       - Discord: integrations/discord.md
@@ -98,6 +99,7 @@ plugins:
             Home: Início
             Monitors: Monitores
             Appearance: Aparência
+            Profiles: Perfis
             Mixer & media: Mixer e mídia
             Smart home (Tuya): Casa inteligente (Tuya)
 

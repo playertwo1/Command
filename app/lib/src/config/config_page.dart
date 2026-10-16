@@ -2,6 +2,7 @@ import 'package:companion/src/core/constants.dart';
 import 'package:companion/src/services/server_discovery_service.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
+import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -207,6 +208,7 @@ class ConfigPageState extends State<ConfigPage> {
                 MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),
               ),
             ),
+            const BackupButtons(),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.discord),

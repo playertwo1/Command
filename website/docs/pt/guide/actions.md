@@ -24,6 +24,9 @@ dele mudam de acordo com o tipo.
 | [Timer, pomodoro e contador](#timer) | PC | Relógio ao vivo no botão. |
 | [Windows](#windows) | PC | Troca o áudio padrão, trava, suspende ou desliga a tela. |
 | [Requisição HTTP](#http) | PC | Chama um webhook ou qualquer API. |
+| [Jogo da Steam](#steam) | PC | Abre um jogo instalado, com a capa no botão. |
+
+Cada botão também pode ter uma ação de [toque longo e de toque duplo](#gestures).
 
 ## Atalho de teclado { #hotkey }
 
@@ -129,6 +132,24 @@ Chama uma URL a partir do PC: webhooks do n8n, do Home Assistant ou do IFTTT, ou
 Escolha o **método**, a **URL**, os **cabeçalhos** (um por linha, `Nome: valor`) e, em POST/PUT/PATCH,
 o **corpo** e o formato dele (JSON, formulário ou texto). A requisição tem 10 segundos para
 responder, e o resultado fica no log do DroidDeck.
+
+## Jogo da Steam { #steam }
+
+Lista os jogos instalados na Steam do PC (todas as bibliotecas). Ao escolher um, o botão ganha o nome
+e a capa do jogo; tocar abre o jogo pela Steam. A capa vem do cache da Steam: se um jogo aparecer sem
+imagem, abra a biblioteca da Steam uma vez para ela baixar as capas.
+
+## Toque longo e toque duplo { #gestures }
+
+Além do toque normal, um botão pode ter uma ação para **segurar** e outra para **dois toques**
+(seção *Toque longo e toque duplo* do editor). Os tipos de ação são os mesmos do toque normal.
+
+- Exemplo: um timer que inicia no toque e zera no toque longo; uma cena do OBS no toque e a
+  gravação no toque duplo.
+- Só os botões com toque duplo esperam um instante (~0,3 s) antes de executar o toque simples, para
+  diferenciar os dois. Os demais respondem na hora.
+- Num botão com toque longo, segurar executa a ação; para editar o botão no celular, use o
+  [modo de edição](profiles.md#modo-de-edicao).
 
 ## Estado do botão
 

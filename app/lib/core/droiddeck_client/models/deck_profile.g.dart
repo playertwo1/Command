@@ -17,6 +17,9 @@ DeckProfile _$DeckProfileFromJson(Map<String, dynamic> json) => DeckProfile(
           ?.map((e) => DeckButton.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  autoSwitchApps: (json['autoSwitchApps'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
 );
 
 Map<String, dynamic> _$DeckProfileToJson(DeckProfile instance) =>
@@ -27,4 +30,5 @@ Map<String, dynamic> _$DeckProfileToJson(DeckProfile instance) =>
       'columns': instance.columns,
       'isDefault': instance.isDefault,
       'buttons': instance.buttons,
+      'autoSwitchApps': instance.autoSwitchApps,
     };

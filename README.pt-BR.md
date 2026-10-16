@@ -33,6 +33,8 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 | ⌨️ **Atalhos e apps** | Envie combinações de teclas, abra programas, arquivos e URLs, encadeie passos em uma multiação, chame webhooks e APIs. |
 | 🪟 **Windows** | Troque o dispositivo de áudio padrão (fone ↔ caixa de som), trave, suspenda ou desligue a tela. |
 | ⏱️ **Timers** | Timer, cronômetro, pomodoro e contadores com o relógio ao vivo no botão. |
+| 🎮 **Steam** | Escolha um jogo instalado e o botão ganha a capa dele; um toque abre o jogo. |
+| 🗂️ **Perfis** | Pastas, ações de toque longo e toque duplo, troca automática pelo app em foco, backup `.droiddeck` e uma cópia offline do deck no celular. |
 | 🔊 **Mixer de áudio** | Silencie apps, ajuste o volume de dispositivos, ligue e desligue o microfone. O celular também tem um mixer completo por app. |
 | ⏯️ **Mídia** | Tocar/pausar, próxima e anterior para o que estiver tocando no Windows (Spotify, navegador, players). |
 | 📊 **Monitores ao vivo** | Medidores de CPU, GPU, RAM e rede atualizados a cada segundo. |

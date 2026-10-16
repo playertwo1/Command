@@ -44,6 +44,12 @@ namespace DroidDeck.Hubs
                     catch { }
                 }
             }
+            // Perfil do app em foco, para o celular abrir ja no perfil certo.
+            if (_services.GetService(typeof(Services.ForegroundWatcher)) is Services.ForegroundWatcher fg)
+            {
+                try { await Clients.Caller.SendAsync(Services.ForegroundWatcher.Event, fg.GetState()); }
+                catch { }
+            }
             await base.OnConnectedAsync();
         }
 

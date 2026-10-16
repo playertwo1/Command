@@ -88,8 +88,9 @@ namespace DroidDeck.Controllers
                 .Find(b => b.Id == request.ButtonId);
             if (button == null) return NotFound();
 
-            if (button.Action != null)
-                await _executorService.ExecuteActionAsync(button.Action, button.Id);
+            var action = button.ActionFor(request.Gesture);
+            if (action != null)
+                await _executorService.ExecuteActionAsync(action, button.Id);
             return Ok();
         }
 
@@ -142,5 +143,8 @@ namespace DroidDeck.Controllers
     {
         public string ProfileId { get; set; } = "";
         public string ButtonId { get; set; } = "";
+
+        /// <summary>"tap" (padrao), "longPress" ou "doubleTap".</summary>
+        public string? Gesture { get; set; }
     }
 }

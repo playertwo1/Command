@@ -83,11 +83,15 @@ namespace DroidDeck.Services
         {
             foreach (var button in incoming.Buttons ?? new List<DeckButton>())
             {
-                if (!IsPrivileged(button.Action)) continue;
-
                 var before = saved?.Buttons?.FirstOrDefault(b => b.Id == button.Id);
-                if (before == null || !SameAction(before.Action, button.Action))
-                    return button;
+                // Toque, toque longo e toque duplo: cada gesto tem a sua acao.
+                foreach (var gesture in DeckButton.Gestures)
+                {
+                    var action = button.ActionFor(gesture);
+                    if (!IsPrivileged(action)) continue;
+                    if (before == null || !SameAction(before.ActionFor(gesture), action))
+                        return button;
+                }
             }
             return null;
         }

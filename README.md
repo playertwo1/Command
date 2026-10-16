@@ -33,6 +33,8 @@ talks to it over your local network.
 | ⌨️ **Shortcuts & apps** | Send key combinations, open programs, files and URLs, chain steps in a multi-action, call webhooks and APIs. |
 | 🪟 **Windows** | Switch the default audio device (headphones ↔ speakers), lock, sleep, turn the screen off. |
 | ⏱️ **Timers** | Countdown, stopwatch, pomodoro and counters with a live clock on the button. |
+| 🎮 **Steam** | Pick an installed game and the button gets its cover; tap to launch it. |
+| 🗂️ **Profiles** | Folders, long-press and double-tap actions, automatic switching by the focused app, `.droiddeck` backups, and an offline copy of the deck on the phone. |
 | 🔊 **Audio mixer** | Mute apps, change device volume, toggle the mic. The phone also has a full per-app mixer. |
 | ⏯️ **Media** | Play/pause, next, previous for whatever is playing in Windows (Spotify, browser, players). |
 | 📊 **Live monitors** | CPU, GPU, RAM and network gauges that update every second. |

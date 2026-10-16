@@ -10,6 +10,12 @@ namespace DroidDeck.Models
         public int Columns { get; set; } = 4;
         public bool IsDefault { get; set; } = false;
         public List<DeckButton> Buttons { get; set; } = new List<DeckButton>();
+
+        /// <summary>
+        /// Processos (sem .exe) que trazem este perfil para a frente quando a janela deles
+        /// ganha o foco no PC. Vazio = sem troca automatica.
+        /// </summary>
+        public List<string>? AutoSwitchApps { get; set; }
     }
 
     public class DeckButton
@@ -24,7 +30,22 @@ namespace DroidDeck.Models
         public string? ActiveColor { get; set; } // Cor quando o botão está "ativo" (toggle: mute/discord ligado)
         public string? DynamicType { get; set; }
         public DeckAction? Action { get; set; }
-        // Future: LongPressAction
+
+        /// <summary>Acao do toque longo. Sem ela, o toque longo abre o editor no celular.</summary>
+        public DeckAction? LongPressAction { get; set; }
+
+        /// <summary>Acao do toque duplo. Com ela, o toque simples espera um instante para diferenciar.</summary>
+        public DeckAction? DoubleTapAction { get; set; }
+
+        /// <summary>Acao de um gesto: "tap" (padrao), "longPress" ou "doubleTap".</summary>
+        public DeckAction? ActionFor(string? gesture) => (gesture ?? "").ToLowerInvariant() switch
+        {
+            "longpress" => LongPressAction,
+            "doubletap" => DoubleTapAction,
+            _ => Action,
+        };
+
+        public static readonly string[] Gestures = { "tap", "longPress", "doubleTap" };
     }
 
     public class DeckAction

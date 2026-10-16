@@ -1,18 +1,14 @@
 import 'dart:convert';
 import 'package:companion/core/core.dart';
 import 'package:companion/src/stream_deck/actions/action_catalog.dart';
+import 'package:companion/src/stream_deck/actions/action_picker.dart';
 import 'package:companion/src/stream_deck/actions/action_schema.dart';
-import 'package:companion/src/stream_deck/actions/editors/action_editor.dart';
-import 'package:companion/src/stream_deck/actions/schema_action_form.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// Editor de um botão: rótulo, ação, ícone e cores.
-///
-/// Os campos de cada tipo de ação vêm do catálogo do PC (GET /api/actions/schema):
-/// tipos simples viram um formulário gerado ([SchemaActionForm]); os que precisam de
-/// tela própria (Discord, Tuya, soundboard...) ficam em actions/editors/.
+/// Editor de um botão: rótulo, ações (toque, toque longo, toque duplo), ícone e cores.
+/// A escolha de cada ação fica no [ActionPicker].
 class ButtonPropertyPanel extends StatefulWidget {
   final DeckButton button;
   final Function(DeckButton) onSave;
@@ -33,55 +29,28 @@ class ButtonPropertyPanel extends StatefulWidget {
 
 class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   late TextEditingController _labelController;
-  String _selectedActionType = 'none';
+  /// Ação de cada gesto. Null = nenhuma.
+  DeckAction? _tap;
+  DeckAction? _longPress;
+  DeckAction? _doubleTap;
 
-  /// Parâmetros da ação, mantidos pelo formulário/tela própria do tipo atual.
-  Map<String, String> _params = {};
+  /// Trocar a chave recria o seletor do toque (ex.: ao virar monitor, que zera a ação).
+  int _tapEpoch = 0;
 
   Color _selectedColor = Colors.grey[800]!;
   Color _activeColor = Colors.red[900]!;
 
   final _catalog = ActionCatalog.instance;
 
+  String get _selectedActionType => _tap?.type ?? 'none';
+
   ActionSchema? get _schema => _catalog.find(_selectedActionType);
 
   /// Ações que refletem um estado ligado/desligado (e portanto têm "cor de ativo").
   bool get _isStatefulAction => _schema?.stateful ?? false;
 
-  // Abrir app, atalho e ativar janela executam código no PC. O backend só aceita
-  // criá-los ou alterá-los pelo configurador em localhost (ActionPolicy): no celular o
-  // painel não oferece esses tipos e trava a ação dos botões que já os têm — label,
-  // ícone e cores continuam editáveis, e o botão continua funcionando.
-  static const _privilegedTypes = {
-    'hotkey',
-    'launch_app',
-    'launchApp',
-    'activatewindow',
-  };
-
-  bool _isPrivilegedType(String type) =>
-      _privilegedTypes.contains(type) || (_catalog.find(type)?.privileged ?? false);
-
-  bool _isPrivileged(DeckAction? action) {
-    if (action == null) return false;
-    if (_isPrivilegedType(action.type)) return true;
-    if (action.type != 'multi') return false;
-    try {
-      final steps = jsonDecode(action.parameters['steps'] ?? '[]') as List;
-      return steps.any((s) => _isPrivilegedType('${(s as Map)['type']}'));
-    } catch (_) {
-      return true;
-    }
-  }
-
   /// No navegador o painel roda no configurador (localhost); fora dele, no celular.
   bool get _remote => !kIsWeb;
-  late final bool _lockedAction =
-      _remote && _isPrivileged(widget.button.action);
-
-  List<ActionSchema> get _availableSchemas => _catalog.schemas.value
-      .where((s) => !_remote || _lockedAction || !s.privileged)
-      .toList();
 
   final List<Color> _colors = [
     Colors.grey[800]!,
@@ -123,11 +92,9 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     _labelController = TextEditingController(text: widget.button.label);
     _selectedIcon = widget.button.iconName;
 
-    final action = widget.button.action;
-    if (action != null) {
-      _selectedActionType = action.type == 'launchApp' ? 'launch_app' : action.type;
-      _params = Map<String, String>.from(action.parameters);
-    }
+    _tap = widget.button.action?.type == 'none' ? null : widget.button.action;
+    _longPress = widget.button.longPressAction;
+    _doubleTap = widget.button.doubleTapAction;
 
     if (widget.button.backgroundColor != null &&
         widget.button.backgroundColor!.isNotEmpty) {
@@ -185,13 +152,8 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   }
 
   void _save() {
-    // Monitor (dynamicType) e ação são exclusivos: botão-monitor não guarda ação.
+    // Monitor (dynamicType) e ação do toque são exclusivos: botão-monitor não guarda ação.
     final isDynamic = _dynamicType != null && _dynamicType!.isNotEmpty;
-    final newAction = (isDynamic || _selectedActionType == 'none')
-        ? null
-        : _lockedAction
-            ? widget.button.action
-            : DeckAction(type: _selectedActionType, parameters: Map.of(_params));
 
     final newButton = DeckButton(
       id: widget.button.id.isEmpty
@@ -205,54 +167,81 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       iconName: _selectedIcon,
       iconBase64: _iconBase64,
       dynamicType: _dynamicType,
-      action: newAction,
+      action: isDynamic ? null : _tap,
+      longPressAction: _longPress,
+      doubleTapAction: _doubleTap,
     );
 
     widget.onSave(newButton);
   }
 
-  /// Aviso no lugar dos campos de uma ação que só pode mudar no PC.
-  Widget _buildLockedActionNotice() {
-    final a = widget.button.action!;
-    final String summary;
-    switch (a.type) {
-      case 'hotkey':
-        summary = 'Atalho: ${a.parameters['keys'] ?? ''}';
-      case 'launch_app':
-      case 'launchApp':
-        summary = 'Abre: ${a.parameters['path'] ?? ''}';
-      case 'multi':
-        summary = 'Multi-ação';
-      default:
-        summary = _catalog.find(a.type)?.title ?? a.type;
+  void _suggestLabel(String label) {
+    if (_labelController.text.trim().isEmpty ||
+        _labelController.text == 'New Button') {
+      _labelController.text = label;
     }
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.12),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  }
+
+  void _suggestIcon(String base64) {
+    setState(() {
+      _iconBase64 = base64;
+      _selectedIcon = null;
+    });
+  }
+
+  ActionPicker _picker(String label, DeckAction? initial,
+          ValueChanged<DeckAction?> onChanged,
+          {Key? key}) =>
+      ActionPicker(
+        key: key,
+        label: label,
+        initial: initial,
+        onChanged: onChanged,
+        remote: _remote,
+        profiles: widget.profiles,
+        suggestLabel: _suggestLabel,
+        suggestIcon: _suggestIcon,
+      );
+
+  /// Toque longo e toque duplo, recolhidos quando não usados.
+  Widget _buildGestures() {
+    final used = _longPress != null || _doubleTap != null;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ExpansionTile(
+        initiallyExpanded: used,
+        shape: const Border(),
+        leading: const Icon(Icons.touch_app_outlined),
+        title: const Text('Toque longo e toque duplo'),
+        subtitle: Text(
+          used
+              ? [
+                  if (_longPress != null)
+                    'Longo: ${_catalog.find(_longPress!.type)?.title ?? _longPress!.type}',
+                  if (_doubleTap != null)
+                    'Duplo: ${_catalog.find(_doubleTap!.type)?.title ?? _doubleTap!.type}',
+                ].join(' · ')
+              : 'Opcional',
+          style: const TextStyle(fontSize: 12),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         children: [
-          const Icon(Icons.lock_outline, color: Colors.amber),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(summary,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                const Text(
-                  'Ações que abrem programas, enviam atalhos ou fazem requisições '
-                  'só podem ser alteradas no configurador do PC (http://localhost:4787). '
-                  'Aqui você pode mudar o nome, o ícone e as cores.',
-                ),
-              ],
-            ),
+          Text(
+            _remote
+                ? 'Com um toque longo definido, segure o botão para executá-lo. Para '
+                    'editar o botão depois, use o lápis (modo de edição) na barra do deck.'
+                : 'Com um toque longo definido, segurar o botão no celular executa a '
+                    'ação; o celular edita pelo modo de edição (lápis na barra do deck).',
+            style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
+          const SizedBox(height: 12),
+          _picker('Toque longo', _longPress,
+              (a) => setState(() => _longPress = a)),
+          const SizedBox(height: 20),
+          _picker('Toque duplo', _doubleTap,
+              (a) => setState(() => _doubleTap = a)),
         ],
       ),
     );
@@ -270,110 +259,6 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       iconBase64: null,
     );
     widget.onSave(clearedButton);
-  }
-
-  void _selectType(String type) {
-    setState(() {
-      if (type != _selectedActionType) _params = {};
-      _selectedActionType = type;
-      // Ação e monitor (dynamicType) são exclusivos.
-      if (type != 'none') _dynamicType = null;
-    });
-  }
-
-  /// Seletor de tipo agrupado por categoria.
-  Widget _buildTypePicker() {
-    return Builder(builder: (context) {
-      final schemas = _availableSchemas;
-      final categories = <String, List<ActionSchema>>{};
-      for (final s in schemas) {
-        categories.putIfAbsent(s.category, () => []).add(s);
-      }
-      final known = schemas.any((s) => s.type == _selectedActionType);
-      final muted = Theme.of(context).colorScheme.onSurfaceVariant;
-
-      final items = <DropdownMenuItem<String>>[
-        const DropdownMenuItem(value: 'none', child: Text('Nenhuma')),
-        for (final entry in categories.entries) ...[
-          DropdownMenuItem<String>(
-            enabled: false,
-            value: '__${entry.key}',
-            child: Text(entry.key.toUpperCase(),
-                style: TextStyle(
-                    fontSize: 11,
-                    letterSpacing: 1.1,
-                    fontWeight: FontWeight.w600,
-                    color: muted)),
-          ),
-          for (final s in entry.value)
-            DropdownMenuItem(
-              value: s.type,
-              child: Row(
-                children: [
-                  Icon(s.iconData, size: 18),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child: Text(s.title, overflow: TextOverflow.ellipsis)),
-                ],
-              ),
-            ),
-        ],
-        // Tipo que este PC não anuncia (botão de uma versão mais nova/antiga).
-        if (!known && _selectedActionType != 'none')
-          DropdownMenuItem(
-              value: _selectedActionType,
-              child: Text('$_selectedActionType (desconhecido)')),
-      ];
-
-      return DropdownButtonFormField<String>(
-        value: _selectedActionType,
-        isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: 'Ação',
-          border: OutlineInputBorder(),
-        ),
-        items: items,
-        onChanged: _lockedAction
-            ? null
-            : (val) {
-                if (val != null && !val.startsWith('__')) _selectType(val);
-              },
-      );
-    });
-  }
-
-  /// Campos do tipo escolhido: tela própria ou formulário gerado pelo schema.
-  Widget _buildActionEditor() {
-    final schema = _schema;
-    if (_lockedAction || schema == null) return const SizedBox.shrink();
-
-    // A chave pelo tipo recria o editor (e o estado dele) ao trocar de tipo.
-    final key = ValueKey('editor_${schema.type}');
-    final args = ActionEditorArgs(
-      initial: _params,
-      onChanged: (p) => setState(() => _params = p),
-      suggestLabel: (label) {
-        if (_labelController.text.trim().isEmpty) _labelController.text = label;
-      },
-      remote: _remote,
-      profiles: widget.profiles,
-    );
-
-    final custom =
-        schema.editor != null ? buildCustomActionEditor(schema.editor!, args) : null;
-    if (custom != null) return KeyedSubtree(key: key, child: custom);
-
-    if (schema.fields.isEmpty) {
-      return schema.description != null
-          ? EditorHint(schema.description!)
-          : const SizedBox.shrink();
-    }
-    return SchemaActionForm(
-      key: key,
-      schema: schema,
-      initial: _params,
-      onChanged: (p) => setState(() => _params = p),
-    );
   }
 
   @override
@@ -408,14 +293,15 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 ),
                 const SizedBox(height: 16),
 
-                if (_lockedAction) ...[
-                  _buildLockedActionNotice(),
-                  const SizedBox(height: 16),
-                ],
-
-                _buildTypePicker(),
+                _picker('Ação', _tap, (a) {
+                  setState(() {
+                    _tap = a;
+                    // Ação e monitor (dynamicType) são exclusivos.
+                    if (a != null) _dynamicType = null;
+                  });
+                }, key: ValueKey('tap$_tapEpoch')),
                 const SizedBox(height: 16),
-                _buildActionEditor(),
+                _buildGestures(),
 
                 const SizedBox(height: 32),
 
@@ -528,9 +414,9 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                     setState(() {
                       _dynamicType = val;
                       // Monitor é só display: zera a ação (eram exclusivos).
-                      if (val != null && val.isNotEmpty) {
-                        _selectedActionType = 'none';
-                        _params = {};
+                      if (val != null && val.isNotEmpty && _tap != null) {
+                        _tap = null;
+                        _tapEpoch++;
                       }
                     });
                   },
@@ -644,7 +530,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   /// (ícone desligado, ícone ativo) conforme a ação — espelha o runtime.
   (IconData, IconData) _previewIcons() {
     if (_selectedActionType == 'discord') {
-      return _params['operation'] == 'toggleDeafen'
+      return _tap?.parameters['operation'] == 'toggleDeafen'
           ? (Icons.headset_mic, Icons.headset_off)
           : (Icons.mic, Icons.mic_off);
     }

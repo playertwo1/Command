@@ -4,6 +4,7 @@ import 'package:companion/src/stream_deck/actions/editors/mixer_action_editor.da
 import 'package:companion/src/stream_deck/actions/editors/multi_action_editor.dart';
 import 'package:companion/src/stream_deck/actions/editors/open_profile_action_editor.dart';
 import 'package:companion/src/stream_deck/actions/editors/soundboard_action_editor.dart';
+import 'package:companion/src/stream_deck/actions/editors/steam_action_editor.dart';
 import 'package:companion/src/stream_deck/actions/editors/tuya_action_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,9 @@ class ActionEditorArgs {
   /// Sugere um rótulo para o botão (ex.: nome do som escolhido), se ele estiver vazio.
   final ValueChanged<String> suggestLabel;
 
+  /// Troca o ícone do botão por uma imagem (base64), ex.: a capa de um jogo.
+  final ValueChanged<String> suggestIcon;
+
   /// Editando de fora do PC (celular): sem tipos que executam código.
   final bool remote;
 
@@ -27,6 +31,7 @@ class ActionEditorArgs {
     required this.initial,
     required this.onChanged,
     required this.suggestLabel,
+    required this.suggestIcon,
     required this.remote,
     this.profiles = const [],
   });
@@ -48,6 +53,8 @@ Widget? buildCustomActionEditor(String editor, ActionEditorArgs args) {
       return SoundboardActionEditor(args: args);
     case 'tuya':
       return TuyaActionEditor(args: args);
+    case 'steam':
+      return SteamActionEditor(args: args);
   }
   return null;
 }

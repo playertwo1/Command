@@ -246,6 +246,11 @@ namespace DroidDeck
                             services.AddSingleton<Services.TimerService>();
                             services.AddHostedService(sp => sp.GetRequiredService<Services.TimerService>());
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.TimerProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.SteamProvider>();
+                            services.AddSingleton<Services.SteamLibrary>();
+                            services.AddSingleton<Services.BackupService>();
+                            services.AddSingleton<Services.ForegroundWatcher>();
+                            services.AddHostedService(sp => sp.GetRequiredService<Services.ForegroundWatcher>());
                             foreach (var clientOnly in Actions.Providers.ClientOnlyProvider.All())
                                 services.AddSingleton(clientOnly);
                         }

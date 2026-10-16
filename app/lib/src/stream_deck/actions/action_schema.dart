@@ -149,6 +149,7 @@ const _icons = <String, IconData>{
   'http': Icons.http,
   'timer': Icons.timer,
   'computer': Icons.computer,
+  'sports_esports': Icons.sports_esports,
   'extension': Icons.extension,
 };
 

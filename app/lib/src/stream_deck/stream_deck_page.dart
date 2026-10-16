@@ -4,6 +4,7 @@ import 'package:companion/src/stream_deck/actions/action_catalog.dart';
 import 'package:companion/src/stream_deck/stream_deck_controller.dart';
 import 'package:companion/src/stream_deck/widgets/dynamic_deck_button.dart';
 import 'package:companion/src/stream_deck/widgets/button_editor_dialog.dart';
+import 'package:companion/src/stream_deck/widgets/profile_settings_dialog.dart';
 import 'package:companion/core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,22 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
   int? _reportedCols; // última grade reportada ao PC (evita reenvio)
   int? _reportedRows;
 
+  /// Modo de edição: o toque abre o editor em vez de executar. Necessário para editar
+  /// botões cujo toque longo já tem uma ação própria.
+  bool _editMode = false;
+
+  /// Perfil em que o usuário estava antes de o app em foco trocar de perfil sozinho.
+  String? _profileBeforeAuto;
+
+  /// Página mudando por código (não pelo dedo).
+  bool _jumping = false;
+
+  /// Último aviso de troca automática já aplicado ('' = nenhum ainda).
+  String? _appliedAuto = '';
+  void Function()? _autoProfileCleanup;
+  void Function()? _reconnectCleanup;
+  void Function()? _pageSyncCleanup;
+
   @override
   void initState() {
     super.initState();
@@ -53,10 +70,91 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     });
 
     _pageController = PageController();
+
+    // A página acompanha o perfil atual quando ele muda por fora do arrastar (último
+    // perfil aberto, troca automática pelo app em foco).
+    _pageSyncCleanup = effect(() {
+      final current = controller.currentProfile.value;
+      final list = controller.profiles.value;
+      if (current == null) return;
+      final index = list.indexWhere((p) => p.id == current.id);
+      untracked(() => _jumpToPage(index));
+    });
+
+    // Troca automática: o PC avisa qual perfil pertence ao app em foco. Também roda
+    // quando os perfis chegam (o aviso pode vir antes), mas cada aviso só é aplicado
+    // uma vez: recarregar o deck não puxa o usuário de volta.
+    _autoProfileCleanup = effect(() {
+      final auto = signalR.autoProfile.value;
+      final enabled = ThemeController.instance.autoProfile.value;
+      controller.profiles.value;
+      if (!enabled || kIsWeb || auto.isEmpty) return;
+      final id = auto['profileId'] as String?;
+      if (id == _appliedAuto) return;
+      untracked(() {
+        if (_applyAutoProfile(id)) _appliedAuto = id;
+      });
+    });
+
+    // Reconectou (PC reiniciado, Wi-Fi voltou): o deck pode ter mudado enquanto a
+    // conexão estava fora, e os avisos de mudança se perderam. Recarrega.
+    var wasConnected = signalR.connectionStatus.value == 'Connected';
+    _reconnectCleanup = effect(() {
+      final connected = signalR.connectionStatus.value == 'Connected';
+      if (connected && !wasConnected) untracked(controller.loadProfiles);
+      wasConnected = connected;
+    });
+  }
+
+  void _jumpToPage(int index) {
+    if (index < 0) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_pageController.hasClients) return;
+      if (_pageController.page?.round() != index) {
+        // O jumpToPage dispara onPageChanged: marcado para não parecer um arrastar.
+        _jumping = true;
+        _pageController.jumpToPage(index);
+        _jumping = false;
+      }
+    });
+  }
+
+  /// Aplica um aviso de troca automática. False se os perfis ainda não chegaram.
+  bool _applyAutoProfile(String? profileId) {
+    final list = controller.profiles.value;
+    if (list.isEmpty) return false;
+    if (profileId != null) {
+      final target = list.where((p) => p.id == profileId).firstOrNull;
+      if (target == null) return true;
+      final current = controller.currentProfile.value;
+      if (current?.id == target.id && _navStack.isEmpty) return true;
+      // Guarda para onde voltar só na primeira troca automática da sequência.
+      _profileBeforeAuto ??= current?.id;
+      setState(() {
+        _navStack.clear();
+        _rootProfile = null;
+      });
+      controller.currentProfile.value = target;
+      return true;
+    } else if (_profileBeforeAuto != null) {
+      final back = list.where((p) => p.id == _profileBeforeAuto).firstOrNull;
+      _profileBeforeAuto = null;
+      if (back != null) {
+        setState(() {
+          _navStack.clear();
+          _rootProfile = null;
+        });
+        controller.currentProfile.value = back;
+      }
+    }
+    return true;
   }
 
   @override
   void dispose() {
+    _pageSyncCleanup?.call();
+    _autoProfileCleanup?.call();
+    _reconnectCleanup?.call();
     _deckSyncCleanup?.call();
     _pageController.dispose();
     super.dispose();
@@ -71,13 +169,22 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     }
   }
 
-  /// Trata o toque: abre pasta (open_profile), volta (back) ou executa a ação.
-  void _handlePress(DeckButton b, List<DeckProfile> profiles) {
+  /// Trata um gesto: abre pasta (open_profile), volta (back) ou executa a ação.
+  void _handlePress(
+    DeckButton b,
+    List<DeckProfile> profiles, {
+    String gesture = 'tap',
+  }) {
     // Botão-monitor (CPU/GPU/RAM/Rede) é só display: não executa ação ao tocar.
-    if (b.dynamicType != null && b.dynamicType!.isNotEmpty) return;
-    final type = b.action?.type;
+    if (gesture == 'tap' &&
+        b.dynamicType != null &&
+        b.dynamicType!.isNotEmpty) {
+      return;
+    }
+    final action = b.actionFor(gesture);
+    final type = action?.type;
     if (type == 'open_profile') {
-      final targetId = b.action!.parameters['profileId'];
+      final targetId = action!.parameters['profileId'];
       DeckProfile? target;
       try {
         target = profiles.firstWhere((p) => p.id == targetId);
@@ -97,7 +204,28 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
       _goBack(profiles);
       return;
     }
-    controller.executeButtonAction(b);
+    if (action == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    if (controller.offline.value) {
+      _offlineNotice(messenger);
+      return;
+    }
+    controller.executeButtonAction(b, gesture: gesture).then((ok) {
+      if (!ok) _offlineNotice(messenger);
+    });
+  }
+
+  void _offlineNotice(ScaffoldMessengerState messenger) {
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text(
+            'O PC não respondeu. Confira se o DroidDeck está aberto nele.',
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
   }
 
   void _goBack(List<DeckProfile> profiles) {
@@ -109,8 +237,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         _rootProfile = null;
       } else {
         try {
-          controller.currentProfile.value =
-              profiles.firstWhere((p) => p.id == _navStack.last);
+          controller.currentProfile.value = profiles.firstWhere(
+            (p) => p.id == _navStack.last,
+          );
         } catch (_) {}
       }
     });
@@ -127,10 +256,12 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         onSave: (b) async {
           final refused = await controller.updateButton(b);
           if (refused != null) {
-            messenger.showSnackBar(SnackBar(
-              content: Text(refused),
-              duration: const Duration(seconds: 6),
-            ));
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(refused),
+                duration: const Duration(seconds: 6),
+              ),
+            );
           }
         },
       ),
@@ -171,7 +302,10 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
 
   /// Grade fixa cols×rows, centralizada, sem rolagem.
   Widget _buildButtonGrid(
-      DeckProfile profile, List<DeckProfile> profiles, _GridFit g) {
+    DeckProfile profile,
+    List<DeckProfile> profiles,
+    _GridFit g,
+  ) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -185,8 +319,9 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                   (b) => b.row == row && b.column == col,
                 );
                 return Padding(
-                  padding:
-                      EdgeInsets.only(right: col < g.cols - 1 ? g.spacing : 0),
+                  padding: EdgeInsets.only(
+                    right: col < g.cols - 1 ? g.spacing : 0,
+                  ),
                   child: SizedBox(
                     width: g.cell,
                     height: g.cell,
@@ -202,7 +337,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
   }
 
   Widget _buildCell(
-      int row, int col, DeckButton? existing, List<DeckProfile> profiles) {
+    int row,
+    int col,
+    DeckButton? existing,
+    List<DeckProfile> profiles,
+  ) {
     if (existing == null) {
       final novo = DeckButton(
         id: '',
@@ -216,10 +355,23 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         onLongPress: () => _editButton(novo),
       );
     }
-    return DynamicDeckButton(
+    // Toque longo com ação própria executa a ação; sem ela (ou no modo de edição),
+    // abre o editor como sempre.
+    final hasLongPress = existing.longPressAction != null;
+    final tile = DynamicDeckButton(
       button: existing,
-      onTap: () => _handlePress(existing, profiles),
-      onLongPress: () => _editButton(existing),
+      onTap: _editMode
+          ? () => _editButton(existing)
+          : () => _handlePress(existing, profiles),
+      onLongPress: !_editMode && hasLongPress
+          ? () => _handlePress(existing, profiles, gesture: 'longPress')
+          : () => _editButton(existing),
+    );
+    // Só botões com toque duplo pagam a espera (~300 ms) para diferenciar do simples.
+    if (_editMode || existing.doubleTapAction == null) return tile;
+    return GestureDetector(
+      onDoubleTap: () => _handlePress(existing, profiles, gesture: 'doubleTap'),
+      child: tile,
     );
   }
 
@@ -256,9 +408,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.grid_off,
-                size: 48,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.grid_off,
+              size: 48,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
             const Text('No profiles found'),
             const SizedBox(height: 16),
@@ -278,213 +432,238 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
       if (initialIndex == -1) initialIndex = 0;
     }
 
-    return Scaffold(
-      backgroundColor: DeckTheme.of(context).background,
-      floatingActionButton: FloatingActionButton(
-        onPressed: widget.onToggleFullscreen,
-        mini: true,
-        backgroundColor: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.7),
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        child: Icon(
-          widget.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+    // Voltar do Android fecha a pasta aberta antes de sair do app.
+    return PopScope(
+      canPop: _navStack.isEmpty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goBack(profiles);
+      },
+      child: Scaffold(
+        backgroundColor: DeckTheme.of(context).background,
+        floatingActionButton: FloatingActionButton(
+          onPressed: widget.onToggleFullscreen,
+          mini: true,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          child: Icon(
+            widget.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+          ),
         ),
-      ),
-      appBar: widget.isFullscreen
-          ? null
-          : AppBar(
-              leading: _navStack.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      tooltip: 'Voltar',
-                      onPressed: () => _goBack(profiles),
-                    )
-                  : null,
-              title: Text(_navStack.isNotEmpty
-                  ? (_folderProfile(profiles)?.name ?? 'Pasta')
-                  : (currentProfile?.name ?? 'StreamDeck')),
-              actions: [
-                // SIGNALR DEBUG INDICATOR
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Center(
-                    child: Builder(builder: (context) {
-                      final status = Injector.get<SignalRService>()
-                          .connectionStatus
-                          .watch(context);
-                      Color color = Colors.grey;
-                      if (status == "Connected") color = Colors.green;
-                      if (status.startsWith("Conn Error")) color = Colors.red;
-                      return IconButton(
-                        onPressed: () {
-                          // Show Debug Info
-                          final signalR = Injector.get<SignalRService>();
-                          final debugData = signalR.lastDebugData.value;
-                          final currentUrl = signalR.currentUrl.value;
+        appBar: widget.isFullscreen
+            ? null
+            : AppBar(
+                leading: _navStack.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        tooltip: 'Voltar',
+                        onPressed: () => _goBack(profiles),
+                      )
+                    : null,
+                title: Text(
+                  _navStack.isNotEmpty
+                      ? (_folderProfile(profiles)?.name ?? 'Pasta')
+                      : (currentProfile?.name ?? 'StreamDeck'),
+                ),
+                actions: [
+                  // SIGNALR DEBUG INDICATOR
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Center(
+                      child: Builder(
+                        builder: (context) {
+                          final status = Injector.get<SignalRService>()
+                              .connectionStatus
+                              .watch(context);
+                          Color color = Colors.grey;
+                          if (status == "Connected") color = Colors.green;
+                          if (status.startsWith("Conn Error"))
+                            color = Colors.red;
+                          return IconButton(
+                            onPressed: () {
+                              // Show Debug Info
+                              final signalR = Injector.get<SignalRService>();
+                              final debugData = signalR.lastDebugData.value;
+                              final currentUrl = signalR.currentUrl.value;
 
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Connection Debug'),
-                              content: SingleChildScrollView(
-                                child: Text(
-                                    "Status: $status\n\nURL: $currentUrl\n\nLast Data:\n$debugData"),
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Connection Debug'),
+                                  content: SingleChildScrollView(
+                                    child: Text(
+                                      "Status: $status\n\nURL: $currentUrl\n\nLast Data:\n$debugData",
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: const Text('Close'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            tooltip: status,
+                            icon: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 2,
+                                    offset: Offset(0, 1),
+                                  ),
+                                ],
                               ),
-                              actions: [
-                                TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Close'))
-                              ],
                             ),
                           );
                         },
-                        tooltip: status,
-                        icon: Container(
-                          width: 14,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: Theme.of(context).colorScheme.surface,
-                                width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 2,
-                                offset: Offset(0, 1),
-                              )
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(_editMode ? Icons.check : Icons.edit),
+                    tooltip: _editMode ? 'Concluir edição' : 'Editar botões',
+                    onPressed: () => setState(() => _editMode = !_editMode),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.tune),
+                    tooltip: 'Perfil',
+                    onPressed: currentProfile == null
+                        ? null
+                        : () => ProfileSettingsDialog.show(
+                            context,
+                            currentProfile,
+                            controller.updateProfileFull,
+                          ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    tooltip: 'Configurações',
+                    onPressed: () => Navigator.of(context).pushNamed('/config'),
+                  ),
+                ],
+              ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // A grade é o que cabe na tela (dentro da SafeArea: sem câmera/barra).
+              final g = _computeGrid(
+                constraints.maxWidth,
+                constraints.maxHeight,
+              );
+              _maybeReportLayout(g);
+              return Stack(
+                children: [
+                  PageView.builder(
+                    controller: _pageController,
+                    itemCount: profiles.length,
+                    onPageChanged: (index) {
+                      if (index >= 0 && index < profiles.length) {
+                        controller.currentProfile.value = profiles[index];
+                        if (!_jumping) {
+                          controller.rememberProfile(profiles[index].id);
+                        }
+                        // Mudou de página na mão: a troca automática não volta mais pra cá.
+                        if (!_jumping) _profileBeforeAuto = null;
+                      }
+                    },
+                    itemBuilder: (context, pageIndex) {
+                      return _buildButtonGrid(profiles[pageIndex], profiles, g);
+                    },
+                  ),
+                  if (error != null)
+                    Positioned(
+                      bottom: 16,
+                      left: 16,
+                      right: 16,
+                      child: Card(
+                        color: Colors.redAccent.withValues(alpha: 0.9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.wifi_off, color: Colors.white),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  controller.offline.value
+                                      ? 'PC desconectado. Mostrando o último deck salvo neste aparelho.'
+                                      : 'Offline: $error',
+                                  style: const TextStyle(color: Colors.white),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.refresh,
+                                  color: Colors.white,
+                                ),
+                                onPressed: controller.loadProfiles,
+                              ),
                             ],
                           ),
                         ),
-                      );
-                    }),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  tooltip: 'Renomear perfil',
-                  onPressed: () {
-                    // Rename Profile Dialog
-                    final nameController =
-                        TextEditingController(text: currentProfile?.name ?? '');
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Rename Profile'),
-                        content: TextField(
-                          controller: nameController,
-                          decoration:
-                              const InputDecoration(labelText: 'Profile Name'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (currentProfile != null &&
-                                  nameController.text.isNotEmpty) {
-                                // Update name
-                                final updatedProfile = DeckProfile(
-                                  id: currentProfile.id,
-                                  name: nameController.text,
-                                  rows: currentProfile.rows,
-                                  columns: currentProfile.columns,
-                                  isDefault: currentProfile.isDefault,
-                                  buttons: currentProfile.buttons,
-                                );
-                                controller.updateProfileFull(updatedProfile);
-                                Navigator.pop(context);
-                              }
-                            },
-                            child: const Text('Save'),
-                          ),
-                        ],
                       ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  tooltip: 'Configurações',
-                  onPressed: () => Navigator.of(context).pushNamed('/config'),
-                ),
-              ],
-            ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // A grade é o que cabe na tela (dentro da SafeArea: sem câmera/barra).
-            final g = _computeGrid(constraints.maxWidth, constraints.maxHeight);
-            _maybeReportLayout(g);
-            return Stack(
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: profiles.length,
-                  onPageChanged: (index) {
-                    if (index >= 0 && index < profiles.length) {
-                      controller.currentProfile.value = profiles[index];
-                    }
-                  },
-                  itemBuilder: (context, pageIndex) {
-                    return _buildButtonGrid(profiles[pageIndex], profiles, g);
-                  },
-                ),
-                if (error != null)
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Card(
-                      color: Colors.redAccent.withValues(alpha: 0.9),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.wifi_off, color: Colors.white),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Offline: $error',
-                                style: const TextStyle(color: Colors.white),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                    ),
+                  if (isLoading)
+                    Container(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  // Sobreposição da pasta aberta (perfil empilhado).
+                  if (_navStack.isNotEmpty && _folderProfile(profiles) != null)
+                    Positioned.fill(
+                      child: Container(
+                        color: DeckTheme.of(context).background,
+                        child: _buildButtonGrid(
+                          _folderProfile(profiles)!,
+                          profiles,
+                          g,
+                        ),
+                      ),
+                    ),
+                  if (_editMode)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Material(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(8),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            child: Text(
+                              'Modo de edição: toque num botão para editar',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             ),
-                            IconButton(
-                              icon:
-                                  const Icon(Icons.refresh, color: Colors.white),
-                              onPressed: controller.loadProfiles,
-                            )
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                if (isLoading)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                // Sobreposição da pasta aberta (perfil empilhado).
-                if (_navStack.isNotEmpty && _folderProfile(profiles) != null)
-                  Positioned.fill(
-                    child: Container(
-                      color: DeckTheme.of(context).background,
-                      child: _buildButtonGrid(
-                          _folderProfile(profiles)!, profiles, g),
-                    ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

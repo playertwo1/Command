@@ -36,6 +36,11 @@ white.
 
 ![Deck with the OLED theme and amber accent](../../assets/screenshots/deck-oled.png)
 
+## Follow the focused app
+
+**Seguir o app em foco** (follow the focused app) lets this phone switch profiles on its own when a
+program with its own profile gets focus on the PC (see [Profiles](profiles.md#auto-switch)). On by default.
+
 ## Vibration
 
 **Vibrar ao tocar** (vibrate on tap) gives a short buzz when you touch a button, like a physical key:

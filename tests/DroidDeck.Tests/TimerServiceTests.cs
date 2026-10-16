@@ -118,6 +118,9 @@ namespace DroidDeck.Tests
             s.Apply("n", "increment", P(("mode", "counter"), ("step", "5")));
             s.Apply("n", "decrement", p);
             Assert.Equal(5, Field(s, "n", "count"));
+
+            s.Apply("n", "reset", p);
+            Assert.Equal(0, Field(s, "n", "count"));
         }
 
         [Fact]

@@ -112,7 +112,7 @@ namespace DroidDeck.Services
         // arquivo. Sem validação, "..\\..\\..\\algo" permitiria escrever/apagar fora da pasta
         // de perfis (path traversal). Ids legítimos são GUID (backend) ou timestamp numérico
         // (app) — ambos casam com este charset. Rejeita separadores, "." e vazio.
-        private static bool IsValidProfileId(string? id)
+        public static bool IsValidProfileId(string? id)
         {
             if (string.IsNullOrEmpty(id) || id.Length > 128) return false;
             foreach (var c in id)

@@ -46,6 +46,17 @@ class AppearanceSettingsPage extends StatelessWidget {
               value: _ctrl.deckOnly.value,
               onChanged: _ctrl.setDeckOnly,
             ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.swap_horiz),
+              title: const Text('Seguir o app em foco'),
+              subtitle: const Text(
+                'Troca de perfil sozinho quando um app com perfil próprio ganha o '
+                'foco no PC (configure em Perfil → Abrir com o app em foco).',
+              ),
+              value: _ctrl.autoProfile.value,
+              onChanged: _ctrl.setAutoProfile,
+            ),
             const SizedBox(height: 8),
             ListTile(
               contentPadding: EdgeInsets.zero,

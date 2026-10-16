@@ -7,6 +7,8 @@ import 'package:companion/src/config/obs_settings_page.dart';
 import 'package:companion/src/config/soundboard_settings_page.dart';
 import 'package:companion/src/config/appearance_settings_page.dart';
 import 'package:companion/core/core.dart';
+import 'package:companion/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
@@ -140,6 +142,11 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     ),
                   ),
                 ),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                BackupButtons(
+                  dense: true,
+                  onImported: widget.controller.loadProfiles,
+                ),
               ],
             ),
           ),
@@ -218,7 +225,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                         ),
                         IconButton(
                           icon: Icon(Icons.edit),
-                          tooltip: 'Rename Profile',
+                          tooltip: 'Perfil (nome e troca automática)',
                           onPressed: () => _renameProfile(currentProfile),
                         ),
                         IconButton(
@@ -442,37 +449,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
 
   void _renameProfile(DeckProfile? profile) {
     if (profile == null) return;
-    final controller = TextEditingController(text: profile.name);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Rename Profile'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: 'Profile Name'),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                final updated = DeckProfile(
-                    id: profile.id,
-                    name: controller.text,
-                    rows: profile.rows,
-                    columns: profile.columns,
-                    buttons: profile.buttons,
-                    isDefault: profile.isDefault);
-                widget.controller.updateProfileFull(updated);
-                Navigator.pop(ctx);
-              }
-            },
-            child: Text('Rename'),
-          ),
-        ],
-      ),
-    );
+    ProfileSettingsDialog.show(
+        context, profile, widget.controller.updateProfileFull);
   }
 }

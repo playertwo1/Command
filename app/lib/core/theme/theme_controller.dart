@@ -18,6 +18,7 @@ class ThemeController {
   static const _tileStyleKey = 'theme_tile_style';
   static const _deckOnlyKey = 'deck_only';
   static const _hapticsKey = 'haptics';
+  static const _autoProfileKey = 'auto_profile';
 
   final settings = signal(const ThemeSettings());
 
@@ -26,6 +27,9 @@ class ThemeController {
 
   /// Vibração ao tocar num botão do deck.
   final haptics = signal(Haptics.light);
+
+  /// Seguir o perfil do app em foco no PC.
+  final autoProfile = signal(true);
 
   Future<void> load() async {
     try {
@@ -41,6 +45,7 @@ class ThemeController {
             .asNameMap()[prefs.getString(_tileStyleKey)],
       );
       deckOnly.value = prefs.getBool(_deckOnlyKey) ?? false;
+      autoProfile.value = prefs.getBool(_autoProfileKey) ?? true;
       haptics.value =
           Haptics.values.asNameMap()[prefs.getString(_hapticsKey)] ??
           Haptics.light;
@@ -53,6 +58,12 @@ class ThemeController {
     deckOnly.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_deckOnlyKey, value);
+  }
+
+  Future<void> setAutoProfile(bool value) async {
+    autoProfile.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_autoProfileKey, value);
   }
 
   Future<void> setHaptics(Haptics value) async {

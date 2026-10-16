@@ -32,6 +32,11 @@ do canto, em vez do preenchimento. Cores neutras, como o cinza padrão do editor
 
 ![Deck com o tema OLED e destaque âmbar](../../assets/screenshots/deck-oled.png)
 
+## Seguir o app em foco
+
+**Seguir o app em foco** deixa este celular trocar de perfil sozinho quando um programa com perfil
+próprio ganha o foco no PC (veja [Perfis](profiles.md#auto-switch)). Vem ligado.
+
 ## Vibração
 
 **Vibrar ao tocar** faz o celular vibrar ao encostar num botão, como um botão físico: *Desligada*,

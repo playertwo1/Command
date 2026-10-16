@@ -24,6 +24,9 @@ change according to the type.
 | [Timer, pomodoro & counter](#timer) | PC | A live clock on the button. |
 | [Windows](#windows) | PC | Switches the default audio device, locks, sleeps or turns the screen off. |
 | [HTTP request](#http) | PC | Calls a webhook or any API. |
+| [Steam game](#steam) | PC | Opens an installed game, with its cover on the button. |
+
+Each button can also have a [long-press and a double-tap](#gestures) action.
 
 ## Hotkey
 
@@ -130,6 +133,25 @@ survive a PC restart.
 Calls a URL from the PC: n8n, Home Assistant or IFTTT webhooks, or any API. Pick the **method**, the
 **URL**, the **headers** (one per line, `Name: value`) and, for POST/PUT/PATCH, the **body** and its
 format (JSON, form or text). The request has 10 seconds to answer; the result goes to DroidDeck's log.
+
+## Steam game { #steam }
+
+Lists the games installed in the PC's Steam (every library). Picking one gives the button the game's
+name and cover; tapping it launches the game through Steam. The cover comes from Steam's cache: if a
+game shows no image, open your Steam library once so it downloads the covers.
+
+## Long press and double tap { #gestures }
+
+Besides the normal tap, a button can have one action for **holding** and another for **double
+tapping** (the editor's *Toque longo e toque duplo* section). They take the same action types as the
+tap.
+
+- Example: a timer that starts on tap and resets on long press; an OBS scene on tap and recording on
+  double tap.
+- Only buttons with a double-tap action wait a moment (~0.3 s) before running the single tap, to tell
+  them apart. Every other button reacts right away.
+- On a button with a long-press action, holding runs it; to edit that button on the phone, use
+  [edit mode](profiles.md#edit-mode).
 
 ## Button state
 

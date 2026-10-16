@@ -54,7 +54,7 @@ curl -X POST http://192.168.0.10:4787/api/StreamDeck/execute \
 | GET | `profiles/{id}` | Retorna um perfil. |
 | POST | `profiles` | Cria ou atualiza um perfil. Dispara `ReceiveDeckUpdate`. |
 | DELETE | `profiles/{id}` | Apaga um perfil. Dispara `ReceiveDeckUpdate`. |
-| POST | `press` | Aperta um botão salvo (`{profileId, buttonId}`): o servidor executa a ação gravada no perfil. É o que o celular usa. |
+| POST | `press` | Aperta um botão salvo (`{profileId, buttonId, gesture}`; `gesture` é `tap` (padrão), `longPress` ou `doubleTap`): o servidor executa a ação gravada no perfil para esse gesto. É o que o celular usa. |
 | POST | `execute` | Executa uma ação avulsa (`{type, parameters}`). De fora do PC, ações privilegiadas retornam `403`. |
 | GET / POST | `layout` | Lê / define o tamanho da grade (`{rows, columns}`). |
 
@@ -91,6 +91,20 @@ Todos os valores de parâmetros são strings.
 | GET | `Media/sessions` | Sessões de mídia, com miniaturas. |
 | GET | `Media/sessions/{id}` | Uma sessão. |
 | POST | `Media/sessions/{id}/command` | `{command}`. |
+
+Um perfil é `{id, name, rows, columns, isDefault, buttons, autoSwitchApps}`; um botão tem `action`,
+`longPressAction` e `doubleTapAction` (cada um `{type, parameters}` ou `null`). A regra das ações
+privilegiadas vale para os três.
+
+## Biblioteca — backup, Steam, apps
+
+| Método | Caminho | Descrição |
+|---|---|---|
+| GET | `/api/backup` | Baixa todos os perfis num `.droiddeck` (zip). |
+| POST | `/api/backup` | Restaura um `.droiddeck` (corpo = o arquivo). Perfis com o mesmo id são substituídos. De fora do PC, recusa com `403` se for criar botões privilegiados. |
+| GET | `/api/steam/games` | Jogos instalados na Steam (`{value: appId, label: nome}`). |
+| GET | `/api/steam/icon/{appId}` | `{iconBase64}`: PNG quadrado recortado da capa do jogo. |
+| GET | `/api/system/apps` | Programas com janela visível (para a troca automática de perfil). |
 
 ## Tipos de ação — `/api/actions`
 
@@ -129,6 +143,7 @@ Conecte com `?access_token=<key>`. O hub só envia eventos; os comandos passam p
 | `ReceiveTuyaDeviceState` | `{deviceId, status}` — só os valores alterados |
 | `ReceiveTimerState` | `{buttonId: {mode, running, finished, elapsedMs, durationMs, count, phase, cycles}}` — a cada mudança |
 | `ReceiveWindowsState` | `{defaultOutput, defaultInput}` — ids dos dispositivos de áudio padrão |
+| `ReceiveAutoProfile` | `{profileId, app}` — perfil do app em foco; `profileId` nulo quando o app não tem perfil |
 | `ReceivePlaybackState` | `{playing, title}` — soundboard |
 
 Ao conectar, o novo cliente recebe o estado atual do Discord, do layout, do OBS e da Tuya.

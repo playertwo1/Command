@@ -102,6 +102,9 @@ class SignalRService {
   // ReceiveTuyaDeviceState e é fundida aqui, pra não repassar a lista inteira a cada clique.
   final tuyaState = signal<Map<String, dynamic>>({'paired': false, 'devices': []});
 
+  // Perfil do app em foco no PC ({profileId, app}); profileId nulo = app sem perfil.
+  final autoProfile = signal<Map<String, dynamic>>({});
+
   // Estado dos demais provedores de ação (timers...), por evento SignalR. Os eventos
   // vêm do schema (stateEvent) e são assinados sob demanda via [listenState].
   final actionStates = signal<Map<String, Map<String, dynamic>>>({});
@@ -434,6 +437,15 @@ class SignalRService {
     for (final event in _stateEvents) {
       _registerStateHandler(event);
     }
+
+    _hubConnection?.on('ReceiveAutoProfile', (arguments) {
+      if (arguments == null || arguments.isEmpty) return;
+      try {
+        autoProfile.value = Map<String, dynamic>.from(arguments[0] as Map);
+      } catch (e) {
+        _logger.warning('Error parsing ReceiveAutoProfile: $e');
+      }
+    });
 
     _hubConnection?.onclose(({error}) {
       connectionStatus.value = "Disconnected: $error";

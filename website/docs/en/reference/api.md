@@ -54,7 +54,7 @@ curl -X POST http://192.168.0.10:4787/api/StreamDeck/execute \
 | GET | `profiles/{id}` | Get a profile. |
 | POST | `profiles` | Create or update a profile. Broadcasts `ReceiveDeckUpdate`. |
 | DELETE | `profiles/{id}` | Delete a profile. Broadcasts `ReceiveDeckUpdate`. |
-| POST | `press` | Press a saved button (`{profileId, buttonId}`): the server runs the action stored in the profile. This is what the phone uses. |
+| POST | `press` | Press a saved button (`{profileId, buttonId, gesture}`; `gesture` is `tap` (default), `longPress` or `doubleTap`): the server runs the action stored in the profile for that gesture. This is what the phone uses. |
 | POST | `execute` | Run an ad-hoc action (`{type, parameters}`). From outside the PC, privileged actions return `403`. |
 | GET / POST | `layout` | Read / set the grid size (`{rows, columns}`). |
 
@@ -91,6 +91,20 @@ All parameter values are strings.
 | GET | `Media/sessions` | Media sessions, with thumbnails. |
 | GET | `Media/sessions/{id}` | One session. |
 | POST | `Media/sessions/{id}/command` | `{command}`. |
+
+A profile is `{id, name, rows, columns, isDefault, buttons, autoSwitchApps}`; a button has `action`,
+`longPressAction` and `doubleTapAction` (each `{type, parameters}` or `null`). The privileged-action
+rule applies to all three.
+
+## Library — backup, Steam, apps
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/backup` | Download every profile as a `.droiddeck` (zip). |
+| POST | `/api/backup` | Restore a `.droiddeck` (request body = the file). Same-id profiles are replaced. From outside the PC, refused with `403` if it would create privileged buttons. |
+| GET | `/api/steam/games` | Installed Steam games (`{value: appId, label: name}`). |
+| GET | `/api/steam/icon/{appId}` | `{iconBase64}`: a square PNG cut from the game's cover. |
+| GET | `/api/system/apps` | Programs with a visible window (for automatic profile switching). |
 
 ## Action types — `/api/actions`
 
@@ -129,6 +143,7 @@ Connect with `?access_token=<key>`. The hub only pushes events; commands go thro
 | `ReceiveTuyaDeviceState` | `{deviceId, status}` — changed values only |
 | `ReceiveTimerState` | `{buttonId: {mode, running, finished, elapsedMs, durationMs, count, phase, cycles}}` — on every change |
 | `ReceiveWindowsState` | `{defaultOutput, defaultInput}` — default audio device ids |
+| `ReceiveAutoProfile` | `{profileId, app}` — profile of the focused app; `profileId` null when the app has none |
 | `ReceivePlaybackState` | `{playing, title}` — soundboard |
 
 On connect, the new client receives the current Discord, layout, OBS and Tuya state.
