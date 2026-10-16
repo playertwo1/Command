@@ -1,4 +1,4 @@
-import 'package:companion/src/stream_deck/actions/action_schema.dart';
+import 'package:droiddeck/src/stream_deck/actions/action_schema.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

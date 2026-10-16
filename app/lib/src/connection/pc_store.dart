@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:companion/src/core/constants.dart';
+import 'package:droiddeck/src/connection/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Um PC pareado com este celular.

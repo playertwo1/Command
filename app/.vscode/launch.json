@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "companion",
+            "name": "droiddeck",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "companion (profile mode)",
+            "name": "droiddeck (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "companion (release mode)",
+            "name": "droiddeck (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

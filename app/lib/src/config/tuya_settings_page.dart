@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:companion/core/core.dart';
-import 'package:companion/src/services/signalr_service.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 

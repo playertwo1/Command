@@ -1,5 +1,5 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Jogo da Steam: lista os jogos instalados no PC e, ao escolher um, usa o nome como

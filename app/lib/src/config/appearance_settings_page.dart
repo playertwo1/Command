@@ -1,4 +1,4 @@
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 /// Tema do app: preset, modo claro/escuro, cor de destaque e estilo dos botões.

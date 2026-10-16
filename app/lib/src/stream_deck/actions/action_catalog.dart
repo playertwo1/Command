@@ -1,6 +1,6 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/services/signalr_service.dart';
-import 'package:companion/src/stream_deck/actions/action_schema.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:droiddeck/src/stream_deck/actions/action_schema.dart';
 
 /// Tipos de ação que o PC conectado aceita. Carregado uma vez por sessão do PC;
 /// enquanto não chega (ou se o PC é antigo), vale o catálogo embutido.

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:companion/core/i18n/i18n.dart';
+import 'package:droiddeck/core/i18n/i18n.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Compartilha o backup (Drive, e-mail, "Salvar em arquivos"...).

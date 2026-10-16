@@ -1,6 +1,6 @@
 
-export 'companionLoader/companion_loader.dart';
-export 'companion_core_config.dart';
+export 'app_loader.dart';
+export 'app_config.dart';
 export 'i18n/i18n.dart';
 
 export 'package:loading_animation_widget/loading_animation_widget.dart';

@@ -1,6 +1,6 @@
-import 'package:companion/src/stream_deck/widgets/deck_grid_button.dart';
-import 'package:companion/src/services/signalr_service.dart';
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/src/stream_deck/widgets/deck_grid_button.dart';
+import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 import '../buttons/colors.dart';

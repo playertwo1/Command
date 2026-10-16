@@ -1,11 +1,11 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/stream_deck/actions/editors/discord_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/mixer_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/multi_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/open_profile_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/soundboard_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/steam_action_editor.dart';
-import 'package:companion/src/stream_deck/actions/editors/tuya_action_editor.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/discord_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/mixer_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/multi_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/open_profile_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/soundboard_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/steam_action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/tuya_action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// O que toda tela própria de ação recebe do painel.

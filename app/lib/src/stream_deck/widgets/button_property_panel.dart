@@ -1,6 +1,6 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/stream_deck/actions/action_catalog.dart';
-import 'package:companion/src/stream_deck/actions/action_picker.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
+import 'package:droiddeck/src/stream_deck/actions/action_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 

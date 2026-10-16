@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 
-import 'package:companion/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Multi-ação: passos em sequência, cada um com uma espera antes.

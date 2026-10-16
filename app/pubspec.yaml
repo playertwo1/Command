@@ -1,4 +1,4 @@
-name: companion
+name: droiddeck
 description: DroidDeck — transforma o celular num Stream Deck para o PC Windows.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # Antiga lib companion_core, agora fundida em lib/core/ (mesmas deps que ela trazia)
+  # Antiga lib separada do núcleo, agora fundida em lib/core/ (mesmas deps que ela trazia)
   dio: ^5.4.1
   signals_flutter: ^4.4.0
   flutter_getit: ^2.0.0

@@ -1,5 +1,5 @@
-import 'package:companion/src/binding/companion_application_binding.dart';
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/src/binding/app_binding.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'src/pages/splash/splash_page.dart';
@@ -20,9 +20,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CompanionCoreConfig(
+    return DroidDeckAppConfig(
       title: 'DroidDeck',
-      bindings: CompanionApplicationBinding(),
+      bindings: AppBinding(),
       pageBuilders: [
         FlutterGetItPageBuilder(
           page: (_) => const SplashPage(),

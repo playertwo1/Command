@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:companion/core/droiddeck_client/models/deck_action.dart';
-import 'package:companion/core/droiddeck_client/models/deck_button.dart';
-import 'package:companion/core/droiddeck_client/models/deck_profile.dart';
+import 'package:droiddeck/core/droiddeck_client/models/deck_action.dart';
+import 'package:droiddeck/core/droiddeck_client/models/deck_button.dart';
+import 'package:droiddeck/core/droiddeck_client/models/deck_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

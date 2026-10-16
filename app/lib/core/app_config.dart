@@ -1,9 +1,9 @@
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class CompanionCoreConfig extends StatelessWidget {
-  const CompanionCoreConfig({
+class DroidDeckAppConfig extends StatelessWidget {
+  const DroidDeckAppConfig({
     super.key,
     this.bindings,
     this.modules,
@@ -27,7 +27,7 @@ class CompanionCoreConfig extends StatelessWidget {
       modules: modules,
       builder: (context, routes, flutterGetItNavObserver) {
         return AsyncStateBuilder(
-          loader: CompanionLoader(),
+          loader: AppLoader(),
           builder: (navigatorObserver) {
             // Reconstrói o app quando a aparência muda (tela Aparência).
             return Watch((context) {

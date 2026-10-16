@@ -1,5 +1,5 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/core/constants.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/connection/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';

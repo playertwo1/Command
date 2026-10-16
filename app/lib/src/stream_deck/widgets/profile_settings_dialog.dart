@@ -1,4 +1,4 @@
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 /// Nome do perfil e os apps que o trazem para a frente quando ganham o foco no PC.

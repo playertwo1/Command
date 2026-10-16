@@ -1,5 +1,5 @@
-import 'package:companion/src/stream_deck/widgets/button_property_panel.dart';
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/src/stream_deck/widgets/button_property_panel.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 class ButtonEditorDialog extends StatelessWidget {

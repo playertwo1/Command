@@ -1,12 +1,12 @@
-import 'package:companion/src/stream_deck/stream_deck_controller.dart';
-import 'package:companion/src/stream_deck/widgets/button_property_panel.dart';
-import 'package:companion/src/stream_deck/widgets/dynamic_deck_button.dart';
-import 'package:companion/src/services/signalr_service.dart';
-import 'package:companion/src/config/appearance_settings_page.dart';
-import 'package:companion/src/config/integrations_page.dart';
-import 'package:companion/core/core.dart';
-import 'package:companion/src/stream_deck/widgets/profile_settings_dialog.dart';
-import 'package:companion/src/stream_deck/backup/backup_buttons.dart';
+import 'package:droiddeck/src/stream_deck/stream_deck_controller.dart';
+import 'package:droiddeck/src/stream_deck/widgets/button_property_panel.dart';
+import 'package:droiddeck/src/stream_deck/widgets/dynamic_deck_button.dart';
+import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:droiddeck/src/config/appearance_settings_page.dart';
+import 'package:droiddeck/src/config/integrations_page.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'package:droiddeck/src/stream_deck/backup/backup_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 

@@ -1,8 +1,8 @@
-import 'package:companion/src/core/pc_store.dart';
+import 'package:droiddeck/src/connection/pc_store.dart';
 import 'dart:convert';
 
-import 'package:companion/core/core.dart'; // Contains DroidDeckClient, DeckProfile, etc.
-import 'package:companion/src/stream_deck/actions/action_catalog.dart';
+import 'package:droiddeck/core/core.dart'; // Contains DroidDeckClient, DeckProfile, etc.
+import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,4 +1,4 @@
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'account_integration_page.dart';

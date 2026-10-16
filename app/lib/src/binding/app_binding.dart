@@ -1,7 +1,7 @@
-import 'package:companion/core/core.dart';
+import 'package:droiddeck/core/core.dart';
 import '../services/signalr_service.dart';
 
-class CompanionApplicationBinding extends ApplicationBindings {
+class AppBinding extends ApplicationBindings {
   @override
   List<Bind<Object>> bindings() => [
         Bind.lazySingleton<DroidDeckClient>((i) => DroidDeckClient(baseUrl: '')),

@@ -1,5 +1,5 @@
-import 'package:companion/core/core.dart';
-import 'package:companion/src/stream_deck/backup/backup_file.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/backup/backup_file.dart';
 import 'package:flutter/material.dart';
 
 /// Exportar e importar os perfis num arquivo .droiddeck.

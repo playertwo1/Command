@@ -1,4 +1,4 @@
-import 'package:companion/core/i18n/i18n.dart';
+import 'package:droiddeck/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 
 /// Como os botões do deck são desenhados.

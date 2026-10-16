@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:companion/core/i18n/i18n.dart';
+import 'package:droiddeck/core/i18n/i18n.dart';
 import 'package:dio/dio.dart';
 import 'models/mixer_data.dart';
 import 'models/audio_target.dart';

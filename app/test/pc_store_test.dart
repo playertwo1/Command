@@ -1,5 +1,5 @@
-import 'package:companion/src/core/constants.dart';
-import 'package:companion/src/core/pc_store.dart';
+import 'package:droiddeck/src/connection/constants.dart';
+import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
