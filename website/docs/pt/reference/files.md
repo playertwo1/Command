@@ -8,6 +8,7 @@
 |---|---|
 | `Profiles\<id>.json` | Um arquivo por perfil: nome e botões. Ícones personalizados ficam embutidos em base64. |
 | `layout.json` | Tamanho da grade informado pelo celular (`rows`, `columns`). |
+| `counters.json` | Valores dos botões de contador, para sobreviverem a um reinício. |
 
 **`%LocalAppData%\DroidDeck\`** — chaves e integrações:
 
@@ -21,6 +22,9 @@
 | `tuya.json` | Código de usuário da Tuya, token de sessão e registro do app (`ClientId`, `Schema`). |
 
 **`%LocalAppData%\DroidDeck.log`** — o arquivo de log.
+
+**`%LocalAppData%\DroidDeckPC\`** — o programa em si, quando instalado pelo `DroidDeck-Setup.exe`.
+As atualizações substituem esta pasta; seus dados ficam nas pastas acima e são mantidos.
 
 !!! info "Os segredos são cifrados"
     `apikey`, `discord.json`, `obs.json` e `tuya.json` são cifrados com a DPAPI do Windows e só podem

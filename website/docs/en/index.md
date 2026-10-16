@@ -12,12 +12,16 @@ local network.
 
 | | |
 |---|---|
-| :material-keyboard: **Shortcuts & apps** | Send key combinations, open programs, files and URLs, chain steps in a multi-action. |
+| :material-keyboard: **Shortcuts & apps** | Send key combinations, open programs, files and URLs, call webhooks, chain steps in a multi-action. |
+| :material-microsoft-windows: **Windows** | Switch the default audio device, lock the PC, sleep, turn the screen off. |
 | :material-volume-high: **Audio mixer** | Mute apps, change device volume, toggle the mic. The phone also has a full per-app mixer. |
 | :material-play-pause: **Media** | Play/pause, next, previous for whatever is playing in Windows (Spotify, browser, players). |
 | :material-chart-donut: **Live monitors** | CPU, GPU, RAM and network gauges that update every second. |
 | :simple-discord: **Discord** | Mute/deafen, join channels, voice volume, push-to-talk, per-user volume, native soundboard. |
-| :simple-obsstudio: **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, mute sources, with live state. |
+| :simple-obsstudio: **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, sources, filters and screenshots, with live state. |
+| :material-timer-outline: **Timers** | Countdown, stopwatch, pomodoro and counters with a live clock on the button. |
+| :simple-steam: **Steam** | Pick an installed game and the button gets its cover; tap to launch it. |
+| :material-folder-multiple: **Profiles** | Folders, long-press and double-tap actions, automatic switching by the focused app, backups, and an offline copy of the deck. |
 | :material-music-box-multiple: **Soundboard** | Search and play sounds from MyInstants, routed to your mic through VB-Cable. |
 | :material-lightbulb-on: **Smart home** | Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
 
