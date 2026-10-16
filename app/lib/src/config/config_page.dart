@@ -201,7 +201,7 @@ class ConfigPageState extends State<ConfigPage> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.palette_outlined),
               title: const Text('Aparência'),
-              subtitle: const Text('Tema, modo claro/escuro, cores e estilo dos botões'),
+              subtitle: const Text('Tema, cores, estilo dos botões e vibração'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),

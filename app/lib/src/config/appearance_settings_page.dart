@@ -46,6 +46,21 @@ class AppearanceSettingsPage extends StatelessWidget {
               value: _ctrl.deckOnly.value,
               onChanged: _ctrl.setDeckOnly,
             ),
+            const SizedBox(height: 8),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.vibration),
+              title: const Text('Vibrar ao tocar'),
+              subtitle: const Text('Também vibra forte quando um timer termina.'),
+            ),
+            SegmentedButton<Haptics>(
+              segments: [
+                for (final h in Haptics.values)
+                  ButtonSegment(value: h, label: Text(h.label)),
+              ],
+              selected: {_ctrl.haptics.value},
+              onSelectionChanged: (v) => _ctrl.setHaptics(v.first),
+            ),
             const SizedBox(height: 16),
             const _SectionTitle('Modo'),
             SegmentedButton<ThemeMode>(

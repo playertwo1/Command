@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -16,11 +17,15 @@ class ThemeController {
   static const _accentKey = 'theme_accent';
   static const _tileStyleKey = 'theme_tile_style';
   static const _deckOnlyKey = 'deck_only';
+  static const _hapticsKey = 'haptics';
 
   final settings = signal(const ThemeSettings());
 
   /// Esconde a aba de áudio: o app abre direto no deck, em tela cheia.
   final deckOnly = signal(false);
+
+  /// Vibração ao tocar num botão do deck.
+  final haptics = signal(Haptics.light);
 
   Future<void> load() async {
     try {
@@ -36,6 +41,9 @@ class ThemeController {
             .asNameMap()[prefs.getString(_tileStyleKey)],
       );
       deckOnly.value = prefs.getBool(_deckOnlyKey) ?? false;
+      haptics.value =
+          Haptics.values.asNameMap()[prefs.getString(_hapticsKey)] ??
+          Haptics.light;
     } catch (_) {
       // Preferências ilegíveis: fica no padrão em vez de travar o startup.
     }
@@ -45,6 +53,22 @@ class ThemeController {
     deckOnly.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_deckOnlyKey, value);
+  }
+
+  Future<void> setHaptics(Haptics value) async {
+    haptics.value = value;
+    value.play();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_hapticsKey, value.name);
+  }
+
+  /// Vibra no toque de um botão, conforme a preferência.
+  void tapFeedback() => haptics.value.play();
+
+  /// Vibração forte, independente da intensidade escolhida (fim de um timer). Só não
+  /// vibra com a vibração desligada.
+  void alertFeedback() {
+    if (haptics.value != Haptics.off) HapticFeedback.heavyImpact();
   }
 
   Future<void> update(ThemeSettings next) async {
@@ -61,6 +85,29 @@ class ThemeController {
       await prefs.setString(_tileStyleKey, next.tileStyle!.name);
     } else {
       await prefs.remove(_tileStyleKey);
+    }
+  }
+}
+
+enum Haptics {
+  off('Desligada'),
+  light('Leve'),
+  medium('Média'),
+  heavy('Forte');
+
+  const Haptics(this.label);
+  final String label;
+
+  void play() {
+    switch (this) {
+      case Haptics.off:
+        return;
+      case Haptics.light:
+        HapticFeedback.lightImpact();
+      case Haptics.medium:
+        HapticFeedback.mediumImpact();
+      case Haptics.heavy:
+        HapticFeedback.heavyImpact();
     }
   }
 }

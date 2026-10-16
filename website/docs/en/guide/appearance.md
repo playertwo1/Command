@@ -36,6 +36,12 @@ white.
 
 ![Deck with the OLED theme and amber accent](../../assets/screenshots/deck-oled.png)
 
+## Vibration
+
+**Vibrar ao tocar** (vibrate on tap) gives a short buzz when you touch a button, like a physical key:
+*Desligada* (off), *Leve* (light), *Média* (medium) or *Forte* (strong). When a timer ends the phone
+gives a strong buzz, unless vibration is off.
+
 ## Deck only
 
 **Só o deck** hides the audio tab: the app opens straight into the deck, in full screen, with no tabs

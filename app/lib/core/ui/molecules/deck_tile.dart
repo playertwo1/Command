@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../theme/deck_theme.dart';
+import '../../theme/theme_controller.dart';
 
 /// Moldura de um botão do deck, no estilo do tema atual. O conteúdo (ícone,
 /// rótulo) herda a cor certa via IconTheme/DefaultTextStyle — leia com
@@ -117,6 +118,10 @@ class DeckTile extends StatelessWidget {
     if (onTap == null && onLongPress == null) return tile;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      // Vibra ao encostar, não ao soltar: é o que dá a sensação de botão físico.
+      onTapDown: onTap == null
+          ? null
+          : (_) => ThemeController.instance.tapFeedback(),
       onTap: onTap,
       onLongPress: onLongPress,
       child: tile,

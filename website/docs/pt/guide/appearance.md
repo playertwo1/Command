@@ -32,6 +32,12 @@ do canto, em vez do preenchimento. Cores neutras, como o cinza padrão do editor
 
 ![Deck com o tema OLED e destaque âmbar](../../assets/screenshots/deck-oled.png)
 
+## Vibração
+
+**Vibrar ao tocar** faz o celular vibrar ao encostar num botão, como um botão físico: *Desligada*,
+*Leve*, *Média* ou *Forte*. Quando um timer termina, o celular vibra forte (a menos que a vibração
+esteja desligada).
+
 ## Só o deck
 
 **Só o deck** esconde a aba de áudio: o app abre direto no deck, em tela cheia e sem as abas de baixo.
