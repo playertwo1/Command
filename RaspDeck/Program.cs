@@ -267,6 +267,7 @@ namespace DroidDeck
                             services.AddHostedService(sp => sp.GetRequiredService<Integrations.YouTubeIntegration>());
                             services.AddSingleton<Actions.IActionProvider, Integrations.YouTubeProvider>();
                             services.AddSingleton<Services.ButtonToggleService>();
+                            services.AddSingleton<Lib.Input.MacroRecorder>();
                             services.AddSingleton<Services.InfoService>();
                             services.AddHostedService(sp => sp.GetRequiredService<Services.InfoService>());
                             services.AddSingleton<Services.ForegroundWatcher>();

@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:companion/core/core.dart';
 
 import 'package:companion/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
@@ -102,6 +105,34 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
     }
   }
 
+  /// Grava o que for digitado no PC e acrescenta os passos.
+  Future<void> _record() async {
+    final client = Injector.get<DroidDeckClient>();
+    try {
+      await client.postJson('/api/macro/start');
+    } catch (_) {
+      _snack('Não foi possível gravar (só funciona no configurador do PC).');
+      return;
+    }
+    if (!mounted) return;
+    final stepsJson = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _RecordingDialog(),
+    );
+    if (stepsJson == null || !mounted) return;
+    final recorded = _decode(stepsJson);
+    if (recorded.isEmpty) {
+      _snack('Nenhuma tecla gravada.');
+      return;
+    }
+    _update(() => _steps.addAll(recorded));
+    _snack('${recorded.length} passo(s) gravado(s).');
+  }
+
+  void _snack(String m) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+
   @override
   Widget build(BuildContext context) {
     final remote = widget.args.remote;
@@ -182,18 +213,108 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
             ),
           );
         }),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: () => _update(() => _steps.add({
-                  'type': remote ? 'mute' : 'hotkey',
-                  'param': '',
-                  'delayMs': 0,
-                  '_k': _seq++,
-                })),
-            icon: const Icon(Icons.add),
-            label: const Text('Adicionar passo'),
-          ),
+        Wrap(
+          spacing: 8,
+          children: [
+            TextButton.icon(
+              onPressed: () => _update(() => _steps.add({
+                    'type': remote ? 'mute' : 'hotkey',
+                    'param': '',
+                    'delayMs': 0,
+                    '_k': _seq++,
+                  })),
+              icon: const Icon(Icons.add),
+              label: const Text('Adicionar passo'),
+            ),
+            // Gravar lê o teclado do PC: só no configurador, no próprio PC.
+            if (!remote)
+              TextButton.icon(
+                onPressed: _record,
+                icon: const Icon(Icons.fiber_manual_record, color: Colors.redAccent),
+                label: const Text('Gravar do teclado'),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Enquanto grava: mostra quantas teclas já vieram e para no botão (ou sozinho no tempo máximo).
+class _RecordingDialog extends StatefulWidget {
+  const _RecordingDialog();
+
+  @override
+  State<_RecordingDialog> createState() => _RecordingDialogState();
+}
+
+class _RecordingDialogState extends State<_RecordingDialog> {
+  final _client = Injector.get<DroidDeckClient>();
+  Timer? _poll;
+  int _keys = 0;
+  int _seconds = 0;
+  int _max = 60;
+  bool _stopping = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _poll = Timer.periodic(const Duration(milliseconds: 500), (_) async {
+      try {
+        final s = Map<String, dynamic>.from(await _client.getJson('/api/macro') as Map);
+        if (!mounted) return;
+        setState(() {
+          _keys = (s['keys'] as num?)?.toInt() ?? 0;
+          _seconds = (s['seconds'] as num?)?.toInt() ?? 0;
+          _max = (s['maxSeconds'] as num?)?.toInt() ?? 60;
+        });
+        if (s['recording'] != true) _stop();
+      } catch (_) {}
+    });
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _stop() async {
+    if (_stopping) return;
+    _stopping = true;
+    _poll?.cancel();
+    String? steps;
+    try {
+      final r = Map<String, dynamic>.from(await _client.postJson('/api/macro/stop') as Map);
+      steps = r['steps'] as String?;
+    } catch (_) {}
+    if (mounted) Navigator.of(context).pop(steps);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Row(children: [
+        Icon(Icons.fiber_manual_record, color: Colors.redAccent),
+        SizedBox(width: 8),
+        Text('Gravando'),
+      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Vá para o programa e digite a sequência no teclado do PC. '
+              'Pausas de mais de meio segundo viram espera entre os passos.'),
+          const SizedBox(height: 16),
+          Text('$_keys tecla(s) · ${_seconds}s de $_max s',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+      actions: [
+        FilledButton.icon(
+          onPressed: _stop,
+          icon: const Icon(Icons.stop),
+          label: const Text('Parar'),
         ),
       ],
     );
