@@ -140,7 +140,7 @@ namespace DroidDeck.Tests
     public class HttpProviderTests
     {
         [Fact]
-        public void Requisicao_LevaCorpoECabecalhos()
+        public async Task Requisicao_LevaCorpoECabecalhos()
         {
             using var req = HttpProvider.BuildRequest(HttpMethod.Post, new Uri("https://exemplo.com/hook"),
                 "Authorization: Bearer abc\nX-Origem: deck\nlinha invalida\nContent-Type: application/vnd.teste",
@@ -149,7 +149,7 @@ namespace DroidDeck.Tests
             Assert.Equal("Bearer abc", req.Headers.Authorization!.ToString());
             Assert.Equal("deck", req.Headers.GetValues("X-Origem").Single());
             Assert.Equal("application/vnd.teste", req.Content!.Headers.ContentType!.MediaType);
-            Assert.Equal("{\"a\":1}", req.Content.ReadAsStringAsync().Result);
+            Assert.Equal("{\"a\":1}", await req.Content.ReadAsStringAsync());
         }
 
         [Fact]
