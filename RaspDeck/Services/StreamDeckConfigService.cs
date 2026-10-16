@@ -135,14 +135,18 @@ namespace DroidDeck.Services
                 {
                     var filePath = Path.Combine(_profilesDirectory, $"{profile.Id}.json");
                     var json = JsonSerializer.Serialize(profile, _jsonOptions);
-                    File.WriteAllText(filePath, json);
+                    // Grava ao lado e troca: uma queda no meio nao deixa o perfil truncado.
+                    var tmp = filePath + ".tmp";
+                    File.WriteAllText(tmp, json);
+                    File.Move(tmp, filePath, overwrite: true);
 
-                    var existing = _cache.FirstOrDefault(p => p.Id == profile.Id);
-                    if (existing != null)
-                    {
-                        _cache.Remove(existing);
-                    }
-                    _cache.Add(profile);
+                    // Substitui no mesmo lugar. Remover e adicionar no fim mudava a ordem dos
+                    // perfis a cada edicao, e o celular abria em outra pagina do deck.
+                    var index = _cache.FindIndex(p => p.Id == profile.Id);
+                    if (index >= 0)
+                        _cache[index] = profile;
+                    else
+                        _cache.Add(profile);
                 }
                 catch (Exception ex)
                 {
