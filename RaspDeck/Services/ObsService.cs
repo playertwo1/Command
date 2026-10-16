@@ -42,6 +42,7 @@ namespace DroidDeck.Services
         public bool Connected { get; private set; }
         public string? CurrentScene { get; private set; }
         public bool Recording { get; private set; }
+        public bool RecordPaused { get; private set; }
         public bool Streaming { get; private set; }
         public bool VirtualCam { get; private set; }
         public bool ReplayBuffer { get; private set; }
@@ -84,6 +85,7 @@ namespace DroidDeck.Services
             connected = Connected,
             currentScene = CurrentScene,
             recording = Recording,
+            recordPaused = RecordPaused,
             streaming = Streaming,
             virtualCam = VirtualCam,
             replayBuffer = ReplayBuffer,
@@ -179,6 +181,7 @@ namespace DroidDeck.Services
                 _scenes = scenes;
 
                 Recording = await BoolReq("GetRecordStatus", "outputActive");
+                RecordPaused = Recording && await BoolReq("GetRecordStatus", "outputPaused");
                 Streaming = await BoolReq("GetStreamStatus", "outputActive");
                 VirtualCam = await BoolReq("GetVirtualCamStatus", "outputActive");
                 ReplayBuffer = await BoolReq("GetReplayBufferStatus", "outputActive");
@@ -215,6 +218,91 @@ namespace DroidDeck.Services
         public Task ToggleReplayBufferAsync() => RequestVoid("ToggleReplayBuffer");
         public Task SaveReplayAsync() => RequestVoid("SaveReplayBuffer");
         public Task ToggleInputMuteAsync(string input) => RequestVoid("ToggleInputMute", new { inputName = input });
+        public Task ToggleRecordPauseAsync() => RequestVoid("ToggleRecordPause");
+
+        /// <summary>Marcador de capitulo na gravacao (OBS 30.2+, formato Hybrid MP4).</summary>
+        public Task CreateRecordChapterAsync(string? name) =>
+            RequestVoid("CreateRecordChapter", string.IsNullOrWhiteSpace(name) ? null : new { chapterName = name });
+
+        /// <summary>Mostra/oculta uma fonte dentro de uma cena.</summary>
+        public async Task ToggleSceneItemAsync(string scene, string source)
+        {
+            var id = await SceneItemIdAsync(scene, source);
+            var current = await RequestAsync("GetSceneItemEnabled", new { sceneName = scene, sceneItemId = id });
+            var enabled = current.TryGetProperty("sceneItemEnabled", out var e) && e.ValueKind == JsonValueKind.True;
+            await RequestVoid("SetSceneItemEnabled", new { sceneName = scene, sceneItemId = id, sceneItemEnabled = !enabled });
+        }
+
+        public async Task SetSceneItemAsync(string scene, string source, bool enabled)
+        {
+            var id = await SceneItemIdAsync(scene, source);
+            await RequestVoid("SetSceneItemEnabled", new { sceneName = scene, sceneItemId = id, sceneItemEnabled = enabled });
+        }
+
+        private async Task<int> SceneItemIdAsync(string scene, string source)
+        {
+            var r = await RequestAsync("GetSceneItemId", new { sceneName = scene, sourceName = source });
+            return r.GetProperty("sceneItemId").GetInt32();
+        }
+
+        /// <summary>Liga/desliga um filtro de uma fonte (ou cena).</summary>
+        public async Task ToggleFilterAsync(string source, string filter)
+        {
+            var r = await RequestAsync("GetSourceFilter", new { sourceName = source, filterName = filter });
+            var enabled = r.TryGetProperty("filterEnabled", out var e) && e.ValueKind == JsonValueKind.True;
+            await RequestVoid("SetSourceFilterEnabled", new { sourceName = source, filterName = filter, filterEnabled = !enabled });
+        }
+
+        /// <summary>
+        /// Captura da cena do programa em PNG, na pasta de gravacao do OBS (a mesma onde ficam
+        /// os videos e os replays).
+        /// </summary>
+        public async Task<string> ScreenshotAsync()
+        {
+            var scene = (await RequestAsync("GetCurrentProgramScene")).GetProperty("currentProgramSceneName").GetString() ?? "";
+            var dir = (await RequestAsync("GetRecordDirectory")).GetProperty("recordDirectory").GetString() ?? "";
+            var path = Path.Combine(dir, $"Screenshot {DateTime.Now:yyyy-MM-dd HH-mm-ss}.png");
+            await RequestVoid("SaveSourceScreenshot", new { sourceName = scene, imageFormat = "png", imageFilePath = path });
+            return path;
+        }
+
+        // ---- Listas para o editor ----
+
+        /// <summary>Fontes de uma cena (nomes), na ordem do OBS.</summary>
+        public async Task<List<string>> GetSceneItemsAsync(string scene)
+        {
+            EnsureConnected();
+            var r = await RequestAsync("GetSceneItemList", new { sceneName = scene });
+            var items = new List<string>();
+            if (r.TryGetProperty("sceneItems", out var arr) && arr.ValueKind == JsonValueKind.Array)
+                foreach (var i in arr.EnumerateArray())
+                    if (i.TryGetProperty("sourceName", out var n) && n.GetString() is { } name) items.Add(name);
+            return items;
+        }
+
+        /// <summary>Todas as fontes (entradas) e cenas: o que pode ter filtro.</summary>
+        public async Task<List<string>> GetSourcesAsync()
+        {
+            EnsureConnected();
+            var names = new List<string>();
+            var il = await RequestAsync("GetInputList");
+            if (il.TryGetProperty("inputs", out var ia) && ia.ValueKind == JsonValueKind.Array)
+                foreach (var i in ia.EnumerateArray())
+                    if (i.TryGetProperty("inputName", out var n) && n.GetString() is { } name) names.Add(name);
+            names.AddRange(_scenes);
+            return names;
+        }
+
+        public async Task<List<string>> GetFiltersAsync(string source)
+        {
+            EnsureConnected();
+            var r = await RequestAsync("GetSourceFilterList", new { sourceName = source });
+            var filters = new List<string>();
+            if (r.TryGetProperty("filters", out var arr) && arr.ValueKind == JsonValueKind.Array)
+                foreach (var f in arr.EnumerateArray())
+                    if (f.TryGetProperty("filterName", out var n) && n.GetString() is { } name) filters.Add(name);
+            return filters;
+        }
 
         public async Task<object> GetScenesAsync() { EnsureConnected(); await RefreshStateAsync(); return _scenes; }
         public async Task<object> GetAudioInputsAsync() { EnsureConnected(); await RefreshStateAsync(); return _audioInputs; }
@@ -328,6 +416,10 @@ namespace DroidDeck.Services
                     break;
                 case "RecordStateChanged":
                     if (data.TryGetProperty("outputActive", out var ra)) Recording = ra.GetBoolean();
+                    // Pausar/retomar chega aqui como outputState, com outputActive ainda true.
+                    if (data.TryGetProperty("outputState", out var rs))
+                        RecordPaused = rs.GetString() == "OBS_WEBSOCKET_OUTPUT_PAUSED";
+                    if (!Recording) RecordPaused = false;
                     break;
                 case "StreamStateChanged":
                     if (data.TryGetProperty("outputActive", out var sa)) Streaming = sa.GetBoolean();
@@ -359,7 +451,7 @@ namespace DroidDeck.Services
             _ws = null;
             Connected = false;
             CurrentScene = null;
-            Recording = Streaming = VirtualCam = ReplayBuffer = false;
+            Recording = RecordPaused = Streaming = VirtualCam = ReplayBuffer = false;
             foreach (var kv in _pending) kv.Value.TrySetCanceled();
             _pending.Clear();
         }

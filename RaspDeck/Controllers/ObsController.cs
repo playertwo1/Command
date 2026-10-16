@@ -50,6 +50,27 @@ namespace DroidDeck.Controllers
             catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
         }
 
+        [HttpGet("sources")]
+        public async Task<IActionResult> Sources()
+        {
+            try { return Ok(await _obs.GetSourcesAsync()); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+        }
+
+        [HttpGet("scene-items")]
+        public async Task<IActionResult> SceneItems([FromQuery] string scene)
+        {
+            try { return Ok(await _obs.GetSceneItemsAsync(scene)); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+        }
+
+        [HttpGet("filters")]
+        public async Task<IActionResult> Filters([FromQuery] string source)
+        {
+            try { return Ok(await _obs.GetFiltersAsync(source)); }
+            catch (System.Exception ex) { return StatusCode(502, new { error = ex.Message }); }
+        }
+
         [HttpGet("audio-inputs")]
         public async Task<IActionResult> AudioInputs()
         {

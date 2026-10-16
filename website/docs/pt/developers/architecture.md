@@ -57,11 +57,17 @@ O app e o backend compartilham:
 
 ## Adicionando um novo tipo de ação
 
-Hoje, um novo tipo de ação mexe nos dois lados:
+Cada tipo de ação é um **`IActionProvider`** (`RaspDeck/Actions/`). Ele executa a ação e descreve
+seus campos num `ActionSchema`; o editor do app monta o formulário a partir de
+`GET /api/actions/schema`, então um tipo simples não precisa de nenhum código em Flutter:
 
-1. Um serviço em `RaspDeck/Services/` (mais um hosted service `*AutoConnect` se ele mantiver uma conexão).
-2. O registro em `Program.cs`.
-3. Um `case` no `ActionExecutorService` que lê os `parameters` da ação.
-4. Um controller, se o editor precisar de listas ou configurações, e o estado enviado pelo `DeckHub`.
-5. O tipo, seus campos e a renderização do estado no editor e nos botões do Flutter.
-6. Uma página de configuração no app, se a integração precisar ser configurada.
+1. Implemente `IActionProvider` em `RaspDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
+   Os campos são texto, texto longo, número, liga/desliga ou seleção; uma seleção pode carregar as
+   opções de um endpoint (`OptionsSource`, com `{campo}` substituído) e qualquer campo pode depender
+   de outro (`When`).
+2. Registre em `Program.cs` (`services.AddSingleton<IActionProvider, MeuProvider>()`).
+3. Se tiver estado ao vivo, implemente `IStatefulActionProvider` (`StateEvent`, `GetState()`): o
+   `DeckHub` envia ao conectar e o app passa a ouvir.
+4. Só se precisar: um renderizador próprio em `deck_grid_button.dart` (estado ao vivo no botão), uma
+   tela própria em `app/lib/src/stream_deck/actions/editors/` (`Editor = "nome"`) ou uma página de configuração.
+5. Se executar código ou acessar a rede a partir do PC, inclua o tipo entre os privilegiados do `ActionPolicy`.

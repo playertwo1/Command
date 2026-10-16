@@ -3,10 +3,10 @@
 Cada botão executa uma **ação**. Escolha o tipo de ação no painel de propriedades; os campos abaixo
 dele mudam de acordo com o tipo.
 
-!!! info "Atalho de teclado e Abrir app são criados no PC"
-    Por segurança, botões que enviam teclas ou abrem programas (inclusive multi-ações com esses passos)
-    só podem ser criados ou alterados no [configurador](../getting-started/configurator.md), no PC.
-    O celular executa esses botões normalmente.
+!!! info "Atalho de teclado, Abrir app e Requisição HTTP são criados no PC"
+    Por segurança, botões que enviam teclas, abrem programas ou fazem requisições HTTP (inclusive
+    multi-ações com esses passos) só podem ser criados ou alterados no
+    [configurador](../getting-started/configurator.md), no PC. O celular executa esses botões normalmente.
 
 | Tipo de ação | Roda no | Resumo |
 |---|---|---|
@@ -21,6 +21,9 @@ dele mudam de acordo com o tipo.
 | [OBS](../integrations/obs.md) | PC | Cenas, gravação, transmissão e mais. |
 | [Soundboard](../integrations/soundboard.md) | PC | Toca um som. |
 | [Tuya](../integrations/tuya.md) | PC | Controla dispositivos de casa inteligente. |
+| [Timer, pomodoro e contador](#timer) | PC | Relógio ao vivo no botão. |
+| [Windows](#windows) | PC | Troca o áudio padrão, trava, suspende ou desliga a tela. |
+| [Requisição HTTP](#http) | PC | Chama um webhook ou qualquer API. |
 
 ## Atalho de teclado { #hotkey }
 
@@ -95,6 +98,38 @@ de ele rodar (**Esperar antes (ms)**). O editor oferece três tipos de passo:
 
 Exemplo — "Iniciar reunião": abrir o app de reunião, esperar 3000 ms, enviar `^+m`.
 
+## Timer, pomodoro e contador { #timer }
+
+O botão mostra o tempo ao vivo. O relógio fica no PC, então todos os celulares veem o mesmo tempo e
+o fim da contagem é detectado mesmo com a tela do celular apagada.
+
+| Tipo | Toque | No fim |
+|---|---|---|
+| **Timer** | Inicia / pausa. Depois do fim, o toque zera. | Aviso sonoro no PC, vibração no celular e o botão acende na cor ativa. |
+| **Cronômetro** | Inicia / pausa. | — |
+| **Pomodoro** | Inicia / pausa. Foco e pausa se alternam sozinhos e o botão conta os ciclos. | Aviso a cada troca de fase. |
+| **Contador** | Soma o **passo**. | — |
+
+**Ao tocar** muda o que o toque faz: **Zerar**, **Pular para a próxima fase** (pomodoro), **Somar**
+ou **Subtrair** (contador). Com **Timer controlado** um botão age sobre o timer de outro: por
+exemplo, um botão "Zerar" ao lado do relógio. Os contadores continuam valendo depois de reiniciar o PC.
+
+## Windows { #windows }
+
+| Ação | O que faz |
+|---|---|
+| **Trocar o dispositivo de áudio padrão** | Define a saída (ou entrada) padrão do Windows. Com **Alternar com** preenchido, cada toque alterna entre os dois, por exemplo fone ↔ caixa de som. O botão acende enquanto o dispositivo escolhido é o padrão. |
+| **Travar o computador** | Mesmo que ++win+l++. |
+| **Suspender** | Põe o PC para dormir. |
+| **Desligar a tela** | Desliga os monitores; mexer o mouse liga de novo. |
+
+## Requisição HTTP { #http }
+
+Chama uma URL a partir do PC: webhooks do n8n, do Home Assistant ou do IFTTT, ou qualquer API.
+Escolha o **método**, a **URL**, os **cabeçalhos** (um por linha, `Nome: valor`) e, em POST/PUT/PATCH,
+o **corpo** e o formato dele (JSON, formulário ou texto). A requisição tem 10 segundos para
+responder, e o resultado fica no log do DroidDeck.
+
 ## Estado do botão
 
 Alguns botões refletem o estado ao vivo:
@@ -106,3 +141,5 @@ Alguns botões refletem o estado ao vivo:
 | Discord | Cor ativa enquanto você está silenciado/ensurdecido |
 | OBS | Aceso na cena atual, ou enquanto gravação/transmissão/câmera virtual/replay buffer estiver ligado |
 | Tuya | Liga/desliga, nível de brilho e a cor real da lâmpada |
+| Timer | Tempo restante ou decorrido, fase do pomodoro e cor ativa no fim |
+| Windows (áudio) | Cor ativa enquanto o dispositivo é o padrão |

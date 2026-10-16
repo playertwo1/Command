@@ -13,6 +13,11 @@ O DroidDeck se conecta ao **OBS Studio 28 ou mais recente** pelo servidor WebSoc
 | Alternar replay buffer | — | Replay buffer ligado |
 | Salvar replay | — | — |
 | Alternar mudo de fonte de áudio | Fonte de áudio (escolhida em uma lista) | — |
+| Mostrar / ocultar fonte | Cena e fonte (escolhidas em listas) | — |
+| Ligar / desligar filtro | Fonte ou cena, e filtro (escolhidos em listas) | — |
+| Pausar gravação (alternar) | — | Gravação pausada |
+| Marcador de capítulo na gravação | Nome do capítulo (opcional). Exige OBS 30.2+ gravando em MP4 híbrido | — |
+| Captura de tela | — (PNG da cena do programa, salvo na pasta de gravação do OBS) | — |
 
 O estado vem direto dos eventos do OBS, então mudanças feitas no próprio OBS também aparecem no deck.
 

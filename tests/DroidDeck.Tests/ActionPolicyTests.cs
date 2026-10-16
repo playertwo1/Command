@@ -27,6 +27,7 @@ namespace DroidDeck.Tests
         [InlineData("launch_app")]
         [InlineData("launchApp")]
         [InlineData("ActivateWindow")]
+        [InlineData("http")]
         public void TiposQueExecutamCodigo_SaoPrivilegiados(string type) =>
             Assert.True(ActionPolicy.IsPrivileged(Act(type)));
 
@@ -37,6 +38,8 @@ namespace DroidDeck.Tests
         [InlineData("obs")]
         [InlineData("tuya")]
         [InlineData("soundboard")]
+        [InlineData("timer")]
+        [InlineData("windows")]
         public void DemaisTipos_NaoSaoPrivilegiados(string type) =>
             Assert.False(ActionPolicy.IsPrivileged(Act(type)));
 

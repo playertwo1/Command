@@ -21,5 +21,15 @@ namespace DroidDeck.Controllers
         [HttpGet("state/{type}")]
         public IActionResult State(string type) =>
             _executor.Find(type) is IStatefulActionProvider p ? Ok(p.GetState()) : NotFound();
+
+        /// <summary>Timers que um botao pode controlar (campo "target" da acao timer).</summary>
+        [HttpGet("timer/targets")]
+        public IActionResult TimerTargets() =>
+            _executor.Find("timer") is Actions.Providers.TimerProvider t ? Ok(t.Targets()) : NotFound();
+
+        /// <summary>Dispositivos de audio ativos (acao windows/setDefaultAudio).</summary>
+        [HttpGet("windows/audio-devices")]
+        public IActionResult AudioDevices([FromQuery] string? kind, [FromQuery] bool optional = false) =>
+            Ok(Actions.Providers.WindowsProvider.AudioDevices(kind == "input", optional));
     }
 }

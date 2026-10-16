@@ -26,8 +26,16 @@ class ActionCatalog {
 
       // Estados ao vivo dos provedores (timers etc.) passam a ser ouvidos.
       final signalR = Injector.get<SignalRService>();
+      final client = Injector.get<DroidDeckClient>();
       for (final s in list) {
-        if (s.stateEvent != null) signalR.listenState(s.stateEvent!);
+        if (s.stateEvent == null) continue;
+        signalR.listenState(s.stateEvent!);
+        // O PC manda o estado ao conectar, antes de o handler existir: busca uma vez.
+        if (signalR.stateOf(s.stateEvent!).isEmpty) {
+          client.getActionState(s.type).then((state) {
+            if (state != null) signalR.seedState(s.stateEvent!, state);
+          }).catchError((_) {});
+        }
       }
     } catch (_) {
       // PC sem /api/actions/schema (anterior à 1.8): fica o catálogo embutido.

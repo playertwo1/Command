@@ -123,14 +123,20 @@ class SignalRService {
     _hubConnection?.on(event, (arguments) {
       if (arguments == null || arguments.isEmpty) return;
       try {
-        actionStates.value = {
-          ...actionStates.value,
-          event: Map<String, dynamic>.from(arguments[0] as Map),
-        };
+        seedState(event, Map<String, dynamic>.from(arguments[0] as Map));
       } catch (e) {
         _logger.warning('Error parsing $event: $e');
       }
     });
+  }
+
+  /// Guarda o estado de um provedor. `_receivedAt` (ms) deixa o app extrapolar valores
+  /// que andam sozinhos, como o tempo de um timer, sem o PC mandar a cada segundo.
+  void seedState(String event, Map<String, dynamic> state) {
+    actionStates.value = {
+      ...actionStates.value,
+      event: {...state, '_receivedAt': DateTime.now().millisecondsSinceEpoch},
+    };
   }
 
   /// Estado atual publicado num evento de provedor ({} se nada chegou ainda).

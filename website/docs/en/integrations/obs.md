@@ -13,6 +13,11 @@ DroidDeck connects to **OBS Studio 28 or later** through its built-in WebSocket 
 | Toggle replay buffer | — | Replay buffer on |
 | Save replay | — | — |
 | Toggle audio source mute | Audio source (picked from a list) | — |
+| Show / hide source | Scene and source (picked from lists) | — |
+| Toggle filter | Source or scene, and filter (picked from lists) | — |
+| Pause recording (toggle) | — | Recording paused |
+| Recording chapter marker | Chapter name (optional). Needs OBS 30.2+ recording to Hybrid MP4 | — |
+| Screenshot | — (PNG of the program scene, saved to OBS's recording folder) | — |
 
 State comes straight from OBS events, so changes made in OBS itself are reflected on the deck too.
 

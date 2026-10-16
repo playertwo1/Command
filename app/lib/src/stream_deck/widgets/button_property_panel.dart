@@ -490,9 +490,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 if (_isStatefulAction) ...[
                   const SizedBox(height: 20),
                   Text(
-                    _selectedActionType == 'discord'
-                        ? 'Cor quando ativo (mutado/ensurdecido)'
-                        : 'Cor quando ativo',
+                    switch (_selectedActionType) {
+                      'discord' => 'Cor quando ativo (mutado/ensurdecido)',
+                      'timer' => 'Cor quando a contagem termina',
+                      'windows' => 'Cor quando o dispositivo é o padrão',
+                      _ => 'Cor quando ativo',
+                    },
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -650,6 +653,12 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     }
     if (_selectedActionType == 'tuya') {
       return (Icons.lightbulb_outline, Icons.lightbulb);
+    }
+    if (_selectedActionType == 'timer') {
+      return (Icons.hourglass_bottom, Icons.alarm);
+    }
+    if (_selectedActionType == 'windows') {
+      return (Icons.headphones, Icons.headphones);
     }
     return (Icons.volume_up, Icons.volume_off);
   }

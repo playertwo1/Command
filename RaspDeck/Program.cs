@@ -241,6 +241,11 @@ namespace DroidDeck
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.ObsProvider>();
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.SoundboardProvider>();
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.TuyaProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.WindowsProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.HttpProvider>();
+                            services.AddSingleton<Services.TimerService>();
+                            services.AddHostedService(sp => sp.GetRequiredService<Services.TimerService>());
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.TimerProvider>();
                             foreach (var clientOnly in Actions.Providers.ClientOnlyProvider.All())
                                 services.AddSingleton(clientOnly);
                         }

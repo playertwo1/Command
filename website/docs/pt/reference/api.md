@@ -19,8 +19,8 @@ Falhas de integração retornam `502` com `{error}`.
 
 ## Ações privilegiadas
 
-**Atalho de teclado**, **abrir app** e **ativar janela** executam código no PC, então ficam protegidas
-até de quem tem a chave. Requisições que não vêm do próprio PC (loopback) não podem:
+**Atalho de teclado**, **abrir app** e **ativar janela** executam código no PC, e a **requisição HTTP**
+sai com o acesso de rede do PC, então ficam protegidas até de quem tem a chave. Requisições que não vêm do próprio PC (loopback) não podem:
 
 - executá-las pelo `execute` — use o `press` com um botão salvo no PC;
 - criar um botão com uma dessas ações, ou mudar os parâmetros dela, pelo `POST profiles`. Mover,
@@ -92,12 +92,21 @@ Todos os valores de parâmetros são strings.
 | GET | `Media/sessions/{id}` | Uma sessão. |
 | POST | `Media/sessions/{id}/command` | `{command}`. |
 
+## Tipos de ação — `/api/actions`
+
+| Método | Caminho | Descrição |
+|---|---|---|
+| GET | `schema` | Todos os tipos de ação, com título, ícone, categoria e campos. O editor monta o formulário a partir disto. |
+| GET | `state/{type}` | Estado ao vivo atual de um tipo (o mesmo conteúdo do evento SignalR dele). |
+| GET | `timer/targets` | Botões de timer que outro botão pode controlar. |
+| GET | `windows/audio-devices?kind=output\|input` | Dispositivos de áudio ativos (`{value, label}`). |
+
 ## Integrações
 
 | Prefixo | Endpoints |
 |---|---|
 | `/api/discord` | `POST config` `{clientId, clientSecret}` · `POST connect` · `GET state` · `GET guilds` · `GET channels/{guildId}` · `GET voice-channel` · `POST mute` · `POST deafen` · `GET soundboard-sounds` · `POST play-soundboard` |
-| `/api/obs` | `POST config` `{host, port, password}` · `POST connect` · `GET state` · `GET scenes` · `GET audio-inputs` |
+| `/api/obs` | `POST config` `{host, port, password}` · `POST connect` · `GET state` · `GET scenes` · `GET audio-inputs` · `GET sources` · `GET scene-items?scene=` · `GET filters?source=` |
 | `/api/Soundboard` | `GET search?q=` · `GET trending` · `POST play` · `POST stop` · `GET state` · `GET devices` · `GET/POST config` |
 | `/api/tuya` | `POST pair/start` `{userCode}` · `POST pair/poll` (410 quando o QR expirou) · `GET state` · `POST connect` · `POST devices/refresh` · `POST command` `{deviceId, code, value}` |
 
@@ -118,6 +127,8 @@ Conecte com `?access_token=<key>`. O hub só envia eventos; os comandos passam p
 | `ReceiveObsState` | Conexão, cena atual, gravação/transmissão/câmera virtual/replay, cenas, entradas de áudio |
 | `ReceiveTuyaState` | Conexão, push, dispositivos com status e funções |
 | `ReceiveTuyaDeviceState` | `{deviceId, status}` — só os valores alterados |
+| `ReceiveTimerState` | `{buttonId: {mode, running, finished, elapsedMs, durationMs, count, phase, cycles}}` — a cada mudança |
+| `ReceiveWindowsState` | `{defaultOutput, defaultInput}` — ids dos dispositivos de áudio padrão |
 | `ReceivePlaybackState` | `{playing, title}` — soundboard |
 
 Ao conectar, o novo cliente recebe o estado atual do Discord, do layout, do OBS e da Tuya.

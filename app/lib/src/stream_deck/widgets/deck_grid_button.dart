@@ -3,7 +3,9 @@ import 'package:companion/core/core.dart';
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 
+import '../actions/action_catalog.dart';
 import '../tuya_display.dart';
+import 'timer_deck_button.dart';
 
 class DeckGridButton extends StatefulWidget {
   final DeckButton button;
@@ -176,6 +178,24 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       return Watch((context) {
         final ds = Injector.get<SignalRService>().obsState.value;
         return _renderObs(oop, ds);
+      });
+    }
+    final type = widget.button.action?.type;
+    // Timer/pomodoro/contador: relógio ao vivo, com estado no PC.
+    if (type == 'timer') {
+      return TimerDeckButton(
+        button: widget.button,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        color: _color,
+        activeColor: _activeColor(),
+      );
+    }
+    // Ações do Windows: "trocar áudio" acende quando o dispositivo já é o padrão.
+    if (type == 'windows') {
+      return Watch((context) {
+        final ws = Injector.get<SignalRService>().stateOf('ReceiveWindowsState');
+        return _renderWindows(ws);
       });
     }
     // Botão de casa inteligente: acende conforme o estado real do aparelho.
@@ -495,6 +515,31 @@ class _DeckGridButtonState extends State<DeckGridButton> {
             ? params['inputName']!
             : 'Mutar fonte';
         break;
+      case 'togglesourcevisibility':
+        icon = Icons.visibility;
+        defLabel = (params['sourceName']?.isNotEmpty ?? false)
+            ? params['sourceName']!
+            : 'Fonte';
+        break;
+      case 'togglefilter':
+        icon = Icons.auto_fix_high;
+        defLabel = (params['filterName']?.isNotEmpty ?? false)
+            ? params['filterName']!
+            : 'Filtro';
+        break;
+      case 'togglerecordpause':
+        active = ds['recordPaused'] == true;
+        icon = active ? Icons.play_arrow : Icons.pause;
+        defLabel = active ? 'Retomar' : 'Pausar gravação';
+        break;
+      case 'createchapter':
+        icon = Icons.bookmark_add;
+        defLabel = 'Capítulo';
+        break;
+      case 'screenshot':
+        icon = Icons.photo_camera;
+        defLabel = 'Captura';
+        break;
       default:
         icon = Icons.videocam;
         defLabel = 'OBS';
@@ -513,6 +558,66 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: 30),
+          const SizedBox(height: 4),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 10, overflow: TextOverflow.ellipsis),
+              maxLines: 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderWindows(Map<String, dynamic> ws) {
+    final params = widget.button.action?.parameters ?? const <String, String>{};
+    final op = (params['operation'] ?? 'setDefaultAudio').toLowerCase();
+    IconData icon;
+    String defLabel;
+    var active = false;
+    switch (op) {
+      case 'lock':
+        icon = Icons.lock;
+        defLabel = 'Travar';
+        break;
+      case 'sleep':
+        icon = Icons.bedtime;
+        defLabel = 'Suspender';
+        break;
+      case 'displayoff':
+        icon = Icons.desktop_access_disabled;
+        defLabel = 'Desligar tela';
+        break;
+      default:
+        final input = params['deviceKind'] == 'input';
+        final current = ws[input ? 'defaultInput' : 'defaultOutput'];
+        final alt = params['altDeviceId'];
+        final hasAlt = alt != null && alt.isNotEmpty && alt != 'none';
+        // Com alternância, o ícone diz qual dos dois está valendo; sem ela, o botão
+        // acende quando o dispositivo escolhido já é o padrão.
+        final onMain = current != null && current == params['deviceId'];
+        active = !hasAlt && onMain;
+        icon = input
+            ? Icons.mic
+            : (hasAlt && !onMain ? Icons.speaker : Icons.headphones);
+        defLabel = input ? 'Microfone' : 'Saída de áudio';
+    }
+
+    final hasIcon = (widget.button.iconName?.isNotEmpty ?? false) ||
+        (widget.button.iconBase64?.isNotEmpty ?? false);
+    final label = (widget.button.label?.isNotEmpty ?? false)
+        ? widget.button.label!
+        : defLabel;
+    return DeckTile(
+      color: _color,
+      active: active,
+      activeColor: _activeColor(),
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          hasIcon ? _buildIcon(null) : Icon(icon, size: 30),
           const SizedBox(height: 4),
           Text(label,
               textAlign: TextAlign.center,
@@ -553,6 +658,11 @@ class _DeckGridButtonState extends State<DeckGridButton> {
             size: 32);
       }
       return Icon(_mediaIconData(mc), size: 32);
+    }
+    // Sem ícone escolhido: o do tipo da ação (webhook, Windows...), se o catálogo souber.
+    final schema = ActionCatalog.instance.find(widget.button.action?.type);
+    if (schema != null && widget.button.action?.type != 'hotkey') {
+      return Icon(schema.iconData, size: 32);
     }
     return Builder(
         builder: (context) => Icon(Icons.touch_app,

@@ -1,5 +1,6 @@
 import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/src/stream_deck/layout/desktop_layout.dart';
+import 'package:companion/src/stream_deck/actions/action_catalog.dart';
 import 'package:companion/src/stream_deck/stream_deck_controller.dart';
 import 'package:companion/src/stream_deck/widgets/dynamic_deck_button.dart';
 import 'package:companion/src/stream_deck/widgets/button_editor_dialog.dart';
@@ -36,6 +37,8 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
   void initState() {
     super.initState();
     controller.loadProfiles();
+    // Catálogo de ações: ícones padrão e estados ao vivo (timers, Windows).
+    ActionCatalog.instance.load();
 
     // Sync ao vivo: recarrega os perfis quando o backend avisa que o deck mudou
     // (ex.: alguém editou no configurador web do PC).

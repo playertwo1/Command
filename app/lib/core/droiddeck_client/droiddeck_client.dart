@@ -344,6 +344,13 @@ class DroidDeckClient {
         .toList();
   }
 
+  /// Estado atual de um provedor de ação (o mesmo que vai pelo SignalR).
+  Future<Map<String, dynamic>?> getActionState(String type) async {
+    final response = await _dio.get('/api/actions/state/$type');
+    final data = response.data;
+    return data is Map ? Map<String, dynamic>.from(data) : null;
+  }
+
   /// GET genérico para as listas de opções que o schema aponta (cenas, filtros...).
   Future<dynamic> getJson(String path) async {
     final response = await _dio.get(path);

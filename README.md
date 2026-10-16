@@ -30,15 +30,17 @@ talks to it over your local network.
 
 | | |
 |---|---|
-| ⌨️ **Shortcuts & apps** | Send key combinations, open programs, files and URLs, chain steps in a multi-action. |
+| ⌨️ **Shortcuts & apps** | Send key combinations, open programs, files and URLs, chain steps in a multi-action, call webhooks and APIs. |
+| 🪟 **Windows** | Switch the default audio device (headphones ↔ speakers), lock, sleep, turn the screen off. |
+| ⏱️ **Timers** | Countdown, stopwatch, pomodoro and counters with a live clock on the button. |
 | 🔊 **Audio mixer** | Mute apps, change device volume, toggle the mic. The phone also has a full per-app mixer. |
 | ⏯️ **Media** | Play/pause, next, previous for whatever is playing in Windows (Spotify, browser, players). |
 | 📊 **Live monitors** | CPU, GPU, RAM and network gauges that update every second. |
 | 💬 **Discord** | Mute/deafen, join channels, voice volume, push-to-talk, per-user volume, native soundboard. |
-| 🎥 **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, mute sources — with live state. |
+| 🎥 **OBS Studio** | Scenes, recording, streaming, virtual camera, replay buffer, mute and show/hide sources, filters, chapter markers, screenshots — with live state. |
 | 🎵 **Soundboard** | Search and play sounds from MyInstants, routed to your mic through VB-Cable. |
 | 💡 **Smart home** | Tuya / Smart Life lights, plugs and switches — toggles, dimmers and colours, with real state. |
-| 🎨 **Themes** | Ready-made themes, light/dark mode, accent colour and three button styles. A "deck only" mode opens straight into a full-screen deck. |
+| 🎨 **Themes** | Ready-made themes, light/dark mode, accent colour and three button styles. A "deck only" mode opens straight into a full-screen deck, and buttons can vibrate on tap. |
 
 ## 📸 Screenshots
 

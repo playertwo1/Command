@@ -30,15 +30,17 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 
 | | |
 |---|---|
-| ⌨️ **Atalhos e apps** | Envie combinações de teclas, abra programas, arquivos e URLs, encadeie passos em uma multiação. |
+| ⌨️ **Atalhos e apps** | Envie combinações de teclas, abra programas, arquivos e URLs, encadeie passos em uma multiação, chame webhooks e APIs. |
+| 🪟 **Windows** | Troque o dispositivo de áudio padrão (fone ↔ caixa de som), trave, suspenda ou desligue a tela. |
+| ⏱️ **Timers** | Timer, cronômetro, pomodoro e contadores com o relógio ao vivo no botão. |
 | 🔊 **Mixer de áudio** | Silencie apps, ajuste o volume de dispositivos, ligue e desligue o microfone. O celular também tem um mixer completo por app. |
 | ⏯️ **Mídia** | Tocar/pausar, próxima e anterior para o que estiver tocando no Windows (Spotify, navegador, players). |
 | 📊 **Monitores ao vivo** | Medidores de CPU, GPU, RAM e rede atualizados a cada segundo. |
 | 💬 **Discord** | Silenciar/ensurdecer, entrar em canais, volume de voz, push-to-talk, volume por usuário, soundboard nativo. |
-| 🎥 **OBS Studio** | Cenas, gravação, transmissão, câmera virtual, replay buffer, silenciar fontes — com estado ao vivo. |
+| 🎥 **OBS Studio** | Cenas, gravação, transmissão, câmera virtual, replay buffer, silenciar e mostrar/ocultar fontes, filtros, marcadores de capítulo, capturas — com estado ao vivo. |
 | 🎵 **Soundboard** | Busque e toque sons do MyInstants, enviados para o seu microfone pelo VB-Cable. |
 | 💡 **Casa inteligente** | Lâmpadas, tomadas e interruptores Tuya / Smart Life — liga/desliga, brilho e cores, com estado real. |
-| 🎨 **Temas** | Temas prontos, modo claro/escuro, cor de destaque e três estilos de botão. O modo "só o deck" abre direto no deck em tela cheia. |
+| 🎨 **Temas** | Temas prontos, modo claro/escuro, cor de destaque e três estilos de botão. O modo "só o deck" abre direto no deck em tela cheia, e os botões podem vibrar ao tocar. |
 
 ## 📸 Capturas de tela
 
