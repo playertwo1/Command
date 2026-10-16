@@ -13,7 +13,7 @@ A tela tem três painéis:
 
 1. **Perfis** — sua lista de decks. **New** cria um; o ícone de lixeira apaga, após confirmação.
 2. **Grade** — os botões do perfil selecionado. Clique em uma célula para selecioná-la.
-3. **Propriedades** — rótulo, ícone, cores e a ação do botão selecionado. Clique em **Save Changes**.
+3. **Propriedades** — rótulo, ícone, cores e a ação do botão selecionado. Clique em **Salvar**.
 
 - **Arraste e solte** um botão para movê-lo. Soltar em uma célula ocupada troca os dois de lugar.
 - O ícone de lápis renomeia o perfil.
@@ -53,11 +53,12 @@ Você também pode editar no próprio celular:
 | Propriedade | Descrição |
 |---|---|
 | **Label** | Texto exibido no botão. Botões de mídia e de soundboard o preenchem sozinhos quando vazio. |
-| **Icon** | Um dos 16 ícones embutidos, ou uma imagem personalizada da sua galeria (até 512×512, guardada no perfil). |
+| **Ícone** | Um dos ícones embutidos, ou uma imagem personalizada da sua galeria (até 512×512, guardada no perfil). |
 | **Background Color** | Cor do botão. |
-| **Cor ativa** | Cor usada quando o estado do botão está "ligado" (microfone silenciado, lâmpada acesa…). Disponível para ações de Discord, mixer e Tuya. |
+| **Cor ativa** | Cor usada quando o estado do botão está "ligado" (microfone silenciado, lâmpada acesa…). Disponível para ações com estado ao vivo e para botões de dois estados. |
 | **Action Type** | O que o botão faz — veja [Botões e ações](../guide/actions.md). |
-| **Dynamic Feature** | Transforma o botão em um monitor ao vivo — veja [Monitores](../guide/monitors.md). |
+| **Mostrar no botão** | Mostra um monitor ao vivo ou uma informação (relógio, clima…) — veja [Monitores e informação](../guide/monitors.md). |
+| **Dois estados** | Alternar a cada toque, e o rótulo e o ícone quando ativo — veja [Dois estados](../guide/actions.md#two-states). |
 
 ## Backup
 

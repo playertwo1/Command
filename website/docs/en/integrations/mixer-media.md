@@ -1,9 +1,9 @@
 # Mixer & media
 
 Besides the [Mixer](../guide/actions.md#mixer) and [Media](../guide/actions.md#media) buttons, the
-phone app has an **Áudio** tab — a full mixer for the PC.
+phone app has an **Audio** tab — a full mixer for the PC.
 
-## The Áudio tab
+## The Audio tab
 
 - **Output and input devices**: mute and volume slider for the current speakers and microphone.
 - **Apps**: one slider and mute button per app currently playing audio, with its icon and window title.

@@ -11,7 +11,7 @@ the same platform.
 Linking is done in the **phone app**:
 
 1. In the **Smart Life** (or **Tuya Smart**) app: **Me → ⚙️ → Account and Security → User Code**. Copy the code.
-2. In DroidDeck on the phone: **Settings → Integrations → Smart home (Tuya)**. Paste the code and tap **Gerar QR**.
+2. In DroidDeck on the phone: **Settings → Integrations → Smart home (Tuya)**. Paste the code and tap **Generate QR**.
 3. Scan the QR with the Smart Life app (**Home** tab → scan icon) within 2 minutes. The app asks
    you to confirm a login for **"Home Assistant"** — see why below.
 
@@ -42,9 +42,9 @@ Choose the **Tuya** action type, then the **device** (offline devices are marked
 | Mode | List of the allowed options |
 | Other | Raw text value |
 
-- **Alternar (liga/desliga)** (*toggle*) turns it on if it's off and vice versa — the usual deck behaviour.
-- **Sempre ligar / sempre desligar** (*fixed value*) always sends the same value.
-- **Testar agora** (*test now*) sends the command immediately.
+- **Toggle (on/off)** turns it on if it's off and vice versa — the usual deck behaviour.
+- **Always on / always off** always sends the same value.
+- **Test now** sends the command immediately.
 
 Set an **active colour** to light the button while the device is on. Dimmers show their level, and
 colour lamps show their real colour. State arrives by **push**, so changes made with a wall switch

@@ -84,7 +84,7 @@ icon live between ▶ and ⏸.
 | Volume up / down (step) | — | ✓ |
 
 - **App target**: the process name **without** `.exe`, e.g. `Spotify` or `chrome`. It affects every
-  audio stream of that app. Per-app volume is available on the phone's **Áudio** tab.
+  audio stream of that app. Per-app volume is available on the phone's **Audio** tab.
 - **Device target**: **Default** follows Windows' current default device (choose **output** or
   **input**, i.e. speakers or microphone), or pick a specific device. Turning the volume up also
   unmutes the device.
@@ -127,13 +127,13 @@ end of a countdown is caught even with the phone's screen off.
 
 | Type | Tap | At the end |
 |---|---|---|
-| **Timer** (countdown) | Start / pause. After it ends, a tap resets it. | Sound on the PC, vibration on the phone, and the button lights up in its active colour. |
-| **Cronômetro** (stopwatch) | Start / pause. | — |
-| **Pomodoro** | Start / pause. Focus and break alternate on their own and the button counts cycles. | Alert at every phase change. |
-| **Contador** (counter) | Adds the **step**. | — |
+| **Timer (countdown)** | Start / pause. After it ends, a tap resets it. | Sound on the PC, vibration on the phone, and the button lights up in its active colour. |
+| **Stopwatch** | Start / pause. | — |
+| **Pomodoro (focus and break)** | Start / pause. Focus and break alternate on their own and the button counts cycles. | Alert at every phase change. |
+| **Counter** | Adds the **step**. | — |
 
-**Ao tocar** (on tap) changes what a tap does: **Zerar** (reset), **Pular para a próxima fase**
-(skip phase, pomodoro), **Somar** / **Subtrair** (add / subtract, counter). With **Timer controlado**
+**On tap** changes what a tap does: **Reset**, **Skip to the next phase (pomodoro)**,
+**Add (counter)** / **Subtract (counter)**. With **Controlled timer**
 a button acts on another button's timer, for example a "reset" button next to the clock. Counters
 survive a PC restart.
 
@@ -141,10 +141,10 @@ survive a PC restart.
 
 | Action | What it does |
 |---|---|
-| **Trocar o dispositivo de áudio padrão** (switch default audio device) | Sets Windows' default output (or input). With **Alternar com** (toggle with) set, each tap switches between the two, e.g. headphones ↔ speakers. The button lights up while the chosen device is the default. |
-| **Travar o computador** (lock) | Same as ++win+l++. |
-| **Suspender** (sleep) | Puts the PC to sleep. |
-| **Desligar a tela** (screen off) | Turns the monitors off; moving the mouse turns them back on. |
+| **Change the default audio device** | Sets Windows' default output (or input). With **Toggle with (optional)** set, each tap switches between the two, e.g. headphones ↔ speakers. The button lights up while the chosen device is the default. |
+| **Lock the computer** | Same as ++win+l++. |
+| **Sleep** | Puts the PC to sleep. |
+| **Turn off the display** | Turns the monitors off; moving the mouse turns them back on. |
 
 ## HTTP request { #http }
 

@@ -4,12 +4,12 @@ A **profile** is a page of buttons. On the phone, swipe sideways to switch profi
 the last profile you used. An **Open profile** button shows another profile as a folder (see
 [Buttons & actions](actions.md#open-profile-and-back)), and Android's **Back** closes the folder.
 
-The **Perfil** (profile) button, the sliders icon in the deck's top bar, opens the profile's name and
+The **Profile** button, the sliders icon in the deck's top bar, opens the profile's name and
 automatic switching. In the PC configurator the same dialog opens from the pencil above the grid.
 
 ## Switch profile with the focused app { #auto-switch }
 
-Under **Perfil → Abrir com o app em foco** (open with the focused app), list the programs that bring
+Under **Profile → Open with the app in focus**, list the programs that bring
 this profile up. When one of them gets focus on the PC, the deck switches to the profile on its own;
 when focus moves to another program, the deck goes back to where it was.
 
@@ -17,15 +17,15 @@ when focus moves to another program, the deck goes back to where it was.
   the programs open on the PC right now.
 - If you swipe to another page while an automatic profile is showing, the deck won't switch back
   on its own afterwards.
-- To turn automatic switching off on a phone, use **Configuração → Aparência → Seguir o app em foco**.
+- To turn automatic switching off on a phone, use **Settings → Appearance → Follow the focused app**.
 
 ## Backup { #backup }
 
 A backup is a `.droiddeck` file with every profile, button images included.
 
-- **In the PC configurator**: **Exportar backup** (export) and **Importar backup** (import), in the
+- **In the PC configurator**: **Export backup** and **Import backup**, in the
   sidebar.
-- **On the phone**: **Configuração → Exportar backup do deck** opens Android's share sheet (Drive,
+- **On the phone**: **Settings → Export deck backup** opens Android's share sheet (Drive,
   e-mail, "Save to files"…). To import, use the configurator on the PC.
 
 Importing adds the file's profiles. A profile that already exists (the same profile, from an earlier

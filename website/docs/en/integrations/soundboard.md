@@ -24,8 +24,8 @@ DroidDeck plays MyInstants sounds on an audio device of your choice. To make the
 games or OBS, use a virtual audio cable:
 
 1. Install [VB-Cable](https://vb-audio.com/Cable/) (free).
-2. In DroidDeck's **Soundboard** settings, set **Saída cabo** (*cable output*) to **CABLE Input**.
-3. Turn on **Tocar também no monitor** (*also play on monitor*) and pick your headphones, so you
+2. In DroidDeck's **Soundboard** settings, set **"Cable" output (goes to Discord/OBS)** to **CABLE Input**.
+3. Turn on **Also play on monitor** and pick your headphones, so you
    hear the sounds too.
 4. In Discord (or OBS), use **CABLE Output** as the microphone / an audio input capture.
 
@@ -33,5 +33,5 @@ games or OBS, use a virtual audio cable:
     With VB-Cable alone, Discord hears only the cable, not your real mic. To mix both, use
     [Voicemeeter](https://vb-audio.com/Voicemeeter/), or add your real mic to OBS as a separate source.
 
-Other settings: **volume** (0–100) and **Parar tudo** (*stop all*). If the output is left empty,
+Other settings: **volume** (0–100) and **Stop all**. If the output is left empty,
 Windows' default device is used.

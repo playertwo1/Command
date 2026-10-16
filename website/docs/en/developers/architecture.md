@@ -36,7 +36,7 @@ One Flutter codebase, two roles:
 
 - **In the browser** (served by the PC) it opens the **configurator**: profiles, drag-and-drop grid,
   property panel.
-- **On the phone** it is the **runtime**: the button grid (sized to the screen), the Áudio tab, and
+- **On the phone** it is the **runtime**: the button grid (sized to the screen), the Audio tab, and
   settings for pairing and integrations.
 
 Key places:

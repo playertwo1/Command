@@ -10,11 +10,11 @@
    should return `{"ok":true,...}`.
 4. **Wrong IP**: on PCs with several network adapters, VPNs or virtual adapters (Hyper-V, WSL,
    VirtualBox), the QR may contain the wrong address. Find the right one with `ipconfig` and type it
-   manually in **IP do Servidor**.
-5. **"Servidor não encontrado"** during search: discovery uses broadcast, which some routers block.
+   manually in **Server IP**.
+5. **"Server not found"** during search: discovery uses broadcast, which some routers block.
    Type the IP manually.
 
-## "Falha de autenticação… Refaça o pareamento"
+## "Authentication failed… Pair again"
 
 The key on the phone doesn't match the PC's (for example, after the `apikey` file was deleted). Scan
 the QR code again from the tray menu.

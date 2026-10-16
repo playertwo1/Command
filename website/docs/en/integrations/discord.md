@@ -30,14 +30,14 @@ user creates their own (free) application:
 3. Under **OAuth2 → Redirects**, add `http://localhost:4787/discord` and click **Save Changes**.
 4. In DroidDeck, open the Discord settings — on the phone: **Settings → Integrations →
    Discord**; in the configurator: **Integrations** in the sidebar.
-5. Paste the Client ID and Secret, click **Salvar credenciais** (*save credentials*), then **Conectar** (*connect*).
+5. Paste the Client ID and Secret, click **Save credentials**, then **Connect**.
 6. Discord shows an authorisation popup on the PC. Approve it within 60 seconds.
 
 The token is renewed automatically and DroidDeck reconnects on its own every time it starts, without
 showing the popup again. If Discord is closed, DroidDeck keeps retrying every 10 seconds.
 
 !!! tip
-    In the button editor, Discord actions show a warning with a **Configurar** link while Discord is
+    In the button editor, Discord actions show a warning with a **Set up** link while Discord is
     not configured or not connected. The participant list for per-user actions only fills while you
     are in a voice call.
 
@@ -45,7 +45,7 @@ showing the popup again. If Discord is closed, DroidDeck keeps retrying every 10
 
 | Message | Cause / fix |
 |---|---|
-| *Pipe do Discord não encontrado — o Discord está aberto?* | The Discord desktop app isn't running (the browser version doesn't work). |
-| *Configure o Client ID e o Secret do Discord primeiro.* | Complete the setup above. |
-| *Discord não respondeu ao handshake (READY).* | Discord is still starting; it will retry automatically. |
+| *Discord pipe not found — is Discord open?* | The Discord desktop app isn't running (the browser version doesn't work). |
+| *Set up the Discord Client ID and Secret first.* | Complete the setup above. |
+| *Discord didn't answer the handshake (READY).* | Discord is still starting; it will retry automatically. |
 | Authorisation fails | Check that the redirect `http://localhost:4787/discord` was saved in the Developer Portal. |

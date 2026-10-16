@@ -7,8 +7,8 @@ Pairing gives the phone the PC's address and a secret **API key**. You only do i
 1. On the PC, right-click the tray icon → **Parear dispositivo (QR)…**. A window shows a QR code
    and the text `IP: <address>:4787  Chave: <key>`.
 2. On the phone, open DroidDeck. On first launch the **settings** screen opens; otherwise tap the
-   gear on the **Áudio** tab.
-3. Tap **Parear (QR)** and scan the code.
+   gear on the **Audio** tab.
+3. Tap **Pair (QR)** and scan the code.
 
 The phone saves the address, port and key, and connects. The status dot turns green (*Connected*).
 
@@ -18,18 +18,18 @@ The phone saves the address, port and key, and connects. The status dot turns gr
 
 ## Find the server automatically
 
-**Pesquisar Servidor** (*Search server*) broadcasts on the local network (UDP 7573) and fills in
+**Search for server** broadcasts on the local network (UDP 7573) and fills in
 the PC's IP address. Discovery does **not** send the API key, so you still need to pair with the QR
 code before the phone can connect.
 
 ## Enter the address manually
 
-Type the PC's IP in **IP do Servidor** (`192.168.0.10` or `192.168.0.10:4787`) and tap **Salvar**.
+Type the PC's IP in **Server IP** (`192.168.0.10` or `192.168.0.10:4787`) and tap **Save**.
 An API key from an earlier pairing is kept.
 
 ## Re-pairing and resetting the key
 
-- If the phone shows *"Falha de autenticação (chave inválida ou expirada). Refaça o pareamento."*,
+- If the phone shows *"Authentication failed (invalid or expired key). Pair again."*,
   scan the QR code again.
 - The key is stored on the PC in `%LocalAppData%\DroidDeck\apikey`. To revoke access for every
   paired phone, quit DroidDeck, delete that file and start it again. A new key is generated, and
