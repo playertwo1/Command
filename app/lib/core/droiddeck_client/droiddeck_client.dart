@@ -335,6 +335,21 @@ class DroidDeckClient {
     );
   }
 
+  /// Catálogo dos tipos de ação (GET /api/actions/schema). Servidores anteriores
+  /// à 1.8 não têm o endpoint: aí lança, e o editor usa o catálogo embutido.
+  Future<List<Map<String, dynamic>>> getActionSchema() async {
+    final response = await _dio.get('/api/actions/schema');
+    return (response.data as List)
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
+  }
+
+  /// GET genérico para as listas de opções que o schema aponta (cenas, filtros...).
+  Future<dynamic> getJson(String path) async {
+    final response = await _dio.get(path);
+    return response.data;
+  }
+
   Future<void> executeAction(DeckAction action) async {
     await _dio.post(
       '/api/StreamDeck/execute',

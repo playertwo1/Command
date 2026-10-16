@@ -89,7 +89,7 @@ namespace DroidDeck.Controllers
             if (button == null) return NotFound();
 
             if (button.Action != null)
-                await _executorService.ExecuteActionAsync(button.Action);
+                await _executorService.ExecuteActionAsync(button.Action, button.Id);
             return Ok();
         }
 

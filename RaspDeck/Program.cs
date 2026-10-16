@@ -215,6 +215,21 @@ namespace DroidDeck
                             services.AddSingleton<Services.SoundboardService>();
                             services.AddSingleton<Services.ActionExecutorService>();
                             services.AddHostedService<Services.SystemMonitorService>();
+
+                            // Tipos de acao do deck (ver Actions/IActionProvider.cs). A ordem
+                            // aqui e a ordem do seletor de tipo no editor.
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.HotkeyProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.LaunchAppProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.ActivateWindowProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MediaProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MixerProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.MultiProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.DiscordProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.ObsProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.SoundboardProvider>();
+                            services.AddSingleton<Actions.IActionProvider, Actions.Providers.TuyaProvider>();
+                            foreach (var clientOnly in Actions.Providers.ClientOnlyProvider.All())
+                                services.AddSingleton(clientOnly);
                         }
 
                         services.AddSignalR();

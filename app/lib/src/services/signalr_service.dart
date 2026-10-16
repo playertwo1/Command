@@ -102,6 +102,51 @@ class SignalRService {
   // ReceiveTuyaDeviceState e é fundida aqui, pra não repassar a lista inteira a cada clique.
   final tuyaState = signal<Map<String, dynamic>>({'paired': false, 'devices': []});
 
+  // Estado dos demais provedores de ação (timers...), por evento SignalR. Os eventos
+  // vêm do schema (stateEvent) e são assinados sob demanda via [listenState].
+  final actionStates = signal<Map<String, Map<String, dynamic>>>({});
+  final Set<String> _stateEvents = {};
+
+  /// Assina um evento de estado de provedor. Idempotente; vale também depois de
+  /// reconectar (init re-registra tudo).
+  void listenState(String event) {
+    if (!_stateEvents.add(event)) return;
+    _registerStateHandler(event);
+  }
+
+  void _registerStateHandler(String event) {
+    // Os eventos que já têm signal próprio continuam nele.
+    if (const {'ReceiveObsState', 'ReceiveDiscordState', 'ReceiveTuyaState'}
+        .contains(event)) {
+      return;
+    }
+    _hubConnection?.on(event, (arguments) {
+      if (arguments == null || arguments.isEmpty) return;
+      try {
+        actionStates.value = {
+          ...actionStates.value,
+          event: Map<String, dynamic>.from(arguments[0] as Map),
+        };
+      } catch (e) {
+        _logger.warning('Error parsing $event: $e');
+      }
+    });
+  }
+
+  /// Estado atual publicado num evento de provedor ({} se nada chegou ainda).
+  Map<String, dynamic> stateOf(String event) {
+    switch (event) {
+      case 'ReceiveObsState':
+        return obsState.value;
+      case 'ReceiveDiscordState':
+        return discordState.value;
+      case 'ReceiveTuyaState':
+        return tuyaState.value;
+      default:
+        return actionStates.value[event] ?? const {};
+    }
+  }
+
   // ---- Reconexao quando o hub nunca chegou a conectar ----
   //
   // O withAutomaticReconnect do signalr_netcore so vale para conexoes que FORAM
@@ -379,6 +424,10 @@ class SignalRService {
         _logger.warning('Error parsing ReceiveTuyaDeviceState: $e');
       }
     });
+
+    for (final event in _stateEvents) {
+      _registerStateHandler(event);
+    }
 
     _hubConnection?.onclose(({error}) {
       connectionStatus.value = "Disconnected: $error";
