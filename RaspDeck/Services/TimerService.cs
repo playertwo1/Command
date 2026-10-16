@@ -105,6 +105,7 @@ namespace DroidDeck.Services
                 {
                     case "reset":
                         Reset(t);
+                        t.Count = 0;
                         break;
                     case "increment":
                         t.Count += step;
