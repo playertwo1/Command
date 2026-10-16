@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "RaspDeck": {
+    "DroidDeck": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",

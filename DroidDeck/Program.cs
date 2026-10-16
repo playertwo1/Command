@@ -116,7 +116,7 @@ namespace DroidDeck
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            // Em dev (dotnet run a partir de RaspDeck/) o wwwroot fonte está no diretório
+            // Em dev (dotnet run a partir de DroidDeck/) o wwwroot fonte está no diretório
             // atual; no .exe publicado, ao lado do executável. Preferir o diretório atual
             // evita servir uma cópia velha de bin/ (que o build cria ao copiar o wwwroot).
             var cwd = Directory.GetCurrentDirectory();
