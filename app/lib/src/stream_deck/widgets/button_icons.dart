@@ -1,0 +1,52 @@
+import 'package:flutter/material.dart';
+
+/// Ícones que o usuário pode escolher para um botão (e para o estado ativo dele).
+/// Os nomes ficam gravados no perfil (`iconName`), então só acrescente: não renomeie.
+const Map<String, IconData> buttonIcons = {
+  'play': Icons.play_arrow,
+  'pause': Icons.pause,
+  'volume_up': Icons.volume_up,
+  'volume_off': Icons.volume_off,
+  'mic': Icons.mic,
+  'mic_off': Icons.mic_off,
+  'keyboard': Icons.keyboard,
+  'launch': Icons.rocket_launch,
+  'home': Icons.home,
+  'settings': Icons.settings,
+  'code': Icons.code,
+  'videocam': Icons.videocam,
+  'videocam_off': Icons.videocam_off,
+  'call_end': Icons.call_end,
+  'folder': Icons.folder,
+  'save': Icons.save,
+  'delete': Icons.delete,
+  'visibility': Icons.visibility,
+  'visibility_off': Icons.visibility_off,
+  'lightbulb': Icons.lightbulb,
+  'lightbulb_outline': Icons.lightbulb_outline,
+  'power': Icons.power_settings_new,
+  'power_off': Icons.power_off,
+  'notifications': Icons.notifications,
+  'notifications_off': Icons.notifications_off,
+  'lock': Icons.lock,
+  'lock_open': Icons.lock_open,
+  'headphones': Icons.headphones,
+  'speaker': Icons.speaker,
+  'music_note': Icons.music_note,
+  'camera': Icons.photo_camera,
+  'chat': Icons.chat,
+  'favorite': Icons.favorite,
+  'favorite_border': Icons.favorite_border,
+  'star': Icons.star,
+  'flag': Icons.flag,
+  'bolt': Icons.bolt,
+  'timer': Icons.timer,
+  'gamepad': Icons.sports_esports,
+  'wifi': Icons.wifi,
+  'wifi_off': Icons.wifi_off,
+  'brightness': Icons.brightness_6,
+  'public': Icons.public,
+};
+
+IconData buttonIconData(String name) =>
+    buttonIcons[name.toLowerCase()] ?? Icons.extension;

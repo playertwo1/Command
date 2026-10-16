@@ -45,6 +45,28 @@ class DeckButton {
   @JsonKey(name: 'doubleTapAction')
   final DeckAction? doubleTapAction;
 
+  /// Alterna entre desligado e ligado a cada toque (estado guardado no PC).
+  @JsonKey(name: 'toggle', defaultValue: false)
+  final bool toggle;
+
+  /// Com [toggle]: ação do toque quando ligado. Null = a mesma do toque.
+  @JsonKey(name: 'activeAction')
+  final DeckAction? activeAction;
+
+  /// Rótulo e ícone quando o botão está ativo (pelo toggle ou pelo estado da ação).
+  @JsonKey(name: 'activeLabel')
+  final String? activeLabel;
+
+  @JsonKey(name: 'activeIconName')
+  final String? activeIconName;
+
+  @JsonKey(name: 'activeIconBase64')
+  final String? activeIconBase64;
+
+  /// Parâmetros do botão de informação (cidade do clima, comando, URL...).
+  @JsonKey(name: 'dynamicParameters')
+  final Map<String, String>? dynamicParameters;
+
   DeckButton({
     required this.id,
     required this.row,
@@ -58,7 +80,18 @@ class DeckButton {
     this.dynamicType,
     this.longPressAction,
     this.doubleTapAction,
+    this.toggle = false,
+    this.activeAction,
+    this.activeLabel,
+    this.activeIconName,
+    this.activeIconBase64,
+    this.dynamicParameters,
   });
+
+  bool get hasActiveLook =>
+      (activeLabel?.isNotEmpty ?? false) ||
+      (activeIconName?.isNotEmpty ?? false) ||
+      (activeIconBase64?.isNotEmpty ?? false);
 
   /// Cópia com campos trocados. Use isto em vez do construtor ao mexer num botão
   /// existente, senão campos novos (gestos...) se perdem no caminho.
@@ -82,6 +115,12 @@ class DeckButton {
         dynamicType: dynamicType,
         longPressAction: longPressAction,
         doubleTapAction: doubleTapAction,
+        toggle: toggle,
+        activeAction: activeAction,
+        activeLabel: activeLabel,
+        activeIconName: activeIconName,
+        activeIconBase64: activeIconBase64,
+        dynamicParameters: dynamicParameters,
       );
 
   /// Ação de um gesto: 'tap', 'longPress' ou 'doubleTap'.

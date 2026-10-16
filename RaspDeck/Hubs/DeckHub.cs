@@ -44,6 +44,22 @@ namespace DroidDeck.Hubs
                     catch { }
                 }
             }
+            // Botoes de dois estados ligados e valores dos botoes de informacao.
+            if (_services.GetService(typeof(Services.ButtonToggleService)) is Services.ButtonToggleService toggles)
+            {
+                try { await Clients.Caller.SendAsync(Services.ButtonToggleService.Event, toggles.GetState()); }
+                catch { }
+            }
+            if (_services.GetService(typeof(Services.InfoService)) is Services.InfoService info)
+            {
+                try
+                {
+                    await Clients.Caller.SendAsync(Services.InfoService.Event, info.GetState());
+                    if (info.NowPlaying is { } np)
+                        await Clients.Caller.SendAsync(Services.InfoService.NowPlayingEvent, np);
+                }
+                catch { }
+            }
             // Perfil do app em foco, para o celular abrir ja no perfil certo.
             if (_services.GetService(typeof(Services.ForegroundWatcher)) is Services.ForegroundWatcher fg)
             {

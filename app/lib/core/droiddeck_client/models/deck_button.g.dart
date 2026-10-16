@@ -25,6 +25,16 @@ DeckButton _$DeckButtonFromJson(Map<String, dynamic> json) => DeckButton(
   doubleTapAction: json['doubleTapAction'] == null
       ? null
       : DeckAction.fromJson(json['doubleTapAction'] as Map<String, dynamic>),
+  toggle: json['toggle'] as bool? ?? false,
+  activeAction: json['activeAction'] == null
+      ? null
+      : DeckAction.fromJson(json['activeAction'] as Map<String, dynamic>),
+  activeLabel: json['activeLabel'] as String?,
+  activeIconName: json['activeIconName'] as String?,
+  activeIconBase64: json['activeIconBase64'] as String?,
+  dynamicParameters: (json['dynamicParameters'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, e as String),
+  ),
 );
 
 Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
@@ -41,4 +51,10 @@ Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
       'dynamicType': instance.dynamicType,
       'longPressAction': instance.longPressAction,
       'doubleTapAction': instance.doubleTapAction,
+      'toggle': instance.toggle,
+      'activeAction': instance.activeAction,
+      'activeLabel': instance.activeLabel,
+      'activeIconName': instance.activeIconName,
+      'activeIconBase64': instance.activeIconBase64,
+      'dynamicParameters': instance.dynamicParameters,
     };

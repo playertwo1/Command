@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../actions/action_catalog.dart';
 import '../tuya_display.dart';
+import 'button_icons.dart';
 import 'timer_deck_button.dart';
 
 class DeckGridButton extends StatefulWidget {
@@ -207,7 +208,10 @@ class _DeckGridButtonState extends State<DeckGridButton> {
       });
     }
     final p = _muteProcess;
-    if (p == null) return _render(null);
+    if (p == null) {
+      // Dois estados: acompanha o liga/desliga guardado no PC.
+      return widget.button.toggle ? Watch((_) => _render(null)) : _render(null);
+    }
     // Reage ao estado de mute vindo do backend (toque ou mudança externa).
     return Watch((context) {
       final muted = Injector.get<SignalRService>().muteStates.value[p];
@@ -226,6 +230,17 @@ class _DeckGridButtonState extends State<DeckGridButton> {
   void _handleTap() {
     try {
       final sr = Injector.get<SignalRService>();
+      if (widget.button.toggle) {
+        // Dois estados: inverte na hora; o PC confirma pelo ReceiveButtonToggles.
+        final cur = Map<String, dynamic>.from(sr.stateOf('ReceiveButtonToggles'))
+          ..remove('_receivedAt');
+        if (cur[widget.button.id] == true) {
+          cur.remove(widget.button.id);
+        } else {
+          cur[widget.button.id] = true;
+        }
+        sr.seedState('ReceiveButtonToggles', cur);
+      }
       final dop = _discordOp;
       if (dop != null) {
         // Otimismo só para toggles (mute/deaf/modo). Os demais (entrar canal,
@@ -289,21 +304,55 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     final label = (widget.button.label != null && widget.button.label!.isNotEmpty)
         ? widget.button.label!
         : (_mediaCommand != null ? _mediaDefaultLabel(_mediaCommand!) : null);
+    return _tile(
+      active: muted == true,
+      icon: _isCoverArt ? _buildCover() : _buildIcon(muted),
+      label: label,
+    );
+  }
 
+  /// Liga/desliga do botão de dois estados (guardado no PC). Chame dentro de um Watch.
+  bool get _toggledOn {
+    if (!widget.button.toggle) return false;
+    try {
+      return Injector.get<SignalRService>()
+              .stateOf('ReceiveButtonToggles')[widget.button.id] ==
+          true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Monta o botão no estado certo: ativo pelo estado da ação ou pelo liga/desliga do
+  /// botão. Ativo, o rótulo e o ícone do estado ativo (se definidos) substituem os normais.
+  Widget _tile({
+    required bool active,
+    required Widget icon,
+    String? label,
+    Color? activeColor,
+  }) {
+    final b = widget.button;
+    final on = active || _toggledOn;
+    if (on && (b.activeIconBase64?.isNotEmpty ?? false)) {
+      icon = _base64Icon(b.activeIconBase64!);
+    } else if (on && (b.activeIconName?.isNotEmpty ?? false)) {
+      icon = Icon(buttonIconData(b.activeIconName!), size: 32);
+    }
+    final text = on && (b.activeLabel?.isNotEmpty ?? false) ? b.activeLabel : label;
     return DeckTile(
       color: _color,
-      active: muted == true,
-      activeColor: _activeColor(),
+      active: on,
+      activeColor: activeColor ?? _activeColor(),
       onTap: _handleTap,
       onLongPress: widget.onLongPress,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _isCoverArt ? _buildCover() : _buildIcon(muted),
-          if (label != null) ...[
+          icon,
+          if (text != null && text.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
-              label,
+              text,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 10,
@@ -391,25 +440,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
         (widget.button.label != null && widget.button.label!.isNotEmpty)
             ? widget.button.label!
             : defLabel;
-    return DeckTile(
-      color: _color,
-      active: active,
-      activeColor: _activeColor(),
-      onTap: _handleTap,
-      onLongPress: widget.onLongPress,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 30),
-          const SizedBox(height: 4),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 10, overflow: TextOverflow.ellipsis),
-              maxLines: 2),
-        ],
-      ),
-    );
+    return _tile(active: active, icon: Icon(icon, size: 30), label: label);
   }
 
   /// Dispositivo do snapshot da Tuya, ou null se ainda não enumerado.
@@ -573,25 +604,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     final label = (widget.button.label != null && widget.button.label!.isNotEmpty)
         ? widget.button.label!
         : defLabel;
-    return DeckTile(
-      color: _color,
-      active: active,
-      activeColor: _activeColor(),
-      onTap: _handleTap,
-      onLongPress: widget.onLongPress,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 30),
-          const SizedBox(height: 4),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 10, overflow: TextOverflow.ellipsis),
-              maxLines: 2),
-        ],
-      ),
-    );
+    return _tile(active: active, icon: Icon(icon, size: 30), label: label);
   }
 
   Widget _renderWindows(Map<String, dynamic> ws) {
@@ -633,24 +646,10 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     final label = (widget.button.label?.isNotEmpty ?? false)
         ? widget.button.label!
         : defLabel;
-    return DeckTile(
-      color: _color,
+    return _tile(
       active: active,
-      activeColor: _activeColor(),
-      onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          hasIcon ? _buildIcon(null) : Icon(icon, size: 30),
-          const SizedBox(height: 4),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 10, overflow: TextOverflow.ellipsis),
-              maxLines: 2),
-        ],
-      ),
+      icon: hasIcon ? _buildIcon(null) : Icon(icon, size: 30),
+      label: label,
     );
   }
 
@@ -662,7 +661,7 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     }
     if (widget.button.iconBase64 != null &&
         widget.button.iconBase64!.isNotEmpty) {
-      return _buildBase64Icon();
+      return _base64Icon(widget.button.iconBase64!);
     }
     if (widget.button.iconName != null && widget.button.iconName!.isNotEmpty) {
       return Icon(_getIconData(widget.button.iconName!),
@@ -695,9 +694,9 @@ class _DeckGridButtonState extends State<DeckGridButton> {
             color: DeckTile.foregroundOf(context).withValues(alpha: 0.54)));
   }
 
-  Widget _buildBase64Icon() {
+  Widget _base64Icon(String data) {
     try {
-      String base64String = widget.button.iconBase64!;
+      String base64String = data;
       if (base64String.startsWith('data:image')) {
         base64String = base64String.split(',')[1];
       }
@@ -726,42 +725,5 @@ class _DeckGridButtonState extends State<DeckGridButton> {
     }
   }
 
-  IconData _getIconData(String name) {
-    switch (name.toLowerCase()) {
-      case 'play':
-        return Icons.play_arrow;
-      case 'pause':
-        return Icons.pause;
-      case 'volume_up':
-        return Icons.volume_up;
-      case 'volume_off':
-        return Icons.volume_off;
-      case 'mic':
-        return Icons.mic;
-      case 'mic_off':
-        return Icons.mic_off;
-      case 'keyboard':
-        return Icons.keyboard;
-      case 'launch':
-        return Icons.rocket_launch;
-      case 'home':
-        return Icons.home;
-      case 'settings':
-        return Icons.settings;
-      case 'code':
-        return Icons.code;
-      case 'videocam':
-        return Icons.videocam;
-      case 'call_end':
-        return Icons.call_end;
-      case 'folder':
-        return Icons.folder;
-      case 'save':
-        return Icons.save;
-      case 'delete':
-        return Icons.delete;
-      default:
-        return Icons.extension;
-    }
-  }
+  IconData _getIconData(String name) => buttonIconData(name);
 }

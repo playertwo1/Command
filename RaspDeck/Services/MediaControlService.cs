@@ -351,6 +351,22 @@ namespace DroidDeck.Services
             }
         }
 
+        /// <summary>
+        /// O que está tocando agora (a sessão que as teclas de mídia controlariam), para o botão
+        /// "tocando agora". Sem capa por padrão: quem chama pede a capa só quando a faixa muda.
+        /// </summary>
+        public Task<MediaSessionInfo?> GetNowPlayingAsync(bool includeThumbnail) =>
+            RunAsync<MediaSessionInfo?>(async manager =>
+            {
+                var session = ResolveSession(manager, null);
+                return session != null ? await GetSessionInfoAsync(session, includeThumbnail).ConfigureAwait(false) : null;
+            },
+            null,
+            nameof(GetNowPlayingAsync),
+            // A capa so e lida quando a faixa muda: vale esperar a vez no portao.
+            includeThumbnail ? Origin.Interactive : Origin.Background,
+            includeThumbnail ? TimeSpan.FromSeconds(6) : TimeSpan.FromSeconds(3));
+
         /// <summary>True se há mídia TOCANDO (sessão atual ou qualquer uma). Leve — sem thumbnail/props.</summary>
         public Task<bool> IsAnythingPlayingAsync() =>
             RunAsync(manager =>

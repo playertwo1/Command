@@ -100,7 +100,9 @@ class StreamDeckController {
   /// PC não respondeu, para a tela avisar.
   Future<bool> executeButtonAction(DeckButton button,
       {String gesture = 'tap'}) async {
-    if (button.actionFor(gesture) == null) return true;
+    // Botão de dois estados vai ao PC mesmo sem ação: o toque alterna o estado lá.
+    final toggles = gesture == 'tap' && button.toggle;
+    if (button.actionFor(gesture) == null && !toggles) return true;
 
     // O PC executa a ação salva no perfil, pelo id do botão: o celular não escolhe o
     // que roda. Procura o perfil dono do botão (a página atual, ou uma pasta aberta).

@@ -175,10 +175,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     List<DeckProfile> profiles, {
     String gesture = 'tap',
   }) {
-    // Botão-monitor (CPU/GPU/RAM/Rede) é só display: não executa ação ao tocar.
+    // Botão de monitor ou de informação sem ação: só mostra, o toque não faz nada.
     if (gesture == 'tap' &&
-        b.dynamicType != null &&
-        b.dynamicType!.isNotEmpty) {
+        (b.dynamicType?.isNotEmpty ?? false) &&
+        b.action == null &&
+        !b.toggle) {
       return;
     }
     final action = b.actionFor(gesture);
@@ -204,7 +205,8 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
       _goBack(profiles);
       return;
     }
-    if (action == null) return;
+    // Dois estados vai ao PC mesmo sem ação: o toque alterna o estado lá.
+    if (action == null && !(gesture == 'tap' && b.toggle)) return;
     final messenger = ScaffoldMessenger.of(context);
     if (controller.offline.value) {
       _offlineNotice(messenger);

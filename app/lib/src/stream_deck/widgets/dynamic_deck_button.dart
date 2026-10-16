@@ -3,6 +3,8 @@ import 'package:companion/src/services/signalr_service.dart';
 import 'package:companion/core/core.dart';
 import 'package:flutter/material.dart';
 
+import 'info_deck_button.dart';
+
 class DynamicDeckButton extends StatelessWidget {
   final DeckButton button;
   final VoidCallback onTap;
@@ -37,6 +39,16 @@ class DynamicDeckButton extends StatelessWidget {
         button: button,
         onTap: onTap,
         onLongPress: onLongPress,
+      );
+    }
+
+    // Relógio, clima, tocando agora, comando e URL.
+    if (infoTypes.contains(button.dynamicType)) {
+      return InfoDeckButton(
+        button: button,
+        onTap: onTap,
+        onLongPress: onLongPress,
+        color: _parseColor(button.backgroundColor),
       );
     }
 

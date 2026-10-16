@@ -17,17 +17,20 @@ namespace DroidDeck.Controllers
         private readonly ActionExecutorService _executorService;
         private readonly ILogger<StreamDeckController> _logger;
         private readonly IHubContext<DeckHub> _hubContext;
+        private readonly ButtonToggleService _toggles;
 
         public StreamDeckController(
             StreamDeckConfigService configService,
             ActionExecutorService executorService,
             ILogger<StreamDeckController> logger,
-            IHubContext<DeckHub> hubContext)
+            IHubContext<DeckHub> hubContext,
+            ButtonToggleService toggles)
         {
             _configService = configService;
             _executorService = executorService;
             _logger = logger;
             _hubContext = hubContext;
+            _toggles = toggles;
         }
 
         [HttpGet("profiles")]
@@ -88,7 +91,9 @@ namespace DroidDeck.Controllers
                 .Find(b => b.Id == request.ButtonId);
             if (button == null) return NotFound();
 
-            var action = button.ActionFor(request.Gesture);
+            // Botao de dois estados: o toque alterna e escolhe a acao do estado.
+            var tap = string.IsNullOrEmpty(request.Gesture) || request.Gesture.Equals("tap", System.StringComparison.OrdinalIgnoreCase);
+            var action = button.Toggle && tap ? _toggles.Press(button) : button.ActionFor(request.Gesture);
             if (action != null)
                 await _executorService.ExecuteActionAsync(action, button.Id);
             return Ok();

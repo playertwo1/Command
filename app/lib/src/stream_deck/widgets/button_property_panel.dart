@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'button_icons.dart';
+
 /// Editor de um botão: rótulo, ações (toque, toque longo, toque duplo), ícone e cores.
 /// A escolha de cada ação fica no [ActionPicker].
 class ButtonPropertyPanel extends StatefulWidget {
@@ -33,9 +35,6 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   DeckAction? _tap;
   DeckAction? _longPress;
   DeckAction? _doubleTap;
-
-  /// Trocar a chave recria o seletor do toque (ex.: ao virar monitor, que zera a ação).
-  int _tapEpoch = 0;
 
   Color _selectedColor = Colors.grey[800]!;
   Color _activeColor = Colors.red[900]!;
@@ -66,25 +65,17 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   String? _iconBase64;
   String? _dynamicType;
 
-  // TODO: Centralize icon list
-  final List<String> _icons = [
-    'play',
-    'pause',
-    'volume_up',
-    'volume_off',
-    'mic',
-    'mic_off',
-    'keyboard',
-    'launch',
-    'home',
-    'settings',
-    'code',
-    'videocam',
-    'call_end',
-    'folder',
-    'save',
-    'delete'
-  ];
+  final List<String> _icons = buttonIcons.keys.toList();
+
+  // Dois estados.
+  bool _toggle = false;
+  DeckAction? _activeAction;
+  late TextEditingController _activeLabelController;
+  String? _activeIcon;
+  String? _activeIconBase64;
+
+  /// Parâmetros do botão de informação (cidade, comando, URL...).
+  Map<String, String> _dynamicParams = {};
 
   @override
   void initState() {
@@ -107,11 +98,18 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     }
     _iconBase64 = widget.button.iconBase64;
     _dynamicType = widget.button.dynamicType;
+    _dynamicParams = Map.of(widget.button.dynamicParameters ?? const {});
+    _toggle = widget.button.toggle;
+    _activeAction = widget.button.activeAction;
+    _activeLabelController =
+        TextEditingController(text: widget.button.activeLabel);
+    _activeIcon = widget.button.activeIconName;
+    _activeIconBase64 = widget.button.activeIconBase64;
 
     _catalog.load();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage({bool active = false}) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
       source: ImageSource.gallery,
@@ -123,8 +121,13 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       final bytes = await image.readAsBytes();
       final base64 = base64Encode(bytes);
       setState(() {
-        _iconBase64 = base64;
-        _selectedIcon = null; // Clear standard icon
+        if (active) {
+          _activeIconBase64 = base64;
+          _activeIcon = null;
+        } else {
+          _iconBase64 = base64;
+          _selectedIcon = null; // Clear standard icon
+        }
       });
     }
   }
@@ -148,12 +151,13 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   @override
   void dispose() {
     _labelController.dispose();
+    _activeLabelController.dispose();
     super.dispose();
   }
 
   void _save() {
-    // Monitor (dynamicType) e ação do toque são exclusivos: botão-monitor não guarda ação.
     final isDynamic = _dynamicType != null && _dynamicType!.isNotEmpty;
+    final showsActive = _isStatefulAction || _toggle;
 
     final newButton = DeckButton(
       id: widget.button.id.isEmpty
@@ -163,13 +167,23 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       column: widget.button.column,
       label: _labelController.text,
       backgroundColor: _colorToHex(_selectedColor),
-      activeColor: _isStatefulAction ? _colorToHex(_activeColor) : null,
+      activeColor: showsActive ? _colorToHex(_activeColor) : null,
       iconName: _selectedIcon,
       iconBase64: _iconBase64,
       dynamicType: _dynamicType,
-      action: isDynamic ? null : _tap,
+      action: _tap,
       longPressAction: _longPress,
       doubleTapAction: _doubleTap,
+      dynamicParameters: isDynamic && _dynamicParams.isNotEmpty
+          ? Map.of(_dynamicParams)
+          : null,
+      toggle: _toggle,
+      activeAction: _toggle ? _activeAction : null,
+      activeLabel: showsActive && _activeLabelController.text.trim().isNotEmpty
+          ? _activeLabelController.text.trim()
+          : null,
+      activeIconName: showsActive ? _activeIcon : null,
+      activeIconBase64: showsActive ? _activeIconBase64 : null,
     );
 
     widget.onSave(newButton);
@@ -293,15 +307,13 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 ),
                 const SizedBox(height: 16),
 
-                _picker('Ação', _tap, (a) {
-                  setState(() {
-                    _tap = a;
-                    // Ação e monitor (dynamicType) são exclusivos.
-                    if (a != null) _dynamicType = null;
-                  });
-                }, key: ValueKey('tap$_tapEpoch')),
+                _picker('Ação', _tap, (a) => setState(() => _tap = a)),
                 const SizedBox(height: 16),
                 _buildGestures(),
+                const SizedBox(height: 12),
+                _buildTwoState(),
+                const SizedBox(height: 12),
+                _buildInfo(),
 
                 const SizedBox(height: 32),
 
@@ -372,8 +384,8 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                 const SizedBox(height: 8),
                 _colorRow(_selectedColor, (c) => _selectedColor = c),
 
-                // Cor de "ativo" (toggle): só para ações que refletem estado.
-                if (_isStatefulAction) ...[
+                // Cor de "ativo": ações que refletem estado e botões de dois estados.
+                if (_isStatefulAction || _toggle) ...[
                   const SizedBox(height: 20),
                   Text(
                     switch (_selectedActionType) {
@@ -389,38 +401,6 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                   const SizedBox(height: 12),
                   _buildTogglePreview(),
                 ],
-
-                // Dynamic Type
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _dynamicType,
-                  decoration: const InputDecoration(
-                    labelText: 'Dynamic Feature',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('None')),
-                    DropdownMenuItem(
-                        value: 'cpu_monitor', child: Text('CPU Monitor')),
-                    DropdownMenuItem(
-                        value: 'memory_monitor', child: Text('Memory Monitor')),
-                    DropdownMenuItem(
-                        value: 'gpu_monitor', child: Text('GPU Monitor')),
-                    DropdownMenuItem(
-                        value: 'network_monitor',
-                        child: Text('Network Monitor')),
-                  ],
-                  onChanged: (val) {
-                    setState(() {
-                      _dynamicType = val;
-                      // Monitor é só display: zera a ação (eram exclusivos).
-                      if (val != null && val.isNotEmpty && _tap != null) {
-                        _tap = null;
-                        _tapEpoch++;
-                      }
-                    });
-                  },
-                ),
 
                 const SizedBox(height: 24),
               ],
@@ -549,12 +529,17 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     return (Icons.volume_up, Icons.volume_off);
   }
 
-  Widget _buildIconOption(String? iconName) {
-    final isSelected = _selectedIcon == iconName;
+  Widget _buildIconOption(String? iconName, {bool active = false}) {
+    final isSelected = (active ? _activeIcon : _selectedIcon) == iconName;
     final scheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () {
         setState(() {
+          if (active) {
+            _activeIcon = iconName;
+            if (iconName != null) _activeIconBase64 = null;
+            return;
+          }
           _selectedIcon = iconName;
           if (iconName != null) {
             _iconBase64 = null; // Clear custom image if icon selected
@@ -581,42 +566,274 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     );
   }
 
-  IconData _getIconData(String name) {
-    switch (name.toLowerCase()) {
-      case 'play':
-        return Icons.play_arrow;
-      case 'pause':
-        return Icons.pause;
-      case 'volume_up':
-        return Icons.volume_up;
-      case 'volume_off':
-        return Icons.volume_off;
-      case 'mic':
-        return Icons.mic;
-      case 'mic_off':
-        return Icons.mic_off;
-      case 'keyboard':
-        return Icons.keyboard;
-      case 'launch':
-        return Icons.rocket_launch;
-      case 'home':
-        return Icons.home;
-      case 'settings':
-        return Icons.settings;
-      case 'code':
-        return Icons.code;
-      case 'videocam':
-        return Icons.videocam;
-      case 'call_end':
-        return Icons.call_end;
-      case 'folder':
-        return Icons.folder;
-      case 'save':
-        return Icons.save;
-      case 'delete':
-        return Icons.delete;
+  // ---- Dois estados ----
+
+  Widget _buildTwoState() {
+    final used = _toggle ||
+        _activeLabelController.text.isNotEmpty ||
+        _activeIcon != null ||
+        _activeIconBase64 != null;
+    final scheme = Theme.of(context).colorScheme;
+    final hint = TextStyle(fontSize: 12, color: scheme.onSurfaceVariant);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ExpansionTile(
+        initiallyExpanded: used,
+        shape: const Border(),
+        leading: const Icon(Icons.toggle_on_outlined),
+        title: const Text('Dois estados'),
+        subtitle: Text(
+          _toggle
+              ? 'Liga e desliga a cada toque'
+              : (_isStatefulAction ? 'Visual quando ativo' : 'Opcional'),
+          style: const TextStyle(fontSize: 12),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Alternar a cada toque'),
+            subtitle: Text(
+              _isStatefulAction
+                  ? 'Esta ação já mostra o próprio estado; ligue só se quiser um '
+                      'liga/desliga separado, guardado no PC.'
+                  : 'O botão fica ligado num toque e desligado no seguinte. O estado '
+                      'fica no PC e aparece igual em todos os celulares.',
+              style: hint,
+            ),
+            value: _toggle,
+            onChanged: (v) => setState(() => _toggle = v),
+          ),
+          if (_toggle) ...[
+            const SizedBox(height: 8),
+            _picker('Ação quando ligado', _activeAction,
+                (a) => setState(() => _activeAction = a)),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Roda no toque que desliga o botão. Sem ela, o mesmo toque roda sempre.',
+                style: hint,
+              ),
+            ),
+          ],
+          if (_toggle || _isStatefulAction) ...[
+            const SizedBox(height: 16),
+            TextField(
+              controller: _activeLabelController,
+              decoration: const InputDecoration(
+                labelText: 'Rótulo quando ativo',
+                hintText: 'Vazio = o mesmo rótulo',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Ícone quando ativo',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextButton.icon(
+                  onPressed: () => _pickImage(active: true),
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Imagem'),
+                ),
+              ],
+            ),
+            if (_activeIconBase64 != null)
+              Row(children: [
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Image.memory(base64Decode(_activeIconBase64!),
+                      errorBuilder: (_, __, ___) => const Icon(Icons.error)),
+                ),
+                TextButton(
+                  onPressed: () => setState(() => _activeIconBase64 = null),
+                  child: const Text('Remover imagem'),
+                ),
+              ]),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildIconOption(null, active: true),
+                ..._icons.map((i) => _buildIconOption(i, active: true)),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ---- Mostrar no botão (monitores e informação) ----
+
+  static const _infoLabels = {
+    'cpu_monitor': 'Uso da CPU',
+    'memory_monitor': 'Uso da memória',
+    'gpu_monitor': 'Uso da GPU',
+    'network_monitor': 'Rede',
+    'clock': 'Relógio',
+    'weather': 'Clima',
+    'now_playing': 'Tocando agora',
+    'command': 'Saída de um comando (PC)',
+    'url': 'Valor de uma URL (PC)',
+  };
+
+  /// Comando e URL rodam no PC: como os atalhos, só mudam no configurador.
+  static const _privilegedInfo = {'command', 'url'};
+
+  bool get _infoLocked =>
+      _remote && _privilegedInfo.contains(widget.button.dynamicType);
+
+  String _p(String key, [String fallback = '']) =>
+      _dynamicParams[key] ?? fallback;
+
+  void _setP(String key, String value) => setState(() {
+        if (value.isEmpty) {
+          _dynamicParams.remove(key);
+        } else {
+          _dynamicParams[key] = value;
+        }
+      });
+
+  Widget _infoField(String key, String label,
+      {String? hint, String? help, bool number = false, int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: TextFormField(
+        key: ValueKey('info_${_dynamicType}_$key'),
+        initialValue: _p(key),
+        enabled: !_infoLocked,
+        keyboardType: number ? TextInputType.number : null,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          helperText: help,
+          helperMaxLines: 3,
+          border: const OutlineInputBorder(),
+        ),
+        onChanged: (v) => _setP(key, v.trim()),
+      ),
+    );
+  }
+
+  Widget _infoSwitch(String key, String label, bool def,
+      {String on = 'true', String off = 'false'}) {
+    final value = _p(key, def ? on : off) == on;
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      dense: true,
+      title: Text(label),
+      value: value,
+      onChanged: (v) => _setP(key, v ? on : off),
+    );
+  }
+
+  Widget _buildInfo() {
+    final type = _dynamicType;
+    final hint = TextStyle(
+        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant);
+    final options = _infoLabels.entries
+        .where((e) =>
+            !_remote || !_privilegedInfo.contains(e.key) || e.key == type)
+        .toList();
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ExpansionTile(
+        initiallyExpanded: type != null && type.isNotEmpty,
+        shape: const Border(),
+        leading: const Icon(Icons.insights_outlined),
+        title: const Text('Mostrar no botão'),
+        subtitle: Text(
+          (type?.isNotEmpty ?? false) ? (_infoLabels[type] ?? type!) : 'Opcional',
+          style: const TextStyle(fontSize: 12),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          DropdownButtonFormField<String?>(
+            initialValue: (type?.isEmpty ?? true) ? null : type,
+            decoration: const InputDecoration(
+              labelText: 'Informação',
+              border: OutlineInputBorder(),
+            ),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('Nenhuma')),
+              ...options.map(
+                  (e) => DropdownMenuItem(value: e.key, child: Text(e.value))),
+            ],
+            onChanged: _infoLocked
+                ? null
+                : (val) => setState(() {
+                      if (val != _dynamicType) _dynamicParams = {};
+                      _dynamicType = val;
+                    }),
+          ),
+          if (_infoLocked)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Botões que rodam um comando ou leem uma URL no PC só mudam no '
+                'configurador do PC (http://localhost:4787).',
+                style: hint,
+              ),
+            ),
+          ..._infoFields(type),
+          if (type != null && type.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                'O toque continua executando a ação do botão, se houver uma.',
+                style: hint,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _infoFields(String? type) {
+    switch (type) {
+      case 'clock':
+        return [
+          _infoSwitch('format24', '24 horas', true),
+          _infoSwitch('showSeconds', 'Mostrar os segundos', false),
+          _infoSwitch('showDate', 'Mostrar a data', true),
+        ];
+      case 'weather':
+        return [
+          _infoField('city', 'Cidade', hint: 'São Paulo'),
+          _infoSwitch('units', 'Em Fahrenheit', false, on: 'f', off: 'c'),
+        ];
+      case 'command':
+        return [
+          _infoField('command', 'Comando',
+              hint: 'powershell -c "(Get-Date).DayOfYear"',
+              help: 'Roda no cmd do PC; o botão mostra a saída (até 10 s).',
+              maxLines: 2),
+          _infoField('format', 'Modelo',
+              hint: '{value}', help: '{value} é a saída. Ex.: "Dia {value}"'),
+          _infoField('interval', 'Atualizar a cada (segundos)',
+              hint: '60', number: true),
+        ];
+      case 'url':
+        return [
+          _infoField('url', 'URL', hint: 'https://api.exemplo.com/status'),
+          _infoField('path', 'Campo do JSON',
+              hint: 'data.items[0].name', help: 'Vazio = a resposta inteira.'),
+          _infoField('format', 'Modelo',
+              hint: '{value}', help: '{value} é o valor lido.'),
+          _infoField('interval', 'Atualizar a cada (segundos)',
+              hint: '60', number: true),
+        ];
       default:
-        return Icons.extension;
+        return const [];
     }
   }
+
+
+  IconData _getIconData(String name) => buttonIconData(name);
 }

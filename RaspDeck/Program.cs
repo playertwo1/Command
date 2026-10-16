@@ -249,6 +249,9 @@ namespace DroidDeck
                             services.AddSingleton<Actions.IActionProvider, Actions.Providers.SteamProvider>();
                             services.AddSingleton<Services.SteamLibrary>();
                             services.AddSingleton<Services.BackupService>();
+                            services.AddSingleton<Services.ButtonToggleService>();
+                            services.AddSingleton<Services.InfoService>();
+                            services.AddHostedService(sp => sp.GetRequiredService<Services.InfoService>());
                             services.AddSingleton<Services.ForegroundWatcher>();
                             services.AddHostedService(sp => sp.GetRequiredService<Services.ForegroundWatcher>());
                             foreach (var clientOnly in Actions.Providers.ClientOnlyProvider.All())

@@ -73,6 +73,18 @@ namespace DroidDeck.Services
             return true;
         }
 
+        /// <summary>Tipos de botao de informacao que executam algo no PC.</summary>
+        private static readonly HashSet<string> PrivilegedInfoTypes =
+            new(StringComparer.OrdinalIgnoreCase) { "command", "url" };
+
+        public static bool IsPrivilegedInfo(DeckButton button) =>
+            PrivilegedInfoTypes.Contains(button.DynamicType ?? "");
+
+        private static bool SameInfo(DeckButton a, DeckButton b) =>
+            string.Equals(a.DynamicType, b.DynamicType, StringComparison.OrdinalIgnoreCase) &&
+            SameAction(new DeckAction { Parameters = a.DynamicParameters ?? new() },
+                       new DeckAction { Parameters = b.DynamicParameters ?? new() });
+
         /// <summary>
         /// Para gravacoes vindas de fora do PC: devolve o primeiro botao que cria ou altera
         /// uma acao privilegiada (comparando com o mesmo botao, pelo id, no perfil salvo),
@@ -84,14 +96,18 @@ namespace DroidDeck.Services
             foreach (var button in incoming.Buttons ?? new List<DeckButton>())
             {
                 var before = saved?.Buttons?.FirstOrDefault(b => b.Id == button.Id);
-                // Toque, toque longo e toque duplo: cada gesto tem a sua acao.
-                foreach (var gesture in DeckButton.Gestures)
+                // Toque, toque longo, toque duplo e a acao do estado ligado.
+                foreach (var slot in DeckButton.ActionSlots)
                 {
-                    var action = button.ActionFor(gesture);
+                    var action = button.ActionFor(slot);
                     if (!IsPrivileged(action)) continue;
-                    if (before == null || !SameAction(before.ActionFor(gesture), action))
+                    if (before == null || !SameAction(before.ActionFor(slot), action))
                         return button;
                 }
+                // Botoes de informacao que rodam um comando ou leem uma URL no PC.
+                if (IsPrivilegedInfo(button) &&
+                    (before == null || !SameInfo(before, button)))
+                    return button;
             }
             return null;
         }

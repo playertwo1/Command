@@ -108,7 +108,12 @@ class SignalRService {
   // Estado dos demais provedores de ação (timers...), por evento SignalR. Os eventos
   // vêm do schema (stateEvent) e são assinados sob demanda via [listenState].
   final actionStates = signal<Map<String, Map<String, dynamic>>>({});
-  final Set<String> _stateEvents = {};
+  final Set<String> _stateEvents = {
+    // Botões de dois estados ligados e botões de informação (não vêm do schema).
+    'ReceiveButtonToggles',
+    'ReceiveInfoState',
+    'ReceiveNowPlaying',
+  };
 
   /// Assina um evento de estado de provedor. Idempotente; vale também depois de
   /// reconectar (init re-registra tudo).
