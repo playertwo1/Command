@@ -39,7 +39,7 @@ jobs:
 
   app:
     name: App (flutter analyze + test)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: app
@@ -62,7 +62,7 @@ jobs:
 
   docs:
     name: Docs (mkdocs --strict)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 

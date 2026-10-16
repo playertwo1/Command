@@ -16,7 +16,7 @@ jobs:
   # versao e o semantic-release, la no fim. O dry-run calcula a mesma versao sem publicar.
   version:
     name: Próxima versão
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.next.outputs.version }}
     steps:
@@ -101,7 +101,7 @@ jobs:
 
   app:
     name: App (Android APK)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -150,7 +150,7 @@ jobs:
   release:
     name: semantic-release
     needs: [backend, app]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
