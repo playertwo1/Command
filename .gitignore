@@ -106,6 +106,7 @@ Generated_Code/
 # Visual Studio version. Backup files are not needed, because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+!app/lib/src/stream_deck/backup/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
