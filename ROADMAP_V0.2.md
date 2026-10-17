@@ -45,8 +45,8 @@ flowchart TD
 
 | Fase | Bloco | Nome da Fase | Entrega Verificável | Depende de | Estado |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **S0** | Backend | **Spike de Sensores e Energia** | Relatório técnico `S0_SPIKE.md` validando leitura térmica e bateria com/sem Admin | MVP v0.1 | `READY` |
-| **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `PLANNED` |
+| **S0** | Backend | **Spike de Sensores e Energia** | Relatório técnico `S0_SPIKE.md` validando leitura térmica e bateria com/sem Admin | MVP v0.1 | `DONE` |
+| **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `READY` |
 | **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `PLANNED` |
 | **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `PLANNED` |
 | **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `PLANNED` |
@@ -74,10 +74,10 @@ flowchart TD
 ### 🔍 Fase S0 — Spike Técnico: Sensores de Hardware e Energia
 **Objetivo:** Comprovar a leitura real de sensores térmicos e bateria no host Windows e definir o fallback seguro sem elevação UAC.
 
-- [ ] **S0-01:** Avaliar pacote `LibreHardwareMonitorLib` (MPL-2.0) no projeto `DroidDeck` (.NET 8).
-- [ ] **S0-02:** Testar leitura de temperatura de CPU (Package/Core) e GPU (Core/Hotspot) em sessão normal vs Administrador.
-- [ ] **S0-03:** Validar leitura de bateria e estado de tomada via Win32 `GetSystemPowerStatus`.
-- [ ] **S0-04:** Registrar resultados, licença MPL-2.0 e matriz de fallback em `docs/evidence/v0.2/S0_SPIKE.md`.
+- [x] **S0-01:** Avaliar pacote `LibreHardwareMonitorLib` (MPL-2.0) no projeto `DroidDeck` (.NET 8).
+- [x] **S0-02:** Testar leitura de temperatura de CPU (Package/Core) e GPU (Core/Hotspot) em sessão normal vs Administrador.
+- [x] **S0-03:** Validar leitura de bateria e estado de tomada via Win32 `GetSystemPowerStatus`.
+- [x] **S0-04:** Registrar resultados, licença MPL-2.0 e matriz de fallback em `docs/evidence/v0.2/S0_SPIKE.md`.
 
 ---
 
@@ -183,7 +183,7 @@ flowchart TD
 
 ## 5. Checklist Mestre de Progresso (v0.2)
 
-- [ ] **S0** — Spike Técnico: Sensores de Hardware e Energia (`docs/evidence/v0.2/S0_SPIKE.md`)
+- [x] **S0** — Spike Técnico: Sensores de Hardware e Energia (`docs/evidence/v0.2/S0_SPIKE.md`)
 - [ ] **S1** — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API
 - [ ] **S2** — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco
 - [ ] **S3** — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)
