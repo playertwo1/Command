@@ -27,21 +27,21 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F4-IMPL (2026-10-17)
+- ID: F4-UAT-EMULATOR (2026-10-17)
 - Resultado:
-  - Implementado `AppCatalogService` com allowlist estrita (Obsidian, Orbit PJ, Bloco de Notas).
-  - Implementado `JobHistoryService` com persistência local em JSON, idempotência e auditoria.
-  - Implementados `AppsController` e `JobsController` com rotas `/api/apps` e `/api/jobs`.
-  - Atualizado `DroidDeckClient` no Flutter com métodos tipados de catálogo, execução e encerramento.
-  - Implementados cards visuais de Ações e Atividade Recente no `StatusPage`.
-  - Criados testes `AppCatalogAndJobsTests.cs` (.NET) e `app_catalog_and_jobs_test.dart` (Flutter).
+  - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo em segundo plano na porta 4787.
+  - Telemetria de hardware (CPU, RAM, Disco, GPU, Rede e Uptime) sincronizada em tempo real com o PC Windows.
+  - Teste de `app.launch (test_notepad)` executado na tela do emulador -> `Notepad.exe` iniciado no Windows e registrado como `succeeded` em Atividade Recente.
+  - Teste de `app.kill (test_notepad)` com diálogo de confirmação explícita executado e confirmado -> processo `Notepad.exe` terminado com segurança e registrado como `succeeded`.
+  - Telas Deck e Audio verificadas no emulador. Evidências visuais salvas em `docs/assets/emulator_*.png` e refletidas no NexusVault.
 - Testes/build:
   - `dotnet test DroidDeck.sln --filter "Category!=RequiresDesktop"`: 172 PASS, 0 FAIL.
   - `flutter test`: 53 PASS, 0 FAIL.
   - `flutter analyze --no-fatal-infos`: exit 0.
+  - Live E2E Emulator Pixel 9: PASS.
 
 ## Próxima ação
-- F5 — Screenshot manual (captura do monitor principal sob demanda, rejeição em tela de bloqueio/UAC, visualização protegida).
+- F5 — Screenshot manual (captura do monitor principal sob demanda via `/api/screenshot`, rejeição em tela de bloqueio/UAC, visualização protegida).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
