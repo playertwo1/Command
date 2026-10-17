@@ -9,6 +9,10 @@
 [![Upstream DroidDeck](https://img.shields.io/badge/upstream-DroidDeck%20v1.9.1-blue?style=for-the-badge)](https://github.com/ggfto/DroidDeck)
 [![License: Apache 2.0 / GPL 3.0](https://img.shields.io/badge/License-Apache%202.0%20%2F%20GPL%203.0-green.svg?style=for-the-badge)](LICENSE)
 
+<br/>
+
+<img src="docs/assets/command-preview.jpg" alt="Command Preview" width="100%" style="border-radius: 12px;">
+
 </div>
 
 ---
@@ -62,6 +66,52 @@ scripts/               Scripts de build, empacotamento e deploy do frontend web
 website/               Documentação MkDocs e site institucional (EN/PT)
 docs/                  Decisões de arquitetura (ADRs), roadmap, manual e checklists
 contracts/             Especificações OpenAPI e schemas da API
+```
+
+```mermaid
+flowchart TD
+    subgraph MobileApp["📱 Aplicativo Android (Flutter / Dart)"]
+        UI_Status["Status Page<br/>(Telemetria em Tempo Real)"]
+        UI_Deck["Stream Deck Page<br/>(Grade de Ações e Atalhos)"]
+        UI_Audio["Mixer & Audio Page<br/>(Controle de Volume por App)"]
+        Theme["Amethyst Dark Theme<br/>(#050408, #13101B, #A78BFA)"]
+    end
+
+    subgraph BridgePC["🖥️ Windows Bridge (.NET 8 Tray & Kestrel API)"]
+        API["ASP.NET Core REST API<br/>(Porta 4787 / X-Api-Key)"]
+        Hub["SignalR DeckHub<br/>(Eventos ao Vivo e Sync)"]
+        Pairing["Pairing Service<br/>(QR Code droiddeck://pair + DPAPI)"]
+        Monitor["SystemMonitorService<br/>(Coleta Contínua a cada 1s)"]
+        ActionExec["ActionExecutorService<br/>(Execução com Allowlist e Confirmação)"]
+    end
+
+    subgraph WindowsOS["🪟 Windows OS & Hardware Subsystems"]
+        HW_Counters["Performance Counters & P/Invoke<br/>(CPU, RAM GlobalMemoryStatusEx, GPU Engine)"]
+        HW_Storage["Storage & Uptime<br/>(DriveInfo GetDiskFreeSpaceEx, TickCount64)"]
+        Audio_Core["NAudio / Wasapi<br/>(MMDeviceEnumerator & Per-App Sessions)"]
+        Input_Core["SendInput & Win32 API<br/>(Atalhos, Janelas, Processos)"]
+    end
+
+    subgraph Integrations["🔌 Ecossistema de Integrações"]
+        OBS["OBS Studio (WebSocket v5)"]
+        Discord["Discord (Local RPC IPC)"]
+        Tuya["Tuya / Smart Life (Local Protocol)"]
+        Soundboard["Soundboard (MyInstants + VB-Cable)"]
+        Media["Mídia Windows (WinRT)"]
+    end
+
+    %% Conexões
+    UI_Status <--> |"SignalR ReceiveSystemStats & GET /api/metrics"| Hub
+    UI_Deck <--> |"REST /api/actions & /api/deck"| API
+    UI_Audio <--> |"REST /api/mixer & SignalR"| API
+
+    Monitor --> HW_Counters
+    Monitor --> HW_Storage
+    Monitor --> |"Broadcast Stats"| Hub
+
+    ActionExec --> Input_Core
+    ActionExec --> Audio_Core
+    ActionExec --> Integrations
 ```
 
 ---
