@@ -6,6 +6,7 @@ using Xunit;
 
 namespace DroidDeck.Tests
 {
+    [Collection("AppPaths")]
     public class ButtonToggleTests
     {
         private static DeckAction Media(string cmd) => new() { Type = "media", Parameters = new() { ["command"] = cmd } };

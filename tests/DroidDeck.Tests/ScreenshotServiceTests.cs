@@ -28,19 +28,22 @@ namespace DroidDeck.Tests
         }
     }
 
+    [Collection("AppPaths")]
     public class ScreenshotServiceTests : IDisposable
     {
         private readonly string _testDir;
+        private readonly string? _prevDir;
 
         public ScreenshotServiceTests()
         {
+            _prevDir = Environment.GetEnvironmentVariable(AppPaths.DataDirEnvVar);
             _testDir = Path.Combine(Path.GetTempPath(), "DroidDeck_ScreenshotTests_" + Guid.NewGuid().ToString("N"));
             Environment.SetEnvironmentVariable(AppPaths.DataDirEnvVar, _testDir);
         }
 
         public void Dispose()
         {
-            Environment.SetEnvironmentVariable(AppPaths.DataDirEnvVar, null);
+            Environment.SetEnvironmentVariable(AppPaths.DataDirEnvVar, _prevDir);
             try
             {
                 if (Directory.Exists(_testDir))

@@ -35,8 +35,32 @@ namespace DroidDeck.Services
         private int _gpuTick = 0;
         private const int GpuRescanEveryTicks = 30;
 
+        // Buffer circular para os últimos 60 segundos de telemetria
+        private readonly object _historyLock = new();
+        private readonly Queue<MetricSampleDto> _history = new(60);
+
         /// <summary>Última amostra de telemetria coletada pelo monitor de sistema.</summary>
         public SystemStats LastStats { get; private set; } = new();
+
+        public void RecordSample(MetricSampleDto sample)
+        {
+            lock (_historyLock)
+            {
+                while (_history.Count >= 60)
+                {
+                    _history.Dequeue();
+                }
+                _history.Enqueue(sample);
+            }
+        }
+
+        public List<MetricSampleDto> GetHistorySnapshot()
+        {
+            lock (_historyLock)
+            {
+                return _history.ToList();
+            }
+        }
 
         public SystemMonitorService(
             ILogger<SystemMonitorService> logger,
@@ -150,7 +174,8 @@ namespace DroidDeck.Services
             }
 
             var (netUp, netDown) = SampleNetwork();
-            var (diskUsage, diskTotal, diskFree) = SampleDisk();
+            var disks = SampleDisks();
+            var (diskUsage, diskTotal, diskFree) = SampleDisk(disks);
             long uptime = Environment.TickCount64 / 1000;
 
             // Telemetria estendida de sensores e energia (v0.2)
@@ -158,15 +183,30 @@ namespace DroidDeck.Services
             var (cpuTemp, gpuTemp) = _sensorProvider?.GetTemperatures() ?? (null, null);
             var (batteryPercent, isCharging, hasBattery) = _sensorProvider?.GetPowerStatus() ?? (null, null, false);
 
+            float roundedCpu = (float)Math.Round(cpu, 1);
+            float roundedRam = (float)Math.Round(ramLoad, 1);
+            float gpuUsage = SampleGpu();
+
+            var sample = new MetricSampleDto
+            {
+                TimestampUtc = DateTime.UtcNow,
+                Cpu = roundedCpu,
+                Ram = roundedRam,
+                Gpu = gpuUsage,
+                CpuTempC = cpuTemp,
+                GpuTempC = gpuTemp
+            };
+            RecordSample(sample);
+
             var stats = new SystemStats
             {
-                CpuUsage = (float)Math.Round(cpu, 1),
+                CpuUsage = roundedCpu,
                 RamTotal = ramTotal,
                 RamAvailable = ramAvailable,
-                RamUsage = ramLoad,
+                RamUsage = roundedRam,
                 NetUpKBps = netUp,
                 NetDownKBps = netDown,
-                GpuUsage = SampleGpu(),
+                GpuUsage = gpuUsage,
                 DiskUsage = diskUsage,
                 DiskTotalGB = diskTotal,
                 DiskAvailableGB = diskFree,
@@ -175,7 +215,9 @@ namespace DroidDeck.Services
                 GpuTempC = gpuTemp,
                 BatteryPercent = batteryPercent,
                 IsCharging = isCharging,
-                HasBattery = hasBattery
+                HasBattery = hasBattery,
+                History = GetHistorySnapshot(),
+                Disks = disks
             };
             LastStats = stats;
             return stats;
@@ -211,19 +253,51 @@ namespace DroidDeck.Services
             return (up, down);
         }
 
-        private static (float usage, float totalGb, float freeGb) SampleDisk()
+        public static List<DiskVolumeDto> SampleDisks()
+        {
+            var disks = new List<DiskVolumeDto>();
+            try
+            {
+                foreach (var drive in DriveInfo.GetDrives())
+                {
+                    if (drive.DriveType == DriveType.Fixed && drive.IsReady)
+                    {
+                        float total = drive.TotalSize / (1024f * 1024f * 1024f);
+                        float free = drive.AvailableFreeSpace / (1024f * 1024f * 1024f);
+                        float used = total - free;
+                        float usage = total > 0 ? (used / total) * 100f : 0f;
+                        string label = string.Empty;
+                        try { label = drive.VolumeLabel; } catch { }
+                        if (string.IsNullOrWhiteSpace(label))
+                        {
+                            label = drive.Name.TrimEnd('\\');
+                        }
+
+                        disks.Add(new DiskVolumeDto
+                        {
+                            Name = drive.Name.TrimEnd('\\'),
+                            Label = label,
+                            TotalGB = (float)Math.Round(total, 1),
+                            AvailableGB = (float)Math.Round(free, 1),
+                            UsagePercent = (float)Math.Round(usage, 1)
+                        });
+                    }
+                }
+            }
+            catch { }
+            return disks;
+        }
+
+        private static (float usage, float totalGb, float freeGb) SampleDisk(List<DiskVolumeDto> disks)
         {
             try
             {
-                string sysDrive = Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\";
-                var drive = new DriveInfo(sysDrive);
-                if (drive.IsReady)
+                string sysDrive = (Path.GetPathRoot(Environment.SystemDirectory) ?? "C:").TrimEnd('\\');
+                var primary = disks.FirstOrDefault(d => string.Equals(d.Name, sysDrive, StringComparison.OrdinalIgnoreCase))
+                              ?? disks.FirstOrDefault();
+                if (primary != null)
                 {
-                    float total = drive.TotalSize / (1024f * 1024f * 1024f);
-                    float free = drive.AvailableFreeSpace / (1024f * 1024f * 1024f);
-                    float used = total - free;
-                    float usage = total > 0 ? (used / total) * 100f : 0f;
-                    return ((float)Math.Round(usage, 1), (float)Math.Round(total, 1), (float)Math.Round(free, 1));
+                    return (primary.UsagePercent, primary.TotalGB, primary.AvailableGB);
                 }
             }
             catch { }

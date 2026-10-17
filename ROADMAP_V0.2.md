@@ -47,8 +47,8 @@ flowchart TD
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **S0** | Backend | **Spike de Sensores e Energia** | Relatório técnico `S0_SPIKE.md` validando leitura térmica e bateria com/sem Admin | MVP v0.1 | `DONE` |
 | **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `DONE` |
-| **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `READY` |
-| **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `PLANNED` |
+| **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `DONE` |
+| **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `READY` |
 | **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `PLANNED` |
 | **S5** | Mobile | **UI Sparklines, Serviços e Processos** | Gráfico Sparkline de 60s, Card de Serviços do Windows e Card Top 5 Processos | S2, S3, S4 | `PLANNED` |
 | **S6** | Mobile | **Motor de Alertas Configuráveis** | Configuração de limiares (CPU/RAM/Temp/Disco/Bateria) + Banner de alerta com *cooldown* 60s | S4, S5 | `PLANNED` |
@@ -94,10 +94,10 @@ flowchart TD
 ### 📈 Fase S2 — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco
 **Objetivo:** Manter histórico recente de carga no Bridge e listar todos os discos fixos do PC.
 
-- [ ] **S2-01:** Criar modelo `MetricSampleDto` (`TimestampUtc`, `Cpu`, `Ram`, `Gpu`, `CpuTempC`, `GpuTempC`) e buffer circular de 60 posições em `SystemMonitorService.cs`.
-- [ ] **S2-02:** Criar modelo `DiskVolumeDto` (`Name`, `Label`, `TotalGB`, `AvailableGB`, `UsagePercent`) enumerando todos os drives `DriveType.Fixed` prontos.
-- [ ] **S2-03:** Incluir `History` (últimos 60s) e `Disks` no payload de `GET /api/metrics`.
-- [ ] **S2-04:** Criar testes unitários em `DroidDeck.Tests/HistoryAndDisksTests.cs` validando rotação do buffer de 60 amostras e múltiplos volumes.
+- [x] **S2-01:** Criar modelo `MetricSampleDto` (`TimestampUtc`, `Cpu`, `Ram`, `Gpu`, `CpuTempC`, `GpuTempC`) e buffer circular de 60 posições em `SystemMonitorService.cs`.
+- [x] **S2-02:** Criar modelo `DiskVolumeDto` (`Name`, `Label`, `TotalGB`, `AvailableGB`, `UsagePercent`) enumerando todos os drives `DriveType.Fixed` prontos.
+- [x] **S2-03:** Incluir `History` (últimos 60s) e `Disks` no payload de `GET /api/metrics`.
+- [x] **S2-04:** Criar testes unitários em `DroidDeck.Tests/HistoryAndDisksTests.cs` validando rotação do buffer de 60 amostras e múltiplos volumes.
 
 ---
 

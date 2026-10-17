@@ -20,5 +20,9 @@ namespace DroidDeck.Models
         public int? BatteryPercent { get; set; }
         public bool? IsCharging { get; set; }
         public bool HasBattery { get; set; }
+
+        // Telemetria v0.2: Histórico recente (60s) e múltiplos volumes de disco
+        public List<MetricSampleDto> History { get; set; } = new();
+        public List<DiskVolumeDto> Disks { get; set; } = new();
     }
 }

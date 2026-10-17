@@ -2,6 +2,9 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using DroidDeck.Lib;
+using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace DroidDeck.Tests
 {
