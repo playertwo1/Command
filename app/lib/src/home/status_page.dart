@@ -33,6 +33,7 @@ class StatusPage extends StatefulWidget {
 
 class _StatusPageState extends State<StatusPage> {
   SavedPc? _currentPc;
+  List<SavedPc> _savedPcs = [];
   List<AllowedApp> _apps = [];
   List<CommandJob> _jobs = [];
   bool _loadingApps = false;
@@ -84,6 +85,7 @@ class _StatusPageState extends State<StatusPage> {
       final pcs = await PcStore.load();
       if (mounted) {
         setState(() {
+          _savedPcs = pcs;
           _currentPc = pcs.where((p) => p.id == PcStore.currentId).firstOrNull ??
               (pcs.isNotEmpty ? pcs.first : null);
         });
@@ -1073,6 +1075,144 @@ class _StatusPageState extends State<StatusPage> {
     }
   }
 
+  Future<void> _handleSwitchPc(SavedPc pc) async {
+    await PcStore.select(pc);
+    final client = _client;
+    if (client != null) {
+      client.setBaseUrl(pc.baseUrl);
+      client.setApiKey(pc.apiKey);
+    }
+    final signalR = widget.signalRService;
+    if (signalR != null) {
+      await signalR.updateUrl(pc.baseUrl, apiKey: pc.apiKey);
+    } else {
+      try {
+        await Injector.get<SignalRService>().updateUrl(pc.baseUrl, apiKey: pc.apiKey);
+      } catch (_) {}
+    }
+    await _loadPc();
+    await _loadAppsAndJobs();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tr('Alternado com sucesso para "{name}".', {'name': pc.name})),
+          backgroundColor: const Color(0xFF34D5A0),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _showPcSwitcherModal(BuildContext context, ThemeData theme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.computer, color: Color(0xFFA78BFA), size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          tr('Computadores Pareados'),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                for (final pc in _savedPcs) ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      pc.id == _currentPc?.id
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                      color: pc.id == _currentPc?.id
+                          ? const Color(0xFFA78BFA)
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    title: Text(
+                      pc.name,
+                      style: TextStyle(
+                        fontWeight: pc.id == _currentPc?.id ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${pc.ip}:${pc.port}' +
+                          (pc.lastConnectedAt != null
+                              ? ' · Visto às ${pc.lastConnectedAt!.hour.toString().padLeft(2, '0')}:${pc.lastConnectedAt!.minute.toString().padLeft(2, '0')}'
+                              : ''),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    trailing: pc.id == _currentPc?.id
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFA78BFA).withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              tr('Ativo'),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFA78BFA),
+                              ),
+                            ),
+                          )
+                        : null,
+                    onTap: () async {
+                      Navigator.of(ctx).pop();
+                      if (pc.id != _currentPc?.id) {
+                        await _handleSwitchPc(pc);
+                      }
+                    },
+                  ),
+                  const Divider(height: 1),
+                ],
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Navigator.of(context).pushNamed('/config');
+                    },
+                    icon: const Icon(Icons.settings_outlined, size: 18),
+                    label: Text(tr('Gerenciar PCs e Novo Pareamento')),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final signalR = widget.signalRService ?? Injector.get<SignalRService>();
@@ -1099,10 +1239,19 @@ class _StatusPageState extends State<StatusPage> {
                 ],
               ),
               actions: [
+                if (_savedPcs.length > 1)
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz),
+                    tooltip: tr('Alternar PC ativo'),
+                    onPressed: () => _showPcSwitcherModal(context, theme),
+                  ),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   tooltip: tr('Configurações'),
-                  onPressed: () => Navigator.of(context).pushNamed('/config'),
+                  onPressed: () async {
+                    await Navigator.of(context).pushNamed('/config');
+                    await _loadPc();
+                  },
                 ),
               ],
             ),
@@ -1198,37 +1347,54 @@ class _StatusPageState extends State<StatusPage> {
                     width: 1.5,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isConnected
-                              ? const Color(0xFF34D5A0).withValues(alpha: 0.15)
-                              : const Color(0xFFF87171).withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: _savedPcs.length > 1
+                      ? () => _showPcSwitcherModal(context, theme)
+                      : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isConnected
+                                ? const Color(0xFF34D5A0).withValues(alpha: 0.15)
+                                : const Color(0xFFF87171).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.computer,
+                            color: isConnected
+                                ? const Color(0xFF34D5A0)
+                                : const Color(0xFFF87171),
+                            size: 26,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.computer,
-                          color: isConnected
-                              ? const Color(0xFF34D5A0)
-                              : const Color(0xFFF87171),
-                          size: 26,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              activePc?.name ?? tr('PC Conectado'),
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    activePc?.name ?? tr('PC Conectado'),
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (_savedPcs.length > 1) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 20,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ),
                             const SizedBox(height: 2),
                             Text(
                               activePc != null
@@ -1334,6 +1500,7 @@ class _StatusPageState extends State<StatusPage> {
                   ),
                 ),
               ),
+            ),
 
               // Banner Reativo de Alertas de Saúde (Fase S6)
               ListenableBuilder(

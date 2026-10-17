@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S6 CONCLUÍDO (PASS) -> Avançando para S7
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S7 CONCLUÍDO (PASS) -> Avançando para S8
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).

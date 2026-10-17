@@ -144,10 +144,10 @@ flowchart TD
 ### 🖥️ Fase S7 — Frontend Mobile: Gestão de Múltiplos PCs (`PcProfileManager`)
 **Objetivo:** Permitir salvar vários computadores pareados e alternar entre eles com 1 toque.
 
-- [ ] **S7-01:** Criar modelo `PcProfile` (`id`, `name`, `host`, `port`, `apiKey`, `lastConnectedAt`) persistido localmente no `SharedPreferences` / storage seguro.
-- [ ] **S7-02:** Migrar automaticamente a conexão atual para o primeiro perfil salvo sem perder o pareamento existente.
-- [ ] **S7-03:** Adicionar seletor rápido de PC no cabeçalho da `StatusPage` e tela de gerenciamento (adicionar via QR, renomear, excluir) na `ConfigPage`.
-- [ ] **S7-04:** Criar testes em `app/test/pc_profile_manager_test.dart` validando persistência e troca de conexão ativa.
+- [x] **S7-01:** Criar modelo `PcProfile` (`id`, `name`, `host`, `port`, `apiKey`, `lastConnectedAt`) persistido localmente no `SharedPreferences` / storage seguro.
+- [x] **S7-02:** Migrar automaticamente a conexão atual para o primeiro perfil salvo sem perder o pareamento existente.
+- [x] **S7-03:** Adicionar seletor rápido de PC no cabeçalho da `StatusPage` e tela de gerenciamento (adicionar via QR, renomear, excluir) na `ConfigPage`.
+- [x] **S7-04:** Criar testes em `app/test/pc_profile_manager_test.dart` validando persistência e troca de conexão ativa.
 
 ---
 

@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:droiddeck/src/connection/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Um PC pareado com este celular.
+/// Um PC pareado com este celular (Perfil de PC - Command v0.2 Fase S7).
 class SavedPc {
   final String id;
   final String name;
   final String ip;
   final String port;
   final String? apiKey;
+  final DateTime? lastConnectedAt;
 
   const SavedPc({
     required this.id,
@@ -17,20 +18,37 @@ class SavedPc {
     required this.ip,
     required this.port,
     this.apiKey,
+    this.lastConnectedAt,
   });
 
+  String get host => ip;
   String get baseUrl => 'http://$ip:$port';
 
-  SavedPc copyWith({String? name, String? apiKey}) => SavedPc(
+  SavedPc copyWith({
+    String? name,
+    String? ip,
+    String? port,
+    String? apiKey,
+    DateTime? lastConnectedAt,
+  }) =>
+      SavedPc(
         id: id,
         name: name ?? this.name,
-        ip: ip,
-        port: port,
+        ip: ip ?? this.ip,
+        port: port ?? this.port,
         apiKey: apiKey ?? this.apiKey,
+        lastConnectedAt: lastConnectedAt ?? this.lastConnectedAt,
       );
 
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'name': name, 'ip': ip, 'port': port, 'apiKey': apiKey};
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'ip': ip,
+        'port': port,
+        'apiKey': apiKey,
+        if (lastConnectedAt != null)
+          'lastConnectedAt': lastConnectedAt!.toIso8601String(),
+      };
 
   factory SavedPc.fromJson(Map<String, dynamic> j) => SavedPc(
         id: '${j['id']}',
@@ -38,8 +56,14 @@ class SavedPc {
         ip: '${j['ip']}',
         port: '${j['port'] ?? Constants.defaultPort}',
         apiKey: j['apiKey'] as String?,
+        lastConnectedAt: j['lastConnectedAt'] != null
+            ? DateTime.tryParse('${j['lastConnectedAt']}')
+            : null,
       );
 }
+
+/// Alias oficial de Perfil de PC (Command v0.2 - S7).
+typedef PcProfile = SavedPc;
 
 /// PCs pareados e qual está em uso. O PC atual também fica nas chaves antigas
 /// (IP, porta, chave), que o resto do app lê; o cache do deck é separado por PC.
@@ -63,6 +87,7 @@ class PcStore {
           ip: ip.contains(':') ? ip.substring(0, ip.indexOf(':')) : ip,
           port: prefs.getString(Constants.portKey) ?? Constants.defaultPort,
           apiKey: prefs.getString(Constants.apiKeyKey),
+          lastConnectedAt: DateTime.now(),
         );
         list = [pc];
         await prefs.setString(_listKey, _encode(list));
@@ -104,10 +129,18 @@ class PcStore {
         ip: ip,
         port: port,
         apiKey: apiKey ?? list[index].apiKey,
+        lastConnectedAt: DateTime.now(),
       );
       list[index] = pc;
     } else {
-      pc = SavedPc(id: _newId(), name: name ?? ip, ip: ip, port: port, apiKey: apiKey);
+      pc = SavedPc(
+        id: _newId(),
+        name: name ?? ip,
+        ip: ip,
+        port: port,
+        apiKey: apiKey,
+        lastConnectedAt: DateTime.now(),
+      );
       list.add(pc);
     }
     await _save(list);
@@ -150,6 +183,14 @@ class PcStore {
     } else {
       await prefs.remove(Constants.apiKeyKey);
     }
+
+    final rawList = _decode(prefs.getString(_listKey));
+    final now = DateTime.now();
+    final updated = [
+      for (final p in rawList)
+        p.id == pc.id ? p.copyWith(lastConnectedAt: now) : p
+    ];
+    await _save(updated);
   }
 
   /// Chave de preferência separada por PC (cache do deck, último perfil).
