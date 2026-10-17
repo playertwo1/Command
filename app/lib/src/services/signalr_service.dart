@@ -18,6 +18,87 @@ class _InfiniteRetryPolicy implements IRetryPolicy {
   }
 }
 
+class MetricSample {
+  final DateTime timestampUtc;
+  final double cpu;
+  final double ram;
+  final double gpu;
+  final double? cpuTempC;
+  final double? gpuTempC;
+
+  MetricSample({
+    required this.timestampUtc,
+    this.cpu = 0,
+    this.ram = 0,
+    this.gpu = 0,
+    this.cpuTempC,
+    this.gpuTempC,
+  });
+
+  factory MetricSample.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val) {
+      if (val == null) return 0;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0;
+      return 0;
+    }
+
+    double? parseNullableDouble(dynamic val) {
+      if (val == null) return null;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val);
+      return null;
+    }
+
+    DateTime parseDate(dynamic val) {
+      if (val is String) return DateTime.tryParse(val) ?? DateTime.now();
+      return DateTime.now();
+    }
+
+    return MetricSample(
+      timestampUtc: parseDate(json['timestampUtc'] ?? json['TimestampUtc']),
+      cpu: parseDouble(json['cpu'] ?? json['Cpu']),
+      ram: parseDouble(json['ram'] ?? json['Ram']),
+      gpu: parseDouble(json['gpu'] ?? json['Gpu']),
+      cpuTempC: parseNullableDouble(json['cpuTempC'] ?? json['CpuTempC']),
+      gpuTempC: parseNullableDouble(json['gpuTempC'] ?? json['GpuTempC']),
+    );
+  }
+}
+
+class DiskVolume {
+  final String name;
+  final String label;
+  final double totalGb;
+  final double availableGb;
+  final double usagePercent;
+
+  DiskVolume({
+    this.name = '',
+    this.label = '',
+    this.totalGb = 0,
+    this.availableGb = 0,
+    this.usagePercent = 0,
+  });
+
+  factory DiskVolume.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val) {
+      if (val == null) return 0;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0;
+      return 0;
+    }
+
+    return DiskVolume(
+      name: (json['name'] ?? json['Name'] ?? '').toString(),
+      label: (json['label'] ?? json['Label'] ?? '').toString(),
+      totalGb: parseDouble(json['totalGB'] ?? json['TotalGB']),
+      availableGb: parseDouble(json['availableGB'] ?? json['AvailableGB']),
+      usagePercent: parseDouble(json['usagePercent'] ?? json['UsagePercent']),
+    );
+  }
+}
+
 class SystemStats {
   final double cpuUsage; // % (0-100)
   final double ramUsage; // % usada (0-100)
@@ -31,6 +112,15 @@ class SystemStats {
   final double diskAvailableGb; // GB
   final int uptimeSeconds; // segundos
 
+  // Telemetria v0.2: Térmica, Bateria e Multi-Disco
+  final double? cpuTempC;
+  final double? gpuTempC;
+  final int? batteryPercent;
+  final bool? isCharging;
+  final bool hasBattery;
+  final List<MetricSample> history;
+  final List<DiskVolume> disks;
+
   SystemStats({
     this.cpuUsage = 0,
     this.ramUsage = 0,
@@ -43,6 +133,13 @@ class SystemStats {
     this.diskTotalGb = 0,
     this.diskAvailableGb = 0,
     this.uptimeSeconds = 0,
+    this.cpuTempC,
+    this.gpuTempC,
+    this.batteryPercent,
+    this.isCharging,
+    this.hasBattery = false,
+    this.history = const [],
+    this.disks = const [],
   });
 
   /// % de RAM em uso (usa o valor do backend; se faltar, calcula de total/disponível).
@@ -71,12 +168,54 @@ class SystemStats {
       return 0;
     }
 
+    double? parseNullableDouble(dynamic val) {
+      if (val == null) return null;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val);
+      return null;
+    }
+
     int parseInt(dynamic val) {
       if (val == null) return 0;
       if (val is int) return val;
       if (val is num) return val.toInt();
       if (val is String) return int.tryParse(val) ?? 0;
       return 0;
+    }
+
+    int? parseNullableInt(dynamic val) {
+      if (val == null) return null;
+      if (val is int) return val;
+      if (val is num) return val.toInt();
+      if (val is String) return int.tryParse(val);
+      return null;
+    }
+
+    bool? parseNullableBool(dynamic val) {
+      if (val == null) return null;
+      if (val is bool) return val;
+      if (val is String) return val.toLowerCase() == 'true';
+      return null;
+    }
+
+    List<MetricSample> parseHistory(dynamic list) {
+      if (list is List) {
+        return list
+            .whereType<Map<String, dynamic>>()
+            .map(MetricSample.fromJson)
+            .toList();
+      }
+      return const [];
+    }
+
+    List<DiskVolume> parseDisks(dynamic list) {
+      if (list is List) {
+        return list
+            .whereType<Map<String, dynamic>>()
+            .map(DiskVolume.fromJson)
+            .toList();
+      }
+      return const [];
     }
 
     return SystemStats(
@@ -91,6 +230,13 @@ class SystemStats {
       diskTotalGb: parseDouble(json['diskTotalGB'] ?? json['DiskTotalGB']),
       diskAvailableGb: parseDouble(json['diskAvailableGB'] ?? json['DiskAvailableGB']),
       uptimeSeconds: parseInt(json['uptimeSeconds'] ?? json['UptimeSeconds']),
+      cpuTempC: parseNullableDouble(json['cpuTempC'] ?? json['CpuTempC']),
+      gpuTempC: parseNullableDouble(json['gpuTempC'] ?? json['GpuTempC']),
+      batteryPercent: parseNullableInt(json['batteryPercent'] ?? json['BatteryPercent']),
+      isCharging: parseNullableBool(json['isCharging'] ?? json['IsCharging']),
+      hasBattery: json['hasBattery'] == true || json['HasBattery'] == true,
+      history: parseHistory(json['history'] ?? json['History']),
+      disks: parseDisks(json['disks'] ?? json['Disks']),
     );
   }
 }

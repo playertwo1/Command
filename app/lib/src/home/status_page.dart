@@ -669,6 +669,57 @@ class _StatusPageState extends State<StatusPage> {
                           ],
                         ),
                       ),
+                      if (stats.hasBattery && stats.batteryPercent != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (stats.isCharging == true
+                                    ? const Color(0xFF34D5A0)
+                                    : const Color(0xFFA78BFA))
+                                .withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: (stats.isCharging == true
+                                      ? const Color(0xFF34D5A0)
+                                      : const Color(0xFFA78BFA))
+                                  .withValues(alpha: 0.35),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                stats.isCharging == true
+                                    ? Icons.bolt
+                                    : (stats.batteryPercent! <= 20
+                                        ? Icons.battery_alert
+                                        : Icons.battery_std),
+                                size: 13,
+                                color: stats.isCharging == true
+                                    ? const Color(0xFF34D5A0)
+                                    : (stats.batteryPercent! <= 20
+                                        ? const Color(0xFFF87171)
+                                        : const Color(0xFFA78BFA)),
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${stats.batteryPercent}%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: stats.isCharging == true
+                                      ? const Color(0xFF34D5A0)
+                                      : (stats.batteryPercent! <= 20
+                                          ? const Color(0xFFF87171)
+                                          : const Color(0xFFA78BFA)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -692,6 +743,8 @@ class _StatusPageState extends State<StatusPage> {
                     progress: (stats.cpuUsage / 100.0).clamp(0.0, 1.0),
                     icon: Icons.memory,
                     theme: theme,
+                    tempC: stats.cpuTempC,
+                    showTempBadge: true,
                   ),
                   _MetricCard(
                     title: 'RAM',
@@ -716,9 +769,102 @@ class _StatusPageState extends State<StatusPage> {
                     progress: (stats.gpuUsage / 100.0).clamp(0.0, 1.0),
                     icon: Icons.videogame_asset_outlined,
                     theme: theme,
+                    tempC: stats.gpuTempC,
+                    showTempBadge: true,
                   ),
                 ],
               ),
+
+              // Múltiplos Volumes de Disco (Command v0.2 - S4)
+              if (stats.disks.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Card(
+                  elevation: 0,
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.dns_outlined, size: 20, color: Color(0xFFA78BFA)),
+                            const SizedBox(width: 8),
+                            Text(
+                              tr('Volumes de Disco'),
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        for (final disk in stats.disks) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      disk.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                        color: Color(0xFFA78BFA),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    disk.label.isNotEmpty ? disk.label : disk.name,
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${disk.usagePercent.toStringAsFixed(1)}% (${(disk.totalGb - disk.availableGb).toStringAsFixed(0)}/${disk.totalGb.toStringAsFixed(0)} GB)',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: (disk.usagePercent / 100.0).clamp(0.0, 1.0),
+                              minHeight: 5,
+                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                disk.usagePercent >= 90
+                                    ? const Color(0xFFEF4444)
+                                    : (disk.usagePercent >= 75
+                                        ? const Color(0xFFF59E0B)
+                                        : const Color(0xFF10B981)),
+                              ),
+                            ),
+                          ),
+                          if (disk != stats.disks.last) const SizedBox(height: 12),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 12),
 
@@ -1541,6 +1687,8 @@ class _MetricCard extends StatelessWidget {
   final double progress;
   final IconData icon;
   final ThemeData theme;
+  final double? tempC;
+  final bool showTempBadge;
 
   const _MetricCard({
     required this.title,
@@ -1549,12 +1697,52 @@ class _MetricCard extends StatelessWidget {
     required this.progress,
     required this.icon,
     required this.theme,
+    this.tempC,
+    this.showTempBadge = false,
   });
 
   Color _progressColor(double p) {
     if (p >= 0.9) return const Color(0xFFF87171); // Vermelho
     if (p >= 0.7) return const Color(0xFFF0B65F); // Âmbar
     return const Color(0xFF34D5A0); // Verde
+  }
+
+  Widget _buildTempBadge(double? temp) {
+    final String text = temp != null ? '${temp.toStringAsFixed(0)}°C' : 'N/D';
+    final Color color;
+    if (temp == null) {
+      color = const Color(0xFF9CA3AF);
+    } else if (temp <= 65) {
+      color = const Color(0xFF10B981);
+    } else if (temp <= 80) {
+      color = const Color(0xFFF59E0B);
+    } else {
+      color = const Color(0xFFEF4444);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.thermostat, size: 10, color: color),
+          const SizedBox(width: 2),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1577,11 +1765,20 @@ class _MetricCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (showTempBadge) ...[
+                      const SizedBox(width: 6),
+                      _buildTempBadge(tempC),
+                    ],
+                  ],
                 ),
                 Icon(icon, size: 18, color: theme.colorScheme.primary),
               ],

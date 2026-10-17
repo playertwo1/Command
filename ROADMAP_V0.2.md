@@ -114,10 +114,10 @@ flowchart TD
 ### 🎨 Fase S4 — Frontend Mobile: UI Térmica, Bateria e Múltiplos Discos
 **Objetivo:** Exibir temperaturas, estado da bateria do PC e todos os discos fixos na `StatusPage`.
 
-- [ ] **S4-01:** Adicionar badges semafóricos de temperatura nos cards de CPU e GPU ($\le 65^\circ\text{C}$ Verde `#10B981`, $66\text{--}80^\circ\text{C}$ Âmbar `#F59E0B`, $> 80^\circ\text{C}$ Vermelho `#EF4444`, ou `N/D`).
-- [ ] **S4-02:** Adicionar pill de **Bateria do PC** (`%` + ícone de raio quando carregando) no cabeçalho da `StatusPage` quando `hasBattery == true`.
-- [ ] **S4-03:** Expandir visualização de armazenamento para listar todos os volumes fixos (`C:`, `D:`, etc.) com barras de progresso individuais.
-- [ ] **S4-04:** Criar testes de widget em `app/test/thermal_and_disks_ui_test.dart`.
+- [x] **S4-01:** Adicionar badges semafóricos de temperatura nos cards de CPU e GPU ($\le 65^\circ\text{C}$ Verde `#10B981`, $66\text{--}80^\circ\text{C}$ Âmbar `#F59E0B`, $> 80^\circ\text{C}$ Vermelho `#EF4444`, ou `N/D`).
+- [x] **S4-02:** Adicionar pill de **Bateria do PC** (`%` + ícone de raio quando carregando) no cabeçalho da `StatusPage` quando `hasBattery == true`.
+- [x] **S4-03:** Expandir visualização de armazenamento para listar todos os volumes fixos (`C:`, `D:`, etc.) com barras de progresso individuais.
+- [x] **S4-04:** Criar testes de widget em `app/test/thermal_and_disks_ui_test.dart`.
 
 ---
 
