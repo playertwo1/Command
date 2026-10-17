@@ -1,0 +1,25 @@
+input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* Chromium */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
+}
+
+.slider-slider {
+    margin: 10px;
+}
+
+
+display: block;
+height: 100px;
+width: 100px;
+background-color: black;
+border: inherit;
+/* position: absolute; */
+/* bottom: -10px; */
+left: calc(50% - 10px);
+clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
+transform: rotate(-90deg);
+border-radius: 0.25em;

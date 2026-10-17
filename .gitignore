@@ -20,33 +20,67 @@ secrets/
 *.bak*
 backups/
 
-# Dependências, builds e caches
-node_modules/
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Build results
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
 dist/
 build/
 .gradle/
 .idea/
-.vs/
-*.user
-*.suo
 TestResults/
 captures/
 .kotlin/
-bin/
-obj/
 *.apk
 *.aab
 .venv/
 __pycache__/
 *.py[cod]
 *.log
+.builds
 
-# Candidatos upstream são pesquisa temporária; nunca entram no repositório Command.
+# MSTest / Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.tmp
+*.tmp_proj
+
+# Node (ferramentas de CI: semantic-release)
+node_modules/
+
+# Flutter Web build output served by the backend (regenerável via `flutter build web`)
+wwwroot/
+
+# Debug/scratch logs deixados durante depuração
+*_debug.txt
+discovery_debug.txt
+monitor_debug.txt
+
+# Site (MkDocs + landing) gerado localmente
+_site/
+
+# Backup de migração Command
+.command_backup/
+
+# Candidatos upstream de pesquisa antiga
 research/upstream/*
 !research/upstream/README.md
 !research/upstream/.gitignore
 
-# Capturas de evidência pesadas (registre o caminho na review)
+# Capturas de evidência pesadas
 docs/reviews/**/captures/
 
+# Windows / Mac detritus
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 .DS_Store

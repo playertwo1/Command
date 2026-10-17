@@ -1,0 +1,31 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/github",
+      {
+        "successComment": false,
+        "failComment": false,
+        "assets": [
+          { "path": "dist/velopack/DroidDeck-Setup.exe", "label": "DroidDeck para Windows (instalador, atualiza sozinho)" },
+          { "path": "dist/DroidDeck-win-x64.zip", "label": "DroidDeck para Windows (.zip, sem instalar)" },
+          { "path": "dist/velopack/*.nupkg" },
+          { "path": "dist/velopack/releases.win.json" },
+          { "path": "dist/velopack/assets.win.json" },
+          { "path": "dist/velopack/RELEASES" },
+          { "path": "dist/DroidDeck.apk", "label": "App Android (.apk)" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]"
+      }
+    ]
+  ]
+}

@@ -1,44 +1,102 @@
+<div align="center">
+
+<img src="website/landing/logo.svg" alt="Command Logo" width="96" height="96">
+
 # Command
 
-Aplicativo Android e Bridge Windows para controlar um PC pessoal por ações explícitas, com Hermes como módulo de IA opcional.
+**Controle de PC e telemetria de hardware para Windows via aplicativo Android/Flutter, baseado no DroidDeck.**
 
-## Estado atual
+[![Upstream DroidDeck](https://img.shields.io/badge/upstream-DroidDeck%20v1.9.1-blue?style=for-the-badge)](https://github.com/ggfto/DroidDeck)
+[![License: Apache 2.0 / GPL 3.0](https://img.shields.io/badge/License-Apache%202.0%20%2F%20GPL%203.0-green.svg?style=for-the-badge)](LICENSE)
 
-O roadmap do MVP v0.1 foi aprovado e o projeto inicia **F0 — escolha de bases e preparação técnica**. Esta pasta contém o planejamento, referências visuais e estrutura inicial; ainda não há aplicativo ou Bridge implementados. Consulte [STATE.md](STATE.md) para a próxima ação e [ROADMAP.md](ROADMAP.md) para a sequência oficial.
+</div>
 
-## Comece por aqui
+---
+
+## 🎯 Sobre o Command
+
+O **Command** é uma solução de controle e telemetria de PC pessoal para Windows através de um aplicativo móvel Android. Ele é desenvolvido como um **in-tree fork ativo do [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck)**, combinando todo o ecossistema comprovado do DroidDeck com as capacidades avançadas de telemetria e o design Amethyst Dark do Command.
+
+### ✨ O que o projeto oferece:
+- **Base DroidDeck v1.9.1 completa:**
+  - ⌨️ Teclas de atalho e macros graváveis pelo teclado.
+  - 🪟 Troca rápida de dispositivos de áudio, bloquear tela, suspender.
+  - ⏱️ Timers, cronômetros, pomodoros e contadores integrados.
+  - 🎮 Atalhos de jogos da Steam com capa automática.
+  - 🔊 Mixer de áudio por aplicativo em tempo real.
+  - 💬 Integração completa com Discord (mute, ensurdecer, canais, soundboard).
+  - 🎥 Controle avançado de OBS Studio via WebSocket (cenas, gravação, transmissão, áudio).
+  - 💡 Casa inteligente via Home Assistant e Tuya / Smart Life.
+  - 🎧 Spotify, Twitch e YouTube com status ao vivo.
+  - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
+  - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
+- **Extensões Command:**
+  - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU).
+  - 🎨 Tema visual Command Amethyst Dark e cartões de status do sistema.
+  - 🤖 Suporte arquitetural para o agente de IA opcional Hermes.
+
+---
+
+## 🧭 Navegação rápida do projeto
 
 | Pergunta | Arquivo |
 |---|---|
 | Onde paramos e qual é a próxima ação? | [STATE.md](STATE.md) |
-| Qual é o produto e o que fica fora do MVP? | [PROJECT.md](PROJECT.md) |
-| Quais são os gates e a sequência aprovada? | [ROADMAP.md](ROADMAP.md) |
-| Qual é a referência visual do Android? | [DESIGN.md](DESIGN.md) e [referências do Stitch](references/stitch/README.md) |
-| Quais decisões ainda faltam? | [docs/DECISIONS.md](docs/DECISIONS.md) |
-| Como registrar evidência e aceite? | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) |
-| Quais regras os agentes seguem? | [AGENTS.md](AGENTS.md) (`CLAUDE.md` importa este arquivo) |
+| Qual é o produto, escopo e metas? | [PROJECT.md](PROJECT.md) |
+| Quais são os gates e a sequência oficial? | [ROADMAP.md](ROADMAP.md) |
+| Qual é a referência visual e design tokens? | [DESIGN.md](DESIGN.md) e [referências do Stitch](references/stitch/README.md) |
+| Quais decisões de arquitetura foram tomadas? | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| Como registrar evidência e critérios de aceite? | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) |
+| Quais regras os agentes e desenvolvedores seguem? | [AGENTS.md](AGENTS.md) |
+| Documentação detalhada do DroidDeck? | [website/docs/pt/](website/docs/pt/) ou [website/docs/en/](website/docs/en/) |
 
-## Documentos de origem
+---
 
-- [Manual do MVP](COMMAND_Manual_MVP.docx) — visão e requisitos iniciais; [transcrição em Markdown](docs/MANUAL_MVP.md) para leitura por agentes.
-- [Roadmap original](docs/history/ROADMAP-2026-10-10-original.md) — preservado como histórico.
-- [Plano aprovado](docs/plans/2026-10-12-mvp-inicial.md) — texto exato aprovado em 2026-10-12 (não editar; mudanças vão para `ROADMAP.md`).
-
-A estrutura documental foi adaptada manualmente do kit [`ideias_standard`](https://github.com/playertwo1/ideias_standard); o exemplo de Command desse repositório descreve um escopo anterior e não foi copiado por cima dos documentos atuais.
-
-## Estrutura
+## 🧩 Arquitetura do repositório
 
 ```text
-apps/android/          app Kotlin/Compose (F1 após decisão F0)
-apps/windows-bridge/   Bridge C#/.NET (F1 após decisão F0)
-contracts/             contratos versionados da API (F1)
-docs/adr/              decisões de base e arquitetura (F0)
-docs/evidence/         evidências reproduzíveis dos gates
-references/stitch/     capturas de referência do projeto visual
-research/upstream/     checkout temporário de candidatos; não versionar código upstream
-tests/                 testes de contrato, integração e segurança (F1+)
+DroidDeck/             Backend C# (.NET 8 WinForms Tray + ASP.NET Core + SignalR + API REST)
+app/                   Aplicativo móvel e configurador web em Flutter (Dart)
+tests/DroidDeck.Tests/ Suíte de testes unitários e de integração do backend
+scripts/               Scripts de build, empacotamento e deploy do frontend web
+website/               Documentação MkDocs e site institucional (EN/PT)
+docs/                  Decisões de arquitetura (ADRs), roadmap, manual e checklists
+contracts/             Especificações OpenAPI e schemas da API
 ```
 
-## Como rodar e verificar
+---
 
-Ainda não há comandos de instalação, execução ou verificação: a stack e a base dos componentes serão confirmadas em F0. Não declare build ou testes aprovados antes de executar os comandos reais definidos após essa decisão.
+## 🛠️ Compilação e testes locais
+
+O repositório possui ferramentas e SDKs homologados para execução imediata:
+
+### Backend (.NET 8)
+```powershell
+# Executar a suíte de testes do backend
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe test DroidDeck.sln
+
+# Executar o backend em modo Tray
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project DroidDeck
+
+# Executar o backend em modo headless
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project DroidDeck -- --headless
+```
+
+### Frontend (Flutter)
+```powershell
+cd app
+
+# Obter dependências
+..\research\upstream\.tools\flutter\bin\flutter.bat pub get
+
+# Executar testes
+..\research\upstream\.tools\flutter\bin\flutter.bat test
+```
+
+---
+
+## 📄 Licença e atribuição
+
+O Command é derivado do projeto [DroidDeck](https://github.com/ggfto/DroidDeck), mantido originalmente por @ggfto.
+- O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE).
+- O aplicativo Flutter é distribuído sob a licença [GPL 3.0](LICENSE).

@@ -1,0 +1,88 @@
+# Compilando a partir do código-fonte
+
+## Requisitos
+
+- Windows 10 1809+ com o **.NET 8 SDK**.
+- **Flutter** (canal stable) para o app; Android SDK e JDK 17 para o APK.
+
+## Backend
+
+```powershell
+# run (tray app + server at http://localhost:4787)
+cd DroidDeck
+dotnet run
+
+# build the solution
+dotnet build DroidDeck.sln -c Debug
+```
+
+!!! warning "Atenção"
+    Não use `dotnet build -o <dir>` no projeto do backend: isso corrompe o `obj/` e gera um assembly
+    sem os recursos, e o app fecha logo depois de iniciar.
+
+Defina `ASPNETCORE_ENVIRONMENT=Development` para ativar o Swagger em `/swagger`.
+
+## App
+
+```powershell
+cd app
+
+# web configurator -> builds and copies to DroidDeck/wwwroot
+..\scripts\deploy-web.ps1
+
+# Android APK
+flutter build apk --debug --target-platform android-arm64
+adb install -r build\app\outputs\flutter-apk\app-debug.apk
+```
+
+## Testes e CI
+
+```powershell
+dotnet test DroidDeck.sln              # backend (tests/DroidDeck.Tests)
+cd app; flutter analyze; flutter test  # app
+```
+
+Os testes do backend nunca tocam nos seus dados reais: um module initializer aponta as pastas de
+dados do servidor para um diretório temporário via `DROIDDECK_DATA_DIR`. Os testes da categoria
+`RequiresDesktop` enviam teclas de verdade (engolidas por um hook de teclado) e precisam de uma
+sessão interativa do Windows.
+
+O workflow de **CI** (`.github/workflows/ci.yml`) roda a cada push na `main` e em todo pull request:
+testes do backend (menos `RequiresDesktop`), `flutter analyze --no-fatal-infos`, `flutter test` e o
+build estrito da documentação. O workflow de Release roda os testes de novo antes de compilar.
+
+## Releases
+
+As releases são feitas pelo workflow **Release** (`.github/workflows/release.yml`), disparado
+manualmente em **Actions → Release → Run workflow**. Ele usa o **semantic-release**, então a versão
+vem dos commits ([Conventional Commits](https://www.conventionalcommits.org)):
+
+| Commit | Incremento de versão |
+|---|---|
+| `feat:` | minor |
+| `fix:`, `perf:` | patch |
+| `feat!:` ou `BREAKING CHANGE` | major |
+
+Ele atualiza o `CHANGELOG.md`, cria a tag e a GitHub Release, e anexa o `DroidDeck-Setup.exe`
+(instalador), o `DroidDeck-win-x64.zip` (o mesmo backend autocontido com o configurador web embutido,
+sem instalador) e o `DroidDeck.apk`. Um primeiro job roda o semantic-release em dry-run para saber a
+próxima versão, porque o instalador é empacotado com ela ([Velopack](https://velopack.io),
+`--packId DroidDeckPC`). O feed do Velopack (`releases.win.json`, o `.nupkg` e afins) também vai
+anexado: as cópias instaladas procuram por ele na última release para se atualizar, então **não apague
+esses arquivos**. Se não houver nenhum
+commit que gere release desde a última versão, nada é publicado.
+
+## Este site
+
+A landing page (`website/landing/`) e esta documentação (`website/docs/`, MkDocs Material, em inglês
+e português) são publicadas no GitHub Pages pelo `.github/workflows/pages.yml` a cada push na `main`
+que mexa em `website/`.
+
+```powershell
+pip install -r website/requirements.txt
+cd website
+mkdocs serve        # http://127.0.0.1:8000/DroidDeck/docs/
+```
+
+As páginas ficam em `website/docs/en/` e `website/docs/pt/`, com os mesmos nomes de arquivo. Ao
+adicionar uma página, inclua-a no `nav` do `website/mkdocs.yml` e crie-a nos dois idiomas.

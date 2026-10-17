@@ -1,0 +1,181 @@
+# API
+
+DroidDeck's server exposes a REST API and a SignalR hub on port `4787`. The phone app and the
+configurator use them, and you can use them to build your own clients or automations.
+
+## Authentication
+
+Every endpoint requires the API key, except `GET /api/ping` and `GET /api/pairing/local-key`.
+Send the key in one of these ways:
+
+- header `X-API-KEY: <key>`
+- header `Authorization: Bearer <key>`
+- query string `?access_token=<key>` (used for the SignalR WebSocket)
+
+`GET /api/pairing/local-key` returns `{key}` only to requests from the PC itself (loopback), and
+rejects cross-site browser requests. CORS only allows origins on loopback and private network ranges.
+
+Integration failures return `502` with `{error}`.
+
+## Privileged actions
+
+**Hotkey**, **launch app** and **activate window** run code on the PC, and an **HTTP request** goes
+out with the PC's network access, so they are protected even from clients that have the key. Requests that don't come from the PC itself (loopback) cannot:
+
+- run them through `execute` — use `press` with a button that was saved on the PC;
+- create a button with one of these actions, or change its parameters, through `POST profiles`.
+  Moving, renaming, recolouring and deleting such buttons is allowed.
+
+A multi-action counts as privileged when any of its steps is. Refused requests return `403` with
+`{error}`.
+
+## Examples
+
+```bash
+# Is the server up?
+curl http://192.168.0.10:4787/api/ping
+
+# Toggle Discord mute
+curl -X POST http://192.168.0.10:4787/api/StreamDeck/execute \
+  -H "X-API-KEY: $KEY" -H "Content-Type: application/json" \
+  -d '{"type":"discord","parameters":{"operation":"toggleMute"}}'
+
+# Mute Spotify
+curl -X POST http://192.168.0.10:4787/api/StreamDeck/execute \
+  -H "X-API-KEY: $KEY" -H "Content-Type: application/json" \
+  -d '{"type":"mixer","parameters":{"operation":"mute","processName":"Spotify"}}'
+```
+
+## Deck — `/api/StreamDeck`
+
+| Method | Route | Description |
+|---|---|---|
+| GET | `profiles` | List profiles. |
+| GET | `profiles/{id}` | Get a profile. |
+| POST | `profiles` | Create or update a profile. Broadcasts `ReceiveDeckUpdate`. |
+| DELETE | `profiles/{id}` | Delete a profile. Broadcasts `ReceiveDeckUpdate`. |
+| POST | `press` | Press a saved button (`{profileId, buttonId, gesture}`; `gesture` is `tap` (default), `longPress` or `doubleTap`): the server runs the action stored in the profile for that gesture. This is what the phone uses. |
+| POST | `execute` | Run an ad-hoc action (`{type, parameters}`). From outside the PC, privileged actions return `403`. |
+| GET / POST | `layout` | Read / set the grid size (`{rows, columns}`). |
+
+### Action payload
+
+```json
+{ "type": "hotkey", "parameters": { "keys": "^+m" } }
+```
+
+All parameter values are strings.
+
+| `type` | Parameters |
+|---|---|
+| `hotkey` | `keys` |
+| `launch_app` | `path`, `arguments`? |
+| `activatewindow` | `windowName` (exact window title) |
+| `media` | `command`: `playpause`·`play`·`pause`·`next`·`previous`·`stop`; `sessionId`? |
+| `mixer` | `operation`: `toggleMute`·`mute`·`unmute`·`setVolume`·`volumeUp`·`volumeDown`; `processName` **or** `deviceId` (`default` or an endpoint id); `deviceKind`: `output`·`input`; `volume` (0–100); `step` (1–50) |
+| `multi` | `steps`: JSON array string `[{"type","parameters","delayMs"}]` |
+| `discord` | `operation`: `toggleMute`·`mute`·`unmute`·`toggleDeafen`·`joinChannel` (`channelId`)·`disconnect`·`inputVolumeUp/Down`·`outputVolumeUp/Down` (`delta`)·`setInputVolume`·`setOutputVolume` (`value`)·`toggleVoiceMode`·`setVoiceMode` (`mode`: `VOICE_ACTIVITY`·`PUSH_TO_TALK`)·`userMute` (`userId`)·`userVolume` (`userId`, `value` 0–200) |
+| `obs` | `operation`: `setScene` (`scene`)·`toggleRecord`·`startRecord`·`stopRecord`·`toggleStream`·`toggleVirtualCam`·`toggleReplayBuffer`·`saveReplay`·`toggleInputMute` (`inputName`) |
+| `soundboard` | `operation`: `play`·`stop`; `source`: `myinstants` (`id`, `url`, `title`) or `discord` (`soundId`, `guildId`) |
+| `tuya` | `deviceId`, `code`, `operation`: `toggle`·`set`; `value`, `valueType` |
+| `homeassistant` | `operation`: `toggle`·`turn_on`·`turn_off`·`brightness` (`step`)·`scene`·`script`·`display`·`service` (`service` = `domain.service`, `data` JSON); `entityId` |
+| `spotify` | `operation`: `playPause`·`next`·`previous`·`like`·`shuffle`·`repeat`·`volume` (`step`)·`playlist` (`uri`, `shuffleOn`)·`nowPlaying` |
+| `twitch` | `operation`: `marker` (`description`)·`clip`·`ad` (`length`)·`chat` (`message`)·`poll` (`question`, `choices` one per line, `duration`)·`title` (`title`)·`status` |
+| `youtube` | `operation`: `chat` (`message`)·`status` |
+
+`open_profile` and `back` exist only on the phone.
+
+## Audio — `/api/v1/Mixer`, `/api/v1/Media`
+
+| Method | Route | Description |
+|---|---|---|
+| GET | `Mixer/out`, `Mixer/in` | Output / input devices with their app sessions. |
+| GET | `Mixer/out/{id}`, `Mixer/in/{id}` | One device. |
+| PUT | `Mixer/out/{id}`, `Mixer/in/{id}` | `{session, volume?, mute?}` — `session` is a process id, or `-1` for the whole device. |
+| GET | `Media/sessions` | Media sessions, with thumbnails. |
+| GET | `Media/sessions/{id}` | One session. |
+| POST | `Media/sessions/{id}/command` | `{command}`. |
+
+A profile is `{id, name, rows, columns, isDefault, buttons, autoSwitchApps}`; a button has `action`,
+`longPressAction` and `doubleTapAction` (each `{type, parameters}` or `null`). The privileged-action
+rule applies to all three.
+
+Two-state buttons add `toggle` (bool), `activeAction` (run on the tap that turns it off),
+`activeLabel`, `activeIconName` and `activeIconBase64`. Info buttons use `dynamicType` (`cpu_monitor`,
+`memory_monitor`, `gpu_monitor`, `network_monitor`, `clock`, `weather`, `now_playing`, `command`,
+`url`) with `dynamicParameters` (`city`, `units`, `command`, `url`, `path`, `format`, `interval`…);
+`command` and `url` follow the privileged-action rule.
+
+## Library — backup, Steam, apps
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/backup` | Download every profile as a `.droiddeck` (zip). |
+| POST | `/api/backup` | Restore a `.droiddeck` (request body = the file). Same-id profiles are replaced. From outside the PC, refused with `403` if it would create privileged buttons. |
+| GET | `/api/steam/games` | Installed Steam games (`{value: appId, label: name}`). |
+| GET | `/api/steam/icon/{appId}` | `{iconBase64}`: a square PNG cut from the game's cover. |
+| GET | `/api/system/apps` | Programs with a visible window (for automatic profile switching). |
+| GET | `/api/system/info` | `{name, version}` — the PC's Windows name, used to label paired PCs. |
+| GET | `/api/info` | Current values of the info buttons, what's playing and the two-state buttons that are on. |
+| GET / POST | `/api/macro`, `/api/macro/start`, `/api/macro/stop` | Keyboard macro recording. Only from the PC itself (`403` otherwise); `stop` returns `{steps}` in the multi-action format. |
+
+## Action types — `/api/actions`
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `schema` | Every action type with its title, icon, category and fields. The editor builds its form from this. |
+| GET | `state/{type}` | Current live state of a type (the same payload as its SignalR event). |
+| GET | `timer/targets` | Timer buttons another button can control. |
+| GET | `windows/audio-devices?kind=output\|input` | Active audio devices (`{value, label}`). |
+
+## Integrations
+
+| Prefix | Endpoints |
+|---|---|
+| `/api/discord` | `POST config` `{clientId, clientSecret}` · `POST connect` · `GET state` · `GET guilds` · `GET channels/{guildId}` · `GET voice-channel` · `POST mute` · `POST deafen` · `GET soundboard-sounds` · `POST play-soundboard` |
+| `/api/obs` | `POST config` `{host, port, password}` · `POST connect` · `GET state` · `GET scenes` · `GET audio-inputs` · `GET sources` · `GET scene-items?scene=` · `GET filters?source=` |
+| `/api/Soundboard` | `GET search?q=` · `GET trending` · `POST play` · `POST stop` · `GET state` · `GET devices` · `GET/POST config` |
+| `/api/tuya` | `POST pair/start` `{userCode}` · `POST pair/poll` (410 when the QR expired) · `GET state` · `POST connect` · `POST devices/refresh` · `POST command` `{deviceId, code, value}` |
+| `/api/integrations/{name}` | `homeassistant`, `spotify`, `twitch`, `youtube`. `GET` status `{connected, configured, account, message, loginPending, userCode, verificationUri, redirectUri, fields}` · `POST` the setup fields (connects or starts sign-in in the PC's browser) · `DELETE` forget the account · `GET options/{list}` (`entities?operation=`, `playlists`) · `GET callback` (OAuth return, no API key) |
+
+Responses follow the request's `Accept-Language`: with `en`, action types, field labels and error
+messages come in English.
+
+## SignalR hub — `/deckHub`
+
+Connect with `?access_token=<key>`. The hub only pushes events; commands go through REST.
+
+| Event | Payload |
+|---|---|
+| `ReceiveSystemStats` | `{cpuUsage, ramUsage, ramTotal, ramAvailable, netUpKBps, netDownKBps, gpuUsage}` — every second |
+| `ReceiveMediaStatus` | `{playing}` |
+| `ReceiveMediaState` | `{sessionId, command, playing}` |
+| `ReceiveVolumeChange` | `{deviceId, type, data}` |
+| `ReceiveMuteState` | `{processName, muted}` |
+| `ReceiveDeckUpdate` | `{profileId}` |
+| `ReceiveLayoutUpdate` | `{rows, columns}` |
+| `ReceiveDiscordState` | Connection, mute/deaf, channel, volumes, voice mode, participants |
+| `ReceiveObsState` | Connection, current scene, recording/streaming/virtual cam/replay, scenes, audio inputs |
+| `ReceiveTuyaState` | Connection, push, devices with status and functions |
+| `ReceiveTuyaDeviceState` | `{deviceId, status}` — changed values only |
+| `ReceiveTimerState` | `{buttonId: {mode, running, finished, elapsedMs, durationMs, count, phase, cycles}}` — on every change |
+| `ReceiveWindowsState` | `{defaultOutput, defaultInput}` — default audio device ids |
+| `ReceiveAutoProfile` | `{profileId, app}` — profile of the focused app; `profileId` null when the app has none |
+| `ReceivePlaybackState` | `{playing, title}` — soundboard |
+| `ReceiveButtonToggles` | `{buttonId: true}` — two-state buttons that are on |
+| `ReceiveInfoState` | `{buttonId: {text, sub, code, isDay, error}}` — weather, command and URL buttons |
+| `ReceiveNowPlaying` | `{title, artist, playing, thumbnailBase64}` |
+| `ReceiveHomeAssistantState` | `{connected, entities: {id: {state, name, unit, brightness, color}}}` — entities used by buttons |
+| `ReceiveSpotifyState` | `{connected, account, playing, track, artist, liked, shuffle, repeat, volume, device, coverBase64}` |
+| `ReceiveTwitchState`, `ReceiveYouTubeState` | `{connected, account, live, viewers, title}` |
+
+On connect, the new client receives the current Discord, layout, OBS and Tuya state.
+
+## Discovery — UDP 7573
+
+Send the ASCII text `DroidDeckDiscoveryRequest` as a broadcast to port 7573. The server answers with
+`{"ip": "...", "name": "<machine name>"}`. Discovery never returns the API key.
+
+## Pairing URI
+
+`droiddeck://pair?ip=<ip>&port=4787&key=<key>`

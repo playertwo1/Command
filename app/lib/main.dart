@@ -1,0 +1,46 @@
+import 'package:droiddeck/src/binding/app_binding.dart';
+import 'package:droiddeck/core/core.dart';
+import 'package:flutter/material.dart';
+
+import 'src/pages/splash/splash_page.dart';
+import 'src/home/home_page.dart';
+import 'src/config/config_page.dart';
+import 'src/welcome/welcome_page.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Carrega o tema antes do primeiro frame para não piscar o padrão.
+  await ThemeController.instance.load();
+  await AppLanguage.load();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DroidDeckAppConfig(
+      title: 'DroidDeck',
+      bindings: AppBinding(),
+      pageBuilders: [
+        FlutterGetItPageBuilder(
+          page: (_) => const SplashPage(),
+          path: '/',
+        ),
+        FlutterGetItPageBuilder(
+          page: (_) => const HomePage(),
+          path: '/home',
+        ),
+        FlutterGetItPageBuilder(
+          page: (_) => const ConfigPage(),
+          path: '/config',
+        ),
+        FlutterGetItPageBuilder(
+          page: (_) => const WelcomePage(),
+          path: '/welcome',
+        ),
+      ],
+    );
+  }
+}
