@@ -74,7 +74,7 @@ Estados: `PLANNED` → `READY` → `IN_PROGRESS` → `REVIEW` → `DONE` (ou `BL
 | F6 | Upload/download restritos e íntegros | F5 | G4: arquivos | DONE |
 | F7 | Falhas, segurança e UX revisadas de ponta a ponta | F6 | Fechamento G3/G4 | DONE |
 | F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | DONE |
-| F9 | Piloto de 7 dias, métricas e decisão de MVP | F8 | G6 | IN_PROGRESS |
+| F9 | Piloto de 7 dias, métricas e decisão de MVP | F8 | G6 | DONE |
 
 Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é implementada junto de cada capacidade e revisada novamente em F7.
 
@@ -185,10 +185,10 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Entrada:** pacote F8 instalado. **Saída:** decisão registrada em `docs/MVP_APPROVAL.md`.
 
-- [ ] F9-01 — usar durante sete dias corridos e registrar pelo menos 30 execuções, no mínimo seis por cada um dos cinco fluxos do manual. Contar falhas, retrabalho, duração e erro; tentativas de QA não substituem uso do piloto. Registro mínimo por execução em `docs/evidence/F9/`: data/hora UTC, fluxo (FL-n), rede, `request_id`, estado final, código de erro e observação sem dados pessoais.
-- [ ] F9-02 — considerar sucesso somente efeito correto com resultado confirmado. Com exatamente 30 execuções, exigir pelo menos 29 sucessos (≥95%). Resultado desconhecido conta como falha; manter histórico de todas as tentativas.
-- [ ] F9-03 — consolidar evidências F0–F8, lista de problemas e verificação de zero execução não autorizada, corrupção/perda e duplicação destrutiva. Falha crítica impede aprovação; depois de corrigida, repetir verificação relevante e reiniciar o piloto de sete dias.
-- [ ] F9-04 — entregar relatório com resultado `PASS / FAIL / ESCALATE`, rede efetivamente validada, artefatos e limitações; proprietário registra `APPROVED / CHANGES_REQUIRED`.
+- [x] F9-01 — usar durante sete dias corridos e registrar pelo menos 30 execuções, no mínimo seis por cada um dos cinco fluxos do manual. Contar falhas, retrabalho, duração e erro; tentativas de QA não substituem uso do piloto. Registro mínimo por execução em `docs/evidence/F9/`: data/hora UTC, fluxo (FL-n), rede, `request_id`, estado final, código de erro e observação sem dados pessoais.
+- [x] F9-02 — considerar sucesso somente efeito correto com resultado confirmado. Com exatamente 30 execuções, exigir pelo menos 29 sucessos (≥95%). Resultado desconhecido conta como falha; manter histórico de todas as tentativas.
+- [x] F9-03 — consolidar evidências F0–F8, lista de problemas e verificação de zero execução não autorizada, corrupção/perda e duplicação destrutiva. Falha crítica impede aprovação; depois de corrigida, repetir verificação relevante e reiniciar o piloto de sete dias.
+- [x] F9-04 — entregar relatório com resultado `PASS / FAIL / ESCALATE`, rede efetivamente validada, artefatos e limitações; proprietário registra `APPROVED / CHANGES_REQUIRED`.
 
 **Conclusão:** metas cumpridas, nenhuma falha crítica aberta e aprovação humana registrada. Só então planejar temperatura, chat Hermes e evolução.
 

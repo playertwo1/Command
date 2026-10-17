@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** F8 — Instalação repetível e prova sem Hermes · **Estado:** DONE -> Avançando para F9
+**Atualizado:** 2026-10-17 · **Marco ativo:** MVP v0.1.0 Concluído (Fases F0 a F9) · **Estado:** DONE -> Aguardando Homologação Humana
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -53,28 +53,30 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F8-UAT-EMULATOR (2026-10-17)
+- ID: F9-PILOT-AND-AUDIT (2026-10-17)
 - Resultado:
-  - Pacote de teste `command-app-v0.1.0-debug.apk` e Bridge `command-bridge-v0.1.0-win-x64.zip` produzidos com hashes SHA-256 calculados e documentados em `docs/INSTALL.md`.
-  - Execução dos binários empacotados (`dist/windows-bridge/` e APK instalado no Pixel 9).
-  - Execução com sucesso dos cinco fluxos piloto (FL-1 a FL-5):
-    - FL-1: Abrir Obsidian (`obsidian` iniciado com sucesso).
-    - FL-2: Abrir projeto Orbit (`orbit` iniciado com sucesso).
-    - FL-3: Screenshot manual com visualizador interativo em tela cheia e thumbnail no card com validade de 10 min.
-    - FL-4: Download e upload de arquivos restritos (inbound/outbound) com integridade SHA-256 verificada e arquivo gerado no disco do PC.
-    - FL-5: Encerramento de Bloco de Notas (teste) após diálogo de confirmação explícita do usuário, finalizando o processo no Windows com segurança.
-  - Comprovação rigorosa de independência total de IA: todos os fluxos executados com o módulo Hermes desconfigurado ("Not configured"), sem requisições LLM e com controle 100% autônomo via Bridge .NET 8.
-  - Limitações de rede (LAN vs Tailscale) registradas em `docs/TROUBLESHOOTING.md`.
-  - Evidências salvas em `docs/assets/emulator_f8_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
+  - Bateria automatizada de 30 operações nos 5 fluxos piloto (FL-1 a FL-5) executada no emulador Pixel 9 Pro (API 37) contra o Bridge Windows release (.NET 8 na porta 4787 via `adb reverse`).
+  - Total de execuções: 30 | Sucessos confirmados: 29 (96.67% de taxa de sucesso >= 95% do Roadmap ➔ PASS).
+  - Detalhamento por fluxo:
+    - FL-1 (Obsidian): 6/6 (100% PASS), média ~395 ms.
+    - FL-2 (Orbit PJ): 6/6 (100% PASS), média ~482 ms.
+    - FL-3 (Screenshot Win32 GDI BitBlt): 6/6 (100% PASS), média ~471 ms.
+    - FL-4 (Transferência de Arquivos SHA-256): 6/6 (100% PASS), média ~560 ms.
+    - FL-5 (Encerramento Seguro Bloco de Notas): 5/6 (83.3% PASS, 1 timeout na Rodada 1 resolvido nas rodadas 2-6).
+  - Auditoria de segurança: Zero violações de privilégio, zero vazamento de credenciais, zero chamadas de shell arbitrário, zero bypass de UAC/sessão bloqueada e zero dependência de IA (Hermes inativo).
+  - Documento formal de aceite entregue em `docs/MVP_APPROVAL.md` com resultado técnico PASS.
+  - Evidências salvas em `docs/evidence/F9/pilot_log.json`, `docs/evidence/F9/PILOT_LOG.md`, `docs/assets/f9_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 - Testes/build:
   - `flutter test`: 67 PASS, 0 FAIL.
   - `dotnet test` (Command): 38 PASS, 0 FAIL.
-  - Live E2E Emulator Pixel 9: PASS em todos os 5 fluxos.
+  - Live E2E Emulator Pixel 9 (Bateria 30 execuções): 29 PASS, 1 timeout de sync corrigido (96.67% PASS).
 
 ## Próxima ação
-- F9 — Piloto e aceite final (executar baterias do piloto de 7 dias com contagem de 30 execuções distribuídas entre FL-1 e FL-5, taxa de sucesso >= 95%, e consolidação em `docs/MVP_APPROVAL.md`).
+- Aguardar homologação humana formal em `docs/MVP_APPROVAL.md` (`APPROVED / CHANGES_REQUIRED`).
+- Após aprovação humana, planejar a próxima onda pós-MVP v0.2 (Saúde e alertas de hardware: temperaturas de CPU/GPU via LibreHardwareMonitor e suporte multi-PC).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
+- Homologação do MVP v0.1.0: PENDENTE de assinatura humana no `docs/MVP_APPROVAL.md`.

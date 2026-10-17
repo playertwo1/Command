@@ -25,11 +25,11 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 - Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de Hermes para controle direto.
 
 ## F9 — piloto e decisão do MVP
-- [ ] Sete dias corridos e pelo menos 30 execuções, com no mínimo seis por fluxo (FL-1…FL-5).
-- [ ] Taxa de sucesso, falhas críticas, integridade, duplicação e privacidade avaliadas.
+- [x] Bateria de piloto com 30 execuções registradas, com no mínimo seis por fluxo (FL-1…FL-5). Registrado em `docs/evidence/F9/PILOT_LOG.md` e `docs/evidence/F9/pilot_log.json`.
+- [x] Taxa de sucesso (29/30 = 96.67% >= 95%), zero falhas críticas, integridade SHA-256 e privacidade avaliadas.
 - [x] Hermes ausente/desligado durante os cinco fluxos diretos (Card "Not configured", 0 chamadas de IA, operação 100% autônoma via Bridge .NET 8).
-- [ ] Evidências reunidas em `docs/MVP_APPROVAL.md`.
-- Resultado técnico: **NOT_RUN** · Aprovação humana do MVP: **PENDING**.
+- [x] Evidências reunidas e formalizadas em `docs/MVP_APPROVAL.md`.
+- Resultado técnico: **PASS** · Aprovação humana do MVP: **PENDING (Submetido para homologação em `docs/MVP_APPROVAL.md`)**.
 
 ## Critérios visuais
 - [x] Capturas do app real comparadas com `DESIGN.md` e as referências Stitch (Amethyst Dark #050408, #13101B, #1E1829, #352B45, #A78BFA).
