@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../connection/pc_store.dart';
 import '../services/signalr_service.dart';
+import 'screenshot_viewer.dart';
 
 /// Aba de Telemetria e Estado do PC (Command)
 class StatusPage extends StatefulWidget {
@@ -29,6 +33,11 @@ class _StatusPageState extends State<StatusPage> {
   bool _loadingApps = false;
   bool _loadingJobs = false;
   final Set<String> _pendingActions = {};
+
+  ScreenshotInfo? _lastScreenshot;
+  Uint8List? _lastScreenshotBytes;
+  bool _capturingScreenshot = false;
+  String? _screenshotError;
 
   DroidDeckClient? get _client {
     if (widget.client != null) return widget.client;
@@ -94,6 +103,65 @@ class _StatusPageState extends State<StatusPage> {
       // Ignora erro de rede quando offline
     } finally {
       if (mounted) setState(() => _loadingJobs = false);
+    }
+  }
+
+  Future<void> _captureScreenshot() async {
+    final client = _client;
+    if (client == null || _capturingScreenshot) return;
+
+    setState(() {
+      _capturingScreenshot = true;
+      _screenshotError = null;
+    });
+
+    final reqId = 'sc_${DateTime.now().millisecondsSinceEpoch}';
+
+    try {
+      final info = await client.captureScreenshot(
+        requestId: reqId,
+        deviceId: _currentPc?.id,
+      );
+
+      final bytes = await client.getScreenshotBytes(
+        info.id,
+        deviceId: _currentPc?.id,
+      );
+
+      if (mounted) {
+        setState(() {
+          _lastScreenshot = info;
+          _lastScreenshotBytes = bytes;
+          _screenshotError = null;
+        });
+        _fetchJobs();
+      }
+    } catch (e) {
+      if (mounted) {
+        String errStr = e.toString();
+        if (e is DioException) {
+          final data = e.response?.data;
+          final code = (data is Map) ? data['code']?.toString() : null;
+          final status = e.response?.statusCode;
+          if (status == 423 || code == 'SESSION_LOCKED' || code == 'SECURE_DESKTOP') {
+            errStr = 'Acesso Bloqueado: A área de trabalho está bloqueada ou em tela segura do Windows (UAC). Desbloqueie o PC para capturar a tela.';
+          } else if (status == 503 || code == 'NOT_INTERACTIVE') {
+            errStr = 'Sessão do Windows não interativa ou monitor indisponível.';
+          } else if (data is Map && data['error'] != null) {
+            errStr = data['error'].toString();
+          }
+        } else if (errStr.contains('423') || errStr.contains('SESSION_LOCKED')) {
+          errStr = 'Acesso Bloqueado: A área de trabalho está bloqueada ou em tela segura do Windows (UAC). Desbloqueie o PC para capturar a tela.';
+        }
+        setState(() {
+          _screenshotError = errStr;
+        });
+        _fetchJobs();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _capturingScreenshot = false);
+      }
     }
   }
 
@@ -707,6 +775,11 @@ class _StatusPageState extends State<StatusPage> {
 
               const SizedBox(height: 12),
 
+              // Card de Captura de Tela Manual (F5)
+              _buildScreenshotCard(theme),
+
+              const SizedBox(height: 12),
+
               // Card de Histórico de Atividades (Jobs F4-04)
               Card(
                 elevation: 0,
@@ -830,6 +903,201 @@ class _StatusPageState extends State<StatusPage> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildScreenshotCard(ThemeData theme) {
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.photo_camera_outlined, size: 20, color: Color(0xFFA78BFA)),
+                    const SizedBox(width: 8),
+                    Text(
+                      tr('Captura de Tela'),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_lastScreenshot != null && !_capturingScreenshot)
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 20),
+                    tooltip: tr('Nova Captura'),
+                    onPressed: _captureScreenshot,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              tr('Captura sob demanda do monitor principal · expira em 10 min'),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            if (_screenshotError != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF87171).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFF87171).withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lock_outline, color: Color(0xFFF87171), size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _screenshotError!,
+                        style: const TextStyle(
+                          color: Color(0xFFF87171),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            if (_lastScreenshot != null && _lastScreenshotBytes != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 180),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    border: Border.all(
+                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Image.memory(
+                    _lastScreenshotBytes!,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${_lastScreenshot!.width}x${_lastScreenshot!.height} · ${(_lastScreenshot!.sizeBytes / 1024).toStringAsFixed(1)} KB',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                    ),
+                  ),
+                  Text(
+                    _lastScreenshot!.isExpired ? tr('Expirado') : tr('Válido por 10 min'),
+                    style: TextStyle(
+                      color: _lastScreenshot!.isExpired ? const Color(0xFFF87171) : const Color(0xFF34D5A0),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.zoom_in, size: 16),
+                      label: Text(tr('Visualizar')),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ScreenshotViewerPage(
+                              info: _lastScreenshot!,
+                              imageBytes: _lastScreenshotBytes!,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.share_outlined, size: 16),
+                      label: Text(tr('Compartilhar')),
+                      onPressed: () async {
+                        await SharePlus.instance.share(ShareParams(
+                          files: [
+                            XFile.fromData(
+                              _lastScreenshotBytes!,
+                              name: 'command_screenshot_${_lastScreenshot!.id}.jpg',
+                              mimeType: 'image/jpeg',
+                            ),
+                          ],
+                          fileNameOverrides: ['command_screenshot_${_lastScreenshot!.id}.jpg'],
+                          subject: 'Command Screenshot (${_lastScreenshot!.width}x${_lastScreenshot!.height})',
+                        ));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFA78BFA),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: _capturingScreenshot
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : const Icon(Icons.camera_alt, size: 18),
+                  label: Text(
+                    _capturingScreenshot ? tr('Capturando tela...') : tr('Capturar Tela Agora'),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: _capturingScreenshot ? null : _captureScreenshot,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

@@ -70,7 +70,7 @@ Estados: `PLANNED` → `READY` → `IN_PROGRESS` → `REVIEW` → `DONE` (ou `BL
 | F2 | Bridge inicia, pareia, autentica e revoga | F1 | G2 | PLANNED |
 | F3 | APK pareado mostra métricas reais do PC | F2 | G3 | PLANNED |
 | F4 | Apps/projetos autorizados + execução e histórico reais | F3 | G4: ações | PLANNED |
-| F5 | Screenshot manual com visualização/salvar/compartilhar | F4 | G4: tela | PLANNED |
+| F5 | Screenshot manual com visualização/salvar/compartilhar | F4 | G4: tela | DONE |
 | F6 | Upload/download restritos e íntegros | F5 | G4: arquivos | PLANNED |
 | F7 | Falhas, segurança e UX revisadas de ponta a ponta | F6 | Fechamento G3/G4 | PLANNED |
 | F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | PLANNED |
@@ -140,10 +140,10 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Entrada:** executor/histórico e conexão autenticada. **Saída:** captura manual visualizada, salva ou compartilhada.
 
-- [ ] F5-01 — implementar `screenshot.capture` sob pedido explícito, capturando inicialmente o monitor principal na sessão interativa. Rejeitar sessão bloqueada, secure desktop/UAC e logout com códigos distintos e legíveis.
-- [ ] F5-02 — entregar imagem somente ao aparelho autorizado que solicitou o job; temporário protegido e expiração de 10 minutos. Registrar metadados do job sem imagem nos logs.
-- [ ] F5-03 — criar visualização com zoom, nova captura manual, salvar no destino escolhido e compartilhar por mecanismo Android. Nenhum refresh periódico nem envio automático para IA.
-- [ ] F5-04 — verificar captura com conteúdo fictício, acesso por outro aparelho, item expirado, Windows bloqueado, erro de captura e perda de rede. Limpar temporários no startup e após vencimento.
+- [x] F5-01 — implementar `screenshot.capture` sob pedido explícito, capturando inicialmente o monitor principal na sessão interativa. Rejeitar sessão bloqueada, secure desktop/UAC e logout com códigos distintos e legíveis.
+- [x] F5-02 — entregar imagem somente ao aparelho autorizado que solicitou o job; temporário protegido e expiração de 10 minutos. Registrar metadados do job sem imagem nos logs.
+- [x] F5-03 — criar visualização com zoom, nova captura manual, salvar no destino escolhido e compartilhar por mecanismo Android. Nenhum refresh periódico nem envio automático para IA.
+- [x] F5-04 — verificar captura com conteúdo fictício, acesso por outro aparelho, item expirado, Windows bloqueado, erro de captura e perda de rede. Limpar temporários no startup e após vencimento.
 
 **Conclusão:** capturar/visualizar/salvar/compartilhar passa três vezes; imagem vencida/indevida não é entregue; condição Windows protegida retorna erro sem bypass.
 

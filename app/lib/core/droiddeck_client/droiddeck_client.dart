@@ -12,6 +12,8 @@ import 'models/deck_action.dart';
 import 'models/sound_result.dart';
 import 'models/app_catalog_models.dart';
 export 'models/app_catalog_models.dart';
+import 'models/screenshot_models.dart';
+export 'models/screenshot_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -558,5 +560,45 @@ class DroidDeckClient {
         if (deviceId != null) 'deviceId': deviceId,
       },
     );
+  }
+
+  /// Solicita uma captura manual do monitor principal no PC.
+  Future<ScreenshotInfo> captureScreenshot({
+    required String requestId,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/screenshots/capture',
+      data: {
+        'requestId': requestId,
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+    );
+    return ScreenshotInfo.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Obtém os bytes da imagem de uma captura de tela ativa.
+  Future<Uint8List> getScreenshotBytes(
+    String screenshotId, {
+    String? deviceId,
+  }) async {
+    final response = await _dio.get<List<int>>(
+      '/api/screenshots/$screenshotId',
+      queryParameters: {
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data!);
+  }
+
+  /// Monta a URL completa para visualização da captura de tela.
+  String getScreenshotUrl(String screenshotId, {String? deviceId}) {
+    final base = _dio.options.baseUrl.replaceAll(RegExp(r'/+$'), '');
+    final uri = Uri.parse('$base/api/screenshots/$screenshotId');
+    if (deviceId != null) {
+      return uri.replace(queryParameters: {'deviceId': deviceId}).toString();
+    }
+    return uri.toString();
   }
 }

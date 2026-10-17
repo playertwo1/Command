@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** F4 — Catálogo, Ações e Histórico · **Estado:** DONE -> Avançando para F5
+**Atualizado:** 2026-10-17 · **Marco ativo:** F5 — Screenshot manual · **Estado:** DONE -> Avançando para F6
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -13,8 +13,13 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - Catálogo de aplicativos e projetos autorizados em `AppCatalogService.cs` (`obsidian`, `orbit`, `test_notepad`).
   - Executor de comandos com rastreamento persistente de jobs em `JobHistoryService.cs` (`accepted`, `running`, `succeeded`, `failed`, `cancelled`), proteção contra replay e toque duplicado (idempotência por RequestId).
   - Encerramento seguro de processos permitidos com revalidação de PID e tempo de início (`CanKill = true` exclusivo para `test_notepad`).
-  - Controladores REST `AppsController.cs` e `JobsController.cs` mapeados em `/api/apps` e `/api/jobs`.
-  - 172/172 testes unitários e de integração aprovados (0 falhas).
+  - **Captura de Tela Manual e Proteção de Sessão (`ScreenshotService.cs` + `WindowsDesktopCaptureProvider.cs`):**
+    - Captura sob demanda do monitor principal via GDI `BitBlt` em thread dedicada vinculada ao desktop de entrada (`SetThreadDesktop`).
+    - Detecção estrita de área de trabalho bloqueada ou UAC via Win32 `OpenInputDesktop` retornando `ERROR_ACCESS_DENIED (5) -> SESSION_LOCKED (423 Locked)` sem bypass.
+    - Armazenamento temporário seguro em `%LocalAppData%\DroidDeck\screenshots` com validade de 10 minutos (`ExpiresAtUtc`), expurgo automático e retorno `410 Gone`.
+    - Isolamento de entrega por `DeviceId` (somente o dispositivo solicitante pode acessar o arquivo) e auditoria de metadados sanitizados em jobs.
+    - Controladores REST `ScreenshotsController.cs` mapeados em `/api/screenshots/capture`, `/api/screenshots/{id}` e `/api/screenshots/{id}/info` (com aliases `/api/v1/`).
+  - 179/179 testes unitários e de integração aprovados (0 falhas).
 - **Frontend Flutter (`app/`):**
   - Aplicativo móvel e Web configurator.
   - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset no `app_theme.dart`.
@@ -22,26 +27,30 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Métricas de hardware em tempo real (CPU, RAM, Disco, GPU, Rede, Uptime).
     - Card do Hermes IA isolado ("Não configurado").
     - Card **Ações Autorizadas** com listagem dos apps permitidos, status de execução, botão "Abrir" e botão "Encerrar" protegido por diálogo de confirmação explícita.
+    - Card **Captura de Tela** com thumbnail preview real da tela do Windows, resolução, tamanho em KB, validade de 10 min, botões "Visualizar" e "Compartilhar", e banner de alerta contra sessão bloqueada.
+    - Visualizador de tela cheia `ScreenshotViewerPage` com `InteractiveViewer` (pinch-to-zoom 0.5x a 5.0x e navegação panorâmica) e folha de compartilhamento nativa Android (`SharePlus`).
     - Card **Atividade Recente** exibindo o histórico de jobs em tempo real com estados coloridos, hora e opções de atualizar e limpar histórico.
-  - 53/53 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
+  - 56/56 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F4-UAT-EMULATOR (2026-10-17)
+- ID: F5-UAT-EMULATOR (2026-10-17)
 - Resultado:
   - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo em segundo plano na porta 4787.
-  - Telemetria de hardware (CPU, RAM, Disco, GPU, Rede e Uptime) sincronizada em tempo real com o PC Windows.
-  - Teste de `app.launch (test_notepad)` executado na tela do emulador -> `Notepad.exe` iniciado no Windows e registrado como `succeeded` em Atividade Recente.
-  - Teste de `app.kill (test_notepad)` com diálogo de confirmação explícita executado e confirmado -> processo `Notepad.exe` terminado com segurança e registrado como `succeeded`.
-  - Telas Deck e Audio verificadas no emulador. Evidências visuais salvas em `docs/assets/emulator_*.png` e refletidas no NexusVault.
+  - Disparo de "Capturar Tela Agora" na tela do emulador -> captura real do monitor principal do Windows concluída com sucesso.
+  - Thumbnail da área de trabalho exibida dinamicamente no Card de Captura com metadados (1080x1920, 389.8 KB, "Válido por 10 min").
+  - Toque em "Visualizar" abriu `ScreenshotViewerPage` em tela cheia com zoom interativo funcional.
+  - Toque em "Compartilhar" disparou folha nativa do sistema Android (`Sharing image` com Quick Share, Drive, Gmail, etc.).
+  - Job auditado com sucesso no Card Atividade Recente (`screenshot.capture (primary_screen) succeeded`).
+  - Evidências visuais salvas em `docs/assets/emulator_screenshot_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 - Testes/build:
-  - `dotnet test DroidDeck.sln --filter "Category!=RequiresDesktop"`: 172 PASS, 0 FAIL.
-  - `flutter test`: 53 PASS, 0 FAIL.
+  - `dotnet test DroidDeck.sln --filter "Category!=RequiresDesktop"`: 179 PASS, 0 FAIL.
+  - `flutter test`: 56 PASS, 0 FAIL.
   - `flutter analyze --no-fatal-infos`: exit 0.
   - Live E2E Emulator Pixel 9: PASS.
 
 ## Próxima ação
-- F5 — Screenshot manual (captura do monitor principal sob demanda via `/api/screenshot`, rejeição em tela de bloqueio/UAC, visualização protegida).
+- F6 — Transferência restrita de arquivos (duas raízes isoladas no PC sob allowlist, upload de até 100 MiB com validação SHA-256 e escrita temporária atômica, download restrito da pasta de saída, proteção rigorosa contra path traversal, symlinks e caminhos UNC/absolutos).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
