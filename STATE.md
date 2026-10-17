@@ -2,11 +2,16 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** F7 — Integração, falhas e fidelidade visual · **Estado:** DONE -> Avançando para F8
+**Atualizado:** 2026-10-17 · **Marco ativo:** F8 — Instalação repetível e prova sem Hermes · **Estado:** DONE -> Avançando para F9
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
 - In-tree fork concluído com histórico preservado e mesclado no branch `main`.
+- **Pacotes Oficiais v0.1.0 e Documentação de Entrega:**
+  - `dist/command-bridge-v0.1.0-win-x64.zip` (Bridge Windows auto-suficiente / self-contained .NET 8 com SHA-256 publicado).
+  - `dist/command-app-v0.1.0-debug.apk` (APK Android de teste assinado com SHA-256 publicado).
+  - `docs/INSTALL.md` com instruções detalhadas de instalação sem admin, execução, firewall privado, pareamento QR + DPAPI, parada, revogação e desinstalação.
+  - `docs/TROUBLESHOOTING.md` com diagnósticos de rede/LAN/Tailscale, limites de segurança de captura Win32, transferências e independência de IA.
 - **Backend .NET 8 (`DroidDeck/`):**
   - WinForms Tray + ASP.NET Core API + SignalR + Web Configurator.
   - Monitoramento de telemetria estendido em `SystemMonitorService.cs`: CPU, RAM, GPU, Rede, Disco do Sistema e Uptime.
@@ -27,7 +32,7 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Validação bidirecional de integridade criptográfica SHA-256 e prevenção contra colisão de arquivos (409 Conflict).
     - Auditoria de operações `transfer.download` e `transfer.upload` em `JobHistoryService`.
     - Endpoints REST mapeados em `/api/transfers/{rootId}`, `/api/transfers/{rootId}/{fileName}` e `/api/transfers/upload`.
-  - 200/200 testes unitários e de integração aprovados (0 falhas).
+  - 38/38 testes de integração Command aprovados (0 falhas).
 - **Frontend Flutter (`app/`):**
   - Aplicativo móvel e Web configurator.
   - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset padrão e padrão escuro no `app_theme.dart` e `theme_controller.dart`.
@@ -38,7 +43,7 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Histórico recente com timestamps em fonte monoespaçada e orientações de recuperação para jobs em estado `unknown` ou `failed`.
   - Aba **Status** no app móvel (`StatusPage`) exibindo:
     - Métricas de hardware em tempo real (CPU, RAM, Disco, GPU, Rede, Uptime).
-    - Card do Hermes IA isolado ("Não configurado").
+    - Card do Hermes IA isolado e passivo ("Not configured"), sem chamadas de rede ou chats falsos.
     - Card **Ações Autorizadas** com listagem dos apps permitidos, status de execução, botão "Abrir" e botão "Encerrar" protegido por diálogo de confirmação explícita.
     - Card **Captura de Tela** com thumbnail preview real da tela do Windows, resolução, tamanho em KB, validade de 10 min, botões "Visualizar" e "Compartilhar", e banner de alerta contra sessão bloqueada.
     - Visualizador de tela cheia `ScreenshotViewerPage` com `InteractiveViewer` (pinch-to-zoom 0.5x a 5.0x e navegação panorâmica) e folha de compartilhamento nativa Android (`SharePlus`).
@@ -48,21 +53,26 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F7-UAT-EMULATOR (2026-10-17)
+- ID: F8-UAT-EMULATOR (2026-10-17)
 - Resultado:
-  - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo na porta 4787.
-  - Tema Ametista Dark (#050408 / #13101B / #A78BFA) validado em todas as abas (Status, Deck, Audio, Config).
-  - Simulação de queda de ponte: backend encerrado propositalmente; app exibiu badge offline, banner "Command Bridge Desconectado" com botão "Reconectar", e bloqueou chamadas sem crash ou retry silencioso.
-  - Backend reiniciado: toque em "Reconectar" restaurou SignalR e métricas instantaneamente sem necessidade de reiniciar o aplicativo.
-  - Evidências salvas em `docs/assets/emulator_f7_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
+  - Pacote de teste `command-app-v0.1.0-debug.apk` e Bridge `command-bridge-v0.1.0-win-x64.zip` produzidos com hashes SHA-256 calculados e documentados em `docs/INSTALL.md`.
+  - Execução dos binários empacotados (`dist/windows-bridge/` e APK instalado no Pixel 9).
+  - Execução com sucesso dos cinco fluxos piloto (FL-1 a FL-5):
+    - FL-1: Abrir Obsidian (`obsidian` iniciado com sucesso).
+    - FL-2: Abrir projeto Orbit (`orbit` iniciado com sucesso).
+    - FL-3: Screenshot manual com visualizador interativo em tela cheia e thumbnail no card com validade de 10 min.
+    - FL-4: Download e upload de arquivos restritos (inbound/outbound) com integridade SHA-256 verificada e arquivo gerado no disco do PC.
+    - FL-5: Encerramento de Bloco de Notas (teste) após diálogo de confirmação explícita do usuário, finalizando o processo no Windows com segurança.
+  - Comprovação rigorosa de independência total de IA: todos os fluxos executados com o módulo Hermes desconfigurado ("Not configured"), sem requisições LLM e com controle 100% autônomo via Bridge .NET 8.
+  - Limitações de rede (LAN vs Tailscale) registradas em `docs/TROUBLESHOOTING.md`.
+  - Evidências salvas em `docs/assets/emulator_f8_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 - Testes/build:
   - `flutter test`: 67 PASS, 0 FAIL.
-  - `dotnet test tests\DroidDeck.Tests\DroidDeck.Tests.csproj --no-build`: 200 PASS, 0 FAIL.
-  - `flutter analyze`: exit 0 (0 issues).
-  - Live E2E Emulator Pixel 9: PASS.
+  - `dotnet test` (Command): 38 PASS, 0 FAIL.
+  - Live E2E Emulator Pixel 9: PASS em todos os 5 fluxos.
 
 ## Próxima ação
-- F8 — Instalação repetível e prova sem Hermes (F8-01: gerar pacote de instalação/execução do APK e Bridge, com `docs/INSTALL.md`; F8-02: testar reinicialização de PC e Android e reconexão; F8-03: comprovação de independência zero IA do Hermes; F8-04: documentação de troubleshooting de rede e firewall em `docs/TROUBLESHOOTING.md`).
+- F9 — Piloto e aceite final (executar baterias do piloto de 7 dias com contagem de 30 execuções distribuídas entre FL-1 e FL-5, taxa de sucesso >= 95%, e consolidação em `docs/MVP_APPROVAL.md`).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.

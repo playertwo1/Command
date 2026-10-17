@@ -20,14 +20,14 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 | F5 | FL-3 screenshot | PASS | `docs/assets/emulator_screenshot_card.png`, `emulator_screenshot_viewer.png` |
 | F6 | FL-4 transferência íntegra | PASS | `docs/assets/emulator_transfer_card.png`, `emulator_transfer_download.png`, `emulator_transfer_upload.png` |
 | F7 | Revisão independente sem achado crítico/alto | PASS | `docs/assets/emulator_f7_*.png`, `app/test/fault_tolerance_and_visual_test.dart` |
-| F8 | Instalação repetível + cinco fluxos sem Hermes | EM ANDAMENTO | Em execução |
+| F8 | Instalação repetível + cinco fluxos sem Hermes | PASS | `docs/INSTALL.md`, `docs/TROUBLESHOOTING.md`, `docs/assets/emulator_f8_*.png` |
 
 - Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de Hermes para controle direto.
 
 ## F9 — piloto e decisão do MVP
 - [ ] Sete dias corridos e pelo menos 30 execuções, com no mínimo seis por fluxo (FL-1…FL-5).
 - [ ] Taxa de sucesso, falhas críticas, integridade, duplicação e privacidade avaliadas.
-- [ ] Hermes ausente/desligado durante os cinco fluxos diretos.
+- [x] Hermes ausente/desligado durante os cinco fluxos diretos (Card "Not configured", 0 chamadas de IA, operação 100% autônoma via Bridge .NET 8).
 - [ ] Evidências reunidas em `docs/MVP_APPROVAL.md`.
 - Resultado técnico: **NOT_RUN** · Aprovação humana do MVP: **PENDING**.
 

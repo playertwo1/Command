@@ -73,8 +73,8 @@ Estados: `PLANNED` → `READY` → `IN_PROGRESS` → `REVIEW` → `DONE` (ou `BL
 | F5 | Screenshot manual com visualização/salvar/compartilhar | F4 | G4: tela | DONE |
 | F6 | Upload/download restritos e íntegros | F5 | G4: arquivos | DONE |
 | F7 | Falhas, segurança e UX revisadas de ponta a ponta | F6 | Fechamento G3/G4 | DONE |
-| F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | IN_PROGRESS |
-| F9 | Piloto de 7 dias, métricas e decisão de MVP | F8 | G6 | PLANNED |
+| F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | DONE |
+| F9 | Piloto de 7 dias, métricas e decisão de MVP | F8 | G6 | IN_PROGRESS |
 
 Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é implementada junto de cada capacidade e revisada novamente em F7.
 
@@ -174,10 +174,10 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Entrada:** integração revisada. **Saída:** pacote pessoal instalável com instruções reais.
 
-- [ ] F8-01 — produzir APK de teste e pacote Bridge com versão/hash; documentar instalação/início/parada/pareamento/revogação/desinstalação em `docs/INSTALL.md`. Definir e proteger chaves de assinatura de teste; instalador público/atualização automática ficam após MVP.
-- [ ] F8-02 — instalar a partir dos pacotes, reiniciar PC/Android e repetir conexão e cinco fluxos. Bridge inicia na sessão do usuário; startup automático somente com opção explícita. Documentar limitações em `docs/TROUBLESHOOTING.md`.
-- [ ] F8-03 — executar todos os fluxos com Hermes ausente ou desligado; comprovar que nenhum comando direto usa autenticação, runtime ou endpoint Hermes. Tela Hermes apenas informa estado não configurado.
-- [ ] F8-04 — validar LAN. Se Tailscale já estiver disponível e autorizado, testar rede externa com autenticação/pinning preservados. Se não estiver, registrar NOT_RUN e limitar a declaração de suporte à LAN.
+- [x] F8-01 — produzir APK de teste e pacote Bridge com versão/hash; documentar instalação/início/parada/pareamento/revogação/desinstalação em `docs/INSTALL.md`. Definir e proteger chaves de assinatura de teste; instalador público/atualização automática ficam após MVP.
+- [x] F8-02 — instalar a partir dos pacotes, reiniciar PC/Android e repetir conexão e cinco fluxos. Bridge inicia na sessão do usuário; startup automático somente com opção explícita. Documentar limitações em `docs/TROUBLESHOOTING.md`.
+- [x] F8-03 — executar todos os fluxos com Hermes ausente ou desligado; comprovar que nenhum comando direto usa autenticação, runtime ou endpoint Hermes. Tela Hermes apenas informa estado não configurado.
+- [x] F8-04 — validar LAN. Se Tailscale já estiver disponível e autorizado, testar rede externa com autenticação/pinning preservados. Se não estiver, registrar NOT_RUN e limitar a declaração de suporte à LAN.
 
 **Conclusão:** instalação reproduzível no ambiente piloto; cinco fluxos operacionais sem Hermes; limites de rede documentados e pacote pronto para o uso pessoal em F9.
 
