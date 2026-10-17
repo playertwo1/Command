@@ -679,4 +679,17 @@ class DroidDeckClient {
     );
     return TopProcessesData.fromJson(response.data as Map<String, dynamic>);
   }
+
+  /// Realiza um ping de diagnóstico no servidor medindo o RTT (Round-Trip Time) em milissegundos (S8).
+  Future<PingResult> ping() async {
+    final sw = Stopwatch()..start();
+    final response = await _dio.get('/api/ping');
+    sw.stop();
+    final latencyMs = sw.elapsedMilliseconds;
+    final map = response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : <String, dynamic>{};
+    return PingResult.fromJson(map, latencyMs);
+  }
 }
+

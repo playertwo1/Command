@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S7 CONCLUÍDO (PASS) -> Avançando para S8
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S8 CONCLUÍDO (PASS) -> Avançando para S9
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -98,11 +98,25 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - `StatusPage`: Card `Histórico de Carga (60s)` com sparklines sincronizados de CPU e RAM, Card `Serviços do Windows` com badges `Ativo`, `Parado` e `Ausente`, e Card `Top Processos` com alternador por Memória (RAM) e CPU em fonte monoespaçada com PIDs.
   - Testes: 74/74 testes Flutter aprovados (`flutter test`), 222/222 testes C# aprovados (`dotnet test`).
 
+- ID: S6-HEALTH-ALERTS-ENGINE (2026-10-17)
+  - `HealthAlertService`: Motor reativo de alertas com limites configuráveis (CPU, RAM, Temperatura, Disco, Bateria), persistência em `SharedPreferences` e *cooldown* anti-spam de 60 segundos.
+  - `HealthAlertSettingsPage`: Tela de ajustes com sliders e validação de limiares.
+  - Testes: 80/80 testes Flutter aprovados.
+
+- ID: S7-MULTI-PC-PROFILES (2026-10-17)
+  - `PcStore` / `PcProfileManager`: Suporte a múltiplos computadores pareados, seleção rápida com 1-toque, persistência de `lastConnectedAt` e modal de alternância na `StatusPage`.
+  - Testes: 85/85 testes Flutter aprovados.
+
+- ID: S8-CONNECTIVITY-AND-LATENCY (2026-10-17)
+  - Backend ASP.NET Core: `GET /api/ping` e `GET /api/v1/ping` leves retornando `hostName`, `serverTimeUtc` e status `ok` com overhead mínimo.
+  - Frontend Flutter: `PingResult` model, `client.ping()` com cálculo de RTT, medição periódica de `latencyMs` e cálculo de `jitterMs`, e badge semafórico de latência integrado ao lado do status `Online`.
+  - Testes: 224/224 testes C# aprovados, 91/91 testes Flutter aprovados (Total: 315 testes aprovados).
+
 ## Próxima ação
-- Iniciar **Fase S6 — Frontend Mobile: Motor de Alertas de Saúde e Cooldown** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
+- Iniciar e concluir **Fase S9 — Frontend Mobile: Exportação de Relatório de Saúde Sanitizado** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.2: Fases S0, S1, S2, S3, S4 e S5 concluídas com sucesso.
+- Onda v0.2: Fases S0, S1, S2, S3, S4, S5, S6, S7 e S8 concluídas com sucesso.

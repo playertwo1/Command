@@ -60,6 +60,11 @@ class _StatusPageState extends State<StatusPage> {
   String? _processesError;
   int _processSortIndex = 0;
 
+  int? _latencyMs;
+  int? _jitterMs;
+  int? _previousLatencyMs;
+  bool _measuringLatency = false;
+
   late final HealthAlertService _healthAlertService;
 
   DroidDeckClient? get _client {
@@ -100,6 +105,7 @@ class _StatusPageState extends State<StatusPage> {
       _fetchTransfers(),
       _fetchServices(),
       _fetchTopProcesses(),
+      _measureLatency(),
     ]);
   }
 
@@ -510,6 +516,85 @@ class _StatusPageState extends State<StatusPage> {
     } finally {
       if (mounted) setState(() => _loadingProcesses = false);
     }
+  }
+
+  Future<void> _measureLatency() async {
+    final client = _client;
+    if (client == null || _measuringLatency) return;
+    _measuringLatency = true;
+    try {
+      final res = await client.ping();
+      if (mounted) {
+        final currentLatency = res.latencyMs;
+        int? jitter;
+        if (_previousLatencyMs != null) {
+          jitter = (currentLatency - _previousLatencyMs!).abs();
+        }
+        setState(() {
+          _latencyMs = currentLatency;
+          _jitterMs = jitter;
+          _previousLatencyMs = currentLatency;
+        });
+      }
+    } catch (_) {
+      // Falha silenciosa de medição quando offline
+    } finally {
+      if (mounted) {
+        _measuringLatency = false;
+      }
+    }
+  }
+
+  Widget _buildLatencyBadge(int latency, int? jitter) {
+    final Color badgeColor;
+    if (latency <= 50) {
+      badgeColor = const Color(0xFF10B981);
+    } else if (latency <= 150) {
+      badgeColor = const Color(0xFFF59E0B);
+    } else {
+      badgeColor = const Color(0xFFEF4444);
+    }
+
+    final jitterText = jitter != null ? ' (±$jitter)' : '';
+
+    return Tooltip(
+      message: 'RTT: ${latency}ms | Jitter: ${jitter ?? 0}ms',
+      child: InkWell(
+        onTap: _measureLatency,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          key: const ValueKey('latency_badge'),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: badgeColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: badgeColor.withValues(alpha: 0.4),
+              width: 0.8,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.wifi,
+                size: 12,
+                color: badgeColor,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '$latency ms$jitterText',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: badgeColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildServiceStatusBadge(String status) {
@@ -1445,6 +1530,10 @@ class _StatusPageState extends State<StatusPage> {
                           ],
                         ),
                       ),
+                      if (isConnected && _latencyMs != null) ...[
+                        const SizedBox(width: 8),
+                        _buildLatencyBadge(_latencyMs!, _jitterMs),
+                      ],
                       if (stats.hasBattery && stats.batteryPercent != null) ...[
                         const SizedBox(width: 8),
                         Container(

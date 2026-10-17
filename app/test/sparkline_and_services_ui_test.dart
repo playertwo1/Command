@@ -74,6 +74,14 @@ class FakeDiagnosticsClient extends DroidDeckClient {
 
   @override
   Future<TopProcessesData> getTopProcesses({int count = 5}) async => mockTopProcesses;
+
+  @override
+  Future<PingResult> ping() async => PingResult(
+        hostName: 'TEST-HOST',
+        status: 'ok',
+        serverTimeUtc: DateTime.now().toUtc(),
+        latencyMs: 15,
+      );
 }
 
 void main() {
@@ -141,7 +149,7 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Card de Histórico 60s
       expect(find.text('Histórico de Carga (60s)'), findsOneWidget);

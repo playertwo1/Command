@@ -93,3 +93,31 @@ class TopProcessesData {
     );
   }
 }
+
+/// Resultado do ping de diagnóstico de rede e latência (S8)
+class PingResult {
+  final String hostName;
+  final String status;
+  final DateTime serverTimeUtc;
+  final int latencyMs;
+
+  const PingResult({
+    required this.hostName,
+    required this.status,
+    required this.serverTimeUtc,
+    required this.latencyMs,
+  });
+
+  factory PingResult.fromJson(Map<String, dynamic> json, int latencyMs) {
+    return PingResult(
+      hostName: (json['hostName'] ?? json['HostName'] ?? '').toString(),
+      status: (json['status'] ?? json['Status'] ?? 'ok').toString(),
+      serverTimeUtc: DateTime.tryParse(
+            (json['serverTimeUtc'] ?? json['ServerTimeUtc'] ?? '').toString(),
+          ) ??
+          DateTime.now().toUtc(),
+      latencyMs: latencyMs,
+    );
+  }
+}
+

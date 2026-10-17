@@ -246,9 +246,26 @@ namespace DroidDeck
                         app.UseAuthorization();
                         app.UseEndpoints(endpoints =>
                         {
-                            // Endpoint anônimo para o app checar conectividade (antes de ter a chave).
+                            // Endpoint leve de conectividade e latência/ping (Command v0.2 - S8)
                             endpoints.MapGet("/api/ping", () =>
-                                Microsoft.AspNetCore.Http.Results.Ok(new { ok = true, name = Environment.MachineName }))
+                                Microsoft.AspNetCore.Http.Results.Ok(new
+                                {
+                                    ok = true,
+                                    name = Environment.MachineName,
+                                    hostName = Environment.MachineName,
+                                    serverTimeUtc = DateTime.UtcNow,
+                                    status = "ok",
+                                }))
+                                .AllowAnonymous();
+                            endpoints.MapGet("/api/v1/ping", () =>
+                                Microsoft.AspNetCore.Http.Results.Ok(new
+                                {
+                                    ok = true,
+                                    name = Environment.MachineName,
+                                    hostName = Environment.MachineName,
+                                    serverTimeUtc = DateTime.UtcNow,
+                                    status = "ok",
+                                }))
                                 .AllowAnonymous();
 
                             // Entrega a API key APENAS para quem acessa via loopback (o próprio PC).

@@ -49,12 +49,12 @@ flowchart TD
 | **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `DONE` |
 | **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `DONE` |
 | **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `DONE` |
-| **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `READY` |
-| **S5** | Mobile | **UI Sparklines, Serviços e Processos** | Gráfico Sparkline de 60s, Card de Serviços do Windows e Card Top 5 Processos | S2, S3, S4 | `PLANNED` |
-| **S6** | Mobile | **Motor de Alertas Configuráveis** | Configuração de limiares (CPU/RAM/Temp/Disco/Bateria) + Banner de alerta com *cooldown* 60s | S4, S5 | `PLANNED` |
-| **S7** | Mobile | **Gestão de Múltiplos PCs** | Persistência de múltiplos PCs pareados + Seletor rápido 1-toque no topo da `StatusPage` | S6 | `PLANNED` |
-| **S8** | Fullstack | **Diagnóstico de Latência e Rede** | Medição contínua de RTT (`latencyMs`), qualidade do link e diagnóstico LAN/Tailscale | S7 | `PLANNED` |
-| **S9** | Mobile | **Exportação de Relatório de Saúde** | Gerador de diagnóstico sanitizado do PC (Markdown/JSON) com compartilhamento nativo | S8 | `PLANNED` |
+| **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `DONE` |
+| **S5** | Mobile | **UI Sparklines, Serviços e Processos** | Gráfico Sparkline de 60s, Card de Serviços do Windows e Card Top 5 Processos | S2, S3, S4 | `DONE` |
+| **S6** | Mobile | **Motor de Alertas Configuráveis** | Configuração de limiares (CPU/RAM/Temp/Disco/Bateria) + Banner de alerta com *cooldown* 60s | S4, S5 | `DONE` |
+| **S7** | Mobile | **Gestão de Múltiplos PCs** | Persistência de múltiplos PCs pareados + Seletor rápido 1-toque no topo da `StatusPage` | S6 | `DONE` |
+| **S8** | Fullstack | **Diagnóstico de Latência e Rede** | Medição contínua de RTT (`latencyMs`), qualidade do link e diagnóstico LAN/Tailscale | S7 | `DONE` |
+| **S9** | Mobile | **Exportação de Relatório de Saúde** | Gerador de diagnóstico sanitizado do PC (Markdown/JSON) com compartilhamento nativo | S8 | `READY` |
 | **S10** | QA/Release | **Validação E2E e Release v0.2.0** | Testes automatizados, piloto no emulador Pixel 9, pacotes `v0.2.0`, Vault e Git push | S9 | `PLANNED` |
 
 ---
@@ -154,10 +154,10 @@ flowchart TD
 ### 📡 Fase S8 — Fullstack: Diagnóstico de Conectividade e Latência (Ping / RTT)
 **Objetivo:** Medir a qualidade da conexão entre Android e PC em tempo real e facilitar troubleshooting de rede.
 
-- [ ] **S8-01:** Adicionar endpoint leve `GET /api/ping` retornando `serverTimeUtc` e `hostName` com overhead mínimo.
-- [ ] **S8-02:** Calcular RTT (`latencyMs`) e variação (`jitterMs`) no app Android a cada ciclo de atualização da `StatusPage`.
-- [ ] **S8-03:** Exibir badge de latência (ex.: `12 ms · LAN`) junto ao status Online, com cores de qualidade ($\le 50\text{ ms}$ Verde, $51\text{--}150\text{ ms}$ Âmbar, $> 150\text{ ms}$ Vermelho).
-- [ ] **S8-04:** Criar testes em `app/test/network_latency_test.dart`.
+- [x] **S8-01:** Adicionar endpoint leve `GET /api/ping` retornando `serverTimeUtc` e `hostName` com overhead mínimo.
+- [x] **S8-02:** Calcular RTT (`latencyMs`) e variação (`jitterMs`) no app Android a cada ciclo de atualização da `StatusPage`.
+- [x] **S8-03:** Exibir badge de latência (ex.: `12 ms · LAN`) junto ao status Online, com cores de qualidade ($\le 50\text{ ms}$ Verde, $51\text{--}150\text{ ms}$ Âmbar, $> 150\text{ ms}$ Vermelho).
+- [x] **S8-04:** Criar testes em `app/test/network_latency_test.dart`.
 
 ---
 
@@ -185,12 +185,12 @@ flowchart TD
 
 - [x] **S0** — Spike Técnico: Sensores de Hardware e Energia (`docs/evidence/v0.2/S0_SPIKE.md`)
 - [x] **S1** — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API
-- [ ] **S2** — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco
-- [ ] **S3** — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)
-- [ ] **S4** — Mobile: UI Térmica, Bateria e Múltiplos Discos
-- [ ] **S5** — Mobile: Gráficos Sparkline (60s), Serviços e Top Processos
-- [ ] **S6** — Mobile: Motor de Alertas de Saúde e Cooldown Anti-Spam
-- [ ] **S7** — Mobile: Gestão de Múltiplos PCs (`PcProfileManager`)
-- [ ] **S8** — Fullstack: Diagnóstico de Conectividade e Latência (Ping / RTT)
+- [x] **S2** — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco
+- [x] **S3** — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)
+- [x] **S4** — Mobile: UI Térmica, Bateria e Múltiplos Discos
+- [x] **S5** — Mobile: Gráficos Sparkline (60s), Serviços e Top Processos
+- [x] **S6** — Mobile: Motor de Alertas de Saúde e Cooldown Anti-Spam
+- [x] **S7** — Mobile: Gestão de Múltiplos PCs (`PcProfileManager`)
+- [x] **S8** — Fullstack: Diagnóstico de Conectividade e Latência (Ping / RTT)
 - [ ] **S9** — Mobile: Exportação de Relatório de Saúde Sanitizado
 - [ ] **S10** — QA/Release: Piloto E2E no Emulador Pixel 9, Pacotes `v0.2.0` e NexusVault
