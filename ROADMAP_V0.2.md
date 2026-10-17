@@ -48,8 +48,8 @@ flowchart TD
 | **S0** | Backend | **Spike de Sensores e Energia** | Relatório técnico `S0_SPIKE.md` validando leitura térmica e bateria com/sem Admin | MVP v0.1 | `DONE` |
 | **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `DONE` |
 | **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `DONE` |
-| **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `READY` |
-| **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `PLANNED` |
+| **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `DONE` |
+| **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `READY` |
 | **S5** | Mobile | **UI Sparklines, Serviços e Processos** | Gráfico Sparkline de 60s, Card de Serviços do Windows e Card Top 5 Processos | S2, S3, S4 | `PLANNED` |
 | **S6** | Mobile | **Motor de Alertas Configuráveis** | Configuração de limiares (CPU/RAM/Temp/Disco/Bateria) + Banner de alerta com *cooldown* 60s | S4, S5 | `PLANNED` |
 | **S7** | Mobile | **Gestão de Múltiplos PCs** | Persistência de múltiplos PCs pareados + Seletor rápido 1-toque no topo da `StatusPage` | S6 | `PLANNED` |
@@ -104,10 +104,10 @@ flowchart TD
 ### ⚙️ Fase S3 — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)
 **Objetivo:** Expor visibilidade sobre serviços essenciais e quais processos estão consumindo mais CPU/RAM no momento.
 
-- [ ] **S3-01:** Criar `WindowsServiceMonitor.cs` com allowlist configurável de serviços (`Tailscale`, `Spooler`, `WSearch`, `WinDefend`, `Docker`) e endpoint `GET /api/services`.
-- [ ] **S3-02:** Criar `TopProcessesService.cs` e endpoint `GET /api/processes/top` retornando os Top 5 processos por uso de RAM e CPU (apenas `name`, `pid`, `memoryMB`, `cpuPercent`, sem caminhos sensíveis).
-- [ ] **S3-03:** Garantir que nenhum endpoint de `S3` exponha ações de parada/encerramento fora da allowlist da Fase F4.
-- [ ] **S3-04:** Criar testes xUnit em `DroidDeck.Tests/ServicesAndProcessesTests.cs`.
+- [x] **S3-01:** Criar `WindowsServiceMonitor.cs` com allowlist configurável de serviços (`Tailscale`, `Spooler`, `WSearch`, `WinDefend`, `Docker`) e endpoint `GET /api/services`.
+- [x] **S3-02:** Criar `TopProcessesService.cs` e endpoint `GET /api/processes/top` retornando os Top 5 processos por uso de RAM e CPU (apenas `name`, `pid`, `memoryMB`, `cpuPercent`, sem caminhos sensíveis).
+- [x] **S3-03:** Garantir que nenhum endpoint de `S3` exponha ações de parada/encerramento fora da allowlist da Fase F4.
+- [x] **S3-04:** Criar testes xUnit em `DroidDeck.Tests/ServicesAndProcessesTests.cs`.
 
 ---
 

@@ -281,6 +281,24 @@ namespace DroidDeck
                             endpoints.MapGet("/api/v1/metrics", (DroidDeck.Services.SystemMonitorService monitor) =>
                                 Microsoft.AspNetCore.Http.Results.Ok(monitor.LastStats.UptimeSeconds > 0 ? monitor.LastStats : monitor.SampleStats()));
 
+                            // Serviços do Windows sob allowlist (Command v0.2 - S3)
+                            endpoints.MapGet("/api/services", (DroidDeck.Services.IWindowsServiceMonitor svc, string? names) =>
+                            {
+                                var filter = !string.IsNullOrWhiteSpace(names) ? names.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : null;
+                                return Microsoft.AspNetCore.Http.Results.Ok(svc.GetServicesStatus(filter));
+                            });
+                            endpoints.MapGet("/api/v1/services", (DroidDeck.Services.IWindowsServiceMonitor svc, string? names) =>
+                            {
+                                var filter = !string.IsNullOrWhiteSpace(names) ? names.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : null;
+                                return Microsoft.AspNetCore.Http.Results.Ok(svc.GetServicesStatus(filter));
+                            });
+
+                            // Top processos por CPU e RAM (Command v0.2 - S3)
+                            endpoints.MapGet("/api/processes/top", (DroidDeck.Services.ITopProcessesService procs, int? count) =>
+                                Microsoft.AspNetCore.Http.Results.Ok(procs.GetTopProcesses(count ?? 5)));
+                            endpoints.MapGet("/api/v1/processes/top", (DroidDeck.Services.ITopProcessesService procs, int? count) =>
+                                Microsoft.AspNetCore.Http.Results.Ok(procs.GetTopProcesses(count ?? 5)));
+
                             endpoints.MapControllers();
                             endpoints.MapHub<DroidDeck.Hubs.DeckHub>("/deckHub");
                         });

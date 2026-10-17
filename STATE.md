@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S2 CONCLUÍDO (PASS) -> Avançando para S3
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S3 CONCLUÍDO (PASS) -> Avançando para S4
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -92,11 +92,18 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - Testes: 215/215 testes unitários C# aprovados (`dotnet test`), incluindo 5 novos testes de `HistoryAndDisksTests.cs`.
   - Validação ao vivo no host Windows com retorno real: Volume `C:` (919 GB total, 436.7 GB livre, 52.5% uso) e amostras no buffer de histórico.
 
+- ID: S3-SERVICES-AND-PROCESSES-BACKEND (2026-10-17)
+  - Implementação de `WindowsServiceMonitor.cs` sob allowlist estrita (`Tailscale`, `Spooler`, `WSearch`, `WinDefend`, `docker`) e endpoints `GET /api/services` e `GET /api/v1/services`.
+  - Implementação de `TopProcessesService.cs` sanitizado com cálculo de CPU delta por tick e endpoints `GET /api/processes/top` e `GET /api/v1/processes/top` (agrupados em `ByMemory` e `ByCpu`).
+  - Garantia estrita de somente leitura: zero privilégios de parada ou mutação expostos além dos apps controlados da Fase F4.
+  - Testes: 222/222 testes unitários C# aprovados (`dotnet test`), incluindo 7 novos testes de `ServicesAndProcessesTests.cs`.
+  - Validação ao vivo no host Windows com retorno real: Tailscale, Spooler, WSearch e WinDefend ativos (`Running`), Top 5 RAM liderado por `qemu-system-x86_64` (3.5 GB) e Top 5 CPU liderado por `Antigravity` (3.9%).
+
 ## Próxima ação
-- Iniciar **Fase S3 — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
+- Iniciar **Fase S4 — Frontend Mobile: UI Térmica, Bateria e Múltiplos Discos** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.2: Fases S0, S1 e S2 concluídas com sucesso.
+- Onda v0.2: Fases S0, S1, S2 e S3 concluídas com sucesso.
