@@ -234,6 +234,8 @@ F1 fixa rotas, DTOs e limites no contrato. Operações de app, captura e transfe
 
 Ordem sugerida pelo manual (seção 13 de `docs/MANUAL_MVP.md`): v0.2 saúde e alertas (temperaturas, multi-PC) → v0.3 tela/arquivos → v0.4 Hermes → v0.5 macros → v0.6 mobilidade (widgets, Watch, Wake-on-LAN) → v1.0 robustez. Nada disso é planejado antes da aprovação F9; cada onda recebe roadmap próprio.
 
+- **Onda v0.2 (Saúde, Diagnóstico, Alertas e Múltiplos PCs):** planejada e estruturada em [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md) (11 fases: S0 a S10).
+
 ## 9. Diferenças em relação ao roadmap inicial
 
 - G4 foi dividido em ações, screenshot e arquivos para tornar erros e entregas rastreáveis.

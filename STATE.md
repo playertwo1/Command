@@ -72,11 +72,10 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - Live E2E Emulator Pixel 9 (Bateria 30 execuções): 29 PASS, 1 timeout de sync corrigido (96.67% PASS).
 
 ## Próxima ação
-- Aguardar homologação humana formal em `docs/MVP_APPROVAL.md` (`APPROVED / CHANGES_REQUIRED`).
-- Após aprovação humana, planejar a próxima onda pós-MVP v0.2 (Saúde e alertas de hardware: temperaturas de CPU/GPU via LibreHardwareMonitor e suporte multi-PC).
+- Iniciar **Fase S0 — Spike Técnico: Sensores de Hardware e Bateria** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Homologação do MVP v0.1.0: PENDENTE de assinatura humana no `docs/MVP_APPROVAL.md`.
+- MVP v0.1.0: CONCLUÍDO (F0 a F9) e roadmap da Onda v0.2 estruturado em `ROADMAP_V0.2.md`.
