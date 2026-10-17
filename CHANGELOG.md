@@ -1,26 +1,43 @@
 # Changelog
 
-## In-Tree Fork DroidDeck v1.9.1 — 2026-10-17
+Cabeçalhos do Command no formato `## X.Y.Z — AAAA-MM-DD` (ideias_standard), mais recente primeiro; o título original fica em negrito logo abaixo. O Command não tinha versões nem tags (`package.json` em `0.0.0`; o MVP v0.1 ainda não foi atingido): os números 0.0.1–0.0.5 foram atribuídos na padronização (2026-10-17) com as datas já registradas. A seção "Histórico de lançamentos DroidDeck (Upstream)" mantém o formato e as versões do upstream.
+
+## 0.0.5 — 2026-10-17
+
+**F3 — Telemetria de hardware e tema Amethyst (reconstruído do `git log`, `a4e8930`)**
+- Backend: `SystemMonitorService` mede também Disco do Sistema e Uptime; endpoint autenticado `GET /api/metrics`.
+- App: tema Amethyst Command em `app_theme.dart` e nova aba **Status** (`StatusPage`) com métricas em tempo real, badge Online/Offline e card do Hermes IA ("Não configurado").
+- Testes novos `CommandTelemetryTests.cs` e `status_page_test.dart`. Segundo o `STATE.md`: `dotnet test` 163 PASS, `flutter test` 50 PASS, `flutter analyze` exit 0.
+
+## 0.0.4 — 2026-10-17
+
+**In-Tree Fork DroidDeck v1.9.1**
 - Realizado fork in-tree completo do repositório upstream [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck) (`5cd2ddc`).
 - Mantida 100% da árvore funcional upstream: backend .NET 8 WinForms/ASP.NET Core/SignalR (`DroidDeck/`), app móvel e configurador web Flutter (`app/`), suíte de testes xUnit (`tests/DroidDeck.Tests/`), documentação e scripts.
 - Restaurados todos os módulos nativos do DroidDeck: OBS Studio WebSocket, Discord RPC, Tuya / Smart Life, Soundboard (MyInstants), Audio Mixer por aplicativo, controles de mídia WinRT, Steam game launcher, profiles e multi-actions.
 - Modelo de pareamento e segurança mantido estritamente no padrão do DroidDeck (API Key local protegida por DPAPI, loopback key endpoint `/api/pairing/local-key`, protocolo URI `droiddeck://pair`, portas 4787 e 7573).
 - Preparação para expansão com módulos de telemetria Command e tema visual Amethyst Dark.
 
-## Revisão documental — 2026-10-13
+## 0.0.3 — 2026-10-13
+
+**Revisão documental**
 - Transcrito o manual do MVP em `docs/MANUAL_MVP.md` (o `.docx` segue como fonte).
 - `ROADMAP.md`: fluxos FL-1…FL-5, coluna de estado por fase, pinning via QR, firewall consentido, relógio do Bridge, rotas iniciais do contrato, modelo de ameaças, riscos e pós-MVP. Escopo, fases e metas inalterados.
 - Nomenclatura de gates alinhada a F0–F9; checklist com tabela por fase; decisões D-004–D-006 abertas.
 - Adicionados `.gitattributes` (LF) e padrões de chaves de assinatura/artefatos Android e .NET ao `.gitignore`.
 - Removida `COMMAND_Pacote_Planejamento/`, cópia idêntica do manual da raiz e do roadmap original em `docs/history/`.
 
-## Roadmap aprovado e repositório — 2026-10-12
+## 0.0.2 — 2026-10-12
+
+**Roadmap aprovado e repositório**
 - Aprovado o roadmap do MVP v0.1 com dez fases, F0–F9.
 - Promovido o plano aprovado a `ROADMAP.md`; roadmap anterior arquivado em `docs/history/`.
 - Início do trabalho definido em F0-01, com auditoria de ambiente antes de selecionar as bases.
 - Criado o repositório GitHub privado `playertwo1/Command` e conectado ao diretório local.
 
-## Bootstrap — 2026-10-12
+## 0.0.1 — 2026-10-12
+
+**Bootstrap**
 - Criado o esqueleto documental do Command a partir do kit `ideias_standard`.
 - Preservados o manual do MVP e o roadmap originais.
 - Adicionadas 16 capturas de telas e duas imagens de apoio do projeto Stitch, com manifesto e hashes.
