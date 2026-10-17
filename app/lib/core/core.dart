@@ -23,6 +23,7 @@ export 'droiddeck_client/models/deck_button.dart';
 export 'droiddeck_client/models/deck_action.dart';
 export 'droiddeck_client/models/sound_result.dart';
 export 'droiddeck_client/models/app_catalog_models.dart';
+export 'droiddeck_client/models/transfer_models.dart';
 
 export 'ui/molecules/volume_control.dart';
 export 'ui/molecules/media_control_widget.dart';

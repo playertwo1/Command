@@ -14,6 +14,8 @@ import 'models/app_catalog_models.dart';
 export 'models/app_catalog_models.dart';
 import 'models/screenshot_models.dart';
 export 'models/screenshot_models.dart';
+import 'models/transfer_models.dart';
+export 'models/transfer_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -600,5 +602,56 @@ class DroidDeckClient {
       return uri.replace(queryParameters: {'deviceId': deviceId}).toString();
     }
     return uri.toString();
+  }
+
+  /// Lista os arquivos autorizados na pasta de saída do PC ('outbound').
+  Future<List<TransferItem>> listOutboundTransfers({String? deviceId}) async {
+    final response = await _dio.get(
+      '/api/transfers/outbound',
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+    );
+    final list = response.data as List<dynamic>;
+    return list.map((e) => TransferItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Baixa um arquivo da pasta de saída do PC e retorna os bytes e hash SHA-256.
+  Future<FileDownloadData> downloadOutboundFile(String fileName, {String? deviceId}) async {
+    final response = await _dio.get<List<int>>(
+      '/api/transfers/outbound/$fileName',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: deviceId != null ? {'X-Device-Id': deviceId} : null,
+      ),
+    );
+    final sha256 = response.headers.value('X-Checksum-Sha256') ?? '';
+    return FileDownloadData(
+      fileName: fileName,
+      bytes: Uint8List.fromList(response.data!),
+      checksumSha256: sha256,
+    );
+  }
+
+  /// Faz upload de um arquivo para a pasta 'inbound' do PC com SHA-256 esperado e RequestId.
+  Future<UploadTransferResult> uploadInboundFile({
+    required String fileName,
+    required Uint8List bytes,
+    String? expectedSha256,
+    String? requestId,
+    String? deviceId,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: fileName),
+      'rootId': 'inbound',
+      if (expectedSha256 != null) 'expectedSha256': expectedSha256,
+      if (requestId != null) 'requestId': requestId,
+    });
+
+    final response = await _dio.post(
+      '/api/transfers/upload',
+      data: formData,
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+    );
+    final item = TransferItem.fromJson(response.data as Map<String, dynamic>);
+    return UploadTransferResult(success: true, item: item);
   }
 }

@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** F5 — Screenshot manual · **Estado:** DONE -> Avançando para F6
+**Atualizado:** 2026-10-17 · **Marco ativo:** F6 — Transferência restrita de arquivos · **Estado:** DONE -> Avançando para F7
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -19,7 +19,15 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Armazenamento temporário seguro em `%LocalAppData%\DroidDeck\screenshots` com validade de 10 minutos (`ExpiresAtUtc`), expurgo automático e retorno `410 Gone`.
     - Isolamento de entrega por `DeviceId` (somente o dispositivo solicitante pode acessar o arquivo) e auditoria de metadados sanitizados em jobs.
     - Controladores REST `ScreenshotsController.cs` mapeados em `/api/screenshots/capture`, `/api/screenshots/{id}` e `/api/screenshots/{id}/info` (com aliases `/api/v1/`).
-  - 179/179 testes unitários e de integração aprovados (0 falhas).
+  - **Transferência Restrita de Arquivos (`TransferService.cs` + `TransfersController.cs`):**
+    - Duas raízes isoladas sob `%LocalAppData%\DroidDeck\transfers\`: `inbound` (upload) e `outbound` (download).
+    - Proteção estrita anti-traversal (`..`, `/`, `\`, ADS `:`, UNC, nomes reservados Win32 como `CON`, `NUL`, `PRN`, e symlinks).
+    - Blocklist de extensões perigosas (`.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`, `.dll`, etc.).
+    - Limite estrito de 100 MiB por arquivo e escrita temporária atômica via `.tmp`.
+    - Validação bidirecional de integridade criptográfica SHA-256 e prevenção contra colisão de arquivos (409 Conflict).
+    - Auditoria de operações `transfer.download` e `transfer.upload` em `JobHistoryService`.
+    - Endpoints REST mapeados em `/api/transfers/{rootId}`, `/api/transfers/{rootId}/{fileName}` e `/api/transfers/upload`.
+  - 200/200 testes unitários e de integração aprovados (0 falhas).
 - **Frontend Flutter (`app/`):**
   - Aplicativo móvel e Web configurator.
   - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset no `app_theme.dart`.
@@ -29,28 +37,27 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Card **Ações Autorizadas** com listagem dos apps permitidos, status de execução, botão "Abrir" e botão "Encerrar" protegido por diálogo de confirmação explícita.
     - Card **Captura de Tela** com thumbnail preview real da tela do Windows, resolução, tamanho em KB, validade de 10 min, botões "Visualizar" e "Compartilhar", e banner de alerta contra sessão bloqueada.
     - Visualizador de tela cheia `ScreenshotViewerPage` com `InteractiveViewer` (pinch-to-zoom 0.5x a 5.0x e navegação panorâmica) e folha de compartilhamento nativa Android (`SharePlus`).
+    - Card **Transferência de Arquivos** com listagem dos arquivos disponíveis na pasta `outbound` do PC, botão "Baixar" com validação estrita de integridade SHA-256 no cliente e botão "Enviar Arquivo para o PC (Inbound)" com cálculo de hash prévio e confirmação visual.
     - Card **Atividade Recente** exibindo o histórico de jobs em tempo real com estados coloridos, hora e opções de atualizar e limpar histórico.
-  - 56/56 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
+  - 62/62 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F5-UAT-EMULATOR (2026-10-17)
+- ID: F6-UAT-EMULATOR (2026-10-17)
 - Resultado:
   - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo em segundo plano na porta 4787.
-  - Disparo de "Capturar Tela Agora" na tela do emulador -> captura real do monitor principal do Windows concluída com sucesso.
-  - Thumbnail da área de trabalho exibida dinamicamente no Card de Captura com metadados (1080x1920, 389.8 KB, "Válido por 10 min").
-  - Toque em "Visualizar" abriu `ScreenshotViewerPage` em tela cheia com zoom interativo funcional.
-  - Toque em "Compartilhar" disparou folha nativa do sistema Android (`Sharing image` com Quick Share, Drive, Gmail, etc.).
-  - Job auditado com sucesso no Card Atividade Recente (`screenshot.capture (primary_screen) succeeded`).
-  - Evidências visuais salvas em `docs/assets/emulator_screenshot_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
+  - Teste de Download: arquivo `relatorio_pc.csv` (74 B) listado em "Disponíveis para Download (PC Outbound)"; toque em "Baixar" validou o checksum SHA-256 (`c3cb4760...`) com toast verde exibido no emulador.
+  - Teste de Upload: toque em "Enviar Arquivo para o PC (Inbound)" calculou hash localmente, enviou `mobile_report_1792258816179.csv` com escrita temporária atômica no PC; arquivo criado com sucesso e validado em disco (`%LocalAppData%\DroidDeck\transfers\inbound\`).
+  - Jobs de transferência registrados e auditados com sucesso em `JobHistoryService` e exibidos na lista de "Atividade Recente" do app (`transfer.download` e `transfer.upload`).
+  - Evidências visuais salvas em `docs/assets/emulator_transfer_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 - Testes/build:
-  - `dotnet test DroidDeck.sln --filter "Category!=RequiresDesktop"`: 179 PASS, 0 FAIL.
-  - `flutter test`: 56 PASS, 0 FAIL.
-  - `flutter analyze --no-fatal-infos`: exit 0.
+  - `dotnet test tests\DroidDeck.Tests\DroidDeck.Tests.csproj --filter FullyQualifiedName~TransferServiceTests`: 21 PASS, 0 FAIL.
+  - `flutter test`: 62 PASS, 0 FAIL.
+  - `flutter analyze lib\src\home\status_page.dart lib\core\droiddeck_client\`: exit 0 (0 issues).
   - Live E2E Emulator Pixel 9: PASS.
 
 ## Próxima ação
-- F6 — Transferência restrita de arquivos (duas raízes isoladas no PC sob allowlist, upload de até 100 MiB com validação SHA-256 e escrita temporária atômica, download restrito da pasta de saída, proteção rigorosa contra path traversal, symlinks e caminhos UNC/absolutos).
+- F7 — Integração, falhas e fidelidade visual (matriz de falhas técnicas: queda de rede, timeout, reconexão transparente; polimento visual fino de acordo com `DESIGN.md`; revisão do checklist de release `docs/RELEASE_CHECKLIST.md`).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.

@@ -151,11 +151,11 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Entrada:** jobs, autenticação e histórico. **Saída:** arquivo vai ao PC e retorna íntegro.
 
-- [ ] F6-01 — configurar duas raízes no PC, uma de entrada e outra de saída. Contrato usa ID de raiz/item e nome simples validado; nenhum caminho Windows arbitrário é aceito. Política de nomes/extensões fica explícita e rejeita arquivos executáveis/scripts no piloto.
-- [ ] F6-02 — upload com seleção Android, limite de 100 MiB, progresso/cancelamento e escrita temporária; conferir bytes e SHA-256 antes de promover ao destino. Colisão de nome retorna erro e não sobrescreve.
-- [ ] F6-03 — listar e baixar somente itens da raiz de saída autorizada. Transferir o arquivo de teste à saída por ação local no PC; baixar pelo Android e verificar integridade antes de confirmar sucesso.
-- [ ] F6-04 — normalizar caminhos e rejeitar traversal, caminhos absolutos/UNC, separadores embutidos, nomes reservados/ADS e symlinks/junctions/reparse points que permitam escapar. Revalidar no acesso efetivo, não apenas na listagem.
-- [ ] F6-05 — verificar arquivo acima do limite, corrupção/checksum inválido, interrupção/cancelamento, permissão negada, pouco espaço, colisão e troca de item entre listar e baixar. Incompleto nunca aparece como arquivo final; tentativa nova é explícita, sem retomada automática.
+- [x] F6-01 — configurar duas raízes no PC, uma de entrada e outra de saída. Contrato usa ID de raiz/item e nome simples validado; nenhum caminho Windows arbitrário é aceito. Política de nomes/extensões fica explícita e rejeita arquivos executáveis/scripts no piloto.
+- [x] F6-02 — upload com seleção Android, limite de 100 MiB, progresso/cancelamento e escrita temporária; conferir bytes e SHA-256 antes de promover ao destino. Colisão de nome retorna erro e não sobrescreve.
+- [x] F6-03 — listar e baixar somente itens da raiz de saída autorizada. Transferir o arquivo de teste à saída por ação local no PC; baixar pelo Android e verificar integridade antes de confirmar sucesso.
+- [x] F6-04 — normalizar caminhos e rejeitar traversal, caminhos absolutos/UNC, separadores embutidos, nomes reservados/ADS e symlinks/junctions/reparse points que permitam escapar. Revalidar no acesso efetivo, não apenas na listagem.
+- [x] F6-05 — verificar arquivo acima do limite, corrupção/checksum inválido, interrupção/cancelamento, permissão negada, pouco espaço, colisão e troca de item entre listar e baixar. Incompleto nunca aparece como arquivo final; tentativa nova é explícita, sem retomada automática.
 
 **Conclusão:** ida/volta passa três vezes com SHA-256 igual; uma interrupção não gera arquivo final corrompido; nenhuma leitura/escrita alcança caminho fora das raízes.
 

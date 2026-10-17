@@ -28,6 +28,7 @@ namespace DroidDeck
             services.AddSingleton<IAppCatalogService, AppCatalogService>();
             services.AddSingleton<IDesktopCaptureProvider, WindowsDesktopCaptureProvider>();
             services.AddSingleton<IScreenshotService, ScreenshotService>();
+            services.AddSingleton<ITransferService, TransferService>();
             services.AddHostedSingleton<TimerService>();
             services.AddHostedSingleton<InfoService>();
             services.AddHostedSingleton<ForegroundWatcher>();

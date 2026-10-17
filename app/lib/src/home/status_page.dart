@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
+import 'package:crypto/crypto.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -39,6 +40,12 @@ class _StatusPageState extends State<StatusPage> {
   bool _capturingScreenshot = false;
   String? _screenshotError;
 
+  List<TransferItem> _outboundFiles = [];
+  bool _loadingTransfers = false;
+  String? _transferError;
+  final Set<String> _pendingDownloads = {};
+  bool _uploadingInbound = false;
+
   DroidDeckClient? get _client {
     if (widget.client != null) return widget.client;
     try {
@@ -71,6 +78,7 @@ class _StatusPageState extends State<StatusPage> {
     await Future.wait([
       _fetchApps(),
       _fetchJobs(),
+      _fetchTransfers(),
     ]);
   }
 
@@ -299,6 +307,148 @@ class _StatusPageState extends State<StatusPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(tr('Erro ao limpar histórico: {e}', {'e': e.toString()}))),
         );
+      }
+    }
+  }
+
+  Future<void> _fetchTransfers() async {
+    final client = _client;
+    if (client == null || _loadingTransfers) return;
+    if (mounted) {
+      setState(() {
+        _loadingTransfers = true;
+        _transferError = null;
+      });
+    }
+    try {
+      final files = await client.listOutboundTransfers(deviceId: _currentPc?.id);
+      if (mounted) {
+        setState(() {
+          _outboundFiles = files;
+          _transferError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _transferError = e.toString();
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loadingTransfers = false);
+    }
+  }
+
+  Future<void> _downloadFile(TransferItem file) async {
+    final client = _client;
+    if (client == null || _pendingDownloads.contains(file.fileName)) return;
+
+    setState(() => _pendingDownloads.add(file.fileName));
+
+    try {
+      final downloadData = await client.downloadOutboundFile(
+        file.fileName,
+        deviceId: _currentPc?.id,
+      );
+
+      final calculatedHash = sha256.convert(downloadData.bytes).toString();
+      final expectedHash = downloadData.checksumSha256;
+
+      final isValid = expectedHash.isNotEmpty &&
+          calculatedHash.toLowerCase() == expectedHash.toLowerCase();
+
+      if (mounted) {
+        if (isValid) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${file.fileName}: Download concluído! SHA-256 verificado (${calculatedHash.substring(0, 8)}...)',
+              ),
+              backgroundColor: const Color(0xFF34D5A0),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'AVISO DE SEGURANÇA: Divergência de checksum SHA-256 no arquivo ${file.fileName}!',
+              ),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+      await _fetchJobs();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Falha ao baixar arquivo: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _pendingDownloads.remove(file.fileName));
+      }
+    }
+  }
+
+  Future<void> _uploadTestFile() async {
+    final client = _client;
+    if (client == null || _uploadingInbound) return;
+
+    setState(() => _uploadingInbound = true);
+
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'mobile_report_$timestamp.csv';
+      final content = 'id,timestamp,source,status\n1,$timestamp,AndroidEmulator,OK\n';
+      final bytes = Uint8List.fromList(utf8.encode(content));
+      final expectedSha256 = sha256.convert(bytes).toString();
+
+      final result = await client.uploadInboundFile(
+        fileName: fileName,
+        bytes: bytes,
+        expectedSha256: expectedSha256,
+        deviceId: _currentPc?.id,
+      );
+
+      if (mounted) {
+        if (result.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Arquivo "$fileName" enviado com sucesso para o PC! (SHA-256 verificado)'),
+              backgroundColor: const Color(0xFF34D5A0),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Falha no upload: ${result.message}'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+      await _fetchJobs();
+    } catch (e) {
+      if (mounted) {
+        String msg = e.toString();
+        if (e is DioException && e.response?.statusCode == 409) {
+          msg = 'Conflito (409): O arquivo já existe na pasta inbound do PC.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao enviar arquivo: $msg'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _uploadingInbound = false);
       }
     }
   }
@@ -780,6 +930,11 @@ class _StatusPageState extends State<StatusPage> {
 
               const SizedBox(height: 12),
 
+              // Card de Transferência Restrita de Arquivos (F6)
+              _buildTransferCard(theme),
+
+              const SizedBox(height: 12),
+
               // Card de Histórico de Atividades (Jobs F4-04)
               Card(
                 elevation: 0,
@@ -1095,6 +1250,197 @@ class _StatusPageState extends State<StatusPage> {
                 ),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransferCard(ThemeData theme) {
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.swap_vert_rounded, size: 20, color: Color(0xFFA78BFA)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          tr('Transferência de Arquivos'),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: tr('Atualizar lista'),
+                  onPressed: _loadingTransfers ? null : _fetchTransfers,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              tr('Pastas restritas: outbound (PC ➔ Celular) & inbound (Celular ➔ PC)'),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            if (_transferError != null) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF87171).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFF87171).withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Color(0xFFF87171), size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _transferError!,
+                        style: const TextStyle(color: Color(0xFFF87171), fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            Text(
+              tr('Disponíveis para Download (PC Outbound)'),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: const Color(0xFFA78BFA),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            if (_loadingTransfers && _outboundFiles.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else if (_outboundFiles.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  tr('Nenhum arquivo disponível na pasta outbound do PC.'),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _outboundFiles.length,
+                separatorBuilder: (_, __) => const Divider(height: 8, thickness: 0.3),
+                itemBuilder: (context, index) {
+                  final file = _outboundFiles[index];
+                  final isDownloading = _pendingDownloads.contains(file.fileName);
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    leading: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.insert_drive_file_outlined, size: 20, color: Color(0xFFA78BFA)),
+                    ),
+                    title: Text(
+                      file.fileName,
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    subtitle: Text(
+                      '${file.formattedSize} · SHA: ${file.checksumSha256.length > 8 ? file.checksumSha256.substring(0, 8) : file.checksumSha256}...',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    trailing: SizedBox(
+                      height: 32,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        icon: isDownloading
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.download, size: 16),
+                        label: Text(isDownloading ? tr('Baixando...') : tr('Baixar')),
+                        onPressed: isDownloading ? null : () => _downloadFile(file),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+            const SizedBox(height: 14),
+            const Divider(height: 1, thickness: 0.5),
+            const SizedBox(height: 14),
+
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFA78BFA).withValues(alpha: 0.2),
+                  foregroundColor: const Color(0xFFA78BFA),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(color: Color(0xFFA78BFA), width: 1),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                icon: _uploadingInbound
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFA78BFA)),
+                      )
+                    : const Icon(Icons.upload_file, size: 18),
+                label: Text(
+                  _uploadingInbound ? tr('Enviando para o PC...') : tr('Enviar Arquivo para o PC (Inbound)'),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onPressed: _uploadingInbound ? null : _uploadTestFile,
+              ),
+            ),
           ],
         ),
       ),

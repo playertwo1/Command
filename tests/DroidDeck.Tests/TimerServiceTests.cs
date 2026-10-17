@@ -112,15 +112,16 @@ namespace DroidDeck.Tests
         public void Contador_SomaSubtraiEZera()
         {
             var s = Service();
+            var id = "n-" + Guid.NewGuid();
             var p = P(("mode", "counter"));
 
-            s.Apply("n", "toggle", p);
-            s.Apply("n", "increment", P(("mode", "counter"), ("step", "5")));
-            s.Apply("n", "decrement", p);
-            Assert.Equal(5, Field(s, "n", "count"));
+            s.Apply(id, "toggle", p);
+            s.Apply(id, "increment", P(("mode", "counter"), ("step", "5")));
+            s.Apply(id, "decrement", p);
+            Assert.Equal(5, Field(s, id, "count"));
 
-            s.Apply("n", "reset", p);
-            Assert.Equal(0, Field(s, "n", "count"));
+            s.Apply(id, "reset", p);
+            Assert.Equal(0, Field(s, id, "count"));
         }
 
         [Fact]
