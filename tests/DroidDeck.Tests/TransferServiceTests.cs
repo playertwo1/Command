@@ -27,7 +27,7 @@ namespace DroidDeck.Tests
             Directory.CreateDirectory(_testInbound);
             Directory.CreateDirectory(_testOutbound);
 
-            _jobHistoryService = new JobHistoryService(NullLogger<JobHistoryService>.Instance);
+            _jobHistoryService = new JobHistoryService(NullLogger<JobHistoryService>.Instance, Path.Combine(_testBaseDir, "jobs.json"));
             _service = new TransferService(_jobHistoryService, NullLogger<TransferService>.Instance, _testInbound, _testOutbound);
         }
 

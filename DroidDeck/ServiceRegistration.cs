@@ -19,6 +19,7 @@ namespace DroidDeck
             services.AddSingleton<MediaControlService>();
             services.AddSingleton<StreamDeckConfigService>();
             services.AddSingleton<ActionExecutorService>();
+            services.AddSingleton<IHardwareSensorProvider, HardwareSensorProvider>();
             services.AddHostedSingleton<SystemMonitorService>();
             services.AddSingleton<SteamLibrary>();
             services.AddSingleton<BackupService>();

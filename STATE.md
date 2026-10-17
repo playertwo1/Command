@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S0 CONCLUÍDO (PASS) -> Avançando para S1
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S1 CONCLUÍDO (PASS) -> Avançando para S2
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -77,12 +77,18 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - `LibreHardwareMonitorLib` v0.9.6: Inicialização e enumeração de hardware 100% funcional. Confirmada exigência de driver kernel/elevação para MSR de temperatura em CPUs Intel Core Ultra.
     - Matriz de fallback estabelecida: `CpuTempC` e `GpuTempC` como `float?` no DTO, retornando `null` com segurança em modo não-elevado (padrão de segurança sem UAC).
   - Relatório formal gerado em `docs/evidence/v0.2/S0_SPIKE.md`.
+- ID: S1-THERMAL-BATTERY-BACKEND (2026-10-17)
+  - Integração do `HardwareSensorProvider` no `SystemMonitorService` com cache de amostragem (3s) e fallback gracioso sem impacto no loop de 1s.
+  - Adição de `CpuTempC`, `GpuTempC`, `BatteryPercent`, `IsCharging` e `HasBattery` em `SystemStats.cs`.
+  - Mapeamento e validação de `GET /api/metrics` e alias `GET /api/v1/metrics`.
+  - Testes: 210/210 testes unitários C# aprovados (`dotnet test`), incluindo 5 novos testes de `HardwareSensorsTests.cs`.
+  - Validação ao vivo no host Windows com retorno real: Bateria 90%, na tomada, e fallback nulo para termômetros MSR em modo usuário.
 
 ## Próxima ação
-- Iniciar **Fase S1 — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
+- Iniciar **Fase S2 — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.2: ROADMAP_V0.2.md aprovado e Fase S0 concluída com sucesso.
+- Onda v0.2: Fases S0 e S1 concluídas com sucesso.

@@ -46,8 +46,8 @@ flowchart TD
 | Fase | Bloco | Nome da Fase | Entrega Verificável | Depende de | Estado |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **S0** | Backend | **Spike de Sensores e Energia** | Relatório técnico `S0_SPIKE.md` validando leitura térmica e bateria com/sem Admin | MVP v0.1 | `DONE` |
-| **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `READY` |
-| **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `PLANNED` |
+| **S1** | Backend | **Temperaturas e Bateria na API** | `SystemStats` e `/api/metrics` com `CpuTempC`, `GpuTempC`, `BatteryPercent` e `IsCharging` | S0 | `DONE` |
+| **S2** | Backend | **Histórico 60s e Múltiplos Discos** | Janela deslizante de 60 amostras (`History`) e lista de todos os volumes fixos (`Disks`) | S1 | `READY` |
 | **S3** | Backend | **Serviços Windows e Top Processos** | Endpoints read-only `GET /api/services` (allowlist) e `GET /api/processes/top` (Top 5) | S2 | `PLANNED` |
 | **S4** | Mobile | **UI Térmica, Bateria e Multi-Disco** | Badges semafóricos de temperatura, ícone de bateria no topo e lista de discos na `StatusPage` | S1, S2 | `PLANNED` |
 | **S5** | Mobile | **UI Sparklines, Serviços e Processos** | Gráfico Sparkline de 60s, Card de Serviços do Windows e Card Top 5 Processos | S2, S3, S4 | `PLANNED` |
@@ -84,10 +84,10 @@ flowchart TD
 ### 🌡️ Fase S1 — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API
 **Objetivo:** Enriquecer o `SystemMonitorService` com dados térmicos e de bateria em tempo real.
 
-- [ ] **S1-01:** Adicionar `CpuTempC` (`float?`), `GpuTempC` (`float?`), `BatteryPercent` (`int?`), `IsCharging` (`bool?`) e `HasBattery` (`bool`) em `DroidDeck/Models/SystemStats.cs`.
-- [ ] **S1-02:** Implementar provedor isolado `HardwareSensorProvider.cs` com cache e tratamento de exceções para não bloquear o loop de 1s.
-- [ ] **S1-03:** Expor os novos campos em `GET /api/metrics` e no evento SignalR `ReceiveSystemStats`.
-- [ ] **S1-04:** Criar testes unitários em `DroidDeck.Tests/HardwareSensorsTests.cs` cobrindo leituras válidas e fallback `null`.
+- [x] **S1-01:** Adicionar `CpuTempC` (`float?`), `GpuTempC` (`float?`), `BatteryPercent` (`int?`), `IsCharging` (`bool?`) e `HasBattery` (`bool`) em `DroidDeck/Models/SystemStats.cs`.
+- [x] **S1-02:** Implementar provedor isolado `HardwareSensorProvider.cs` com cache e tratamento de exceções para não bloquear o loop de 1s.
+- [x] **S1-03:** Expor os novos campos em `GET /api/metrics` e no evento SignalR `ReceiveSystemStats`.
+- [x] **S1-04:** Criar testes unitários em `DroidDeck.Tests/HardwareSensorsTests.cs` cobrindo leituras válidas e fallback `null`.
 
 ---
 
@@ -184,7 +184,7 @@ flowchart TD
 ## 5. Checklist Mestre de Progresso (v0.2)
 
 - [x] **S0** — Spike Técnico: Sensores de Hardware e Energia (`docs/evidence/v0.2/S0_SPIKE.md`)
-- [ ] **S1** — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API
+- [x] **S1** — Backend: Sensores Térmicos (CPU/GPU) e Bateria na API
 - [ ] **S2** — Backend: Histórico Deslizante (60s) e Múltiplos Volumes de Disco
 - [ ] **S3** — Backend: Serviços Windows e Top 5 Processos (Somente Leitura)
 - [ ] **S4** — Mobile: UI Térmica, Bateria e Múltiplos Discos

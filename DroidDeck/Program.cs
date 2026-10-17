@@ -277,7 +277,9 @@ namespace DroidDeck
 
                             // Telemetria de hardware (Command)
                             endpoints.MapGet("/api/metrics", (DroidDeck.Services.SystemMonitorService monitor) =>
-                                Microsoft.AspNetCore.Http.Results.Ok(monitor.LastStats));
+                                Microsoft.AspNetCore.Http.Results.Ok(monitor.LastStats.UptimeSeconds > 0 ? monitor.LastStats : monitor.SampleStats()));
+                            endpoints.MapGet("/api/v1/metrics", (DroidDeck.Services.SystemMonitorService monitor) =>
+                                Microsoft.AspNetCore.Http.Results.Ok(monitor.LastStats.UptimeSeconds > 0 ? monitor.LastStats : monitor.SampleStats()));
 
                             endpoints.MapControllers();
                             endpoints.MapHub<DroidDeck.Hubs.DeckHub>("/deckHub");

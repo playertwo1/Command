@@ -19,6 +19,7 @@ namespace DroidDeck.Services
         private readonly ILogger<SystemMonitorService> _logger;
         private readonly IHubContext<DeckHub> _hubContext;
         private readonly MediaControlService _media;
+        private readonly IHardwareSensorProvider? _sensorProvider;
         private PerformanceCounter? _cpuCounter;
 
         // Estado para throughput de rede (deltas por segundo).
@@ -37,11 +38,16 @@ namespace DroidDeck.Services
         /// <summary>Última amostra de telemetria coletada pelo monitor de sistema.</summary>
         public SystemStats LastStats { get; private set; } = new();
 
-        public SystemMonitorService(ILogger<SystemMonitorService> logger, IHubContext<DeckHub> hubContext, MediaControlService media)
+        public SystemMonitorService(
+            ILogger<SystemMonitorService> logger,
+            IHubContext<DeckHub> hubContext,
+            MediaControlService media,
+            IHardwareSensorProvider? sensorProvider = null)
         {
             _logger = logger;
             _hubContext = hubContext;
             _media = media;
+            _sensorProvider = sensorProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -73,6 +79,16 @@ namespace DroidDeck.Services
                 return;
             }
 
+            // Amostragem inicial para que endpoints REST tenham dados imediatos
+            try
+            {
+                SampleStats();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Erro na amostragem inicial de telemetria");
+            }
+
             int tick = 0;
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -86,37 +102,7 @@ namespace DroidDeck.Services
                         continue;
                     }
 
-                    var cpu = _cpuCounter?.NextValue() ?? 0;
-
-                    // RAM via GlobalMemoryStatusEx: total, disponível e % de uso de uma vez.
-                    var mem = new MEMORYSTATUSEX();
-                    float ramTotal = 0, ramAvailable = 0, ramLoad = 0;
-                    if (GlobalMemoryStatusEx(mem))
-                    {
-                        ramTotal = mem.ullTotalPhys / (1024f * 1024f); // MB
-                        ramAvailable = mem.ullAvailPhys / (1024f * 1024f); // MB
-                        ramLoad = mem.dwMemoryLoad; // % usada (0-100)
-                    }
-
-                    var (netUp, netDown) = SampleNetwork();
-                    var (diskUsage, diskTotal, diskFree) = SampleDisk();
-                    long uptime = Environment.TickCount64 / 1000;
-
-                    var stats = new SystemStats
-                    {
-                        CpuUsage = (float)Math.Round(cpu, 1),
-                        RamTotal = ramTotal,
-                        RamAvailable = ramAvailable,
-                        RamUsage = ramLoad,
-                        NetUpKBps = netUp,
-                        NetDownKBps = netDown,
-                        GpuUsage = SampleGpu(),
-                        DiskUsage = diskUsage,
-                        DiskTotalGB = diskTotal,
-                        DiskAvailableGB = diskFree,
-                        UptimeSeconds = uptime,
-                    };
-                    LastStats = stats;
+                    var stats = SampleStats();
 
                     // Broadcast to clients listening on "ReceiveSystemStats"
                     await _hubContext.Clients.All.SendAsync("ReceiveSystemStats", stats, cancellationToken: stoppingToken);
@@ -147,6 +133,52 @@ namespace DroidDeck.Services
             try { _cpuCounter?.Dispose(); } catch { }
             foreach (var c in _gpuCounters.Values) { try { c.Dispose(); } catch { } }
             _gpuCounters.Clear();
+        }
+
+        public SystemStats SampleStats()
+        {
+            var cpu = _cpuCounter?.NextValue() ?? 0;
+
+            // RAM via GlobalMemoryStatusEx: total, disponível e % de uso de uma vez.
+            var mem = new MEMORYSTATUSEX();
+            float ramTotal = 0, ramAvailable = 0, ramLoad = 0;
+            if (GlobalMemoryStatusEx(mem))
+            {
+                ramTotal = mem.ullTotalPhys / (1024f * 1024f); // MB
+                ramAvailable = mem.ullAvailPhys / (1024f * 1024f); // MB
+                ramLoad = mem.dwMemoryLoad; // % usada (0-100)
+            }
+
+            var (netUp, netDown) = SampleNetwork();
+            var (diskUsage, diskTotal, diskFree) = SampleDisk();
+            long uptime = Environment.TickCount64 / 1000;
+
+            // Telemetria estendida de sensores e energia (v0.2)
+            _sensorProvider?.UpdateSensors();
+            var (cpuTemp, gpuTemp) = _sensorProvider?.GetTemperatures() ?? (null, null);
+            var (batteryPercent, isCharging, hasBattery) = _sensorProvider?.GetPowerStatus() ?? (null, null, false);
+
+            var stats = new SystemStats
+            {
+                CpuUsage = (float)Math.Round(cpu, 1),
+                RamTotal = ramTotal,
+                RamAvailable = ramAvailable,
+                RamUsage = ramLoad,
+                NetUpKBps = netUp,
+                NetDownKBps = netDown,
+                GpuUsage = SampleGpu(),
+                DiskUsage = diskUsage,
+                DiskTotalGB = diskTotal,
+                DiskAvailableGB = diskFree,
+                UptimeSeconds = uptime,
+                CpuTempC = cpuTemp,
+                GpuTempC = gpuTemp,
+                BatteryPercent = batteryPercent,
+                IsCharging = isCharging,
+                HasBattery = hasBattery
+            };
+            LastStats = stats;
+            return stats;
         }
 
         private (float up, float down) SampleNetwork()

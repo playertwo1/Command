@@ -18,10 +18,10 @@ namespace DroidDeck.Services
         private readonly string _storagePath;
         private const int MaxJobs = 100;
 
-        public JobHistoryService(ILogger<JobHistoryService> logger)
+        public JobHistoryService(ILogger<JobHistoryService> logger, string? storagePath = null)
         {
             _logger = logger;
-            _storagePath = Path.Combine(AppPaths.LocalDir, "jobs_history.json");
+            _storagePath = storagePath ?? Path.Combine(AppPaths.LocalDir, "jobs_history.json");
             LoadFromDisk();
         }
 
