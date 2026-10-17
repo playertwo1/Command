@@ -212,6 +212,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Clica no botão Encerrar
+    await tester.ensureVisible(find.text('Encerrar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Encerrar'));
     await tester.pumpAndSettle();
 
@@ -226,6 +228,8 @@ void main() {
     expect(fakeClient.killCalled, false);
 
     // Abre novamente e confirma
+    await tester.ensureVisible(find.text('Encerrar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Encerrar'));
     await tester.pumpAndSettle();
 

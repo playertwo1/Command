@@ -65,15 +65,15 @@ Estados: `PLANNED` → `READY` → `IN_PROGRESS` → `REVIEW` → `DONE` (ou `BL
 
 | Fase | Entrega verificável | Depende de | Original | Estado |
 |---|---|---|---|---|
-| F0 | Bases, ferramentas e limites de reaproveitamento escolhidos | Aprovação deste plano | G0 | READY |
-| F1 | Android/Bridge compiláveis e contrato v1 definido | F0 + aceite da base | G1 | PLANNED |
-| F2 | Bridge inicia, pareia, autentica e revoga | F1 | G2 | PLANNED |
-| F3 | APK pareado mostra métricas reais do PC | F2 | G3 | PLANNED |
-| F4 | Apps/projetos autorizados + execução e histórico reais | F3 | G4: ações | PLANNED |
+| F0 | Bases, ferramentas e limites de reaproveitamento escolhidos | Aprovação deste plano | G0 | DONE |
+| F1 | Android/Bridge compiláveis e contrato v1 definido | F0 + aceite da base | G1 | DONE |
+| F2 | Bridge inicia, pareia, autentica e revoga | F1 | G2 | DONE |
+| F3 | APK pareado mostra métricas reais do PC | F2 | G3 | DONE |
+| F4 | Apps/projetos autorizados + execução e histórico reais | F3 | G4: ações | DONE |
 | F5 | Screenshot manual com visualização/salvar/compartilhar | F4 | G4: tela | DONE |
-| F6 | Upload/download restritos e íntegros | F5 | G4: arquivos | PLANNED |
-| F7 | Falhas, segurança e UX revisadas de ponta a ponta | F6 | Fechamento G3/G4 | PLANNED |
-| F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | PLANNED |
+| F6 | Upload/download restritos e íntegros | F5 | G4: arquivos | DONE |
+| F7 | Falhas, segurança e UX revisadas de ponta a ponta | F6 | Fechamento G3/G4 | DONE |
+| F8 | APK/Bridge instaláveis e independência da IA comprovada | F7 | Independência G5 + preparação G6 | IN_PROGRESS |
 | F9 | Piloto de 7 dias, métricas e decisão de MVP | F8 | G6 | PLANNED |
 
 Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é implementada junto de cada capacidade e revisada novamente em F7.
@@ -163,10 +163,10 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Entrada:** cinco fluxos implementados. **Saída:** revisão independente e correções obrigatórias concluídas.
 
-- [ ] F7-01 — alinhar Início, Computadores, detalhe, Apps, Ações, Atividade, pareamento e configurações às referências. Mostrar só catálogo disponível; remover da implementação controles de macros/serviços/backup não entregues. Ajustar fontes, contraste, toque, teclado e orientação.
-- [ ] F7-02 — verificar perda/troca de rede, suspensão, Windows bloqueado/logout, Bridge encerrado/reiniciado, app Android encerrado e credencial revogada durante operação. Nenhum retry automático de mutação; estado desconhecido tem instrução de recuperação.
-- [ ] F7-03 — verificar todos os controles de segurança de F2/F4/F5/F6 e políticas de retenção, expiração, logs e limpeza. Usar somente fixtures fictícias e registrar falhas com reprodução.
-- [ ] F7-04 — realizar revisão independente de segurança, contratos e escopo; corrigir achados críticos/altos. Mostrar telas implementadas no aparelho ao proprietário para aceite visual; registrar diferenças em DESIGN.
+- [x] F7-01 — alinhar Início, Computadores, detalhe, Apps, Ações, Atividade, pareamento e configurações às referências. Mostrar só catálogo disponível; remover da implementação controles de macros/serviços/backup não entregues. Ajustar fontes, contraste, toque, teclado e orientação.
+- [x] F7-02 — verificar perda/troca de rede, suspensão, Windows bloqueado/logout, Bridge encerrado/reiniciado, app Android encerrado e credencial revogada durante operação. Nenhum retry automático de mutação; estado desconhecido tem instrução de recuperação.
+- [x] F7-03 — verificar todos os controles de segurança de F2/F4/F5/F6 e políticas de retenção, expiração, logs e limpeza. Usar somente fixtures fictícias e registrar falhas com reprodução.
+- [x] F7-04 — realizar revisão independente de segurança, contratos e escopo; corrigir achados críticos/altos. Mostrar telas implementadas no aparelho ao proprietário para aceite visual; registrar diferenças em DESIGN.
 
 **Conclusão:** todos os critérios das fases anteriores continuam válidos; nenhuma falha crítica/alta aberta; ações favoritas em até três toques depois de escolher PC, sem contar confirmação de segurança e seleção de arquivo; aceite visual registrado.
 

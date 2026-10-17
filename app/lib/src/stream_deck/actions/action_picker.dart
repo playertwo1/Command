@@ -108,6 +108,7 @@ class _ActionPickerState extends State<ActionPicker> {
 
   List<ActionSchema> get _available => _catalog.schemas.value
       .where((s) => !widget.remote || _locked || !s.privileged)
+      .where((s) => s.type != 'multi') // F7-01: Excluir macros não entregues no MVP
       .toList();
 
   @override

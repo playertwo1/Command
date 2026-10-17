@@ -32,6 +32,16 @@ class ThemePreset {
 
 const kThemePresets = <ThemePreset>[
   ThemePreset(
+    id: 'ametista',
+    name: 'Ametista',
+    accent: Color(0xFFA78BFA),
+    background: Color(0xFF050408),
+    surface: Color(0xFF13101B),
+    tile: Color(0xFF1E1829),
+    outline: Color(0xFF352B45),
+    tileStyle: DeckTileStyle.frame,
+  ),
+  ThemePreset(
     id: 'classico',
     name: 'Clássico',
     accent: Color(0xFF42A5F5),
@@ -81,16 +91,6 @@ const kThemePresets = <ThemePreset>[
     outline: Color(0xFFF3C6FF),
     tileStyle: DeckTileStyle.frame,
   ),
-  ThemePreset(
-    id: 'ametista',
-    name: 'Ametista',
-    accent: Color(0xFFA78BFA),
-    background: Color(0xFF050408),
-    surface: Color(0xFF13101B),
-    tile: Color(0xFF1E1829),
-    outline: Color(0xFF352B45),
-    tileStyle: DeckTileStyle.frame,
-  ),
 ];
 
 /// Cores oferecidas para trocar o destaque do tema.
@@ -110,15 +110,18 @@ const kAccentChoices = <Color>[
 
 ThemePreset presetById(String? id) => kThemePresets.firstWhere(
   (p) => p.id == id,
-  orElse: () => kThemePresets.first,
+  orElse: () => kThemePresets.firstWhere(
+    (p) => p.id == 'ametista',
+    orElse: () => kThemePresets.first,
+  ),
 );
 
 /// Escolhas do usuário. Destaque e estilo nulos seguem o tema escolhido.
 @immutable
 class ThemeSettings {
   const ThemeSettings({
-    this.presetId = 'classico',
-    this.mode = ThemeMode.system,
+    this.presetId = 'ametista',
+    this.mode = ThemeMode.dark,
     this.accent,
     this.tileStyle,
   });
@@ -194,6 +197,16 @@ ThemeData buildAppTheme(ThemeSettings s, Brightness brightness) {
   return ThemeData(
     colorScheme: scheme,
     scaffoldBackgroundColor: scaffold,
+    cardTheme: CardThemeData(
+      color: dark ? preset.tile : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: dark ? preset.outline.withValues(alpha: 0.45) : Colors.transparent,
+          width: 1.0,
+        ),
+      ),
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: scaffold,
       surfaceTintColor: Colors.transparent,

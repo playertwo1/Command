@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** F6 — Transferência restrita de arquivos · **Estado:** DONE -> Avançando para F7
+**Atualizado:** 2026-10-17 · **Marco ativo:** F7 — Integração, falhas e fidelidade visual · **Estado:** DONE -> Avançando para F8
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -30,7 +30,12 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - 200/200 testes unitários e de integração aprovados (0 falhas).
 - **Frontend Flutter (`app/`):**
   - Aplicativo móvel e Web configurator.
-  - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset no `app_theme.dart`.
+  - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset padrão e padrão escuro no `app_theme.dart` e `theme_controller.dart`.
+  - Remoção de controles não entregues (botões de backup em `config_page.dart` e macro tipo `multi` em `action_picker.dart`).
+  - Resiliência e recuperação de falhas:
+    - Banner persistente `Command Bridge Desconectado` no topo da `StatusPage` quando offline, com botão `Reconectar` de 1 toque que reestabelece SignalR e recarrega métricas.
+    - Notificações de erro (SnackBars) em mutações com aviso explícito de que **não há retry automático**.
+    - Histórico recente com timestamps em fonte monoespaçada e orientações de recuperação para jobs em estado `unknown` ou `failed`.
   - Aba **Status** no app móvel (`StatusPage`) exibindo:
     - Métricas de hardware em tempo real (CPU, RAM, Disco, GPU, Rede, Uptime).
     - Card do Hermes IA isolado ("Não configurado").
@@ -38,26 +43,26 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Card **Captura de Tela** com thumbnail preview real da tela do Windows, resolução, tamanho em KB, validade de 10 min, botões "Visualizar" e "Compartilhar", e banner de alerta contra sessão bloqueada.
     - Visualizador de tela cheia `ScreenshotViewerPage` com `InteractiveViewer` (pinch-to-zoom 0.5x a 5.0x e navegação panorâmica) e folha de compartilhamento nativa Android (`SharePlus`).
     - Card **Transferência de Arquivos** com listagem dos arquivos disponíveis na pasta `outbound` do PC, botão "Baixar" com validação estrita de integridade SHA-256 no cliente e botão "Enviar Arquivo para o PC (Inbound)" com cálculo de hash prévio e confirmação visual.
-    - Card **Atividade Recente** exibindo o histórico de jobs em tempo real com estados coloridos, hora e opções de atualizar e limpar histórico.
-  - 62/62 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
+    - Card **Atividade Recente** exibindo o histórico de jobs em tempo real com estados coloridos, hora monoespaçada, orientações e opções de atualizar e limpar histórico.
+  - 67/67 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
 - **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: F6-UAT-EMULATOR (2026-10-17)
+- ID: F7-UAT-EMULATOR (2026-10-17)
 - Resultado:
-  - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo em segundo plano na porta 4787.
-  - Teste de Download: arquivo `relatorio_pc.csv` (74 B) listado em "Disponíveis para Download (PC Outbound)"; toque em "Baixar" validou o checksum SHA-256 (`c3cb4760...`) com toast verde exibido no emulador.
-  - Teste de Upload: toque em "Enviar Arquivo para o PC (Inbound)" calculou hash localmente, enviou `mobile_report_1792258816179.csv` com escrita temporária atômica no PC; arquivo criado com sucesso e validado em disco (`%LocalAppData%\DroidDeck\transfers\inbound\`).
-  - Jobs de transferência registrados e auditados com sucesso em `JobHistoryService` e exibidos na lista de "Atividade Recente" do app (`transfer.download` e `transfer.upload`).
-  - Evidências visuais salvas em `docs/assets/emulator_transfer_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
+  - Validação ao vivo no emulador Android Pixel 9 (API 37) com backend DroidDeck (.NET 8) ativo na porta 4787.
+  - Tema Ametista Dark (#050408 / #13101B / #A78BFA) validado em todas as abas (Status, Deck, Audio, Config).
+  - Simulação de queda de ponte: backend encerrado propositalmente; app exibiu badge offline, banner "Command Bridge Desconectado" com botão "Reconectar", e bloqueou chamadas sem crash ou retry silencioso.
+  - Backend reiniciado: toque em "Reconectar" restaurou SignalR e métricas instantaneamente sem necessidade de reiniciar o aplicativo.
+  - Evidências salvas em `docs/assets/emulator_f7_*.png` e sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 - Testes/build:
-  - `dotnet test tests\DroidDeck.Tests\DroidDeck.Tests.csproj --filter FullyQualifiedName~TransferServiceTests`: 21 PASS, 0 FAIL.
-  - `flutter test`: 62 PASS, 0 FAIL.
-  - `flutter analyze lib\src\home\status_page.dart lib\core\droiddeck_client\`: exit 0 (0 issues).
+  - `flutter test`: 67 PASS, 0 FAIL.
+  - `dotnet test tests\DroidDeck.Tests\DroidDeck.Tests.csproj --no-build`: 200 PASS, 0 FAIL.
+  - `flutter analyze`: exit 0 (0 issues).
   - Live E2E Emulator Pixel 9: PASS.
 
 ## Próxima ação
-- F7 — Integração, falhas e fidelidade visual (matriz de falhas técnicas: queda de rede, timeout, reconexão transparente; polimento visual fino de acordo com `DESIGN.md`; revisão do checklist de release `docs/RELEASE_CHECKLIST.md`).
+- F8 — Instalação repetível e prova sem Hermes (F8-01: gerar pacote de instalação/execução do APK e Bridge, com `docs/INSTALL.md`; F8-02: testar reinicialização de PC e Android e reconexão; F8-03: comprovação de independência zero IA do Hermes; F8-04: documentação de troubleshooting de rede e firewall em `docs/TROUBLESHOOTING.md`).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.

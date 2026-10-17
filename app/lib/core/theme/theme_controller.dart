@@ -35,12 +35,14 @@ class ThemeController {
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final savedPreset = prefs.getString(_presetKey);
+      final savedMode = prefs.getString(_modeKey);
       final accent = prefs.getInt(_accentKey);
       settings.value = ThemeSettings(
-        presetId: presetById(prefs.getString(_presetKey)).id,
-        mode:
-            ThemeMode.values.asNameMap()[prefs.getString(_modeKey)] ??
-            ThemeMode.system,
+        presetId: presetById(savedPreset ?? 'ametista').id,
+        mode: savedMode != null
+            ? (ThemeMode.values.asNameMap()[savedMode] ?? ThemeMode.dark)
+            : ThemeMode.dark,
         accent: accent != null ? Color(accent) : null,
         tileStyle: DeckTileStyle.values
             .asNameMap()[prefs.getString(_tileStyleKey)],

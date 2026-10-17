@@ -2,7 +2,6 @@ import 'package:droiddeck/src/connection/constants.dart';
 import 'package:droiddeck/src/services/server_discovery_service.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/backup/backup_buttons.dart';
 import 'package:droiddeck/src/config/integrations_page.dart';
 import 'package:droiddeck/src/config/pc_switcher.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
@@ -293,7 +292,7 @@ class ConfigPageState extends State<ConfigPage> {
                 MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),
               ),
             ),
-            const BackupButtons(),
+            // F7-01: Controles de backup/macros não entregues removidos da interface de configurações
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.extension_outlined),

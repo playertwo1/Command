@@ -19,8 +19,8 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 | F4 | FL-1, FL-2, FL-5 + Atividade | PASS | `docs/assets/emulator_actions_launch.png`, `emulator_actions_kill.png` |
 | F5 | FL-3 screenshot | PASS | `docs/assets/emulator_screenshot_card.png`, `emulator_screenshot_viewer.png` |
 | F6 | FL-4 transferência íntegra | PASS | `docs/assets/emulator_transfer_card.png`, `emulator_transfer_download.png`, `emulator_transfer_upload.png` |
-| F7 | Revisão independente sem achado crítico/alto | EM ANDAMENTO | Em execução |
-| F8 | Instalação repetível + cinco fluxos sem Hermes | NOT_RUN | — |
+| F7 | Revisão independente sem achado crítico/alto | PASS | `docs/assets/emulator_f7_*.png`, `app/test/fault_tolerance_and_visual_test.dart` |
+| F8 | Instalação repetível + cinco fluxos sem Hermes | EM ANDAMENTO | Em execução |
 
 - Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de Hermes para controle direto.
 
@@ -32,7 +32,7 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 - Resultado técnico: **NOT_RUN** · Aprovação humana do MVP: **PENDING**.
 
 ## Critérios visuais
-- [ ] Capturas do app real comparadas com `DESIGN.md` e as referências Stitch.
-- [ ] Estados offline, erro, carregamento, confirmação e sucesso final conferidos.
-- [ ] Acessibilidade, contraste e alvos de toque verificados.
-- Aceite visual humano: **PENDING** até F7.
+- [x] Capturas do app real comparadas com `DESIGN.md` e as referências Stitch (Amethyst Dark #050408, #13101B, #1E1829, #352B45, #A78BFA).
+- [x] Estados offline, erro, carregamento, confirmação e sucesso final conferidos (Banner de reconexão transparente, sem retry automático em mutações, dicas acionáveis para falhas).
+- [x] Acessibilidade, contraste e alvos de toque verificados (remoção de controles não entregues como backup e macros).
+- Aceite visual humano: **PASS (Evidências no emulador Pixel 9 / API 37 em docs/assets/emulator_f7_*.png)**.

@@ -204,8 +204,8 @@ class _StatusPageState extends State<StatusPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(tr('Erro ao executar ação: {e}', {'e': e.toString()})),
-            backgroundColor: Colors.redAccent,
+            content: Text(tr('Erro ao executar ação (sem retry automático): {e}. Verifique a lista de Atividade.', {'e': e.toString()})),
+            backgroundColor: const Color(0xFFF87171),
           ),
         );
       }
@@ -279,8 +279,8 @@ class _StatusPageState extends State<StatusPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(tr('Erro ao encerrar processo: {e}', {'e': e.toString()})),
-            backgroundColor: Colors.redAccent,
+            content: Text(tr('Erro ao encerrar processo (sem retry automático): {e}. Verifique a lista de Atividade.', {'e': e.toString()})),
+            backgroundColor: const Color(0xFFF87171),
           ),
         );
       }
@@ -383,8 +383,8 @@ class _StatusPageState extends State<StatusPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao baixar arquivo: $e'),
-            backgroundColor: Colors.redAccent,
+            content: Text('Falha ao baixar arquivo (sem retry automático): $e'),
+            backgroundColor: const Color(0xFFF87171),
           ),
         );
       }
@@ -426,8 +426,8 @@ class _StatusPageState extends State<StatusPage> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Falha no upload: ${result.message}'),
-              backgroundColor: Colors.redAccent,
+              content: Text('Falha no upload (sem retry automático): ${result.message}'),
+              backgroundColor: const Color(0xFFF87171),
             ),
           );
         }
@@ -441,8 +441,8 @@ class _StatusPageState extends State<StatusPage> {
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar arquivo: $msg'),
-            backgroundColor: Colors.redAccent,
+            content: Text('Erro ao enviar arquivo (sem retry automático): $msg'),
+            backgroundColor: const Color(0xFFF87171),
           ),
         );
       }
@@ -516,6 +516,65 @@ class _StatusPageState extends State<StatusPage> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              if (!isConnected) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF87171).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: const Color(0xFFF87171).withValues(alpha: 0.4),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.wifi_off, color: Color(0xFFF87171), size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tr('Command Bridge Desconectado'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Color(0xFFF87171),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              tr('Verifique se o aplicativo está aberto no PC. Sem retry automático.'),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFFA78BFA),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        onPressed: () async {
+                          final activePc = _currentPc;
+                          if (activePc != null) {
+                            await signalR.updateUrl('http://${activePc.ip}:${activePc.port}', apiKey: activePc.apiKey);
+                          }
+                          await _loadAppsAndJobs();
+                        },
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: Text(tr('Reconectar')),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               // Card do PC e Estado da Conexão
               Card(
                 elevation: 0,
@@ -1027,14 +1086,36 @@ class _StatusPageState extends State<StatusPage> {
                                 '${job.actionType} (${job.targetId})',
                                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                               ),
-                              subtitle: Text(
-                                job.errorMessage != null
-                                    ? job.errorMessage!
-                                    : 'Estado: ${job.status} · ${job.createdAtUtc.toLocal().toString().length >= 19 ? job.createdAtUtc.toLocal().toString().substring(11, 19) : ""}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: isFailed ? const Color(0xFFF87171) : theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 11,
-                                ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    job.errorMessage != null
+                                        ? job.errorMessage!
+                                        : 'Estado: ${job.status} · ${job.createdAtUtc.toLocal().toString().length >= 19 ? job.createdAtUtc.toLocal().toString().substring(11, 19) : ""}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: isFailed ? const Color(0xFFF87171) : theme.colorScheme.onSurfaceVariant,
+                                      fontSize: 11,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                  if (job.status == 'unknown')
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        'Estado indeterminado: verifique o PC antes de reenviar (sem retry automático).',
+                                        style: TextStyle(color: Color(0xFFF0B65F), fontSize: 10),
+                                      ),
+                                    )
+                                  else if (isFailed)
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        'Falha: confira a conexão e o alvo antes de tentar novamente.',
+                                        style: TextStyle(color: Color(0xFFF87171), fontSize: 10),
+                                      ),
+                                    ),
+                                ],
                               ),
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1044,7 +1125,12 @@ class _StatusPageState extends State<StatusPage> {
                                 ),
                                 child: Text(
                                   job.status,
-                                  style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: color,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
                               ),
                             );
