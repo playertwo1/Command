@@ -54,8 +54,8 @@ flowchart TD
 | **S6** | Mobile | **Motor de Alertas Configuráveis** | Configuração de limiares (CPU/RAM/Temp/Disco/Bateria) + Banner de alerta com *cooldown* 60s | S4, S5 | `DONE` |
 | **S7** | Mobile | **Gestão de Múltiplos PCs** | Persistência de múltiplos PCs pareados + Seletor rápido 1-toque no topo da `StatusPage` | S6 | `DONE` |
 | **S8** | Fullstack | **Diagnóstico de Latência e Rede** | Medição contínua de RTT (`latencyMs`), qualidade do link e diagnóstico LAN/Tailscale | S7 | `DONE` |
-| **S9** | Mobile | **Exportação de Relatório de Saúde** | Gerador de diagnóstico sanitizado do PC (Markdown/JSON) com compartilhamento nativo | S8 | `READY` |
-| **S10** | QA/Release | **Validação E2E e Release v0.2.0** | Testes automatizados, piloto no emulador Pixel 9, pacotes `v0.2.0`, Vault e Git push | S9 | `PLANNED` |
+| **S9** | Mobile | **Exportação de Relatório de Saúde** | Gerador de diagnóstico sanitizado do PC (Markdown/JSON) com compartilhamento nativo | S8 | `DONE` |
+| **S10** | QA/Release | **Validação E2E e Release v0.2.0** | Testes automatizados, piloto no emulador Pixel 9, pacotes `v0.2.0`, Vault e Git push | S9 | `READY` |
 
 ---
 
@@ -164,10 +164,10 @@ flowchart TD
 ### 📋 Fase S9 — Frontend Mobile: Exportação de Relatório de Saúde Sanitizado
 **Objetivo:** Permitir exportar ou compartilhar um resumo técnico da saúde do PC em 1 toque.
 
-- [ ] **S9-01:** Criar `HealthReportGenerator` gerando relatório estruturado em Markdown e JSON com métricas atuais, temperaturas, discos, serviços, top processos e latência.
-- [ ] **S9-02:** Garantir sanitização rigorosa (zero tokens, zero chaves, zero IPs privados completos se marcado como sanitizado).
-- [ ] **S9-03:** Adicionar botão **"Exportar Diagnóstico"** na `StatusPage` abrindo preview e folha de compartilhamento nativa (`SharePlus`).
-- [ ] **S9-04:** Criar testes unitários em `app/test/health_report_generator_test.dart` validando formato e ausência de dados sensíveis.
+- [x] **S9-01:** Criar `HealthReportGenerator` gerando relatório estruturado em Markdown e JSON com métricas atuais, temperaturas, discos, serviços, top processos e latência.
+- [x] **S9-02:** Garantir sanitização rigorosa (zero tokens, zero chaves, zero IPs privados completos se marcado como sanitizado).
+- [x] **S9-03:** Adicionar botão **"Exportar Diagnóstico"** na `StatusPage` abrindo preview e folha de compartilhamento nativa (`SharePlus`).
+- [x] **S9-04:** Criar testes unitários em `app/test/health_report_generator_test.dart` validando formato e ausência de dados sensíveis.
 
 ---
 
@@ -192,5 +192,5 @@ flowchart TD
 - [x] **S6** — Mobile: Motor de Alertas de Saúde e Cooldown Anti-Spam
 - [x] **S7** — Mobile: Gestão de Múltiplos PCs (`PcProfileManager`)
 - [x] **S8** — Fullstack: Diagnóstico de Conectividade e Latência (Ping / RTT)
-- [ ] **S9** — Mobile: Exportação de Relatório de Saúde Sanitizado
+- [x] **S9** — Mobile: Exportação de Relatório de Saúde Sanitizado
 - [ ] **S10** — QA/Release: Piloto E2E no Emulador Pixel 9, Pacotes `v0.2.0` e NexusVault

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/home/status_page.dart';

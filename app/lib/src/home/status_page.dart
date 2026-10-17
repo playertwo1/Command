@@ -3,10 +3,12 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import '../connection/pc_store.dart';
 import '../services/signalr_service.dart';
 import '../services/health_alert_service.dart';
+import '../services/health_report_generator.dart';
 import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
 
@@ -592,6 +594,268 @@ class _StatusPageState extends State<StatusPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showExportReportDialog(BuildContext context, SystemStats? stats) {
+    bool isMarkdown = true;
+    bool sanitize = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final theme = Theme.of(context);
+            final input = HealthReportInput(
+              pc: _currentPc,
+              stats: stats,
+              services: _services,
+              topProcesses: _topProcesses,
+              latencyMs: _latencyMs,
+              jitterMs: _jitterMs,
+              sanitize: sanitize,
+            );
+            final reportText = isMarkdown
+                ? HealthReportGenerator.generateMarkdown(input)
+                : HealthReportGenerator.generateJson(input);
+
+            return Material(
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.85,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  border: Border.all(
+                    color: const Color(0xFFA78BFA).withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.health_and_safety_outlined, color: Color(0xFFA78BFA), size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            tr('Diagnóstico do PC'),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SegmentedButton<bool>(
+                          segments: const [
+                            ButtonSegment(
+                              value: true,
+                              label: Text('Markdown (.md)'),
+                              icon: Icon(Icons.description_outlined, size: 16),
+                            ),
+                            ButtonSegment(
+                              value: false,
+                              label: Text('JSON (.json)'),
+                              icon: Icon(Icons.code, size: 16),
+                            ),
+                          ],
+                          selected: {isMarkdown},
+                          onSelectionChanged: (val) {
+                            setModalState(() => isMarkdown = val.first);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      tr('Sanitizar dados sensíveis'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      tr('Mascara IP de rede local e omite identificadores privados'),
+                      style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                    value: sanitize,
+                    activeColor: const Color(0xFFA78BFA),
+                    onChanged: (val) {
+                      setModalState(() => sanitize = val);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        child: SelectableText(
+                          reportText,
+                          key: const ValueKey('report_preview_text'),
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          key: const ValueKey('export_dialog_copy_button'),
+                          icon: const Icon(Icons.copy, size: 16),
+                          label: Text(tr('Copiar')),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: reportText));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(tr('Relatório copiado para a área de transferência!')),
+                                backgroundColor: const Color(0xFF10B981),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton.icon(
+                          key: const ValueKey('export_dialog_share_button'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFA78BFA),
+                            foregroundColor: Colors.black,
+                          ),
+                          icon: const Icon(Icons.share, size: 16),
+                          label: Text(tr('Compartilhar')),
+                          onPressed: () async {
+                            final ext = isMarkdown ? 'md' : 'json';
+                            await SharePlus.instance.share(ShareParams(
+                              text: reportText,
+                              subject: 'Command Diagnostico - ${_currentPc?.name ?? "PC"} ($ext)',
+                            ));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDiagnosticsExportCard(BuildContext context, ThemeData theme, SystemStats? stats) {
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: const Color(0xFFA78BFA).withValues(alpha: 0.25),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.health_and_safety_outlined,
+                    color: Color(0xFFA78BFA),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tr('Diagnóstico do Sistema'),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        tr('Exportação e compartilhamento de relatório completo e sanitizado'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    key: const ValueKey('export_diagnostics_card_button'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+                      foregroundColor: const Color(0xFFA78BFA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.file_download_outlined, size: 18),
+                    label: Text(
+                      tr('Exportar Relatório (Markdown / JSON)'),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    onPressed: () => _showExportReportDialog(context, stats),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -1331,6 +1595,12 @@ class _StatusPageState extends State<StatusPage> {
                     onPressed: () => _showPcSwitcherModal(context, theme),
                   ),
                 IconButton(
+                  key: const ValueKey('export_health_report_button'),
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: tr('Exportar Diagnóstico'),
+                  onPressed: () => _showExportReportDialog(context, signalR.systemStats.value),
+                ),
+                IconButton(
                   icon: const Icon(Icons.settings),
                   tooltip: tr('Configurações'),
                   onPressed: () async {
@@ -2029,6 +2299,11 @@ class _StatusPageState extends State<StatusPage> {
 
               // Card de Top Processos (Command v0.2 - S5)
               _buildTopProcessesCard(theme),
+
+              const SizedBox(height: 12),
+
+              // Card de Diagnóstico do Sistema & Exportação (Fase S9)
+              _buildDiagnosticsExportCard(context, theme, stats),
 
               const SizedBox(height: 12),
 
