@@ -124,10 +124,10 @@ flowchart TD
 ### 📊 Fase S5 — Frontend Mobile: Gráficos Sparkline (60s), Serviços e Top Processos
 **Objetivo:** Dar contexto histórico visual (60s) e exibir os cards de Serviços e Top Processos na `StatusPage`.
 
-- [ ] **S5-01:** Criar componente leve `MetricSparkline` (`CustomPainter`) para desenhar a curva dos últimos 60s de CPU e RAM com gradiente Amethyst (`#A78BFA`).
-- [ ] **S5-02:** Criar card **Serviços do Windows** na `StatusPage` exibindo status (`Ativo`, `Parado`, `Ausente`) com badge colorido.
-- [ ] **S5-03:** Criar card **Top Processos (CPU / RAM)** exibindo os 5 maiores consumidores atuais em fonte monoespaçada.
-- [ ] **S5-04:** Criar testes de widget em `app/test/sparkline_and_services_ui_test.dart`.
+- [x] **S5-01:** Criar componente leve `MetricSparkline` (`CustomPainter`) para desenhar a curva dos últimos 60s de CPU e RAM com gradiente Amethyst (`#A78BFA`).
+- [x] **S5-02:** Criar card **Serviços do Windows** na `StatusPage` exibindo status (`Ativo`, `Parado`, `Ausente`) com badge colorido.
+- [x] **S5-03:** Criar card **Top Processos (CPU / RAM)** exibindo os 5 maiores consumidores atuais em fonte monoespaçada.
+- [x] **S5-04:** Criar testes de widget em `app/test/sparkline_and_services_ui_test.dart`.
 
 ---
 

@@ -56,7 +56,7 @@ void main() {
         suggestIcon: (_) {},
       );
 
-      final state = picker.createState();
+      picker.createState();
       // Garante que o tipo multi não está presente na lista de schemas disponíveis
       expect(ActionCatalog.instance.schemas.value.any((s) => s.type == 'multi'), true);
       // Mas o available do picker filtra multi

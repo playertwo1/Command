@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../connection/pc_store.dart';
 import '../services/signalr_service.dart';
+import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
 
 /// Aba de Telemetria e Estado do PC (Command)
@@ -46,6 +47,15 @@ class _StatusPageState extends State<StatusPage> {
   final Set<String> _pendingDownloads = {};
   bool _uploadingInbound = false;
 
+  List<WindowsServiceItem> _services = [];
+  bool _loadingServices = false;
+  String? _servicesError;
+
+  TopProcessesData? _topProcesses;
+  bool _loadingProcesses = false;
+  String? _processesError;
+  int _processSortIndex = 0;
+
   DroidDeckClient? get _client {
     if (widget.client != null) return widget.client;
     try {
@@ -79,6 +89,8 @@ class _StatusPageState extends State<StatusPage> {
       _fetchApps(),
       _fetchJobs(),
       _fetchTransfers(),
+      _fetchServices(),
+      _fetchTopProcesses(),
     ]);
   }
 
@@ -453,6 +465,522 @@ class _StatusPageState extends State<StatusPage> {
     }
   }
 
+  Future<void> _fetchServices() async {
+    final client = _client;
+    if (client == null || _loadingServices) return;
+    if (mounted) setState(() => _loadingServices = true);
+    try {
+      final services = await client.getServices();
+      if (mounted) {
+        setState(() {
+          _services = services;
+          _servicesError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _servicesError = e.toString());
+    } finally {
+      if (mounted) setState(() => _loadingServices = false);
+    }
+  }
+
+  Future<void> _fetchTopProcesses() async {
+    final client = _client;
+    if (client == null || _loadingProcesses) return;
+    if (mounted) setState(() => _loadingProcesses = true);
+    try {
+      final procs = await client.getTopProcesses();
+      if (mounted) {
+        setState(() {
+          _topProcesses = procs;
+          _processesError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _processesError = e.toString());
+    } finally {
+      if (mounted) setState(() => _loadingProcesses = false);
+    }
+  }
+
+  Widget _buildServiceStatusBadge(String status) {
+    final lower = status.toLowerCase();
+    final Color color;
+    final String label;
+
+    if (lower == 'running') {
+      color = const Color(0xFF10B981);
+      label = tr('Ativo');
+    } else if (lower == 'stopped') {
+      color = const Color(0xFFF59E0B);
+      label = tr('Parado');
+    } else if (lower == 'notfound') {
+      color = const Color(0xFF9CA3AF);
+      label = tr('Ausente');
+    } else {
+      color = const Color(0xFF9CA3AF);
+      label = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopProcessRow(TopProcessItem proc, ThemeData theme, {required bool isMemory}) {
+    final valStr = isMemory
+        ? '${proc.memoryMb.toStringAsFixed(1)} MB'
+        : (proc.cpuPercent != null ? '${proc.cpuPercent!.toStringAsFixed(1)}%' : 'N/D');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'PID ${proc.pid}',
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 10,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                proc.name,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            valStr,
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: isMemory ? const Color(0xFF38BDF8) : const Color(0xFFA78BFA),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistorySparklineCard(SystemStats stats, ThemeData theme) {
+    final cpuValues = stats.history.map((s) => s.cpu).toList();
+    final ramValues = stats.history.map((s) => s.ram).toList();
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.show_chart, size: 20, color: Color(0xFFA78BFA)),
+                const SizedBox(width: 8),
+                Text(
+                  tr('Histórico de Carga (60s)'),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.memory, size: 14, color: Color(0xFFA78BFA)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'CPU',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '${stats.cpuUsage.toStringAsFixed(1)}%',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: Color(0xFFA78BFA),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      MetricSparkline(
+                        values: cpuValues,
+                        lineColor: const Color(0xFFA78BFA),
+                        height: 38,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.storage, size: 14, color: Color(0xFF38BDF8)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'RAM',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '${stats.ramUsedPercent.toStringAsFixed(1)}%',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: Color(0xFF38BDF8),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      MetricSparkline(
+                        values: ramValues,
+                        lineColor: const Color(0xFF38BDF8),
+                        height: 38,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWindowsServicesCard(ThemeData theme) {
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.miscellaneous_services_outlined, size: 20, color: Color(0xFFA78BFA)),
+                    const SizedBox(width: 8),
+                    Text(
+                      tr('Serviços do Windows'),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: tr('Atualizar serviços'),
+                  onPressed: _loadingServices ? null : _fetchServices,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_loadingServices && _services.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else if (_services.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  _servicesError != null
+                      ? '${tr('Erro ao carregar serviços:')} $_servicesError'
+                      : tr('Nenhum serviço retornado pelo PC.'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  for (final svc in _services) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  svc.displayName.isNotEmpty ? svc.displayName : svc.name,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                ),
+                                Text(
+                                  svc.name,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          _buildServiceStatusBadge(svc.status),
+                        ],
+                      ),
+                    ),
+                    if (svc != _services.last)
+                      Divider(
+                        height: 1,
+                        thickness: 0.5,
+                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2),
+                      ),
+                  ],
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopProcessesCard(ThemeData theme) {
+    final procs = _processSortIndex == 0
+        ? (_topProcesses?.byMemory ?? const <TopProcessItem>[])
+        : (_topProcesses?.byCpu ?? const <TopProcessItem>[]);
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.analytics_outlined, size: 20, color: Color(0xFFA78BFA)),
+                    const SizedBox(width: 8),
+                    Text(
+                      tr('Top Processos'),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: tr('Atualizar processos'),
+                  onPressed: _loadingProcesses ? null : _fetchTopProcesses,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _processSortIndex = 0),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _processSortIndex == 0
+                              ? const Color(0xFFA78BFA).withValues(alpha: 0.25)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: _processSortIndex == 0
+                              ? Border.all(color: const Color(0xFFA78BFA).withValues(alpha: 0.6))
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            tr('Por Memória (RAM)'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: _processSortIndex == 0 ? FontWeight.bold : FontWeight.normal,
+                              color: _processSortIndex == 0
+                                  ? const Color(0xFFA78BFA)
+                                  : theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() => _processSortIndex = 1),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _processSortIndex == 1
+                              ? const Color(0xFFA78BFA).withValues(alpha: 0.25)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: _processSortIndex == 1
+                              ? Border.all(color: const Color(0xFFA78BFA).withValues(alpha: 0.6))
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            tr('Por CPU'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: _processSortIndex == 1 ? FontWeight.bold : FontWeight.normal,
+                              color: _processSortIndex == 1
+                                  ? const Color(0xFFA78BFA)
+                                  : theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_loadingProcesses && _topProcesses == null)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else if (_topProcesses == null || procs.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  _processesError != null
+                      ? '${tr('Erro ao carregar processos:')} $_processesError'
+                      : tr('Nenhum processo retornado pelo PC.'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              )
+            else ...[
+              for (final proc in procs) ...[
+                _buildTopProcessRow(proc, theme, isMemory: _processSortIndex == 0),
+                if (proc != procs.last)
+                  Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2),
+                  ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   IconData _iconForApp(String iconName) {
     switch (iconName.toLowerCase()) {
       case 'description':
@@ -774,6 +1302,12 @@ class _StatusPageState extends State<StatusPage> {
                   ),
                 ],
               ),
+
+              // Histórico Recente de Carga - 60s (Command v0.2 - S5)
+              if (stats.history.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _buildHistorySparklineCard(stats, theme),
+              ],
 
               // Múltiplos Volumes de Disco (Command v0.2 - S4)
               if (stats.disks.isNotEmpty) ...[
@@ -1137,6 +1671,16 @@ class _StatusPageState extends State<StatusPage> {
 
               // Card de Transferência Restrita de Arquivos (F6)
               _buildTransferCard(theme),
+
+              const SizedBox(height: 12),
+
+              // Card de Serviços do Windows (Command v0.2 - S5)
+              _buildWindowsServicesCard(theme),
+
+              const SizedBox(height: 12),
+
+              // Card de Top Processos (Command v0.2 - S5)
+              _buildTopProcessesCard(theme),
 
               const SizedBox(height: 12),
 

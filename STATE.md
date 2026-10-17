@@ -2,7 +2,7 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S4 CONCLUÍDO (PASS) -> Avançando para S5
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** S5 CONCLUÍDO (PASS) -> Avançando para S6
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -92,16 +92,17 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - Testes: 215/215 testes unitários C# aprovados (`dotnet test`), incluindo 5 novos testes de `HistoryAndDisksTests.cs`.
   - Validação ao vivo no host Windows com retorno real: Volume `C:` (919 GB total, 436.7 GB livre, 52.5% uso) e amostras no buffer de histórico.
 
-- ID: S4-THERMAL-BATTERY-DISKS-UI (2026-10-17)
-  - `SignalRService`: modelos `MetricSample` e `DiskVolume`, parsing robusto de `cpuTempC`, `gpuTempC`, `batteryPercent`, `isCharging`, `hasBattery`, `history` e `disks`.
-  - `StatusPage`: Badges semafóricos de temperatura nos cards de CPU e GPU ($\le 65^\circ\text{C}$ Verde `#10B981`, $66\text{--}80^\circ\text{C}$ Âmbar `#F59E0B`, $> 80^\circ\text{C}$ Vermelho `#EF4444`, ou `N/D`), pill de bateria no cabeçalho quando `hasBattery == true` (com ícone de raio se carregando) e novo card **Volumes de Disco** com listagem de todos os drives fixos e barras de progresso individuais.
-  - Testes: 70/70 testes Flutter aprovados (`flutter test`), incluindo 3 novos testes em `app/test/thermal_and_disks_ui_test.dart`.
+- ID: S5-SPARKLINE-SERVICES-PROCESSES-UI (2026-10-17)
+  - `MetricSparkline`: Componente visual leve com `CustomPainter` renderizando a curva dos últimos 60s com gradiente translúcido Amethyst (`#A78BFA`) e Cyan (`#38BDF8`).
+  - `DroidDeckClient`: Modelos `WindowsServiceItem`, `TopProcessItem` e `TopProcessesData` e métodos `getServices()` e `getTopProcesses()`.
+  - `StatusPage`: Card `Histórico de Carga (60s)` com sparklines sincronizados de CPU e RAM, Card `Serviços do Windows` com badges `Ativo`, `Parado` e `Ausente`, e Card `Top Processos` com alternador por Memória (RAM) e CPU em fonte monoespaçada com PIDs.
+  - Testes: 74/74 testes Flutter aprovados (`flutter test`), 222/222 testes C# aprovados (`dotnet test`).
 
 ## Próxima ação
-- Iniciar **Fase S5 — Frontend Mobile: Gráficos Sparkline (60s), Serviços e Top Processos** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
+- Iniciar **Fase S6 — Frontend Mobile: Motor de Alertas de Saúde e Cooldown** conforme [`ROADMAP_V0.2.md`](ROADMAP_V0.2.md).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.2: Fases S0, S1, S2, S3 e S4 concluídas com sucesso.
+- Onda v0.2: Fases S0, S1, S2, S3, S4 e S5 concluídas com sucesso.

@@ -16,6 +16,8 @@ import 'models/screenshot_models.dart';
 export 'models/screenshot_models.dart';
 import 'models/transfer_models.dart';
 export 'models/transfer_models.dart';
+import 'models/diagnostics_models.dart';
+export 'models/diagnostics_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -653,5 +655,28 @@ class DroidDeckClient {
     );
     final item = TransferItem.fromJson(response.data as Map<String, dynamic>);
     return UploadTransferResult(success: true, item: item);
+  }
+
+  /// Consulta os serviços do Windows permitidos na allowlist de monitoramento (S3/S5).
+  Future<List<WindowsServiceItem>> getServices({List<String>? names}) async {
+    final Map<String, dynamic> query = {};
+    if (names != null && names.isNotEmpty) {
+      query['names'] = names.join(',');
+    }
+    final response = await _dio.get(
+      '/api/services',
+      queryParameters: query.isNotEmpty ? query : null,
+    );
+    final list = response.data as List<dynamic>;
+    return list.map((e) => WindowsServiceItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Consulta os processos que mais consomem memória e CPU no PC (S3/S5).
+  Future<TopProcessesData> getTopProcesses({int count = 5}) async {
+    final response = await _dio.get(
+      '/api/processes/top',
+      queryParameters: {'count': count},
+    );
+    return TopProcessesData.fromJson(response.data as Map<String, dynamic>);
   }
 }
