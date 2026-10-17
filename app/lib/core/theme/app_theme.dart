@@ -81,10 +81,21 @@ const kThemePresets = <ThemePreset>[
     outline: Color(0xFFF3C6FF),
     tileStyle: DeckTileStyle.frame,
   ),
+  ThemePreset(
+    id: 'ametista',
+    name: 'Ametista',
+    accent: Color(0xFFA78BFA),
+    background: Color(0xFF050408),
+    surface: Color(0xFF13101B),
+    tile: Color(0xFF1E1829),
+    outline: Color(0xFF352B45),
+    tileStyle: DeckTileStyle.frame,
+  ),
 ];
 
 /// Cores oferecidas para trocar o destaque do tema.
 const kAccentChoices = <Color>[
+  Color(0xFFA78BFA), // ametista (Command)
   Color(0xFF42A5F5), // azul
   Color(0xFF4FC3F7), // ciano
   Color(0xFF26A69A), // verde-água

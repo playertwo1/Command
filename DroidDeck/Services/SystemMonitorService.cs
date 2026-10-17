@@ -34,6 +34,9 @@ namespace DroidDeck.Services
         private int _gpuTick = 0;
         private const int GpuRescanEveryTicks = 30;
 
+        /// <summary>Última amostra de telemetria coletada pelo monitor de sistema.</summary>
+        public SystemStats LastStats { get; private set; } = new();
+
         public SystemMonitorService(ILogger<SystemMonitorService> logger, IHubContext<DeckHub> hubContext, MediaControlService media)
         {
             _logger = logger;
@@ -96,6 +99,8 @@ namespace DroidDeck.Services
                     }
 
                     var (netUp, netDown) = SampleNetwork();
+                    var (diskUsage, diskTotal, diskFree) = SampleDisk();
+                    long uptime = Environment.TickCount64 / 1000;
 
                     var stats = new SystemStats
                     {
@@ -106,7 +111,12 @@ namespace DroidDeck.Services
                         NetUpKBps = netUp,
                         NetDownKBps = netDown,
                         GpuUsage = SampleGpu(),
+                        DiskUsage = diskUsage,
+                        DiskTotalGB = diskTotal,
+                        DiskAvailableGB = diskFree,
+                        UptimeSeconds = uptime,
                     };
+                    LastStats = stats;
 
                     // Broadcast to clients listening on "ReceiveSystemStats"
                     await _hubContext.Clients.All.SendAsync("ReceiveSystemStats", stats, cancellationToken: stoppingToken);
@@ -167,6 +177,25 @@ namespace DroidDeck.Services
             _lastRecv = recv;
             _lastNetTime = now;
             return (up, down);
+        }
+
+        private static (float usage, float totalGb, float freeGb) SampleDisk()
+        {
+            try
+            {
+                string sysDrive = Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\";
+                var drive = new DriveInfo(sysDrive);
+                if (drive.IsReady)
+                {
+                    float total = drive.TotalSize / (1024f * 1024f * 1024f);
+                    float free = drive.AvailableFreeSpace / (1024f * 1024f * 1024f);
+                    float used = total - free;
+                    float usage = total > 0 ? (used / total) * 100f : 0f;
+                    return ((float)Math.Round(usage, 1), (float)Math.Round(total, 1), (float)Math.Round(free, 1));
+                }
+            }
+            catch { }
+            return (0, 0, 0);
         }
 
         private float SampleGpu()

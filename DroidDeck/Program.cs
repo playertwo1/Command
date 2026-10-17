@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using DroidDeck.Lib;
@@ -274,6 +274,10 @@ namespace DroidDeck
 
                                 return Microsoft.AspNetCore.Http.Results.Ok(new { key = DroidDeck.Auth.ApiKeyProvider.GetKey() });
                             }).AllowAnonymous();
+
+                            // Telemetria de hardware (Command)
+                            endpoints.MapGet("/api/metrics", (DroidDeck.Services.SystemMonitorService monitor) =>
+                                Microsoft.AspNetCore.Http.Results.Ok(monitor.LastStats));
 
                             endpoints.MapControllers();
                             endpoints.MapHub<DroidDeck.Hubs.DeckHub>("/deckHub");

@@ -26,6 +26,10 @@ class SystemStats {
   final double netUp; // KB/s
   final double netDown; // KB/s
   final double gpuUsage; // % (0-100)
+  final double diskUsage; // % (0-100)
+  final double diskTotalGb; // GB
+  final double diskAvailableGb; // GB
+  final int uptimeSeconds; // segundos
 
   SystemStats({
     this.cpuUsage = 0,
@@ -35,6 +39,10 @@ class SystemStats {
     this.netUp = 0,
     this.netDown = 0,
     this.gpuUsage = 0,
+    this.diskUsage = 0,
+    this.diskTotalGb = 0,
+    this.diskAvailableGb = 0,
+    this.uptimeSeconds = 0,
   });
 
   /// % de RAM em uso (usa o valor do backend; se faltar, calcula de total/disponível).
@@ -44,11 +52,30 @@ class SystemStats {
   double get ramUsedGb => (ramTotal - ramAvailable) / 1024.0;
   double get ramTotalGb => ramTotal / 1024.0;
 
+  String get formattedUptime {
+    if (uptimeSeconds <= 0) return '0m';
+    final d = Duration(seconds: uptimeSeconds);
+    final days = d.inDays;
+    final hours = d.inHours % 24;
+    final minutes = d.inMinutes % 60;
+    if (days > 0) return '${days}d ${hours}h ${minutes}m';
+    if (hours > 0) return '${hours}h ${minutes}m';
+    return '${minutes}m';
+  }
+
   factory SystemStats.fromJson(Map<String, dynamic> json) {
     double parseDouble(dynamic val) {
       if (val == null) return 0;
       if (val is num) return val.toDouble();
       if (val is String) return double.tryParse(val) ?? 0;
+      return 0;
+    }
+
+    int parseInt(dynamic val) {
+      if (val == null) return 0;
+      if (val is int) return val;
+      if (val is num) return val.toInt();
+      if (val is String) return int.tryParse(val) ?? 0;
       return 0;
     }
 
@@ -60,6 +87,10 @@ class SystemStats {
       netUp: parseDouble(json['netUpKBps'] ?? json['NetUpKBps']),
       netDown: parseDouble(json['netDownKBps'] ?? json['NetDownKBps']),
       gpuUsage: parseDouble(json['gpuUsage'] ?? json['GpuUsage']),
+      diskUsage: parseDouble(json['diskUsage'] ?? json['DiskUsage']),
+      diskTotalGb: parseDouble(json['diskTotalGB'] ?? json['DiskTotalGB']),
+      diskAvailableGb: parseDouble(json['diskAvailableGB'] ?? json['DiskAvailableGB']),
+      uptimeSeconds: parseInt(json['uptimeSeconds'] ?? json['UptimeSeconds']),
     );
   }
 }

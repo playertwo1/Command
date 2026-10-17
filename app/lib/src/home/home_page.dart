@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'home_controller.dart';
 import 'audio_page.dart';
+import 'status_page.dart';
 import '../stream_deck/stream_deck_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -116,6 +117,14 @@ class HomePageState extends State<HomePage> {
             });
           },
           children: [
+            StatusPage(
+              isFullscreen: controller.isFullscreen.value,
+              onToggleFullscreen: controller.toggleFullscreen,
+            ),
+            StreamDeckPage(
+              onToggleFullscreen: controller.toggleFullscreen,
+              isFullscreen: controller.isFullscreen.value,
+            ),
             Column(
               children: [
                 if (err.isNotEmpty)
@@ -139,10 +148,6 @@ class HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            StreamDeckPage(
-              onToggleFullscreen: controller.toggleFullscreen,
-              isFullscreen: controller.isFullscreen.value,
-            ),
           ],
         );
       }),
@@ -154,12 +159,19 @@ class HomePageState extends State<HomePage> {
         return BottomNavigationBar(
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: const Icon(Icons.tune),
-              label: tr('Áudio'),
+              icon: const Icon(Icons.monitor_heart_outlined),
+              activeIcon: const Icon(Icons.monitor_heart),
+              label: tr('Status'),
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.grid_view),
+              activeIcon: Icon(Icons.grid_view_rounded),
               label: 'Deck',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.tune),
+              activeIcon: const Icon(Icons.tune),
+              label: tr('Áudio'),
             ),
           ],
           currentIndex: selectedIndex,

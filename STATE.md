@@ -1,28 +1,41 @@
 # STATE — ponto de retomada
 
-Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`; a proposta aprovada também está arquivada em `docs/plans/2026-10-12-mvp-inicial.md` e o planejamento anterior em `docs/history/ROADMAP-2026-10-10-original.md`.
+Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-13 · **Marco ativo:** F0 — escolha de bases e preparação técnica · **Estado:** READY
+**Atualizado:** 2026-10-17 · **Marco ativo:** F3 — Telemetria de Hardware e Tema Amethyst · **Estado:** READY
 
 ## O que existe hoje
-- Repositório GitHub privado `playertwo1/Command`, com o esqueleto documental, pacote de planejamento original e referências Stitch.
-- Roadmap do MVP v0.1 aprovado, composto por F0–F9.
-- Nenhum código Android, Bridge ou contrato implementado.
+- Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
+- In-tree fork concluído com histórico preservado e mesclado no branch `main` (`commit 0f4a14d`).
+- **Backend .NET 8 (`DroidDeck/`):**
+  - WinForms Tray + ASP.NET Core API + SignalR + Web Configurator.
+  - Monitoramento de telemetria estendido em `SystemMonitorService.cs`: CPU, RAM, GPU, Rede, Disco do Sistema e Uptime.
+  - Endpoint HTTP autenticado `GET /api/metrics` mapeado.
+  - 163/163 testes unitários e de integração aprovados (0 falhas).
+- **Frontend Flutter (`app/`):**
+  - Aplicativo móvel e Web configurator.
+  - Tema **Amethyst Command** (`#050408`, `#13101B`, `#1E1829`, `#A78BFA`) configurado como preset no `app_theme.dart`.
+  - Nova aba **Status** no app móvel (`StatusPage`) exibindo métricas de hardware em tempo real (CPU, RAM, Disco, GPU, Rede, Uptime), badge Online/Offline e card do Hermes IA isolado ("Não configurado").
+  - 50/50 testes de widgets e unitários aprovados (0 falhas), `flutter analyze` exit 0.
+- **Módulos e segurança nativos preservados:** OBS Studio, Discord RPC, Tuya/Smart Life, Soundboard MyInstants, Mixer de áudio, Mídia WinRT, Steam Launcher, Perfis e pareamento nativo via QR (`droiddeck://pair`) com API key protegida por DPAPI.
 
 ## Última atividade
-- ID: REPO-02 (2026-10-13)
-- Resultado: manual `.docx` transcrito em `docs/MANUAL_MVP.md`; roadmap revisado só com esclarecimentos (fluxos FL-1…FL-5, rede/relógio/firewall, contrato inicial, riscos, pós-MVP); nomenclatura G→F alinhada; checklist por fase; novas pendências D-004–D-006; `.gitattributes` e `.gitignore` de chaves de assinatura; removida a pasta duplicada `COMMAND_Pacote_Planejamento/`.
-- Testes/build: NOT_RUN — não há componentes para compilar ou testar.
-- Anterior: REPO-01 — roadmap aprovado e repositório remoto conectado (2026-10-12).
+- ID: F3-IMPL (2026-10-17)
+- Resultado:
+  - Implementado tema Amethyst Dark em `app_theme.dart`.
+  - Enriquecido modelo e serviço de telemetria no C# com medição de Disco e Uptime monotônico.
+  - Mapeado endpoint `GET /api/metrics`.
+  - Criado widget `StatusPage` e integrado à navegação principal do app (`HomePage`).
+  - Criados testes `CommandTelemetryTests.cs` e `status_page_test.dart`.
+- Testes/build:
+  - `dotnet test DroidDeck.sln --filter "Category!=RequiresDesktop"`: 163 PASS, 0 FAIL.
+  - `flutter test`: 50 PASS, 0 FAIL.
+  - `flutter analyze --no-fatal-infos`: exit 0.
 
 ## Próxima ação
-- F0-01 — inventariar o ambiente de desenvolvimento em `research/ENVIRONMENT.md`, registrando versões presentes e ausências sem instalar dependências.
+- F4 — Catálogo e execução de aplicativos/projetos (FL-1 Obsidian, FL-2 Editor de projeto/Orbit, FL-5 Encerrar app permitido com confirmação).
 
 ## Bloqueios e aprovações humanas
-- Plano do MVP: APPROVED em 2026-10-12.
-- Seleção das bases Android e Bridge: PENDING, requer evidência F0 e aprovação humana antes de F1.
-- Revisão do roadmap de 2026-10-13: PENDING ciência do proprietário (seção 9 do `ROADMAP.md`).
-- D-004 (o que é o “Orbit”) precisa de resposta antes de F4.
-
-## Divergências entre roadmap e implementação
-- O Stitch contém explorações visuais além do MVP; são referências, não autorização de escopo adicional.
+- Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
+- D-004 (O que é o projeto “Orbit” do FL-2): aguarda definição da pasta/comando do editor.
+- Push remoto: PENDING autorização explícita do proprietário (Regra 10 de `AGENTS.md`).

@@ -6,6 +6,16 @@ const Map<String, String> enCore = {
   'OLED': 'OLED',
   'Âmbar': 'Amber',
   'Synthwave': 'Synthwave',
+  'Ametista': 'Amethyst',
+  // Status e Telemetria
+  'Status': 'Status',
+  'Disco': 'Disk',
+  'Uso do processador': 'CPU usage',
+  'Vídeo / 3D Engine': 'GPU / 3D Engine',
+  'Tempo ligado': 'Uptime',
+  'Não configurado': 'Not configured',
+  'Módulo de inteligência opcional': 'Optional intelligence module',
+  'PC Conectado': 'Connected PC',
   // Estilo dos botões
   'Sólido': 'Solid',
   'Contorno': 'Outline',
