@@ -10,6 +10,8 @@ import 'models/media_session.dart';
 import 'models/deck_profile.dart';
 import 'models/deck_action.dart';
 import 'models/sound_result.dart';
+import 'models/app_catalog_models.dart';
+export 'models/app_catalog_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -486,5 +488,75 @@ class DroidDeckClient {
       'monitorEnabled': monitorEnabled,
       'volume': volume,
     });
+  }
+
+  /// Lista os aplicativos autorizados na allowlist do PC.
+  Future<List<AllowedApp>> getApps() async {
+    final response = await _dio.get('/api/apps');
+    return (response.data as List)
+        .map((e) => AllowedApp.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Inicia um aplicativo autorizado no PC com proteção contra repetição.
+  Future<CommandJob> launchApp(
+    String appId, {
+    required String requestId,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/apps/$appId/launch',
+      data: {
+        'requestId': requestId,
+        'deviceId': deviceId,
+      },
+    );
+    return CommandJob.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Encerra um aplicativo autorizado com confirmação obrigatória.
+  Future<CommandJob> killApp(
+    String appId, {
+    required String requestId,
+    required bool confirmed,
+    int? processId,
+    DateTime? startTimeUtc,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/apps/$appId/kill',
+      data: {
+        'requestId': requestId,
+        'confirmed': confirmed,
+        'processId': processId,
+        'startTimeUtc': startTimeUtc?.toIso8601String(),
+        'deviceId': deviceId,
+      },
+    );
+    return CommandJob.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Obtém histórico recente de execuções no PC.
+  Future<List<CommandJob>> getJobs({String? deviceId, int limit = 50}) async {
+    final response = await _dio.get(
+      '/api/jobs',
+      queryParameters: {
+        if (deviceId != null) 'deviceId': deviceId,
+        'limit': limit,
+      },
+    );
+    return (response.data as List)
+        .map((e) => CommandJob.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Limpa o histórico de execuções.
+  Future<void> clearJobs({String? deviceId}) async {
+    await _dio.delete(
+      '/api/jobs',
+      queryParameters: {
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+    );
   }
 }

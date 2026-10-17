@@ -8,12 +8,14 @@ class StatusPage extends StatefulWidget {
   final bool isFullscreen;
   final VoidCallback onToggleFullscreen;
   final SignalRService? signalRService;
+  final DroidDeckClient? client;
 
   const StatusPage({
     super.key,
     required this.isFullscreen,
     required this.onToggleFullscreen,
     this.signalRService,
+    this.client,
   });
 
   @override
@@ -22,11 +24,26 @@ class StatusPage extends StatefulWidget {
 
 class _StatusPageState extends State<StatusPage> {
   SavedPc? _currentPc;
+  List<AllowedApp> _apps = [];
+  List<CommandJob> _jobs = [];
+  bool _loadingApps = false;
+  bool _loadingJobs = false;
+  final Set<String> _pendingActions = {};
+
+  DroidDeckClient? get _client {
+    if (widget.client != null) return widget.client;
+    try {
+      return Injector.get<DroidDeckClient>();
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _loadPc();
+    _loadAppsAndJobs();
   }
 
   Future<void> _loadPc() async {
@@ -39,6 +56,199 @@ class _StatusPageState extends State<StatusPage> {
         });
       }
     } catch (_) {}
+  }
+
+  Future<void> _loadAppsAndJobs() async {
+    await Future.wait([
+      _fetchApps(),
+      _fetchJobs(),
+    ]);
+  }
+
+  Future<void> _fetchApps() async {
+    final client = _client;
+    if (client == null || _loadingApps) return;
+    if (mounted) setState(() => _loadingApps = true);
+    try {
+      final apps = await client.getApps();
+      if (mounted) {
+        setState(() => _apps = apps);
+      }
+    } catch (_) {
+      // Ignora erro de rede quando offline
+    } finally {
+      if (mounted) setState(() => _loadingApps = false);
+    }
+  }
+
+  Future<void> _fetchJobs() async {
+    final client = _client;
+    if (client == null || _loadingJobs) return;
+    if (mounted) setState(() => _loadingJobs = true);
+    try {
+      final jobs = await client.getJobs();
+      if (mounted) {
+        setState(() => _jobs = jobs);
+      }
+    } catch (_) {
+      // Ignora erro de rede quando offline
+    } finally {
+      if (mounted) setState(() => _loadingJobs = false);
+    }
+  }
+
+  Future<void> _launchApp(AllowedApp app) async {
+    final client = _client;
+    if (client == null || _pendingActions.contains(app.id)) return;
+    setState(() => _pendingActions.add(app.id));
+
+    final reqId = '${DateTime.now().microsecondsSinceEpoch}_${app.id}';
+    try {
+      final job = await client.launchApp(app.id, requestId: reqId);
+      if (mounted) {
+        if (job.status == 'succeeded') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(tr('"{name}" iniciado com sucesso.', {'name': app.name}))),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr('Falha ao iniciar "{name}": {err}', {
+                'name': app.name,
+                'err': job.errorMessage ?? tr('Erro desconhecido'),
+              })),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+      await _fetchApps();
+      await _fetchJobs();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr('Erro ao executar ação: {e}', {'e': e.toString()})),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _pendingActions.remove(app.id));
+      }
+    }
+  }
+
+  Future<void> _confirmAndKillApp(AllowedApp app) async {
+    if (_pendingActions.contains(app.id)) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr('Encerrar Aplicativo')),
+        content: Text(
+          tr('Deseja realmente encerrar a instância de "{name}"?\nEsta ação interrompe o processo imediatamente.', {'name': app.name}),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(tr('Cancelar')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFF87171)),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(tr('Encerrar')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final client = _client;
+    if (client == null) return;
+
+    setState(() => _pendingActions.add(app.id));
+    final reqId = '${DateTime.now().microsecondsSinceEpoch}_kill_${app.id}';
+
+    try {
+      final job = await client.killApp(
+        app.id,
+        requestId: reqId,
+        confirmed: true,
+        processId: app.processId,
+        startTimeUtc: app.startTimeUtc,
+      );
+      if (mounted) {
+        if (job.status == 'succeeded') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(tr('Processo de "{name}" encerrado.', {'name': app.name}))),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr('Falha ao encerrar "{name}": {err}', {
+                'name': app.name,
+                'err': job.errorMessage ?? tr('Erro desconhecido'),
+              })),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+      await _fetchApps();
+      await _fetchJobs();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr('Erro ao encerrar processo: {e}', {'e': e.toString()})),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _pendingActions.remove(app.id));
+      }
+    }
+  }
+
+  Future<void> _clearJobs() async {
+    final client = _client;
+    if (client == null) return;
+    try {
+      await client.clearJobs();
+      if (mounted) {
+        setState(() => _jobs = []);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('Histórico de atividades limpo.'))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('Erro ao limpar histórico: {e}', {'e': e.toString()}))),
+        );
+      }
+    }
+  }
+
+  IconData _iconForApp(String iconName) {
+    switch (iconName.toLowerCase()) {
+      case 'description':
+      case 'note':
+        return Icons.description_outlined;
+      case 'terminal':
+      case 'code':
+        return Icons.code_rounded;
+      case 'edit_note':
+      case 'edit':
+        return Icons.edit_note_rounded;
+      default:
+        return Icons.apps_rounded;
+    }
   }
 
   @override
@@ -360,6 +570,258 @@ class _StatusPageState extends State<StatusPage> {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Card de Ações Autorizadas (Allowlist F4)
+              Card(
+                elevation: 0,
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.verified_user_outlined, size: 20, color: Color(0xFFA78BFA)),
+                              const SizedBox(width: 8),
+                              Text(
+                                tr('Ações Autorizadas'),
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 18),
+                            tooltip: tr('Atualizar lista'),
+                            onPressed: _loadingApps ? null : _fetchApps,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (_loadingApps && _apps.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        )
+                      else if (_apps.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            tr('Nenhum aplicativo retornado pelo PC. Conecte ao Bridge para carregar.'),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _apps.length,
+                          separatorBuilder: (_, __) => const Divider(height: 12, thickness: 0.5),
+                          itemBuilder: (context, index) {
+                            final app = _apps[index];
+                            final isPending = _pendingActions.contains(app.id);
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+                                child: Icon(_iconForApp(app.icon), color: const Color(0xFFA78BFA), size: 20),
+                              ),
+                              title: Text(
+                                app.name,
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                              ),
+                              subtitle: Text(
+                                app.description,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (app.canKill) ...[
+                                    OutlinedButton(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: const Color(0xFFF87171),
+                                        side: const BorderSide(color: Color(0xFFF87171)),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      onPressed: isPending ? null : () => _confirmAndKillApp(app),
+                                      child: isPending
+                                          ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            )
+                                          : Text(tr('Encerrar'), style: const TextStyle(fontSize: 12)),
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  FilledButton(
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: const Color(0xFFA78BFA),
+                                      foregroundColor: Colors.black,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    onPressed: isPending ? null : () => _launchApp(app),
+                                    child: isPending
+                                        ? const SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                          )
+                                        : Text(tr('Abrir'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Card de Histórico de Atividades (Jobs F4-04)
+              Card(
+                elevation: 0,
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.history_rounded, size: 20, color: Color(0xFFA78BFA)),
+                              const SizedBox(width: 8),
+                              Text(
+                                tr('Atividade Recente'),
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.refresh, size: 18),
+                                tooltip: tr('Atualizar'),
+                                onPressed: _loadingJobs ? null : _fetchJobs,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, size: 18),
+                                tooltip: tr('Limpar histórico'),
+                                onPressed: _jobs.isEmpty ? null : _clearJobs,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (_loadingJobs && _jobs.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        )
+                      else if (_jobs.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            tr('Nenhuma atividade registrada.'),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _jobs.take(10).length,
+                          separatorBuilder: (_, __) => const Divider(height: 8, thickness: 0.3),
+                          itemBuilder: (context, index) {
+                            final job = _jobs[index];
+                            final isSuccess = job.status == 'succeeded';
+                            final isFailed = job.status == 'failed';
+                            final color = isSuccess
+                                ? const Color(0xFF34D5A0)
+                                : isFailed
+                                    ? const Color(0xFFF87171)
+                                    : const Color(0xFFF0B65F);
+                            final icon = isSuccess
+                                ? Icons.check_circle_outline
+                                : isFailed
+                                    ? Icons.error_outline
+                                    : Icons.hourglass_top_rounded;
+
+                            return ListTile(
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(icon, color: color, size: 18),
+                              title: Text(
+                                '${job.actionType} (${job.targetId})',
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                              ),
+                              subtitle: Text(
+                                job.errorMessage != null
+                                    ? job.errorMessage!
+                                    : 'Estado: ${job.status} · ${job.createdAtUtc.toLocal().toString().length >= 19 ? job.createdAtUtc.toLocal().toString().substring(11, 19) : ""}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: isFailed ? const Color(0xFFF87171) : theme.colorScheme.onSurfaceVariant,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  job.status,
+                                  style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                     ],
                   ),
                 ),

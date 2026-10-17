@@ -24,6 +24,8 @@ namespace DroidDeck
             services.AddSingleton<BackupService>();
             services.AddSingleton<ButtonToggleService>();
             services.AddSingleton<Lib.Input.MacroRecorder>();
+            services.AddSingleton<IJobHistoryService, JobHistoryService>();
+            services.AddSingleton<IAppCatalogService, AppCatalogService>();
             services.AddHostedSingleton<TimerService>();
             services.AddHostedSingleton<InfoService>();
             services.AddHostedSingleton<ForegroundWatcher>();
