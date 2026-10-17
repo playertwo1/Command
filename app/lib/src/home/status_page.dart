@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../connection/pc_store.dart';
 import '../services/signalr_service.dart';
+import '../services/health_alert_service.dart';
 import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
 
@@ -15,6 +16,7 @@ class StatusPage extends StatefulWidget {
   final VoidCallback onToggleFullscreen;
   final SignalRService? signalRService;
   final DroidDeckClient? client;
+  final HealthAlertService? healthAlertService;
 
   const StatusPage({
     super.key,
@@ -22,6 +24,7 @@ class StatusPage extends StatefulWidget {
     required this.onToggleFullscreen,
     this.signalRService,
     this.client,
+    this.healthAlertService,
   });
 
   @override
@@ -56,6 +59,8 @@ class _StatusPageState extends State<StatusPage> {
   String? _processesError;
   int _processSortIndex = 0;
 
+  late final HealthAlertService _healthAlertService;
+
   DroidDeckClient? get _client {
     if (widget.client != null) return widget.client;
     try {
@@ -68,6 +73,8 @@ class _StatusPageState extends State<StatusPage> {
   @override
   void initState() {
     super.initState();
+    _healthAlertService = widget.healthAlertService ?? HealthAlertService.instance;
+    _healthAlertService.loadThresholds();
     _loadPc();
     _loadAppsAndJobs();
   }
@@ -607,6 +614,75 @@ class _StatusPageState extends State<StatusPage> {
     );
   }
 
+  Widget _buildHealthAlertsBanner(List<HealthAlert> alerts, ThemeData theme) {
+    return Column(
+      children: [
+        for (final alert in alerts) ...[
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: alert.severity == AlertSeverity.critical
+                  ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                  : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: alert.severity == AlertSeverity.critical
+                    ? const Color(0xFFEF4444).withValues(alpha: 0.5)
+                    : const Color(0xFFF59E0B).withValues(alpha: 0.5),
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  alert.severity == AlertSeverity.critical
+                      ? Icons.error_outline
+                      : Icons.warning_amber_rounded,
+                  color: alert.severity == AlertSeverity.critical
+                      ? const Color(0xFFEF4444)
+                      : const Color(0xFFF59E0B),
+                  size: 26,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        alert.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: alert.severity == AlertSeverity.critical
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFFF59E0B),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        alert.message,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  tooltip: tr('Dispensar alerta'),
+                  onPressed: () => _healthAlertService.dismissAlert(alert.id),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildHistorySparklineCard(SystemStats stats, ThemeData theme) {
     final cpuValues = stats.history.map((s) => s.cpu).toList();
     final ramValues = stats.history.map((s) => s.ram).toList();
@@ -1036,6 +1112,12 @@ class _StatusPageState extends State<StatusPage> {
         final isConnected = status == 'Connected';
         final activePc = _currentPc;
 
+        if (isConnected && stats != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _healthAlertService.evaluate(stats);
+          });
+        }
+
         return RefreshIndicator(
           onRefresh: () async {
             await _loadPc();
@@ -1251,6 +1333,16 @@ class _StatusPageState extends State<StatusPage> {
                     ],
                   ),
                 ),
+              ),
+
+              // Banner Reativo de Alertas de Saúde (Fase S6)
+              ListenableBuilder(
+                listenable: _healthAlertService,
+                builder: (context, _) {
+                  final alerts = _healthAlertService.activeAlerts;
+                  if (alerts.isEmpty) return const SizedBox.shrink();
+                  return _buildHealthAlertsBanner(alerts, theme);
+                },
               ),
 
               const SizedBox(height: 16),

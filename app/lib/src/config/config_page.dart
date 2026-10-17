@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'qr_scan_page.dart';
 import 'appearance_settings_page.dart';
+import 'health_alert_settings_page.dart';
 import '../welcome/welcome_page.dart';
 
 class ConfigPage extends StatefulWidget {
@@ -302,6 +303,16 @@ class ConfigPageState extends State<ConfigPage> {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const IntegrationsPage()),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.notifications_active_outlined),
+              title: Text(tr('Limiares de Alerta de Recursos')),
+              subtitle: Text(tr('Limites de CPU, RAM, temperatura, disco e bateria')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const HealthAlertSettingsPage()),
               ),
             ),
           ],

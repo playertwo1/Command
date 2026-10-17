@@ -134,10 +134,10 @@ flowchart TD
 ### 🚨 Fase S6 — Frontend Mobile: Motor de Alertas de Saúde e Cooldown
 **Objetivo:** Detectar anomalias de recursos e alertar o usuário sem gerar notificações repetitivas.
 
-- [ ] **S6-01:** Criar `HealthAlertService` no Flutter com limiares configuráveis (padrões: CPU $\ge 90\%$, RAM $\ge 90\%$, Temp $\ge 85^\circ\text{C}$, Disco $\ge 95\%$, Bateria $\le 15\%$).
-- [ ] **S6-02:** Implementar controle de *cooldown* de 60 segundos por tipo de alerta e botão para silenciar/dispensar.
-- [ ] **S6-03:** Exibir banner de alerta ativo no topo da `StatusPage` e seção de configuração de limites na `ConfigPage`.
-- [ ] **S6-04:** Criar testes unitários e de widget em `app/test/health_alerts_test.dart`.
+- [x] **S6-01:** Criar `HealthAlertService` no Flutter com limiares configuráveis (padrões: CPU $\ge 90\%$, RAM $\ge 90\%$, Temp $\ge 85^\circ\text{C}$, Disco $\ge 95\%$, Bateria $\le 15\%$).
+- [x] **S6-02:** Implementar controle de *cooldown* de 60 segundos por tipo de alerta e botão para silenciar/dispensar.
+- [x] **S6-03:** Exibir banner de alerta ativo no topo da `StatusPage` e seção de configuração de limites na `ConfigPage`.
+- [x] **S6-04:** Criar testes unitários e de widget em `app/test/health_alerts_test.dart`.
 
 ---
 
