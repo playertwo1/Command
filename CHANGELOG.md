@@ -1,6 +1,23 @@
 # Changelog
 
-## In-Tree Fork DroidDeck v1.9.1 — 2026-10-17
+## [1.0.0] — 2026-10-18 (Release de Produção — Onda v1.0)
+- **Permissões Granulares por Dispositivo e Biometria/PIN (D-005):**
+  - Implementação de política de segurança no Backend (`ISecurityPolicyService`, `SecurityPolicyService`) com controle de perfis (`FullControl` vs `ViewerOnly`) e auditoria de ações sanitizada em `SecurityAuditEntryDto`.
+  - Guardião de segurança no aplicativo Flutter (`BiometricGuardService`) exigindo validação de PIN/Biometria antes de mutações e ações críticas.
+- **Backup e Restauração Criptografada AES-256-GCM + PBKDF2-SHA256:**
+  - `EncryptedBackupService`: exportação e restauração atômica de rotinas customizadas, permissões e políticas em pacote criptografado com derivação PBKDF2 (100.000 iterações), nonce de 12 bytes, tag de autenticação GCM de 16 bytes e validação por hash SHA-256.
+  - Interface visual `EncryptedBackupSheet` no Flutter para backup e restauração rápida via clipboard/JSON seguro.
+- **Verificação Segura de Atualizações e Integridade Velopack:**
+  - `UpdateVerificationService` com consulta de versão do canal estável (`1.0.0`) e validação criptográfica de integridade de novos pacotes binários SHA-256.
+  - Card `SecurityCenterCard` Amethyst Dark na `StatusPage` do Flutter exibindo integridade do sistema sob demanda.
+- **Autodiagnóstico de Estabilidade de Longa Duração (Bridge QA Monitor):**
+  - `SystemStabilityMonitor`: monitoramento do processo da Bridge (RAM WorkingSet, Handles Win32, Threads ativas e Uptime) com classificação preventiva de saúde (`Healthy`/`Warning`).
+- **Homologação e Pacotes de Produção:**
+  - 100% dos testes aprovados: **301/301 testes C# PASS**, **160/160 testes Flutter PASS** (Total: **461 testes automatizados**), `flutter analyze` exit 0.
+  - Validação de fluxo E2E no emulador Android Pixel 9 via Maestro (`flow_command_v10.yaml`).
+  - Geração e assinatura dos pacotes oficiais `command-bridge-v1.0.0-win-x64.zip` e `command-app-v1.0.0.apk` com hashes SHA-256 publicados.
+
+
 - Realizado fork in-tree completo do repositório upstream [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck) (`5cd2ddc`).
 - Mantida 100% da árvore funcional upstream: backend .NET 8 WinForms/ASP.NET Core/SignalR (`DroidDeck/`), app móvel e configurador web Flutter (`app/`), suíte de testes xUnit (`tests/DroidDeck.Tests/`), documentação e scripts.
 - Restaurados todos os módulos nativos do DroidDeck: OBS Studio WebSocket, Discord RPC, Tuya / Smart Life, Soundboard (MyInstants), Audio Mixer por aplicativo, controles de mídia WinRT, Steam game launcher, profiles e multi-actions.

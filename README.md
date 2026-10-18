@@ -34,10 +34,15 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🎧 Spotify, Twitch e YouTube com status ao vivo.
   - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
   - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
-- **Extensões Command:**
-  - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU).
-  - 🎨 Tema visual Command Amethyst Dark e cartões de status do sistema.
-  - 🤖 Suporte arquitetural para o agente de IA opcional Hermes.
+- **Extensões Command (v1.0.0 Estável):**
+  - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU, Bateria e Temperatura).
+  - 🎨 Tema visual Command Amethyst Dark (`#050408`, `#161424`, `#A78BFA`) e cartões de status do sistema.
+  - 🛡️ Permissões granulares por dispositivo (`ViewerOnly` vs `FullControl`) e guardião de PIN/Biometria.
+  - 🔐 Backup e restauração criptografada AES-256-GCM + PBKDF2-SHA256 (100.000 iterações).
+  - 🔄 Verificação de atualização e integridade de pacotes via SHA-256 (Velopack ready).
+  - ⚡ Controle de energia remoto seguro (Wake-on-LAN, Bloqueio de Sessão e Suspensão).
+  - 🔄 Rotinas encadeadas determinísticas de automação e Modo Dock contínuo.
+  - 🤖 Suporte arquitetural para o assistente local opcional Hermes (100% funcional sem IA).
 
 ---
 
