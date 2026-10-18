@@ -1616,7 +1616,7 @@ class _StatusPageState extends State<StatusPage> {
         final isConnected = status == 'Connected';
         final activePc = _currentPc;
 
-        if (isConnected && stats != null) {
+        if (isConnected) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _healthAlertService.evaluate(stats);
           });
@@ -1765,96 +1765,107 @@ class _StatusPageState extends State<StatusPage> {
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isConnected
-                              ? const Color(0xFF34D5A0).withValues(alpha: 0.2)
-                              : const Color(0xFFF87171).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: isConnected
-                                    ? const Color(0xFF34D5A0)
-                                    : const Color(0xFFF87171),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              isConnected ? tr('Online') : tr('Offline'),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isConnected
-                                    ? const Color(0xFF34D5A0)
-                                    : const Color(0xFFF87171),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isConnected && _latencyMs != null) ...[
-                        const SizedBox(width: 8),
-                        _buildLatencyBadge(_latencyMs!, _jitterMs),
-                      ],
-                      if (stats.hasBattery && stats.batteryPercent != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: (stats.isCharging == true
-                                    ? const Color(0xFF34D5A0)
-                                    : const Color(0xFFA78BFA))
-                                .withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: (stats.isCharging == true
-                                      ? const Color(0xFF34D5A0)
-                                      : const Color(0xFFA78BFA))
-                                  .withValues(alpha: 0.35),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                stats.isCharging == true
-                                    ? Icons.bolt
-                                    : (stats.batteryPercent! <= 20
-                                        ? Icons.battery_alert
-                                        : Icons.battery_std),
-                                size: 13,
-                                color: stats.isCharging == true
-                                    ? const Color(0xFF34D5A0)
-                                    : (stats.batteryPercent! <= 20
-                                        ? const Color(0xFFF87171)
-                                        : const Color(0xFFA78BFA)),
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                '${stats.batteryPercent}%',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: stats.isCharging == true
-                                      ? const Color(0xFF34D5A0)
-                                      : (stats.batteryPercent! <= 20
-                                          ? const Color(0xFFF87171)
-                                          : const Color(0xFFA78BFA)),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isConnected
+                                      ? const Color(0xFF34D5A0).withValues(alpha: 0.2)
+                                      : const Color(0xFFF87171).withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: isConnected
+                                            ? const Color(0xFF34D5A0)
+                                            : const Color(0xFFF87171),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      isConnected ? tr('Online') : tr('Offline'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isConnected
+                                            ? const Color(0xFF34D5A0)
+                                            : const Color(0xFFF87171),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              if (stats.hasBattery && stats.batteryPercent != null) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: (stats.isCharging == true
+                                            ? const Color(0xFF34D5A0)
+                                            : const Color(0xFFA78BFA))
+                                        .withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: (stats.isCharging == true
+                                              ? const Color(0xFF34D5A0)
+                                              : const Color(0xFFA78BFA))
+                                          .withValues(alpha: 0.35),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        stats.isCharging == true
+                                            ? Icons.bolt
+                                            : (stats.batteryPercent! <= 20
+                                                ? Icons.battery_alert
+                                                : Icons.battery_std),
+                                        size: 13,
+                                        color: stats.isCharging == true
+                                            ? const Color(0xFF34D5A0)
+                                            : (stats.batteryPercent! <= 20
+                                                ? const Color(0xFFF87171)
+                                                : const Color(0xFFA78BFA)),
+                                      ),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        '${stats.batteryPercent}%',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: stats.isCharging == true
+                                            ? const Color(0xFF34D5A0)
+                                            : (stats.batteryPercent! <= 20
+                                                ? const Color(0xFFF87171)
+                                                : const Color(0xFFA78BFA)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
-                        ),
-                      ],
+                          if (isConnected && _latencyMs != null) ...[
+                            const SizedBox(height: 5),
+                            _buildLatencyBadge(_latencyMs!, _jitterMs),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),

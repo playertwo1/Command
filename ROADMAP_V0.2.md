@@ -174,10 +174,10 @@ flowchart TD
 ### 🏁 Fase S10 — Validação E2E no Emulador Pixel 9, Pacote `v0.2.0` e Homologação
 **Objetivo:** Comprovar todas as entregas da v0.2 (S0 a S9) no emulador Android real, gerar pacotes `v0.2.0` e atualizar o NexusVault.
 
-- [ ] **S10-01:** Executar suíte completa de testes automatizados (`dotnet test` + `flutter test` + `flutter analyze` exit 0).
-- [ ] **S10-02:** Gerar pacotes instaláveis `dist/command-bridge-v0.2.0-win-x64.zip` e `dist/command-app-v0.2.0-debug.apk` com hashes SHA-256.
-- [ ] **S10-03:** Executar bateria E2E ao vivo no emulador Pixel 9 (`emulator-5554`) validando temperaturas, bateria, sparklines, discos, serviços, top processos, alertas, multi-PC, latência e exportação de relatório.
-- [ ] **S10-04:** Salvar capturas em `docs/assets/emulator_v02_*.png`, atualizar `STATE.md`, sincronizar com o NexusVault (`01_Projetos/Command.md` e `NOW.md`) e realizar commit + push.
+- [x] **S10-01:** Executar suíte completa de testes automatizados (`dotnet test` + `flutter test` + `flutter analyze` exit 0).
+- [x] **S10-02:** Gerar pacotes instaláveis `dist/command-bridge-v0.2.0-win-x64.zip` e `dist/command-app-v0.2.0-debug.apk` com hashes SHA-256.
+- [x] **S10-03:** Executar bateria E2E ao vivo no emulador Pixel 9 (`emulator-5554`) validando temperaturas, bateria, sparklines, discos, serviços, top processos, alertas, multi-PC, latência e exportação de relatório.
+- [x] **S10-04:** Salvar capturas em `docs/assets/emulator_v02_*.png`, atualizar `STATE.md`, sincronizar com o NexusVault (`01_Projetos/Command.md` e `NOW.md`) e realizar commit + push.
 
 ---
 
@@ -193,4 +193,4 @@ flowchart TD
 - [x] **S7** — Mobile: Gestão de Múltiplos PCs (`PcProfileManager`)
 - [x] **S8** — Fullstack: Diagnóstico de Conectividade e Latência (Ping / RTT)
 - [x] **S9** — Mobile: Exportação de Relatório de Saúde Sanitizado
-- [ ] **S10** — QA/Release: Piloto E2E no Emulador Pixel 9, Pacotes `v0.2.0` e NexusVault
+- [x] **S10** — QA/Release: Piloto E2E no Emulador Pixel 9, Pacotes `v0.2.0` e NexusVault
