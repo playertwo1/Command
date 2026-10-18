@@ -48,6 +48,48 @@ namespace DroidDeck.Controllers
         }
 
         /// <summary>
+        /// Navega pelos subdiretórios e arquivos dentro das pastas autorizadas ('outbound' ou 'inbound').
+        /// Protegido rigorosamente contra path traversal e symlinks.
+        /// </summary>
+        [HttpGet("{rootId}/browse")]
+        public IActionResult BrowseDirectory([FromRoute] string rootId, [FromQuery] string? subPath)
+        {
+            var result = _transferService.BrowseDirectory(rootId, subPath, GetRequestingDeviceId());
+            if (!result.Success)
+            {
+                return result.ErrorCode switch
+                {
+                    "DIRECTORY_NOT_FOUND" => NotFound(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "PATH_TRAVERSAL" or "INVALID_PATH_PATTERN" or "RESERVED_FILENAME" or "INVALID_ROOT"
+                        => BadRequest(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "ACCESS_DENIED" => StatusCode(403, new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    _ => BadRequest(new { code = result.ErrorCode, message = result.ErrorMessage })
+                };
+            }
+
+            return Ok(new
+            {
+                rootId = result.RootId,
+                currentPath = result.CurrentPath,
+                items = result.Items
+            });
+        }
+
+        /// <summary>
+        /// Baixa um arquivo localizado em qualquer subpasta autorizada de 'outbound'.
+        /// </summary>
+        [HttpGet("{rootId}/download")]
+        public IActionResult DownloadFileByPath([FromRoute] string rootId, [FromQuery] string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return BadRequest(new { code = "EMPTY_PATH", message = "O parâmetro path é obrigatório." });
+            }
+
+            return DownloadFile(rootId, path);
+        }
+
+        /// <summary>
         /// Baixa um arquivo da raiz de saída com validação de caminho e hash SHA-256 no cabeçalho.
         /// </summary>
         [HttpGet("{rootId}/{fileName}")]

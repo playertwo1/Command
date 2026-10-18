@@ -30,4 +30,24 @@ namespace DroidDeck.Models
         public long SizeBytes { get; set; }
         public string Sha256 { get; set; } = string.Empty;
     }
+
+    public class DirectoryItemDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string RelativePath { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+        public DateTime ModifiedAtUtc { get; set; }
+        public string Extension { get; set; } = string.Empty;
+        public bool IsDirectory { get; set; }
+    }
+
+    public class DirectoryBrowseResult
+    {
+        public bool Success { get; set; }
+        public string ErrorCode { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; } = string.Empty;
+        public string RootId { get; set; } = string.Empty;
+        public string CurrentPath { get; set; } = string.Empty;
+        public List<DirectoryItemDto> Items { get; set; } = new();
+    }
 }

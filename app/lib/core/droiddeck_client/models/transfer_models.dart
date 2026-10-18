@@ -64,3 +64,72 @@ class FileDownloadData {
     required this.checksumSha256,
   });
 }
+
+class DirectoryBrowseItem {
+  final String name;
+  final String relativePath;
+  final int sizeBytes;
+  final DateTime modifiedAtUtc;
+  final String extension;
+  final bool isDirectory;
+
+  const DirectoryBrowseItem({
+    required this.name,
+    required this.relativePath,
+    required this.sizeBytes,
+    required this.modifiedAtUtc,
+    required this.extension,
+    required this.isDirectory,
+  });
+
+  factory DirectoryBrowseItem.fromJson(Map<String, dynamic> json) {
+    return DirectoryBrowseItem(
+      name: json['name'] as String? ?? '',
+      relativePath: json['relativePath'] as String? ?? '',
+      sizeBytes: (json['sizeBytes'] as num?)?.toInt() ?? 0,
+      modifiedAtUtc: json['modifiedAtUtc'] != null
+          ? DateTime.tryParse(json['modifiedAtUtc'].toString())?.toUtc() ?? DateTime.now().toUtc()
+          : DateTime.now().toUtc(),
+      extension: json['extension'] as String? ?? '',
+      isDirectory: json['isDirectory'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'relativePath': relativePath,
+    'sizeBytes': sizeBytes,
+    'modifiedAtUtc': modifiedAtUtc.toIso8601String(),
+    'extension': extension,
+    'isDirectory': isDirectory,
+  };
+
+  String get formattedSize {
+    if (isDirectory) return '';
+    if (sizeBytes < 1024) return '$sizeBytes B';
+    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
+    return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+}
+
+class DirectoryBrowseResult {
+  final String rootId;
+  final String currentPath;
+  final List<DirectoryBrowseItem> items;
+
+  const DirectoryBrowseResult({
+    required this.rootId,
+    required this.currentPath,
+    required this.items,
+  });
+
+  factory DirectoryBrowseResult.fromJson(Map<String, dynamic> json) {
+    final list = json['items'] as List<dynamic>? ?? [];
+    return DirectoryBrowseResult(
+      rootId: json['rootId'] as String? ?? '',
+      currentPath: json['currentPath'] as String? ?? '',
+      items: list.map((e) => DirectoryBrowseItem.fromJson(e as Map<String, dynamic>)).toList(),
+    );
+  }
+}
+

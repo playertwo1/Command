@@ -29,6 +29,7 @@ namespace DroidDeck
             services.AddSingleton<IAppCatalogService, AppCatalogService>();
             services.AddSingleton<IDesktopCaptureProvider, WindowsDesktopCaptureProvider>();
             services.AddSingleton<IScreenshotService, ScreenshotService>();
+            services.AddSingleton<IScreenStreamService, ScreenStreamService>();
             services.AddSingleton<ITransferService, TransferService>();
             services.AddSingleton<IWindowsServiceMonitor, WindowsServiceMonitor>();
             services.AddSingleton<ITopProcessesService, TopProcessesService>();

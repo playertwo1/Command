@@ -11,6 +11,9 @@ import '../services/health_alert_service.dart';
 import '../services/health_report_generator.dart';
 import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
+import '../desktop_stream/desktop_stream_controller.dart';
+import '../desktop_stream/desktop_live_stream_viewer.dart';
+import '../transfers/remote_file_manager_page.dart';
 
 /// Aba de Telemetria e Estado do PC (Command)
 class StatusPage extends StatefulWidget {
@@ -67,6 +70,7 @@ class _StatusPageState extends State<StatusPage> {
   int? _previousLatencyMs;
   bool _measuringLatency = false;
 
+  final DesktopStreamController _streamController = DesktopStreamController();
   late final HealthAlertService _healthAlertService;
 
   DroidDeckClient? get _client {
@@ -85,6 +89,12 @@ class _StatusPageState extends State<StatusPage> {
     _healthAlertService.loadThresholds();
     _loadPc();
     _loadAppsAndJobs();
+  }
+
+  @override
+  void dispose() {
+    _streamController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadPc() async {
@@ -2291,6 +2301,9 @@ class _StatusPageState extends State<StatusPage> {
                 ),
               ),
 
+              // Card de Streaming de Tela ao Vivo (Onda v0.3 - T2)
+              _buildLiveStreamCard(theme),
+
               const SizedBox(height: 12),
 
               // Card de Captura de Tela Manual (F5)
@@ -2468,6 +2481,35 @@ class _StatusPageState extends State<StatusPage> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildLiveStreamCard(ThemeData theme) {
+    final pc = _currentPc;
+    final client = _client;
+    String baseUrl = '';
+    if (pc != null && pc.ip.isNotEmpty) {
+      baseUrl = 'http://${pc.ip}:${pc.port}';
+    } else if (client != null) {
+      try {
+        baseUrl = client.baseUrl;
+      } catch (_) {
+        baseUrl = '';
+      }
+    }
+    String? apiKey = pc?.apiKey;
+    if (apiKey == null && client != null) {
+      try {
+        apiKey = client.apiKey;
+      } catch (_) {
+        apiKey = null;
+      }
+    }
+
+    return DesktopLiveStreamViewer(
+      controller: _streamController,
+      baseUrl: baseUrl,
+      apiKey: apiKey,
     );
   }
 
@@ -2700,6 +2742,20 @@ class _StatusPageState extends State<StatusPage> {
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.folder_open, size: 20, color: Color(0xFFA78BFA)),
+                  tooltip: tr('Explorador de Arquivos Remoto'),
+                  onPressed: () {
+                    final pc = _currentPc;
+                    final effectiveClient = _client ??
+                        DroidDeckClient(baseUrl: pc != null ? 'http://${pc.ip}:${pc.port}' : 'http://10.0.2.2:4787');
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => RemoteFileManagerPage(client: effectiveClient),
+                      ),
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh, size: 18),

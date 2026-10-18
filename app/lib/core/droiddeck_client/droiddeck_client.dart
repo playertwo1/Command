@@ -49,6 +49,9 @@ class DroidDeckClient {
     }
   }
 
+  /// Retorna a chave de API configurada no cliente, se houver.
+  String? get apiKey => _dio.options.headers['X-API-KEY'] as String?;
+
   Future<List<MixerEntity>> getOutputs() async {
     final response = await _dio.get('/api/v1/Mixer/out');
     return (response.data as List)
@@ -614,6 +617,37 @@ class DroidDeckClient {
     );
     final list = response.data as List<dynamic>;
     return list.map((e) => TransferItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Navega de forma segura pelos subdiretórios de 'outbound' ou 'inbound'.
+  Future<DirectoryBrowseResult> browseDirectory(String rootId, {String? subPath, String? deviceId}) async {
+    final response = await _dio.get(
+      '/api/transfers/$rootId/browse',
+      queryParameters: {
+        if (subPath != null && subPath.isNotEmpty) 'subPath': subPath,
+      },
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+    );
+    return DirectoryBrowseResult.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Baixa um arquivo localizado em subpastas de 'outbound'.
+  Future<FileDownloadData> downloadNestedFile(String relativePath, {String? deviceId}) async {
+    final response = await _dio.get<List<int>>(
+      '/api/transfers/outbound/download',
+      queryParameters: {'path': relativePath},
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: deviceId != null ? {'X-Device-Id': deviceId} : null,
+      ),
+    );
+    final sha256 = response.headers.value('X-Checksum-Sha256') ?? '';
+    final name = relativePath.split('/').last;
+    return FileDownloadData(
+      fileName: name,
+      bytes: Uint8List.fromList(response.data!),
+      checksumSha256: sha256,
+    );
   }
 
   /// Baixa um arquivo da pasta de saída do PC e retorna os bytes e hash SHA-256.

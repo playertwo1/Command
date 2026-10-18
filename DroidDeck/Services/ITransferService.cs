@@ -21,5 +21,6 @@ namespace DroidDeck.Services
             string? requestId = null);
 
         FileDownloadResult GetFileForDownload(string rootId, string fileName, string requestingDeviceId);
+        DirectoryBrowseResult BrowseDirectory(string rootId, string? subPath, string requestingDeviceId);
     }
 }

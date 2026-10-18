@@ -2,14 +2,16 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.2 — Saúde, Diagnóstico, Alertas e Multi-PC · **Estado:** ONDA v0.2 CONCLUÍDA COM SUCESSO (S0 a S10 - 100% PASS)
+**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.3 — Tela e Arquivos Avançados · **Estado:** ONDA v0.3 CONCLUÍDA COM SUCESSO (T0 a T7 - 100% PASS)
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
 - In-tree fork concluído com histórico preservado e mesclado no branch `main`.
-- **Pacotes Oficiais v0.2.0 e Documentação de Entrega:**
-  - `dist/command-bridge-v0.2.0-win-x64.zip` (SHA-256: `EC6E6F18FED36B4D9D09095620CE697ECF20AC30F13EE849069B31D7C59598E7`).
-  - `dist/command-app-v0.2.0-debug.apk` (SHA-256: `6C94C16574DF6539AD49E513C78DEF2534C523D93E50DAF0DB4076E4E3DFB827`).
+- **Pacotes Oficiais v0.3.0 e Documentação de Entrega:**
+  - `dist/command-bridge-v0.3.0-win-x64.zip` (SHA-256: `1843ad0f4d6636e57951d9d84dc52a9f2dbe6ca23f2459879311576a5d7263b7`).
+  - `dist/command-app-v0.3.0-debug.apk` (SHA-256: `a644199536cd25e2fef87a06ae517960c69fc6624325244da414392b9e6fda13`).
+- **Pacotes Anteriores (v0.2.0 e v0.1.0):**
+  - `dist/command-bridge-v0.2.0-win-x64.zip` / `dist/command-app-v0.2.0-debug.apk`
 - **Pacotes Oficiais v0.1.0 (Legado):**
   - `dist/command-bridge-v0.1.0-win-x64.zip` (SHA-256: `0E07436E4D310DD21C7E7CCA06FE3A55F3C1231F85524A62D9CFD85DDD4D32E7`).
   - `dist/command-app-v0.1.0-debug.apk` (SHA-256: `537D38913DB4E6DB36C85CFB85488C3BEC46B6F201AC2D3423E1DA649784E975`).
@@ -121,28 +123,29 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
   - Interface do Usuário: Botão de exportação na AppBar e Card de Diagnóstico do Sistema na `StatusPage` abrindo modal com preview do relatório, alternador Markdown/JSON, toggle de sanitização, botão de cópia com SnackBar e compartilhamento nativo via `SharePlus`.
   - Testes: 97/97 testes Flutter aprovados (`health_report_generator_test.dart`), 224/224 testes C# aprovados, `flutter analyze` exit 0 (Total: 321 testes aprovados).
 
-- ID: S10-E2E-VALIDATION-AND-RELEASE (2026-10-17)
-  - Suíte completa de testes automatizados: 224/224 testes C# (.NET 8) PASS, 97/97 testes Flutter PASS, `flutter analyze --no-fatal-infos` exit 0 (0 erros, 0 warnings).
+- ID: T7-RELEASE-V0.3.0-AND-E2E (2026-10-17)
+  - Suíte completa de testes automatizados: **241/241 testes C# (.NET 8) PASS**, **111/111 testes Flutter PASS** (Total: **352 testes automatizados PASS**), `flutter analyze --no-fatal-infos` exit 0 (0 erros, 0 avisos).
   - Pacotes oficiais gerados em `dist/`:
-    - `dist/command-bridge-v0.2.0-win-x64.zip` (SHA-256: `EC6E6F18FED36B4D9D09095620CE697ECF20AC30F13EE849069B31D7C59598E7`).
-    - `dist/command-app-v0.2.0-debug.apk` (SHA-256: `6C94C16574DF6539AD49E513C78DEF2534C523D93E50DAF0DB4076E4E3DFB827`).
-  - Validação E2E ao vivo no emulador Pixel 9 (`emulator-5554` / API 37) contra o Bridge Windows v0.2.0 em execução:
-    - Telemetria de CPU (com badge térmico N/D), RAM, GPU, Bateria (pill verde/roxa com indicador de carregamento) e múltiplos discos.
-    - Sparklines 60s em tempo real com curva translúcida Amethyst (`#A78BFA`) e Cyan (`#38BDF8`).
-    - Serviços Windows com badges semafóricos (`Active`, `Ausente`).
-    - Top Processos em fonte monoespaçada ordenados por Memória RAM (qemu, chatgpt, language_server, antigravity, msmpeng).
-    - Modal de Exportação de Diagnóstico (Fase S9) com preview Markdown e JSON sanitizados (IPs mascarados como `10.0.*.***`, zero chaves/tokens).
-    - Configurações de Limiares de Alerta (Fase S6) com sliders interativos de CPU, RAM, Temp, Disco, Bateria e Cooldown.
-    - Gerenciamento de múltiplos PCs pareados (Fase S7).
-    - Eliminação completa de overflow de layout (13px) no card do computador através de organização responsiva em Column vertical de badges.
-  - Evidências salvas em `docs/assets/emulator_v02_*.png` e sincronizadas em `NexusVault/90_Anexos/`.
+    - `dist/command-bridge-v0.3.0-win-x64.zip` (SHA-256: `1843ad0f4d6636e57951d9d84dc52a9f2dbe6ca23f2459879311576a5d7263b7`).
+    - `dist/command-app-v0.3.0-debug.apk` (SHA-256: `a644199536cd25e2fef87a06ae517960c69fc6624325244da414392b9e6fda13`).
+  - Entregas principais da Onda v0.3:
+    - **T0 & T1:** Streaming contínuo MJPEG (`GET /api/stream/desktop`), com lock de concorrência de 1 cliente, cancelamento cooperativo e frame informativo de bloqueio sem bypass de segurança do Windows.
+    - **T2:** Player móvel `DesktopLiveStreamViewer` na `StatusPage` com controle Play/Pause, badge dinâmico de FPS, dropdown de qualidade (Standard/Eco/Performance) e modo fullscreen zoom/pan.
+    - **T3 & T4:** Navegação e download hierárquico em sandbox (`outbound`/`inbound`) com proteção anti-traversal e symlink rejection, e gerenciador móvel `RemoteFileManagerPage` com breadcrumbs e integridade SHA-256.
+    - **T5:** Compartilhamento direto Android → PC via `ACTION_SEND` e `ACTION_SEND_MULTIPLE` com `ShareReceiverSheet` e limite de 100 MiB.
+    - **T6:** Editor de screenshots na `ScreenshotViewerPage` com retângulo de destaque, caneta livre, ações de desfazer/limpar e exportação não-destrutiva via `RepaintBoundary`.
+  - Validação E2E ao vivo realizada no emulador Pixel 9 Pro (`emulator-5554` / API 37):
+    - App v0.3.0 instalado e validado visualmente (`emulator_v03_status.png`).
+    - Navegação do Gerenciador de Arquivos Remoto validada ao vivo (`emulator_v03_file_manager.png`).
+    - Card de Live Stream renderizado e funcional (`emulator_v03_stream_files.png`).
+  - Evidências salvas em `docs/evidence/v0.3/` e `docs/assets/emulator_v03_*.png`, sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 
 ## Próxima ação
-- Onda v0.2 concluída com sucesso (100% das 11 fases aprovadas).
-- Apresentar relatório de encerramento da v0.2 ao usuário e aguardar definição para avanço à Onda v0.3 (Streaming de tela em tempo real e gerenciamento remoto de arquivos) conforme `ROADMAP.md` e `MANUAL_MVP.md`.
+- Onda v0.3 concluída com sucesso (100% das 8 fases aprovadas).
+- Apresentar relatório de encerramento da v0.3 ao usuário e iniciar planejamento da Onda v0.4 (Módulo Hermes IA ou Automação/Macros Encadeadas).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.2 (Fases S0 a S10): 100% CONCLUÍDA com sucesso.
+- Onda v0.1 (MVP), Onda v0.2 e Onda v0.3: 100% CONCLUÍDAS com sucesso.

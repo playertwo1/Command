@@ -239,19 +239,52 @@ namespace DroidDeck.Services
                 };
             }
 
-            var validation = ValidateFileName(fileName);
-            if (!validation.IsValid)
-            {
-                return new FileDownloadResult
-                {
-                    Success = false,
-                    ErrorCode = validation.ErrorCode,
-                    ErrorMessage = validation.ErrorMessage
-                };
-            }
+            string cleanName;
+            string targetPath;
 
-            string cleanName = validation.CleanFileName;
-            string targetPath = Path.Combine(_outboundRoot, cleanName);
+            if (fileName.Contains('/') || fileName.Contains('\\'))
+            {
+                var subValidation = ValidateSubPath(fileName);
+                if (!subValidation.IsValid)
+                {
+                    return new FileDownloadResult
+                    {
+                        Success = false,
+                        ErrorCode = subValidation.ErrorCode,
+                        ErrorMessage = subValidation.ErrorMessage
+                    };
+                }
+
+                string ext = Path.GetExtension(subValidation.NormalizedSubPath);
+                if (string.IsNullOrWhiteSpace(ext) || BlockedExtensions.Contains(ext))
+                {
+                    return new FileDownloadResult
+                    {
+                        Success = false,
+                        ErrorCode = "BLOCKED_EXTENSION",
+                        ErrorMessage = $"A extensão '{ext}' não é permitida por motivos de segurança."
+                    };
+                }
+
+                cleanName = Path.GetFileName(subValidation.NormalizedSubPath);
+                targetPath = Path.Combine(_outboundRoot, subValidation.NormalizedSubPath.Replace('/', Path.DirectorySeparatorChar));
+            }
+            else
+            {
+                var validation = ValidateFileName(fileName);
+                if (!validation.IsValid)
+                {
+                    return new FileDownloadResult
+                    {
+                        Success = false,
+                        ErrorCode = validation.ErrorCode,
+                        ErrorMessage = validation.ErrorMessage
+                    };
+                }
+
+                cleanName = validation.CleanFileName;
+                targetPath = Path.Combine(_outboundRoot, cleanName);
+            }
 
             if (!IsPathWithinDirectory(targetPath, _outboundRoot))
             {
@@ -299,6 +332,121 @@ namespace DroidDeck.Services
                 SizeBytes = fi.Length,
                 Sha256 = sha256,
                 ContentType = GetMimeType(cleanName)
+            };
+        }
+
+        public DirectoryBrowseResult BrowseDirectory(string rootId, string? subPath, string requestingDeviceId)
+        {
+            string baseRoot;
+            if (string.Equals(rootId, "outbound", StringComparison.OrdinalIgnoreCase))
+            {
+                baseRoot = _outboundRoot;
+            }
+            else if (string.Equals(rootId, "inbound", StringComparison.OrdinalIgnoreCase))
+            {
+                baseRoot = _inboundRoot;
+            }
+            else
+            {
+                return new DirectoryBrowseResult
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_ROOT",
+                    ErrorMessage = "Apenas as raízes 'outbound' e 'inbound' são autorizadas para navegação."
+                };
+            }
+
+            var pathValidation = ValidateSubPath(subPath);
+            if (!pathValidation.IsValid)
+            {
+                return new DirectoryBrowseResult
+                {
+                    Success = false,
+                    ErrorCode = pathValidation.ErrorCode,
+                    ErrorMessage = pathValidation.ErrorMessage
+                };
+            }
+
+            string relativeSubPath = pathValidation.NormalizedSubPath;
+            string targetDir = string.IsNullOrEmpty(relativeSubPath)
+                ? baseRoot
+                : Path.GetFullPath(Path.Combine(baseRoot, relativeSubPath.Replace('/', Path.DirectorySeparatorChar)));
+
+            if (!IsPathWithinDirectory(targetDir, baseRoot) && !string.Equals(targetDir, baseRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                return new DirectoryBrowseResult
+                {
+                    Success = false,
+                    ErrorCode = "PATH_TRAVERSAL",
+                    ErrorMessage = "Tentativa de navegação fora dos limites da raiz autorizada."
+                };
+            }
+
+            var dirInfo = new DirectoryInfo(targetDir);
+            if (!dirInfo.Exists)
+            {
+                return new DirectoryBrowseResult
+                {
+                    Success = false,
+                    ErrorCode = "DIRECTORY_NOT_FOUND",
+                    ErrorMessage = $"Diretório não encontrado: '{relativeSubPath}'."
+                };
+            }
+
+            if ((dirInfo.Attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return new DirectoryBrowseResult
+                {
+                    Success = false,
+                    ErrorCode = "ACCESS_DENIED",
+                    ErrorMessage = "Navegação em links simbólicos ou junções não é autorizada."
+                };
+            }
+
+            var items = new List<DirectoryItemDto>();
+
+            // Pastas
+            foreach (var di in dirInfo.EnumerateDirectories())
+            {
+                if ((di.Attributes & FileAttributes.ReparsePoint) != 0) continue;
+                if (di.Name.StartsWith(".")) continue;
+
+                string rel = string.IsNullOrEmpty(relativeSubPath) ? di.Name : $"{relativeSubPath}/{di.Name}";
+                items.Add(new DirectoryItemDto
+                {
+                    Name = di.Name,
+                    RelativePath = rel,
+                    SizeBytes = 0,
+                    ModifiedAtUtc = di.LastWriteTimeUtc,
+                    Extension = string.Empty,
+                    IsDirectory = true
+                });
+            }
+
+            // Arquivos
+            foreach (var fi in dirInfo.EnumerateFiles())
+            {
+                if ((fi.Attributes & FileAttributes.ReparsePoint) != 0) continue;
+                if (fi.Name.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase)) continue;
+
+                string rel = string.IsNullOrEmpty(relativeSubPath) ? fi.Name : $"{relativeSubPath}/{fi.Name}";
+                items.Add(new DirectoryItemDto
+                {
+                    Name = fi.Name,
+                    RelativePath = rel,
+                    SizeBytes = fi.Length,
+                    ModifiedAtUtc = fi.LastWriteTimeUtc,
+                    Extension = fi.Extension.ToLowerInvariant(),
+                    IsDirectory = false
+                });
+            }
+
+            return new DirectoryBrowseResult
+            {
+                Success = true,
+                RootId = rootId.ToLowerInvariant(),
+                CurrentPath = relativeSubPath,
+                Items = items.OrderByDescending(i => i.IsDirectory).ThenBy(i => i.Name).ToList()
             };
         }
 
@@ -379,6 +527,46 @@ namespace DroidDeck.Services
                 ".mp4" => "video/mp4",
                 _ => "application/octet-stream"
             };
+        }
+
+        private static (bool IsValid, string NormalizedSubPath, string ErrorCode, string ErrorMessage) ValidateSubPath(string? rawSubPath)
+        {
+            if (string.IsNullOrWhiteSpace(rawSubPath))
+            {
+                return (true, string.Empty, string.Empty, string.Empty);
+            }
+
+            string clean = rawSubPath.Trim().Replace('\\', '/');
+
+            // Rejeita traversal explícito e drives
+            if (clean.Contains("..") || clean.Contains(':') || clean.StartsWith("/"))
+            {
+                return (false, string.Empty, "PATH_TRAVERSAL", "Subcaminho contém sequências ou formato de traversal proibidos.");
+            }
+
+            // Cada segmento deve ser seguro
+            var segments = clean.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var segment in segments)
+            {
+                if (string.IsNullOrWhiteSpace(segment) || segment == "." || segment == "..")
+                {
+                    return (false, string.Empty, "PATH_TRAVERSAL", "Segmento de caminho inválido.");
+                }
+
+                if (!Regex.IsMatch(segment, @"^[a-zA-Z0-9_\-\. ]+$"))
+                {
+                    return (false, string.Empty, "INVALID_PATH_PATTERN", $"O segmento '{segment}' contém caracteres proibidos.");
+                }
+
+                string segWithoutExt = Path.GetFileNameWithoutExtension(segment).Trim();
+                if (ReservedWindowsNames.Contains(segWithoutExt) || ReservedWindowsNames.Contains(segment))
+                {
+                    return (false, string.Empty, "RESERVED_FILENAME", $"O segmento '{segment}' é um nome reservado do Windows.");
+                }
+            }
+
+            string normalized = string.Join('/', segments);
+            return (true, normalized, string.Empty, string.Empty);
         }
 
         private static void EnsureDirectoryExists(string dir)
