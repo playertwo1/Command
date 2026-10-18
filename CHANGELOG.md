@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0] — 2026-10-18 (Correção do Configurador Web Local e Empacotamento `wwwroot`)
+- **Correção de `401 Unauthorized` ao acessar `http://localhost:4787/`:**
+  - **Causa raiz:** Na distribuição `v1.0.0`, o diretório `wwwroot/` (contendo o build do configurador web em Flutter) não havia sido incluído no pacote publicado. Sem `wwwroot/index.html`, o `StaticFileMiddleware` não interceptava a rota `/` e a requisição caía no `FallbackPolicy` de autorização da API (`RequireAuthenticatedUser` via `X-API-KEY`), retornando `401 Unauthorized`.
+  - **Correção no Backend (`Program.cs` e `DroidDeck.csproj`):** Configuração explícita de `UseContentRoot` e `UseWebRoot(Path.Combine(contentRoot, "wwwroot"))` no `WebHostBuilder` (garantindo resolução correta mesmo quando iniciado fora do diretório do executável) e adição de `<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>` para `wwwroot\**`.
+  - **Automação de Build Web (`scripts/deploy-web.ps1`):** Detecção automática do SDK Flutter local homologado (`research/upstream/.tools/flutter`) e empacotamento completo de `wwwroot/` no artefato oficial `command-bridge-v1.1.0-win-x64.zip`.
+  - **Atualização de Versão:** Canal estável atualizado para `1.1.0` no `UpdateVerificationService`, `DroidDeck.csproj`, `app/pubspec.yaml` (`1.1.0+11`) e suíte de testes (`301/301 C# PASS`).
+
 ## [1.0.0] — 2026-10-18 (Release de Produção — Onda v1.0)
 - **Permissões Granulares por Dispositivo e Biometria/PIN (D-005):**
   - Implementação de política de segurança no Backend (`ISecurityPolicyService`, `SecurityPolicyService`) com controle de perfis (`FullControl` vs `ViewerOnly`) e auditoria de ações sanitizada em `SecurityAuditEntryDto`.

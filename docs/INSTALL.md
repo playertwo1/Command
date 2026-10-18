@@ -1,22 +1,22 @@
-# Guia de Instalação, Execução e Pareamento — Command v0.1.0
+# Guia de Instalação, Execução e Pareamento — Command v1.1.0
 
 Este guia descreve os procedimentos exatos para instalação, execução na sessão do usuário, configuração de firewall, pareamento, parada, revogação e desinstalação dos pacotes do Command.
 
 ---
 
-## 1. Pacotes Oficiais da Versão v0.1.0
+## 1. Pacotes Oficiais da Versão v1.1.0
 
-Os pacotes de teste foram gerados a partir do branch `main` (`1d7091d`):
+Os pacotes oficiais de produção foram gerados a partir do branch `main`:
 
 | Componente | Arquivo | Algoritmo | Hash Criptográfico |
 |---|---|---|---|
-| **Windows Bridge** | `dist/command-bridge-v0.1.0-win-x64.zip` | SHA-256 | `0E07436E4D310DD21C7E7CCA06FE3A55F3C1231F85524A62D9CFD85DDD4D32E7` |
-| **Android App** | `dist/command-app-v0.1.0-debug.apk` | SHA-256 | `537D38913DB4E6DB36C85CFB85488C3BEC46B6F201AC2D3423E1DA649784E975` |
+| **Windows Bridge (c/ Web Configurator `wwwroot/`)** | `dist/command-bridge-v1.1.0-win-x64.zip` | SHA-256 | `38e630aabfcde2b1400c0f8717b0c3b590ae3f8a5109b8973b6f1f627dd99aff` |
+| **Android App (Release)** | `dist/command-app-v1.1.0.apk` | SHA-256 | `56827877a0f2643354578730faa673358a64f08bdc73df829c10e135e7af7be8` |
 
 > [!NOTE]
 > Para verificar a integridade antes de instalar:
 > ```powershell
-> Get-FileHash dist\command-bridge-v0.1.0-win-x64.zip, dist\command-app-v0.1.0-debug.apk -Algorithm SHA256
+> Get-FileHash dist\command-bridge-v1.1.0-win-x64.zip, dist\command-app-v1.1.0.apk -Algorithm SHA256
 > ```
 
 ---
@@ -38,7 +38,7 @@ Os pacotes de teste foram gerados a partir do branch `main` (`1d7091d`):
 ## 3. Instalação e Execução do Windows Bridge
 
 ### Passo 1: Extração
-1. Descompacte `command-bridge-v0.1.0-win-x64.zip` em um diretório de sua escolha dentro do perfil de usuário (exemplo: `C:\Users\<usuario>\AppData\Local\Programs\CommandBridge` ou `C:\CommandBridge`).
+1. Descompacte `command-bridge-v1.1.0-win-x64.zip` mantendo toda a estrutura de pastas (incluindo a pasta `wwwroot/`, que contém o configurador web local servido em `http://localhost:4787/`) em um diretório de sua escolha (exemplo: `C:\Users\<usuario>\AppData\Local\Programs\CommandBridge` ou `C:\CommandBridge`).
 2. Não utilize pastas de sistema que exijam elevação de privilégios (`Program Files`).
 
 ### Passo 2: Execução

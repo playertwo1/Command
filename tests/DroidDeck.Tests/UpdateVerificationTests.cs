@@ -19,10 +19,10 @@ namespace DroidDeck.Tests
             var status = service.GetStatus();
 
             Assert.NotNull(status);
-            Assert.Equal("1.0.0", status.CurrentVersion);
+            Assert.Equal("1.1.0", status.CurrentVersion);
             Assert.Equal("stable", status.Channel);
             Assert.False(status.UpdateAvailable);
-            Assert.Equal("1.0.0", status.LatestVersion);
+            Assert.Equal("1.1.0", status.LatestVersion);
             Assert.True(status.IsVelopackReady);
             Assert.False(string.IsNullOrWhiteSpace(status.BinarySha256));
             Assert.True(status.CheckedAtUtc <= DateTime.UtcNow);
@@ -80,7 +80,7 @@ namespace DroidDeck.Tests
             var statusResult = controller.GetUpdateStatus();
             var okStatus = Assert.IsType<OkObjectResult>(statusResult.Result);
             var status = Assert.IsType<UpdateStatusDto>(okStatus.Value);
-            Assert.Equal("1.0.0", status.CurrentVersion);
+            Assert.Equal("1.1.0", status.CurrentVersion);
 
             // POST update/verify
             byte[] bytes = Encoding.UTF8.GetBytes("TestPackage");

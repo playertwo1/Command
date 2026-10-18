@@ -156,15 +156,19 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROADMAP_V1.0.md`.
 
-**Atualizado:** 2026-10-18 · **Marco ativo:** Onda v1.0 (Produção e Robustez Operacional) · **Estado:** ONDA v1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
+**Atualizado:** 2026-10-18 · **Marco ativo:** Release v1.1.0 (Produção e Configurador Web Integrado) · **Estado:** v1.1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
 - In-tree fork concluído com histórico preservado e mesclado no branch `main`.
-- **Pacotes Oficiais v1.0.0 e Documentação de Entrega:**
-  - `dist/command-bridge-v1.0.0-win-x64.zip` (SHA-256: `a2cf893ae36c0332769d51971d376d2372bdde64bc9b1c9dfd59f63a200b3593`).
-  - `dist/command-app-v1.0.0-debug.apk` (SHA-256: `814777662bd42c6173c4df78877bb3fb80530f1501398ecdc40bd0c2f2fa8600`).
-  - `dist/SHA256SUMS-v1.0.0.txt` gerado e salvo.
+- **Pacotes Oficiais v1.1.0 e Documentação de Entrega:**
+  - `dist/command-bridge-v1.1.0-win-x64.zip` (SHA-256: `38e630aabfcde2b1400c0f8717b0c3b590ae3f8a5109b8973b6f1f627dd99aff`).
+  - `dist/command-app-v1.1.0.apk` (SHA-256: `56827877a0f2643354578730faa673358a64f08bdc73df829c10e135e7af7be8`).
+  - `dist/SHA256SUMS-v1.1.0.txt` gerado e salvo.
+- **Correção v1.1.0 (Configurador Web `http://localhost:4787/` — Fix `401 Unauthorized`):**
+  - Empacotamento completo de `wwwroot/` (Flutter Web Configurator) no `command-bridge-v1.1.0-win-x64.zip` e inclusão de `<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>` em `DroidDeck.csproj`.
+  - Configuração explícita de `UseContentRoot` e `UseWebRoot` em `Program.cs` para resolução determinística do `wwwroot/` mesmo quando o executável é iniciado fora do seu diretório.
+  - Detecção automática do SDK Flutter local em `scripts/deploy-web.ps1`.
 - **Entregas Principais da Onda v1.0:**
   - **Fase P0 (Permissões Granulares por Dispositivo, Auditoria e Biometria/PIN - D-005):**
     - Backend: `SecurityPolicyService` gerenciando roles (`FullControl` vs `ViewerOnly`), bloqueio de mutações com log de auditoria sanitizado em `SecurityAuditEntryDto`. Controller `/api/security` e `/api/v1/security`.
@@ -173,11 +177,11 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
     - Backend: `EncryptedBackupService` derivando chave de 256 bits via PBKDF2-SHA256 (100.000 iterações), nonce de 12 bytes, tag GCM de 16 bytes e checksum de integridade SHA-256. Controller `/api/backup/encrypted`.
     - Mobile: `EncryptedBackupSheet` com exportação e importação de envelope JSON com validação de senha e checksum.
   - **Fase P2 (Verificação Segura de Atualizações e Integridade Velopack):**
-    - Backend: `UpdateVerificationService` expondo status de release v1.0.0 estável e validação criptográfica de payloads SHA-256. Controller `/api/system/update`.
+    - Backend: `UpdateVerificationService` expondo status de release v1.1.0 estável e validação criptográfica de payloads SHA-256. Controller `/api/system/update`.
     - Mobile: `SecurityCenterCard` com consulta de versão, status e validação visual de integridade.
   - **Fase P3 (Autodiagnóstico de Estabilidade e Recursos da Bridge):**
     - Backend: `SystemStabilityMonitor` monitorando WorkingSet RAM, Handles Win32, Threads ativas e Uptime com classificação de saúde (`Healthy`/`Warning`). Endpoint `/api/system/stability`.
-  - **Fase P4 (Homologação Final, Pacotes v1.0.0 e Maestro E2E):**
+  - **Fase P4 (Homologação Final, Pacotes e Maestro E2E):**
     - 301 testes C# (.NET 8) PASS (0 falhas).
     - 160 testes Flutter PASS (0 falhas), `flutter analyze --no-fatal-infos` exit 0 (Total: 461 testes automatizados PASS).
     - Fluxo Maestro `flow_command_v10.yaml` executado no emulador `Pixel_9` com sucesso e evidência capturada em `docs/evidence/v1.0/emulator_v10_status.png`.
@@ -189,9 +193,8 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
 - Maestro E2E (`flow_command_v10.yaml`): 100% COMPLETED no emulador Pixel 9.
 
 ## Próxima ação
-- Versão de Produção v1.0.0 consolidada e homologada.
-- Sincronizar NexusVault e executar commit + push no GitHub privado.
+- Versão de Produção v1.1.0 consolidada, homologada e publicada no GitHub (`command-v1.1.0`).
 
 ## Bloqueios e aprovações humanas
-- Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário.
-- Onda v1.0: 100% CONCLUÍDA com sucesso.
+- Push remoto e publicação da release v1.1.0: AUTORIZADO pelo proprietário.
+- Release v1.1.0: 100% CONCLUÍDA com sucesso.

@@ -54,10 +54,14 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 | **P2** | Verificador Seguro de Atualização (Velopack & SHA-256) | PASS | Integrado | `UpdateVerificationTests.cs`, `security_center_test.dart` |
 | **P3** | Autodiagnóstico de Estabilidade de Longa Duração (RAM/Handles/Threads) | PASS | Integrado | `SystemStabilityTests.cs` |
 | **P4** | Release v1.0.0 e Homologação Maestro E2E no Pixel 9 | PASS | 100% PASS (461 testes) | `e2e_maestro/flow_command_v10.yaml`, `docs/assets/emulator_v10_status.png` |
+| **v1.1.0** | Correção do Configurador Web Local (`http://localhost:4787/`) e Empacotamento `wwwroot/` | PASS | 100% PASS (461 testes) | `Program.cs`, `DroidDeck.csproj`, `scripts/deploy-web.ps1` |
 
-- **Artefatos Oficiais de Produção v1.0.0:**
+- **Artefatos Oficiais de Produção v1.1.0:**
+  - `dist/command-bridge-v1.1.0-win-x64.zip` (SHA-256: `38e630aabfcde2b1400c0f8717b0c3b590ae3f8a5109b8973b6f1f627dd99aff`)
+  - `dist/command-app-v1.1.0.apk` (SHA-256: `56827877a0f2643354578730faa673358a64f08bdc73df829c10e135e7af7be8`)
+  - `dist/SHA256SUMS-v1.1.0.txt`
+
+- **Artefatos Anteriores v1.0.0:**
   - `dist/command-bridge-v1.0.0-win-x64.zip` (SHA-256: `a2cf893ae36c0332769d51971d376d2372bdde64bc9b1c9dfd59f63a200b3593`)
   - `dist/command-app-v1.0.0-debug.apk` (SHA-256: `814777662bd42c6173c4df78877bb3fb80530f1501398ecdc40bd0c2f2fa8600`)
   - `dist/SHA256SUMS-v1.0.0.txt`
-
-

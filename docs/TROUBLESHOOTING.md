@@ -1,10 +1,16 @@
 # Guia de Diagnóstico e Limitações — Command (Troubleshooting)
 
-Este documento reúne diagnósticos, resoluções de problemas comuns e limites operacionais do sistema Command v0.1.0 (Android e Windows Bridge).
+Este documento reúne diagnósticos, resoluções de problemas comuns e limites operacionais do sistema Command v1.1.0 (Android e Windows Bridge).
 
 ---
 
-## 1. Conectividade e Rede
+## 1. Conectividade, Rede e Configurador Web
+
+### Sintoma: Ao abrir `http://localhost:4787/` no navegador do PC, retorna `401 Unauthorized`
+- **Causa:** A pasta `wwwroot` (que contém os arquivos estáticos do configurador web em Flutter, incluindo `index.html`) não está presente ao lado do executável `DroidDeck.exe` (problema presente no pacote inicial `v1.0.0` ou quando os arquivos são extraídos parcialmente). Sem o `wwwroot/index.html`, o `StaticFileMiddleware` não atende a requisição `/` e ela cai na política padrão da API (`FallbackPolicy`), que exige o cabeçalho `X-API-KEY` e retorna `401 Unauthorized`.
+- **Solução (corrigido na v1.1.0):**
+  1. Utilize o pacote oficial **`command-bridge-v1.1.0-win-x64.zip`**, que já inclui a pasta `wwwroot/` completa e configura explicitamente o `WebRootPath` no `Program.cs`.
+  2. Caso esteja compilando do código-fonte, execute `.\scripts\deploy-web.ps1` antes de rodar ou publicar o backend para gerar e copiar o build web (`app/build/web`) para `DroidDeck/wwwroot`, e reinicie o `DroidDeck.exe`.
 
 ### Sintoma: Aplicativo exibe badge vermelho "Offline" ou banner "Command Bridge Desconectado"
 - **Causas prováveis:**

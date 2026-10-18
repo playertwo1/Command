@@ -13,10 +13,10 @@ namespace DroidDeck.Services
         public UpdateStatusDto GetStatus()
         {
             return new UpdateStatusDto(
-                CurrentVersion: "1.0.0",
+                CurrentVersion: "1.1.0",
                 Channel: "stable",
                 UpdateAvailable: false,
-                LatestVersion: "1.0.0",
+                LatestVersion: "1.1.0",
                 IsVelopackReady: true,
                 BinarySha256: CachedBinarySha256,
                 CheckedAtUtc: DateTime.UtcNow
@@ -71,7 +71,7 @@ namespace DroidDeck.Services
                 // Fallback gracioso
             }
 
-            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("Command-DroidDeck-v1.0.0"))).ToLowerInvariant();
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("Command-DroidDeck-v1.1.0"))).ToLowerInvariant();
         }
     }
 }

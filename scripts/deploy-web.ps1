@@ -4,10 +4,20 @@ $root = Split-Path -Parent $PSScriptRoot          # repo root (parent of scripts
 $app = Join-Path $root 'app'
 $wwwroot = Join-Path $root 'DroidDeck\wwwroot'
 
+$flutterCmd = "flutter"
+$localFlutter = Join-Path $root 'research\upstream\.tools\flutter\bin\flutter.bat'
+if (-not (Get-Command $flutterCmd -ErrorAction SilentlyContinue) -and (Test-Path $localFlutter)) {
+    $flutterCmd = $localFlutter
+}
+$localPubCache = Join-Path $root 'research\upstream\.tools\pub-cache-flutter'
+if ((Test-Path $localPubCache) -and -not $env:PUB_CACHE) {
+    $env:PUB_CACHE = $localPubCache
+}
+
 Write-Host "Building Flutter web in $app ..."
 Push-Location $app
 # Sem service worker é tratado no web/index.html (não registra + desregistra SW antigo).
-flutter build web --release   # warnings vão pro stderr; checamos o exit code
+& $flutterCmd build web --release   # warnings vão pro stderr; checamos o exit code
 $code = $LASTEXITCODE
 Pop-Location
 if ($code -ne 0) { Write-Error "flutter build web failed (exit $code)"; exit 1 }

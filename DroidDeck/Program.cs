@@ -139,6 +139,8 @@ namespace DroidDeck
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseContentRoot(contentRoot)
+                              .UseWebRoot(Path.Combine(contentRoot, "wwwroot"));
                     webBuilder.ConfigureServices(services =>
                     {
                         // Variáveis de app/versão
