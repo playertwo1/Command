@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_status_pc">Status do PC</string>
+    <string name="shortcut_status_pc_long">Ver telemetria e status do PC</string>
+    <string name="shortcut_capture_screen">Capturar Tela</string>
+    <string name="shortcut_capture_screen_long">Capturar tela do monitor principal</string>
+    <string name="shortcut_work_mode">Modo Trabalho</string>
+    <string name="shortcut_work_mode_long">Ativar rotina Modo Trabalho</string>
+    <string name="shortcut_wake_on_lan">Wake-on-LAN</string>
+    <string name="shortcut_wake_on_lan_long">Ligar PC via pacote mágico UDP</string>
+</resources>

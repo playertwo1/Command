@@ -18,6 +18,12 @@ import 'models/transfer_models.dart';
 export 'models/transfer_models.dart';
 import 'models/diagnostics_models.dart';
 export 'models/diagnostics_models.dart';
+import 'models/hermes_models.dart';
+export 'models/hermes_models.dart';
+import 'models/routine_models.dart';
+export 'models/routine_models.dart';
+import 'models/power_models.dart';
+export 'models/power_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -724,6 +730,115 @@ class DroidDeckClient {
         ? response.data as Map<String, dynamic>
         : <String, dynamic>{};
     return PingResult.fromJson(map, latencyMs);
+  }
+
+  /// Consulta o status e configuração do módulo Hermes IA (Onda v0.4 - H1/H2).
+  Future<HermesConfigData> getHermesStatus() async {
+    final response = await _dio.get('/api/hermes/status');
+    return HermesConfigData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Atualiza as configurações do módulo Hermes IA (Onda v0.4 - H1/H2).
+  Future<HermesConfigData> updateHermesConfig({
+    required bool enabled,
+    String? endpointUrl,
+    String? modelName,
+    String? apiKey,
+  }) async {
+    final response = await _dio.post(
+      '/api/hermes/config',
+      data: {
+        'enabled': enabled,
+        if (endpointUrl != null) 'endpointUrl': endpointUrl,
+        if (modelName != null) 'modelName': modelName,
+        if (apiKey != null) 'apiKey': apiKey,
+      },
+    );
+    return HermesConfigData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Envia um prompt com telemetria sanitizada para análise assistiva do Hermes (Onda v0.4 - H1/H3).
+  Future<HermesAnalyzeResult> analyzeWithHermes({
+    required String prompt,
+    bool includeTelemetry = true,
+    bool includeTopProcesses = true,
+    String? screenshotId,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/hermes/analyze',
+      data: {
+        'prompt': prompt,
+        'includeTelemetry': includeTelemetry,
+        'includeTopProcesses': includeTopProcesses,
+        if (screenshotId != null) 'screenshotId': screenshotId,
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+    );
+    return HermesAnalyzeResult.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Lista todas as rotinas e modos de ambiente configurados no PC (Onda v0.5 - M1/M2).
+  Future<List<RoutineDefinitionData>> getRoutines() async {
+    final response = await _dio.get('/api/routines');
+    return (response.data as List)
+        .map((e) => RoutineDefinitionData.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Salva ou atualiza uma rotina customizada no PC (Onda v0.5 - M2).
+  Future<RoutineDefinitionData> saveRoutine(RoutineDefinitionData routine) async {
+    final response = await _dio.post(
+      '/api/routines',
+      data: routine.toJson(),
+    );
+    return RoutineDefinitionData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Remove uma rotina customizada do PC (Onda v0.5 - M2).
+  Future<void> deleteRoutine(String id) async {
+    await _dio.delete('/api/routines/$id');
+  }
+
+  /// Executa uma rotina passo a passo com confirmação obrigatória (Onda v0.5 - M1/M2).
+  Future<RoutineExecutionResult> executeRoutine(
+    String id, {
+    bool confirmed = true,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/routines/$id/execute',
+      queryParameters: {
+        'confirmed': confirmed,
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+    );
+    return RoutineExecutionResult.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Obtém informações de rede física e MAC Address do PC para Wake-on-LAN (Onda v0.6 - W0).
+  Future<NetworkWakeInfo> getWakeInfo() async {
+    final response = await _dio.get('/api/power/wake-info');
+    return NetworkWakeInfo.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Executa ações seguras de sessão e energia (lock, sleep) com confirmação explícita (Onda v0.6 - W1).
+  Future<PowerActionResult> executePowerAction({
+    required String action,
+    required bool confirmed,
+    String? requestId,
+    String? deviceId,
+  }) async {
+    final response = await _dio.post(
+      '/api/power/action',
+      data: {
+        'action': action,
+        'confirmed': confirmed,
+        if (requestId != null) 'requestId': requestId,
+        if (deviceId != null) 'deviceId': deviceId,
+      },
+    );
+    return PowerActionResult.fromJson(response.data as Map<String, dynamic>);
   }
 }
 

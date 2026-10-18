@@ -36,3 +36,17 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 - [x] Estados offline, erro, carregamento, confirmação e sucesso final conferidos (Banner de reconexão transparente, sem retry automático em mutações, dicas acionáveis para falhas).
 - [x] Acessibilidade, contraste e alvos de toque verificados (remoção de controles não entregues como backup e macros).
 - Aceite visual humano: **PASS (Evidências no emulador Pixel 9 / API 37 em docs/assets/emulator_f7_*.png)**.
+
+## Ondas v0.4, v0.5 e v0.6 — Entregas e Gates Técnicos
+
+| Onda | Entrega | Status | Testes | Evidência |
+|---|---|---|---|---|
+| **v0.4** | Módulo Hermes IA Opcional, Sanitização de Dados e Console Assistivo | PASS | 251 C# / 123 Flutter PASS | `ROADMAP_V0.4.md`, `HermesSanitizerTests.cs`, `HermesServiceTests.cs`, `hermes_*_test.dart` |
+| **v0.5** | Automação, Perfis de Workspace e Macros Encadeadas | PASS | 261 C# / 130 Flutter PASS | `ROADMAP_V0.5.md`, `RoutineServiceTests.cs`, `WebhookNotificationServiceTests.cs`, `workspace_routines_test.dart` |
+| **v0.6** | Mobilidade Expandida, Wake-on-LAN, Energia e Modo Dock | PASS | 268 C# / 145 Flutter PASS | `ROADMAP_V0.6.md`, `PowerControlTests.cs`, `power_control_ui_test.dart`, `wake_on_lan_test.dart`, `dock_mode_test.dart` |
+
+- **Artefatos Oficiais v0.6.0:**
+  - `dist/command-bridge-v0.6.0-win-x64.zip` (SHA-256: `a4b72463b0598d4f57cb54eae3cd2fb7f95cf63ab2a1e6b43337c5ee70c8d3f2`)
+  - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`)
+  - `dist/SHA256SUMS-v0.6.0.txt`
+

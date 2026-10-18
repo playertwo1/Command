@@ -2,15 +2,16 @@
 
 Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
 
-**Atualizado:** 2026-10-17 · **Marco ativo:** Onda v0.3 — Tela e Arquivos Avançados · **Estado:** ONDA v0.3 CONCLUÍDA COM SUCESSO (T0 a T7 - 100% PASS)
+**Atualizado:** 2026-10-18 · **Marco ativo:** Ondas v0.4, v0.5 e v0.6 · **Estado:** ONDAS v0.4, v0.5 e v0.6 CONCLUÍDAS COM SUCESSO (100% PASS - 413 testes)
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
 - In-tree fork concluído com histórico preservado e mesclado no branch `main`.
-- **Pacotes Oficiais v0.3.0 e Documentação de Entrega:**
-  - `dist/command-bridge-v0.3.0-win-x64.zip` (SHA-256: `1843ad0f4d6636e57951d9d84dc52a9f2dbe6ca23f2459879311576a5d7263b7`).
-  - `dist/command-app-v0.3.0-debug.apk` (SHA-256: `a644199536cd25e2fef87a06ae517960c69fc6624325244da414392b9e6fda13`).
-- **Pacotes Anteriores (v0.2.0 e v0.1.0):**
+- **Pacotes Oficiais v0.6.0 e Documentação de Entrega:**
+  - `dist/command-bridge-v0.6.0-win-x64.zip` (SHA-256: `a4b72463b0598d4f57cb54eae3cd2fb7f95cf63ab2a1e6b43337c5ee70c8d3f2`).
+  - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`).
+- **Pacotes Anteriores (v0.3.0, v0.2.0 e v0.1.0):**
+  - `dist/command-bridge-v0.3.0-win-x64.zip` / `dist/command-app-v0.3.0-debug.apk`
   - `dist/command-bridge-v0.2.0-win-x64.zip` / `dist/command-app-v0.2.0-debug.apk`
 - **Pacotes Oficiais v0.1.0 (Legado):**
   - `dist/command-bridge-v0.1.0-win-x64.zip` (SHA-256: `0E07436E4D310DD21C7E7CCA06FE3A55F3C1231F85524A62D9CFD85DDD4D32E7`).
@@ -140,12 +141,23 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - Card de Live Stream renderizado e funcional (`emulator_v03_stream_files.png`).
   - Evidências salvas em `docs/evidence/v0.3/` e `docs/assets/emulator_v03_*.png`, sincronizadas no NexusVault (`90_Anexos/` e `01_Projetos/Command.md`).
 
+- ID: W4-RELEASE-V0.6.0-AND-ONDAS-V04-V05-V06 (2026-10-18)
+  - Execução completa e orquestrada das Ondas v0.4, v0.5 e v0.6 via arquitetura Diretor + Trabalhadores Flash (Gemini 3.8 Flash):
+    - **Onda v0.4 (Módulo Hermes IA Opcional):** Backend (`HermesContextSanitizer`, `HermesService`, `HermesController`), Frontend (`HermesConfigSheet`, `HermesAssistantPage`, `QuickCommandBar`). Sanitização estrita de dados privados e validação de allowlist com confirmação humana obrigatória. Suíte: 251 C# / 123 Flutter PASS.
+    - **Onda v0.5 (Automação, Perfis e Macros Encadeadas):** Backend (`RoutineService`, `WebhookNotificationService`, `RoutinesController`), Frontend (`WorkspaceRoutinesCard`, `RoutineBuilderPage`). Execução sequencial com delay e HMAC-SHA256. Suíte: 261 C# / 130 Flutter PASS.
+    - **Onda v0.6 (Mobilidade Expandida, WoL, Energia e Dock Mode):** Backend (`PowerControlService`, `PowerController` com Win32 `LockWorkStation` e `SetSuspendState`), Frontend (`WakeOnLanService`, `PowerControlCard`, `DockDashboardPage`, `MobileNotificationService`, Android App Shortcuts `shortcuts.xml`). Suíte: 268 C# / 145 Flutter PASS.
+  - Suíte consolidada: **268/268 testes C# (.NET 8) PASS**, **145/145 testes Flutter PASS** (Total: **413 testes automatizados PASS**), `flutter analyze --no-fatal-infos` exit 0 (0 erros, 0 avisos).
+  - Pacotes Oficiais v0.6.0 gerados em `dist/`:
+    - `dist/command-bridge-v0.6.0-win-x64.zip` (SHA-256: `a4b72463b0598d4f57cb54eae3cd2fb7f95cf63ab2a1e6b43337c5ee70c8d3f2`).
+    - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`).
+    - `dist/SHA256SUMS-v0.6.0.txt` gerado e salvo.
+
 ## Próxima ação
-- Onda v0.3 concluída com sucesso (100% das 8 fases aprovadas).
-- Apresentar relatório de encerramento da v0.3 ao usuário e iniciar planejamento da Onda v0.4 (Módulo Hermes IA ou Automação/Macros Encadeadas).
+- Ondas v0.4, v0.5 e v0.6 concluídas com sucesso (100% de todas as fases aprovadas).
+- Apresentar fechamento ao usuário e iniciar planejamento da Onda v1.0 (Robustez Operacional, Auto-update seguro e empacotamento).
 
 ## Bloqueios e aprovações humanas
 - Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
 - D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
 - Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.1 (MVP), Onda v0.2 e Onda v0.3: 100% CONCLUÍDAS com sucesso.
+- Onda v0.1 (MVP), Onda v0.2, Onda v0.3, Onda v0.4, Onda v0.5 e Onda v0.6: 100% CONCLUÍDAS com sucesso.

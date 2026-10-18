@@ -71,11 +71,13 @@ class AnnotationPainter extends CustomPainter {
 class ScreenshotViewerPage extends StatefulWidget {
   final ScreenshotInfo info;
   final Uint8List imageBytes;
+  final VoidCallback? onAskHermes;
 
   const ScreenshotViewerPage({
     super.key,
     required this.info,
     required this.imageBytes,
+    this.onAskHermes,
   });
 
   @override
@@ -201,6 +203,12 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
           ],
         ),
         actions: [
+          if (widget.onAskHermes != null)
+            IconButton(
+              icon: const Icon(Icons.auto_awesome, color: Color(0xFFA78BFA)),
+              tooltip: 'Analisar com Hermes IA',
+              onPressed: widget.onAskHermes,
+            ),
           if (hasAnnotations) ...[
             IconButton(
               icon: const Icon(Icons.undo),

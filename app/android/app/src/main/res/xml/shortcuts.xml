@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="status_pc"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_status_pc"
+        android:shortcutLongLabel="@string/shortcut_status_pc_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="br.com.guimaraesdona.companion"
+            android:targetClass="br.com.guimaraesdona.companion.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="capture_screen"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_capture_screen"
+        android:shortcutLongLabel="@string/shortcut_capture_screen_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="br.com.guimaraesdona.companion"
+            android:targetClass="br.com.guimaraesdona.companion.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="work_mode"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_work_mode"
+        android:shortcutLongLabel="@string/shortcut_work_mode_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="br.com.guimaraesdona.companion"
+            android:targetClass="br.com.guimaraesdona.companion.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="wake_on_lan"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_wake_on_lan"
+        android:shortcutLongLabel="@string/shortcut_wake_on_lan_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="br.com.guimaraesdona.companion"
+            android:targetClass="br.com.guimaraesdona.companion.MainActivity" />
+    </shortcut>
+</shortcuts>
