@@ -8,6 +8,7 @@ namespace DroidDeck.Services
     public interface IRoutineService
     {
         IReadOnlyList<RoutineDefinitionDto> GetRoutines();
+        IReadOnlyList<RoutineDefinitionDto> GetCustomRoutines();
         RoutineDefinitionDto? GetRoutine(string id);
         RoutineDefinitionDto SaveCustomRoutine(RoutineDefinitionDto routine);
         bool DeleteCustomRoutine(string id);

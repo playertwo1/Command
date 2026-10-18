@@ -24,6 +24,8 @@ import 'models/routine_models.dart';
 export 'models/routine_models.dart';
 import 'models/power_models.dart';
 export 'models/power_models.dart';
+import 'models/security_update_models.dart';
+export 'models/security_update_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -840,5 +842,78 @@ class DroidDeckClient {
     );
     return PowerActionResult.fromJson(response.data as Map<String, dynamic>);
   }
+
+  /// Lista todas as permissões RBAC de dispositivos conhecidos (Onda P0).
+  Future<List<DevicePermissionModel>> getSecurityDevices() async {
+    final response = await _dio.get('/api/v1/security/devices');
+    final data = response.data;
+    if (data is List) {
+      return data
+          .map((e) => DevicePermissionModel.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    }
+    return [];
+  }
+
+  /// Define a role RBAC de um dispositivo (ex: admin, operator, viewer) (Onda P0).
+  Future<DevicePermissionModel> setDeviceRole(String deviceId, String role) async {
+    final response = await _dio.post(
+      '/api/v1/security/devices/role',
+      data: {'deviceId': deviceId, 'role': role},
+    );
+    return DevicePermissionModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// Obtém o log de auditoria de segurança (Onda P0).
+  Future<List<SecurityAuditEntryModel>> getSecurityAudit({int limit = 100}) async {
+    final response = await _dio.get(
+      '/api/v1/security/audit',
+      queryParameters: {'limit': limit},
+    );
+    final data = response.data;
+    if (data is List) {
+      return data
+          .map((e) => SecurityAuditEntryModel.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    }
+    return [];
+  }
+
+  /// Exporta backup criptografado com chave derivada por PBKDF2/Argon2 e AES-GCM (Onda P1).
+  Future<EncryptedBackupEnvelopeModel> exportEncryptedBackup(String passphrase) async {
+    final response = await _dio.post(
+      '/api/v1/backup/encrypted/export',
+      data: {'passphrase': passphrase},
+    );
+    return EncryptedBackupEnvelopeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// Restaura dados a partir de um envelope criptografado validado (Onda P1).
+  Future<EncryptedBackupRestoreResultModel> restoreEncryptedBackup(
+    EncryptedBackupEnvelopeModel envelope,
+    String passphrase,
+  ) async {
+    final response = await _dio.post(
+      '/api/v1/backup/encrypted/restore',
+      data: {
+        'passphrase': passphrase,
+        'envelope': envelope.toJson(),
+      },
+    );
+    return EncryptedBackupRestoreResultModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// Consulta o status de atualizações e canal do sistema (Onda P2).
+  Future<UpdateStatusModel> getUpdateStatus() async {
+    final response = await _dio.get('/api/v1/system/update/status');
+    return UpdateStatusModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// Obtém métricas de estabilidade e integridade da bridge (Onda P2).
+  Future<SystemStabilityModel> getSystemStability() async {
+    final response = await _dio.get('/api/v1/system/stability');
+    return SystemStabilityModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
 }
+
 

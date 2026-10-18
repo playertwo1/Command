@@ -37,6 +37,10 @@ namespace DroidDeck
             services.AddSingleton<IWebhookNotificationService, WebhookNotificationService>();
             services.AddSingleton<IRoutineService, RoutineService>();
             services.AddSingleton<IPowerControlService, PowerControlService>();
+            services.AddSingleton<ISecurityPolicyService, SecurityPolicyService>();
+            services.AddSingleton<IEncryptedBackupService, EncryptedBackupService>();
+            services.AddSingleton<IUpdateVerificationService, UpdateVerificationService>();
+            services.AddSingleton<ISystemStabilityMonitor, SystemStabilityMonitor>();
             services.AddHostedSingleton<TimerService>();
             services.AddHostedSingleton<InfoService>();
             services.AddHostedSingleton<ForegroundWatcher>();

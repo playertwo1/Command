@@ -19,6 +19,7 @@ import '../hermes/hermes_assistant_page.dart';
 import '../hermes/quick_command_bar.dart';
 import '../routines/workspace_routines_card.dart';
 import '../power/power_control_card.dart';
+import '../security/security_center_card.dart';
 import '../dock/dock_dashboard_page.dart';
 
 /// Aba de Telemetria e Estado do PC (Command)
@@ -2322,6 +2323,13 @@ class _StatusPageState extends State<StatusPage> {
                     ),
                   );
                 },
+              ),
+
+              const SizedBox(height: 12),
+
+              // Centro de Segurança e Integridade (Onda v1.0 - P0/P1/P2)
+              SecurityCenterCard(
+                client: _client,
               ),
 
               const SizedBox(height: 12),

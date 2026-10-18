@@ -1,0 +1,30 @@
+appId: br.com.guimaraesdona.companion
+---
+# Fluxo E2E Maestro — Validação Command v1.0.0 (Onda v1.0)
+- launchApp:
+    clearState: false
+
+# Verifica visibilidade das abas principais
+- assertVisible: ".*Status.*"
+- assertVisible: ".*Deck.*"
+- assertVisible: ".*Audio.*"
+
+# Navega para a aba Deck e valida
+- tapOn:
+    text: ".*Deck.*"
+- assertVisible: ".*Deck.*"
+
+# Navega para a aba Audio e valida
+- tapOn:
+    text: ".*Audio.*"
+- assertVisible: ".*Audio.*"
+
+# Retorna para a aba Status
+- tapOn:
+    text: ".*Status.*"
+- assertVisible: ".*Status.*"
+
+# Rola para baixo para inspecionar cards de rotinas, controle de sessão e Centro de Segurança
+- scroll
+- scroll
+- scroll

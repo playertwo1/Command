@@ -143,6 +143,11 @@ namespace DroidDeck.Services
             return _routines.Values.OrderByDescending(r => r.IsPreset).ThenBy(r => r.Name).ToList();
         }
 
+        public IReadOnlyList<RoutineDefinitionDto> GetCustomRoutines()
+        {
+            return _routines.Values.Where(r => !r.IsPreset).OrderBy(r => r.Name).ToList();
+        }
+
         public RoutineDefinitionDto? GetRoutine(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;

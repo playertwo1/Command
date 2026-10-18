@@ -1,8 +1,8 @@
 # STATE — ponto de retomada
 
-Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
+Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROADMAP_V1.0.md`.
 
-**Atualizado:** 2026-10-18 · **Marco ativo:** Ondas v0.4, v0.5 e v0.6 · **Estado:** ONDAS v0.4, v0.5 e v0.6 CONCLUÍDAS COM SUCESSO (100% PASS - 413 testes)
+**Atualizado:** 2026-10-18 · **Marco ativo:** Onda v1.0 (Produção e Robustez Operacional) · **Estado:** ONDA v1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -152,12 +152,46 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md`.
     - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`).
     - `dist/SHA256SUMS-v0.6.0.txt` gerado e salvo.
 
+# STATE — ponto de retomada
+
+Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROADMAP_V1.0.md`.
+
+**Atualizado:** 2026-10-18 · **Marco ativo:** Onda v1.0 (Produção e Robustez Operacional) · **Estado:** ONDA v1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
+
+## O que existe hoje
+- Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
+- In-tree fork concluído com histórico preservado e mesclado no branch `main`.
+- **Pacotes Oficiais v1.0.0 e Documentação de Entrega:**
+  - `dist/command-bridge-v1.0.0-win-x64.zip` (SHA-256: `a2cf893ae36c0332769d51971d376d2372bdde64bc9b1c9dfd59f63a200b3593`).
+  - `dist/command-app-v1.0.0-debug.apk` (SHA-256: `814777662bd42c6173c4df78877bb3fb80530f1501398ecdc40bd0c2f2fa8600`).
+  - `dist/SHA256SUMS-v1.0.0.txt` gerado e salvo.
+- **Entregas Principais da Onda v1.0:**
+  - **Fase P0 (Permissões Granulares por Dispositivo, Auditoria e Biometria/PIN - D-005):**
+    - Backend: `SecurityPolicyService` gerenciando roles (`FullControl` vs `ViewerOnly`), bloqueio de mutações com log de auditoria sanitizado em `SecurityAuditEntryDto`. Controller `/api/security` e `/api/v1/security`.
+    - Mobile: `BiometricGuardService` com proteção por PIN/Biometria configurável em memória/preferências antes de ações críticas.
+  - **Fase P1 (Backup Criptografado AES-256-GCM + PBKDF2-SHA256):**
+    - Backend: `EncryptedBackupService` derivando chave de 256 bits via PBKDF2-SHA256 (100.000 iterações), nonce de 12 bytes, tag GCM de 16 bytes e checksum de integridade SHA-256. Controller `/api/backup/encrypted`.
+    - Mobile: `EncryptedBackupSheet` com exportação e importação de envelope JSON com validação de senha e checksum.
+  - **Fase P2 (Verificação Segura de Atualizações e Integridade Velopack):**
+    - Backend: `UpdateVerificationService` expondo status de release v1.0.0 estável e validação criptográfica de payloads SHA-256. Controller `/api/system/update`.
+    - Mobile: `SecurityCenterCard` com consulta de versão, status e validação visual de integridade.
+  - **Fase P3 (Autodiagnóstico de Estabilidade e Recursos da Bridge):**
+    - Backend: `SystemStabilityMonitor` monitorando WorkingSet RAM, Handles Win32, Threads ativas e Uptime com classificação de saúde (`Healthy`/`Warning`). Endpoint `/api/system/stability`.
+  - **Fase P4 (Homologação Final, Pacotes v1.0.0 e Maestro E2E):**
+    - 301 testes C# (.NET 8) PASS (0 falhas).
+    - 160 testes Flutter PASS (0 falhas), `flutter analyze --no-fatal-infos` exit 0 (Total: 461 testes automatizados PASS).
+    - Fluxo Maestro `flow_command_v10.yaml` executado no emulador `Pixel_9` com sucesso e evidência capturada em `docs/evidence/v1.0/emulator_v10_status.png`.
+
+## Testes/build atuais
+- `dotnet test tests/DroidDeck.Tests/DroidDeck.Tests.csproj`: 301 PASS, 0 FAIL.
+- `flutter test -j 1`: 160 PASS, 0 FAIL.
+- `flutter analyze --no-fatal-infos`: exit 0 (0 errors, 0 warnings).
+- Maestro E2E (`flow_command_v10.yaml`): 100% COMPLETED no emulador Pixel 9.
+
 ## Próxima ação
-- Ondas v0.4, v0.5 e v0.6 concluídas com sucesso (100% de todas as fases aprovadas).
-- Apresentar fechamento ao usuário e iniciar planejamento da Onda v1.0 (Robustez Operacional, Auto-update seguro e empacotamento).
+- Versão de Produção v1.0.0 consolidada e homologada.
+- Sincronizar NexusVault e executar commit + push no GitHub privado.
 
 ## Bloqueios e aprovações humanas
-- Direção de fork in-tree e modelo DroidDeck: APROVADO pelo proprietário.
-- D-004 (O que é o projeto “Orbit” do FL-2): RESOLVIDO (`C:\Users\notefael\projetos\orbit-pj` no VS Code/Explorer).
-- Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário ("sempre faca commit e push apos o fim de uma fase e atualize o vault crie diagramas e imagens do projeto, depois avance").
-- Onda v0.1 (MVP), Onda v0.2, Onda v0.3, Onda v0.4, Onda v0.5 e Onda v0.6: 100% CONCLUÍDAS com sucesso.
+- Push remoto e atualização contínua do Vault: AUTORIZADO pelo proprietário.
+- Onda v1.0: 100% CONCLUÍDA com sucesso.

@@ -45,8 +45,19 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 | **v0.5** | Automação, Perfis de Workspace e Macros Encadeadas | PASS | 261 C# / 130 Flutter PASS | `ROADMAP_V0.5.md`, `RoutineServiceTests.cs`, `WebhookNotificationServiceTests.cs`, `workspace_routines_test.dart` |
 | **v0.6** | Mobilidade Expandida, Wake-on-LAN, Energia e Modo Dock | PASS | 268 C# / 145 Flutter PASS | `ROADMAP_V0.6.md`, `PowerControlTests.cs`, `power_control_ui_test.dart`, `wake_on_lan_test.dart`, `dock_mode_test.dart` |
 
-- **Artefatos Oficiais v0.6.0:**
-  - `dist/command-bridge-v0.6.0-win-x64.zip` (SHA-256: `a4b72463b0598d4f57cb54eae3cd2fb7f95cf63ab2a1e6b43337c5ee70c8d3f2`)
-  - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`)
-  - `dist/SHA256SUMS-v0.6.0.txt`
+## Onda v1.0 — Robustez Operacional, Segurança Avançada, Backup e Auto-Update
+
+| Fase | Entrega | Status | Testes | Evidência |
+|---|---|---|---|---|
+| **P0** | Permissões Granulares por Dispositivo, Auditoria e Guardião PIN/Biometria | PASS | 301 C# / 160 Flutter PASS | `SecurityPolicyTests.cs`, `security_center_test.dart` |
+| **P1** | Backup Criptografado AES-256-GCM + PBKDF2-SHA256 e Restauração | PASS | Integrado | `EncryptedBackupTests.cs`, `encrypted_backup_test.dart` |
+| **P2** | Verificador Seguro de Atualização (Velopack & SHA-256) | PASS | Integrado | `UpdateVerificationTests.cs`, `security_center_test.dart` |
+| **P3** | Autodiagnóstico de Estabilidade de Longa Duração (RAM/Handles/Threads) | PASS | Integrado | `SystemStabilityTests.cs` |
+| **P4** | Release v1.0.0 e Homologação Maestro E2E no Pixel 9 | PASS | 100% PASS (461 testes) | `e2e_maestro/flow_command_v10.yaml`, `docs/assets/emulator_v10_status.png` |
+
+- **Artefatos Oficiais de Produção v1.0.0:**
+  - `dist/command-bridge-v1.0.0-win-x64.zip` (SHA-256: `a2cf893ae36c0332769d51971d376d2372bdde64bc9b1c9dfd59f63a200b3593`)
+  - `dist/command-app-v1.0.0-debug.apk` (SHA-256: `814777662bd42c6173c4df78877bb3fb80530f1501398ecdc40bd0c2f2fa8600`)
+  - `dist/SHA256SUMS-v1.0.0.txt`
+
 
