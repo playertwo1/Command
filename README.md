@@ -19,7 +19,7 @@
 
 ## 🎯 Sobre o Command
 
-O **Command** é uma solução de controle e telemetria de PC pessoal para Windows através de um aplicativo móvel Android. Ele é desenvolvido como um **in-tree fork ativo do [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck)**, combinando todo o ecossistema comprovado do DroidDeck com as capacidades avançadas de telemetria e o design Amethyst Dark do Command.
+O **Command** é uma solução de controle e telemetria de PC pessoal para Windows através de um aplicativo móvel Android. Ele é desenvolvido como um **in-tree fork ativo do [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck)**, projeto criado por Gabriel Freitas ([@ggfto](https://github.com/ggfto)), de quem vem a ideia original (veja [Licença e atribuição](#-licença-e-atribuição)), combinando todo o ecossistema comprovado do DroidDeck com as capacidades avançadas de telemetria e o design Amethyst Dark do Command.
 
 ### ✨ O que o projeto oferece:
 - **Base DroidDeck v1.9.1 completa:**
@@ -153,6 +153,11 @@ cd app
 
 ## 📄 Licença e atribuição
 
-O Command é derivado do projeto [DroidDeck](https://github.com/ggfto/DroidDeck), mantido originalmente por @ggfto.
-- O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE).
-- O aplicativo Flutter é distribuído sob a licença [GPL 3.0](LICENSE).
+O Command é um **fork** do [DroidDeck](https://github.com/ggfto/DroidDeck), criado por **Gabriel Freitas ([@ggfto](https://github.com/ggfto))**. A ideia original e a base do projeto (Bridge Windows, app companion, pareamento por QR, integrações com OBS, Discord, Tuya, Soundboard, Mixer, Steam e outras) são trabalho dele. O histórico de commits do DroidDeck está preservado neste repositório. Obrigado, Gabriel! 💜
+
+O Command acrescenta telemetria, ações autorizadas, captura de tela, transferências, Hermes, rotinas, Wake-on-LAN, segurança por dispositivo, backup criptografado e auto-update sobre essa base.
+
+- O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE), a mesma do DroidDeck.
+- O aplicativo Flutter é distribuído sob a licença [GPL 3.0](app/LICENSE), a mesma do app do DroidDeck.
+- A integração com o Hermes (aba Hermes da v1.5) se baseia no protocolo e na documentação do [Hermes-Relay](https://github.com/Codename-11/hermes-relay), da Axiom Labs ([@Codename-11](https://github.com/Codename-11)), licença MIT, e no [Hermes Agent](https://github.com/NousResearch/hermes-agent), da Nous Research. Obrigado pelo trabalho aberto! 💜
+- Os arquivos alterados em relação ao upstream estão identificados no histórico Git (base: DroidDeck v1.9.1, `5cd2ddc`).

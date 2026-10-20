@@ -5,6 +5,7 @@ import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/config/integrations_page.dart';
 import 'package:droiddeck/src/config/pc_switcher.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:droiddeck/src/connection/pc_connections.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,6 +105,7 @@ class ConfigPageState extends State<ConfigPage> {
   Future<void> _removePc(SavedPc pc) async {
     final wasCurrent = pc.id == PcStore.currentId;
     await PcStore.remove(pc.id);
+    await Injector.get<PcConnections>().onPcRemoved(pc.id);
     final next = await PcStore.current();
     if (!mounted) return;
     if (wasCurrent && next != null) {

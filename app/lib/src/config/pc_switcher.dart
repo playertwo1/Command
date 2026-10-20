@@ -1,16 +1,19 @@
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:droiddeck/src/connection/pc_connections.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 /// Troca o PC em uso e reabre o app nele (deck, catálogo e estados vêm do novo PC).
 Future<void> switchToPc(BuildContext context, SavedPc pc) async {
+  final previous = await PcStore.current();
   await PcStore.select(pc);
   final client = Injector.get<DroidDeckClient>();
   client.setBaseUrl(pc.baseUrl);
   client.setApiKey(pc.apiKey);
   await Injector.get<SignalRService>().updateUrl(pc.baseUrl, apiKey: pc.apiKey);
+  await Injector.get<PcConnections>().onFocusChanged(previous);
   if (context.mounted) {
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
   }

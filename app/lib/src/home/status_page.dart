@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import '../connection/pc_store.dart';
+import '../connection/pc_connections.dart';
 import '../services/signalr_service.dart';
 import '../services/health_alert_service.dart';
 import '../services/health_report_generator.dart';
@@ -1449,6 +1450,7 @@ class _StatusPageState extends State<StatusPage> {
   }
 
   Future<void> _handleSwitchPc(SavedPc pc) async {
+    final previous = await PcStore.current();
     await PcStore.select(pc);
     final client = _client;
     if (client != null) {
@@ -1463,6 +1465,9 @@ class _StatusPageState extends State<StatusPage> {
         await Injector.get<SignalRService>().updateUrl(pc.baseUrl, apiKey: pc.apiKey);
       } catch (_) {}
     }
+    try {
+      await Injector.get<PcConnections>().onFocusChanged(previous);
+    } catch (_) {} // Testes de widget rodam sem o binding.
     await _loadPc();
     await _loadAppsAndJobs();
     if (mounted) {

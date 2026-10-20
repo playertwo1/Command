@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:droiddeck/src/connection/pc_connections.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/connection/constants.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
@@ -56,6 +58,7 @@ class SplashPageState extends State<SplashPage> {
       // Initialize SignalR with the configured URL (use local variable, not client.baseUrl)
       final signalR = Injector.get<SignalRService>();
       await signalR.init(baseUrl, apiKey: apiKey);
+      unawaited(Injector.get<PcConnections>().restore()); // 2º PC não atrasa a abertura.
 
       if (!mounted) return; // o widget pode ter sido descartado durante o await
       Navigator.of(context).pushReplacementNamed('/home');

@@ -193,6 +193,7 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
 - Maestro E2E (`flow_command_v10.yaml`): 100% COMPLETED no emulador Pixel 9.
 
 ## Próxima ação
+- **Onda v1.5 APROVADA (2026-10-19)** — plano em `ROADMAP_V1.5.md`. M0 em andamento: `app/lib/src/connection/pc_connections.dart` (2 conexões SignalR independentes, limite fixo 2) ligado à troca, remoção e abertura; `test/pc_connections_test.dart` 7/7 PASS; `flutter test` 167 PASS. Falta: M0.2 (UI de estado por PC) e M0.3 (política de bateria em segundo plano), depois M1. Repositório segue privado até a fase I0.
 - Versão de Produção v1.1.0 consolidada, homologada e publicada no GitHub (`command-v1.1.0`).
 
 ## Bloqueios e aprovações humanas
