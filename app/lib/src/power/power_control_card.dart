@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 /// Card interativo para controle seguro de energia, sessão e Wake-on-LAN (Onda v0.6 - W0/W1).
 class PowerControlCard extends StatefulWidget {
   final DroidDeckClient? client;
+  final String? targetPcName;
   final String? savedMacAddress;
   final VoidCallback? onOpenDockMode;
 
   const PowerControlCard({
     super.key,
     this.client,
+    this.targetPcName,
     this.savedMacAddress,
     this.onOpenDockMode,
   });
@@ -41,7 +43,7 @@ class _PowerControlCardState extends State<PowerControlCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Deseja realmente executar "$actionName" no PC?',
+              'PC-alvo: ${widget.targetPcName ?? "PC selecionado"}\nDeseja realmente executar "$actionName"?',
               style: const TextStyle(color: amethystAccent, fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 10),

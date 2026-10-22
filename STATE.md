@@ -1,8 +1,32 @@
 # STATE — ponto de retomada
 
-Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROADMAP_V1.0.md`.
+Comece por este arquivo. Para v1.5, o escopo aprovado está em `ROADMAP_V1.5.md`; os roadmaps anteriores preservam o histórico.
 
-**Atualizado:** 2026-10-18 · **Marco ativo:** Onda v1.0 (Produção e Robustez Operacional) · **Estado:** ONDA v1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
+**Atualizado:** 2026-10-22 · **Marco ativo:** Onda v1.5 / checkpoint M1 · **Estado:** U0.4a teve porte técnico concluído por reordenação autorizada; M1 continua aberto aguardando validações conectadas e aceite humano.
+
+## Retomada atual — v1.5
+- M0: dois hubs independentes, estado/métricas por PC, reconexão ao retomar e classificação de revogação 401 implementados.
+- M1.1: implementação do cartão combinado "Meus 2 PCs" com CPU/RAM/estado e seleção do PC-alvo; validação com dois perfis Command e aceite humano pendentes.
+- M1.2: implementação encaminha apps/ações permitidas, rotinas, controles de energia e transferências pelo PC-alvo; confirmações destrutivas identificam o nome do PC e respostas antigas são descartadas ao trocar o alvo. Validação conectada e aceite humano pendentes.
+- Editor de captura: fixture PNG de 640×360 torna o gesto de anotação representativo e estável.
+- Evidência atual de M1.3: `flutter test -j 1 test/app_catalog_and_jobs_test.dart` — 4 PASS; `flutter build apk --debug --no-pub` — PASS; APK instalado e aberto no AVD `Pixel_9` (API 37, 1080×2424). A tela Status e o filtro `Todos os PCs` renderizam; o histórico aparece indisponível no único perfil salvo, que aponta para a upstream DroidDeckPC, não para uma Bridge Command. Serviços/Top Processos exibem mensagem amigável para HTTP 404. Não houve agregação real entre duas Bridges Command. `flutter analyze` nos dois arquivos tocados reportou 3 diagnósticos `info` já existentes e nenhum erro/warning. Aceite humano: `PENDING_HUMAN`; M1 permanece aberto.
+- Atualização de planejamento (2026-10-20): U0.1 registra porte técnico dos erros amigáveis e 174 testes Flutter PASS no roadmap; a revisão documental não reexecutou essa evidência nem o AVD. O erro Dio cru acima pertence à captura anterior ao porte. Aceite do build atual permanece pendente.
+- M1.3 avançou em 2026-10-20: feed unificado dos até dois perfis, ordenação temporal, rótulo/filtro por PC e limpeza confirmada com tratamento de falha parcial. Testes de widget cobrem agregação/filtro/cancelamento; no AVD foi verificado apenas o estado de histórico indisponível contra a Bridge upstream.
+- ADB do `Pixel_9` foi recuperado por cold boot; `adb devices` reportou `emulator-5554 device`, o APK atual foi instalado e a tela foi aberta. A Bridge DroidDeckPC ativa é upstream, não uma segunda Bridge Command. Não houve pareamento, ação remota, alteração de perfil nem validação de dois PCs.
+- Registro 2026-10-22: alterações de M1/U0.4a, roadmap e proveniência upstream foram consolidadas em commit local na `main`; não houve push. As oito capturas em `docs/evidence/v1.5/` foram preservadas apenas localmente porque exibem nome do PC, IP local e detalhes de erro. Não há outras worktrees ou branches locais para limpar; M1 permanece aberto e as validações com duas Bridges e o aceite visual seguem pendentes.
+- M1.4 (2026-10-20): implementação técnica concluída. `executeRoutine` envia `deviceId` pelo header `X-Device-Id`; a ação dupla consulta as listas dos dois perfis ativos, exige hubs `Connected`, comparação integral de `toJson()`, confirmação com nomes/passos e apresenta resultados separados sem retry. Testes direcionados `routine_client_test.dart`, `workspace_routines_test.dart` e `app_catalog_and_jobs_test.dart`: 12 PASS; o último emitiu um aviso de toque fora da área visível no teste do filtro. `flutter analyze` terminou com 6 diagnósticos `info` em trechos existentes de `status_page.dart`, sem erros/warnings nem diagnósticos no código M1.4. `flutter build apk --debug --no-pub` — PASS; APK instalado e iniciado no AVD `emulator-5554` (API 37), sem revisão visual. Duas Bridges Command físicas, header chegando ao Bridge e isolamento real de captura: `NOT_RUN`; aceite visual: `PENDING_HUMAN`. Após U0.4a, retomar as validações conectadas antes de fechar M1 e avançar para U0.4b.
+- U0.4a (2026-10-21): porte manual do commit `47d15ff2df3f5c4a175ab3c8dc0f91a55eb408ef`; chave do painel por `(id, row, column)` evita reaproveitar rascunho entre botões sem ID. `flutter test -j 1 --no-pub test/stream_deck_desktop_layout_test.dart` — 1 PASS; `flutter build web --no-pub` — PASS. O navegador abriu a saída estática; sem Bridge/perfil/API, a sequência manual em perfil persistido ficou `NOT_RUN`. A origem `app/LICENSE` GPL-3.0 foi verificada no commit exato; URL/SHA registrados em `research/UPSTREAM.md`. Sem commit/push. Próxima ação: checkpoint M1 com duas Bridges físicas; M1 segue aberto.
+
+- Limpeza autorizada do repositório (2026-10-20): removidos intermediários de build, caches Dart/Gradle/.NET e ZIPs redundantes dos SDKs extraídos; preservados APKs debug/release atuais, SDKs extraídos, `dist/` e clone upstream sujo. O espaço livre em C: aumentou 14,34 GiB durante a operação. Build/testes após a limpeza: `NOT_RUN`; dependências removidas precisarão ser restauradas nos próximos builds.
+
+## Planejamento revisado — upstream e instalador (2026-10-20)
+
+- Pedido do proprietário: incorporar a revisão upstream ao roadmap; nesta atividade foram alterados somente documentos, sem implementação, instalação, commit ou publicação.
+- Ordem: U0.4a (priorizado e portado em 2026-10-21) → checkpoint M1 + aceite U0.1 → U0.4b/c/d → U0.2a → R → A → D (USB condicional) → T → I → H. `AVALIAR` e backlog v2 não entram automaticamente na execução.
+- U0 usa porte seletivo por padrão; checagem textual dos patches não é comprovação de cherry-pick/build. Matriz e respostas em `docs/UPSTREAM_IDEIAS_2026-10-20.md`, seção 4; URL/SHA/licenças em `research/UPSTREAM.md`.
+- Hermes: broker HTTP/WS, credenciais/sessões upstream no PC, ticket de uso único e isolamento por dispositivo/PC; Dashboard em loopback, plugin opcional. Sem sudo, shell ou coleta genérica de segredos pelo chat.
+- Instalador: prioridade `Command-Setup.exe` usando Velopack existente; corrigir identidade DroidDeck e updater que ainda aponta ao upstream. Entrega local não depende de tornar o repositório público; I0.7 mantém confirmação específica.
+- Gate atual continua M1. Testes/build/AVD desta revisão documental: `NOT_RUN`; não houve novo aceite humano. Clone Hermes permanece no SHA antigo até A0.1.
 
 ## O que existe hoje
 - Repositório Git conectado ao upstream `https://github.com/ggfto/DroidDeck.git` (v1.9.1 / `5cd2ddc`).
@@ -152,9 +176,9 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
     - `dist/command-app-v0.6.0-debug.apk` (SHA-256: `27789ea19d9d9da50d6ebbfc3c7970686ecd26bf869e2cbfa7e1ddef7f01d6f0`).
     - `dist/SHA256SUMS-v0.6.0.txt` gerado e salvo.
 
-# STATE — ponto de retomada
+## Registro histórico — v1.1.0 (preservado)
 
-Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROADMAP_V1.0.md`.
+O bloco abaixo registra a entrega anterior; o estado ativo e a próxima ação são os do topo deste arquivo e de `ROADMAP_V1.5.md`.
 
 **Atualizado:** 2026-10-18 · **Marco ativo:** Release v1.1.0 (Produção e Configurador Web Integrado) · **Estado:** v1.1.0 CONCLUÍDA COM SUCESSO (100% PASS - 461 testes automatizados)
 
@@ -186,16 +210,32 @@ Comece por este arquivo. O roadmap oficial aprovado está em `ROADMAP.md` e `ROA
     - 160 testes Flutter PASS (0 falhas), `flutter analyze --no-fatal-infos` exit 0 (Total: 461 testes automatizados PASS).
     - Fluxo Maestro `flow_command_v10.yaml` executado no emulador `Pixel_9` com sucesso e evidência capturada em `docs/evidence/v1.0/emulator_v10_status.png`.
 
-## Testes/build atuais
+## Evidência histórica — release v1.1.0
 - `dotnet test tests/DroidDeck.Tests/DroidDeck.Tests.csproj`: 301 PASS, 0 FAIL.
 - `flutter test -j 1`: 160 PASS, 0 FAIL.
 - `flutter analyze --no-fatal-infos`: exit 0 (0 errors, 0 warnings).
 - Maestro E2E (`flow_command_v10.yaml`): 100% COMPLETED no emulador Pixel 9.
 
 ## Próxima ação
-- **Onda v1.5 APROVADA (2026-10-19)** — plano em `ROADMAP_V1.5.md`. M0 em andamento: `app/lib/src/connection/pc_connections.dart` (2 conexões SignalR independentes, limite fixo 2) ligado à troca, remoção e abertura; `test/pc_connections_test.dart` 7/7 PASS; `flutter test` 167 PASS. Falta: M0.2 (UI de estado por PC) e M0.3 (política de bateria em segundo plano), depois M1. Repositório segue privado até a fase I0.
+- **Onda v1.5 APROVADA (2026-10-19)** — plano em `ROADMAP_V1.5.md`. M0 concluído; M1.1/M1.2 implementados. Revisão visual offline no AVD realizada; validação conectada e aceite humano ainda pendentes. Repositório segue privado até a fase I0.
 - Versão de Produção v1.1.0 consolidada, homologada e publicada no GitHub (`command-v1.1.0`).
 
 ## Bloqueios e aprovações humanas
 - Push remoto e publicação da release v1.1.0: AUTORIZADO pelo proprietário.
 - Release v1.1.0: 100% CONCLUÍDA com sucesso.
+
+## Progresso v1.5 — 2026-10-20
+- M0.1 concluído anteriormente; worktree estava limpo antes desta continuação.
+- M0.2 e M0.3 concluídos: UI por PC, classificação de falha de autenticação 401 como revogado, registro de última telemetria e CPU/RAM por hub; ciclo Flutter suspende os dois hubs em background e os reabre ao retomar, preservando o teto de duas conexões.
+- Validação: `test/pc_connections_test.dart` 9/9 PASS; a suíte completa oscilou — uma execução deu 169 PASS, duas deram 168 PASS e falharam em `screenshot_editor_test.dart` (anotação/desfazer); esse arquivo isolado passou 2/2. `dart analyze` dos cinco arquivos alterados exit 0, com três infos antigas em `ConfigPage`.
+- Continuação M1.1/M1.2: implementados painel de dois PCs, seletor de alvo e roteamento por perfil para apps, rotinas, energia e transferências; alvo aparece nas telas/confirmações críticas.
+- Fixture do `screenshot_editor_test.dart` agora é um PNG real de 640×360; o teste completo da suíte passou após essa correção.
+- Testes: `flutter test -j 1` — 170/170 PASS; `flutter analyze --no-fatal-infos` — exit 0, sem erros/avisos (67 infos preexistentes).
+- Revisão visual inicial (antes de U0.1): executada no AVD `Pixel_9` (API 37, 1080×2424), somente no estado desconectado. Os cartões e rótulos do PC-alvo renderizaram; Serviços e Top Processos ainda mostravam exceções Dio completas. Essa captura é histórica; métricas ao vivo, segundo perfil e diálogos de confirmação ficaram `NOT_RUN`; aceite humano `PENDING_HUMAN`.
+- Complemento 2026-10-20: U0.1 registrou o porte de mensagens amigáveis e 174 testes PASS (não reexecutados nesta continuação). M1.3 consolida e filtra atividade por PC; teste direcionado 4/4 PASS. Uma tentativa anterior de iniciar o AVD ficou `offline` e não instalou o APK; a tentativa posterior e bem-sucedida está registrada no estado atual no topo.
+- Próxima ação registrada antes da priorização mais recente: disponibilizar dois perfis apontando a Bridges Command e validar isolamento, troca de alvo, revogação, confirmação destrutiva e histórico unificado; registrar evidência sanitizada e obter aceite humano. A direção atual — revisar M1.4 antes dessas validações — está registrada no topo deste arquivo.
+
+## 2026-10-20 — U0.1 portado (DroidDeck b4647a6)
+- `friendlyPcError` em `app/lib/src/home/status_page.dart`: Serviços e Top Processos do painel M1 mostram orientação (sem rede / 401 repareie / 403 / erro do corpo) em vez da exceção Dio crua.
+- Textos de pareamento do upstream em `home_page.dart` e `config_page.dart` + traduções EN.
+- `flutter test`: 174 PASS (inclui `test/friendly_pc_error_test.dart`); `flutter analyze`: só infos pré-existentes. Aceite visual no AVD: `NOT_RUN`.

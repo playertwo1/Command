@@ -8,12 +8,14 @@ class RemoteFileManagerPage extends StatefulWidget {
   final DroidDeckClient client;
   final String initialRootId;
   final String? deviceId;
+  final String? targetPcName;
 
   const RemoteFileManagerPage({
     super.key,
     required this.client,
     this.initialRootId = 'outbound',
     this.deviceId,
+    this.targetPcName,
   });
 
   @override
@@ -186,6 +188,7 @@ class _RemoteFileManagerPageState extends State<RemoteFileManagerPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final crumbs = _currentPath.isEmpty ? <String>[] : _currentPath.split('/');
+    final location = '$_rootId${_currentPath.isNotEmpty ? '/$_currentPath' : ''}';
 
     return Scaffold(
       appBar: AppBar(
@@ -197,7 +200,9 @@ class _RemoteFileManagerPageState extends State<RemoteFileManagerPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '$_rootId${_currentPath.isNotEmpty ? '/$_currentPath' : ''}',
+              widget.targetPcName == null
+                  ? location
+                  : '${widget.targetPcName} · $location',
               style: const TextStyle(fontSize: 11, color: Colors.white70),
             ),
           ],

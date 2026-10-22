@@ -810,10 +810,8 @@ class DroidDeckClient {
   }) async {
     final response = await _dio.post(
       '/api/routines/$id/execute',
-      queryParameters: {
-        'confirmed': confirmed,
-        if (deviceId != null) 'deviceId': deviceId,
-      },
+      queryParameters: {'confirmed': confirmed},
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
     );
     return RoutineExecutionResult.fromJson(response.data as Map<String, dynamic>);
   }

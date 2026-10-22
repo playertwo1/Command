@@ -10,9 +10,12 @@ class _FakeSignalR extends SignalRService {
   String? key;
   bool disposed = false;
   bool failInit = false;
+  int initCount = 0;
 
   @override
   Future<void> init(String baseUrl, {String? apiKey}) async {
+    initCount++;
+    disposed = false;
     url = baseUrl;
     key = apiKey;
     if (failInit) connectionStatus.value = 'Disconnected';
@@ -36,11 +39,14 @@ void main() {
     await PcStore.select(a);
     primary = _FakeSignalR();
     created = [];
-    conns = PcConnections(primary, factory: () {
-      final s = _FakeSignalR();
-      created.add(s);
-      return s;
-    });
+    conns = PcConnections(
+      primary,
+      factory: () {
+        final s = _FakeSignalR();
+        created.add(s);
+        return s;
+      },
+    );
   });
 
   test('o segundo PC tem conexão própria, com a sua chave', () async {
@@ -53,13 +59,16 @@ void main() {
     expect(conns.forPc(c.id), isNull);
   });
 
-  test('nunca há 3 conexões: um novo segundo PC substitui o anterior', () async {
-    await conns.connectSecondary(b);
-    await conns.connectSecondary(c);
-    expect(created.first.disposed, isTrue);
-    expect(conns.secondaryPc?.id, c.id);
-    expect(conns.forPc(b.id), isNull);
-  });
+  test(
+    'nunca há 3 conexões: um novo segundo PC substitui o anterior',
+    () async {
+      await conns.connectSecondary(b);
+      await conns.connectSecondary(c);
+      expect(created.first.disposed, isTrue);
+      expect(conns.secondaryPc?.id, c.id);
+      expect(conns.forPc(b.id), isNull);
+    },
+  );
 
   test('o PC em foco não pode virar o segundo PC', () async {
     expect(() => conns.connectSecondary(a), throwsArgumentError);
@@ -91,12 +100,42 @@ void main() {
 
   test('o segundo PC salvo é reaberto na abertura do app', () async {
     await conns.connectSecondary(b);
-    final reopened = PcConnections(primary, factory: () {
-      final s = _FakeSignalR();
-      created.add(s);
-      return s;
-    });
+    final reopened = PcConnections(
+      primary,
+      factory: () {
+        final s = _FakeSignalR();
+        created.add(s);
+        return s;
+      },
+    );
     await reopened.restore();
     expect(reopened.secondaryPc?.id, b.id);
+  });
+
+  test(
+    'suspende os dois hubs em background e reconecta os mesmos PCs ao retomar',
+    () async {
+      await conns.connectSecondary(b);
+      final secondary = created.single;
+      await conns.suspend();
+      expect(primary.disposed, isTrue);
+      expect(secondary.disposed, isTrue);
+      expect(conns.secondaryPc?.id, b.id);
+
+      await conns.resume();
+      expect(primary.initCount, 1);
+      expect(primary.url, a.baseUrl);
+      expect(secondary.initCount, 2);
+      expect(secondary.url, b.baseUrl);
+      expect(conns.secondaryPc?.id, b.id);
+    },
+  );
+
+  test('não abre conexão paralela nova enquanto o app está suspenso', () async {
+    await conns.suspend();
+    await conns.connectSecondary(b);
+    expect(created.single.initCount, 0);
+    await conns.resume();
+    expect(created.single.initCount, 1);
   });
 }

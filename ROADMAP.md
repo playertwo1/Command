@@ -1,5 +1,7 @@
 # Command — roadmap do MVP v0.1
 
+> **Navegação atual (2026-10-20):** este documento preserva o plano histórico do MVP. Para executar trabalho atual, começar por `STATE.md` e `ROADMAP_V1.5.md` (M1 ativo; revisão upstream e instalador incorporada). Estados abaixo pertencem ao planejamento original.
+
 **Estado: APPROVED / PLANNED.** Aprovado pelo proprietário em 2026-10-12. As fases F0–F9 estão planejadas e ainda não executadas. Este documento é a fonte oficial do roadmap em `ROADMAP.md`; o planejamento anterior está preservado em `docs/history/ROADMAP-2026-10-10-original.md` e o texto exatamente aprovado em `docs/plans/2026-10-12-mvp-inicial.md`.
 
 **Revisão 2026-10-13:** esclarecimentos que não mudam escopo, fases nem metas (fluxos numerados, rede/relógio/firewall, contrato inicial, riscos e pós-MVP). Lista completa na seção 9; aguardam ciência do proprietário.

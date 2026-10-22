@@ -208,8 +208,7 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
             child: _selectedButton == null
                 ? Center(child: Text(tr('Selecione um botão para editar')))
                 : ButtonPropertyPanel(
-                    key: ValueKey(_selectedButton!
-                        .id), // Force rebuild on selection change
+                    key: ButtonPropertyPanel.stateKeyFor(_selectedButton!),
                     button: _selectedButton!,
                     profiles: profiles,
                     onSave: (btn) {

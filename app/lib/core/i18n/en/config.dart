@@ -281,6 +281,15 @@ const Map<String, String> enConfig = {
   'Nenhuma entrada encontrada.': 'No inputs found.',
   'Falha de autenticação (chave inválida ou expirada).\nRefaça o pareamento.':
       'Authentication failed (invalid or expired key).\nPair again.',
+  'O PC não reconheceu este aparelho (a chave mudou ou é de outro PC).\nPareie de novo pelo QR.':
+      'The PC didn\'t recognize this device (the key changed or it\'s from another PC).\nPair again with the QR.',
+  'Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.':
+      'That QR isn\'t a DroidDeck pairing code. Use the one in the PC\'s "Pair device (QR)" window.',
+  'O PC não respondeu. Confira se o DroidDeck está aberto nele e se os dois estão na mesma rede.':
+      'The PC didn\'t respond. Check that DroidDeck is open on it and both are on the same network.',
+  'Este aparelho não tem permissão para isso neste PC.':
+      'This device isn\'t allowed to do that on this PC.',
+  'O PC recusou o pedido (HTTP {status}).': 'The PC refused the request (HTTP {status}).',
   'Tentar novamente': 'Try again',
   'Refazer pareamento': 'Pair again',
   'O PC não respondeu. Confira se o DroidDeck está aberto nele.':

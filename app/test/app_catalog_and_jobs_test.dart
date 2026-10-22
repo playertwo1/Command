@@ -1,8 +1,10 @@
 import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/home/status_page.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeDroidDeckClient extends DroidDeckClient {
   FakeDroidDeckClient() : super(baseUrl: 'http://localhost:4787');
@@ -137,6 +139,8 @@ void main() {
 
   testWidgets('StatusPage exibe Ações Autorizadas e Atividade Recente com fake client',
       (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    PcStore.currentId = null;
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.0;
     addTearDown(() {
@@ -186,6 +190,93 @@ void main() {
     expect(find.text('app.launch (obsidian)'), findsOneWidget);
   });
 
+  testWidgets('StatusPage unifica a atividade dos dois PCs e filtra pelo PC escolhido',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    PcStore.currentId = null;
+    final firstPc = await PcStore.upsert(
+      ip: '10.0.0.1',
+      port: '4787',
+      apiKey: 'key-one',
+      name: 'PC Escritório',
+    );
+    await PcStore.upsert(
+      ip: '10.0.0.2',
+      port: '4787',
+      apiKey: 'key-two',
+      name: 'PC Sala',
+    );
+    final firstPcClient = FakeDroidDeckClient()
+      ..mockJobs = [
+        CommandJob(
+          id: 'job-one',
+          requestId: 'req-one',
+          actionType: 'app.launch',
+          targetId: 'obsidian',
+          status: 'succeeded',
+          createdAtUtc: DateTime.utc(2026, 10, 20, 10),
+        ),
+      ];
+    final secondPcClient = FakeDroidDeckClient()
+      ..mockJobs = [
+        CommandJob(
+          id: 'job-two',
+          requestId: 'req-two',
+          actionType: 'app.launch',
+          targetId: 'orbit',
+          status: 'succeeded',
+          createdAtUtc: DateTime.utc(2026, 10, 20, 11),
+        ),
+      ];
+    final signalR = SignalRService();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatusPage(
+          isFullscreen: false,
+          onToggleFullscreen: () {},
+          signalRService: signalR,
+          client: secondPcClient,
+          clientForPc: (pc) => pc.id == firstPc.id
+              ? firstPcClient
+              : throw StateError('Unexpected PC'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Atividade Recente'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('app.launch (obsidian)'), findsOneWidget);
+    expect(find.text('app.launch (orbit)'), findsOneWidget);
+    expect(find.text('PC Escritório'), findsWidgets);
+    expect(find.text('PC Sala'), findsWidgets);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('activity-pc-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('activity-pc-filter')));
+    await tester.pumpAndSettle();
+    final firstPcFilter = find.byKey(ValueKey('activity-filter-${firstPc.id}'));
+    await tester.ensureVisible(firstPcFilter);
+    await tester.tap(firstPcFilter);
+    await tester.pumpAndSettle();
+
+    expect(find.text('app.launch (obsidian)'), findsOneWidget);
+    expect(find.text('app.launch (orbit)'), findsNothing);
+    await tester.tap(find.byTooltip('Limpar histórico'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Remover a atividade dos PCs: PC Escritório?'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    expect(firstPcClient.clearJobsCalled, false);
+  });
+
   testWidgets('StatusPage: confirmação de encerramento protegida por diálogo',
       (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
@@ -212,9 +303,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Clica no botão Encerrar
-    await tester.ensureVisible(find.text('Encerrar'));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -1200));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Encerrar'));
+    final killButton = find.widgetWithText(OutlinedButton, 'Encerrar');
+    await tester.ensureVisible(killButton);
+    await tester.pumpAndSettle();
+    await tester.tap(killButton);
     await tester.pumpAndSettle();
 
     // Diálogo deve abrir
@@ -228,9 +322,9 @@ void main() {
     expect(fakeClient.killCalled, false);
 
     // Abre novamente e confirma
-    await tester.ensureVisible(find.text('Encerrar'));
+    await tester.ensureVisible(killButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Encerrar'));
+    await tester.tap(killButton);
     await tester.pumpAndSettle();
 
     final confirmButton = find.widgetWithText(FilledButton, 'Encerrar');

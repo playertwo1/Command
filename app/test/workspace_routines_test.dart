@@ -1,4 +1,5 @@
 import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/src/routines/workspace_routines_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,7 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeWorkspaceClient extends DroidDeckClient {
   int executeCalls = 0;
   String? lastExecutedId;
+  String? lastDeviceId;
   bool? lastConfirmed;
+  bool failExecution = false;
 
   final List<RoutineDefinitionData> routines;
 
@@ -27,7 +30,9 @@ class FakeWorkspaceClient extends DroidDeckClient {
   }) async {
     executeCalls++;
     lastExecutedId = id;
+    lastDeviceId = deviceId;
     lastConfirmed = confirmed;
+    if (failExecution) throw StateError('private network detail');
 
     return RoutineExecutionResult(
       routineId: id,
@@ -53,6 +58,37 @@ class FakeWorkspaceClient extends DroidDeckClient {
   }
 }
 
+class _RoutineSignalR extends SignalRService {
+  _RoutineSignalR(String status) {
+    connectionStatus.value = status;
+  }
+}
+
+RoutineDefinitionData _routine({String targetId = 'obsidian'}) => RoutineDefinitionData(
+      id: 'routine-1',
+      name: 'Rotina pareada',
+      description: 'Abre o editor',
+      icon: 'auto_mode',
+      isPreset: false,
+      requiresConfirmation: true,
+      steps: [
+        RoutineStepData(
+          stepId: 'step-1',
+          actionType: 'app.launch',
+          targetId: targetId,
+          delayMs: 100,
+          continueOnError: false,
+        ),
+      ],
+    );
+
+RoutinePcTarget _target(String id, String name, FakeWorkspaceClient client) => RoutinePcTarget(
+      pcId: id,
+      pcName: name,
+      client: client,
+      connection: _RoutineSignalR('Connected'),
+    );
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -67,6 +103,7 @@ void main() {
             body: SingleChildScrollView(
               child: WorkspaceRoutinesCard(
                 client: client,
+                targetPcName: 'PC Sala',
                 onRoutineExecuted: () => executedCallbackCount++,
               ),
             ),
@@ -92,6 +129,7 @@ void main() {
 
       // Diálogo de confirmação explícita
       expect(find.text('Confirmar Execução de Rotina'), findsOneWidget);
+      expect(find.text('PC-alvo: PC Sala'), findsOneWidget);
       expect(find.text('Passos sequenciais que serão executados:'), findsOneWidget);
       expect(find.text('Cancelar'), findsOneWidget);
       expect(find.text('Executar Rotina'), findsOneWidget);
@@ -141,6 +179,132 @@ void main() {
       expect(find.text('Nova Rotina'), findsOneWidget);
       expect(find.text('Nome da Rotina'), findsOneWidget);
       expect(find.text('Salvar Rotina'), findsOneWidget);
+    });
+
+    testWidgets('cancelar confirmação pareada não dispara chamadas', (tester) async {
+      final routine = _routine();
+      final first = FakeWorkspaceClient(routines: [routine]);
+      final second = FakeWorkspaceClient(routines: [routine]);
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+        child: WorkspaceRoutinesCard(
+          client: first,
+          dualTargets: [_target('pc-1', 'PC Sala', first), _target('pc-2', 'PC Quarto', second)],
+        ),
+      ))));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Executar nos dois PCs'));
+      await tester.pumpAndSettle();
+      expect(find.text('PC Sala'), findsOneWidget);
+      expect(find.text('PC Quarto'), findsOneWidget);
+      expect(find.textContaining('app.launch -> obsidian'), findsOneWidget);
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+
+      expect(first.executeCalls, 0);
+      expect(second.executeCalls, 0);
+    });
+
+    testWidgets('definições divergentes bloqueiam a execução pareada', (tester) async {
+      final first = FakeWorkspaceClient(routines: [_routine()]);
+      final second = FakeWorkspaceClient(routines: [_routine(targetId: 'code')]);
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+        child: WorkspaceRoutinesCard(
+          client: first,
+          dualTargets: [_target('pc-1', 'PC Sala', first), _target('pc-2', 'PC Quarto', second)],
+        ),
+      ))));
+      await tester.pumpAndSettle();
+
+      final button = tester.widget<OutlinedButton>(find.ancestor(
+        of: find.text('Executar nos dois PCs'),
+        matching: find.byType(OutlinedButton),
+      ).first);
+      expect(button.onPressed, isNull);
+      expect(find.textContaining('definições diferem'), findsOneWidget);
+      expect(first.executeCalls, 0);
+      expect(second.executeCalls, 0);
+    });
+
+    testWidgets('desconexão após confirmação impede ambas as chamadas', (tester) async {
+      final routine = _routine();
+      final first = FakeWorkspaceClient(routines: [routine]);
+      final second = FakeWorkspaceClient(routines: [routine]);
+      final firstConnection = _RoutineSignalR('Connected');
+      final secondConnection = _RoutineSignalR('Connected');
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+        child: WorkspaceRoutinesCard(
+          client: first,
+          dualTargets: [
+            RoutinePcTarget(pcId: 'pc-1', pcName: 'PC Sala', client: first, connection: firstConnection),
+            RoutinePcTarget(pcId: 'pc-2', pcName: 'PC Quarto', client: second, connection: secondConnection),
+          ],
+        ),
+      ))));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Executar nos dois PCs'));
+      await tester.pumpAndSettle();
+      secondConnection.connectionStatus.value = 'Disconnected';
+      await tester.pump();
+      await tester.tap(find.text('Confirmar nos dois'));
+      await tester.pumpAndSettle();
+
+      expect(first.executeCalls, 0);
+      expect(second.executeCalls, 0);
+      expect(find.textContaining('A conexão de um dos PCs caiu'), findsOneWidget);
+    });
+
+    testWidgets('sucesso duplo mostra status e identidade de cada PC', (tester) async {
+      final routine = _routine();
+      final first = FakeWorkspaceClient(routines: [routine]);
+      final second = FakeWorkspaceClient(routines: [routine]);
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+        child: WorkspaceRoutinesCard(
+          client: first,
+          dualTargets: [_target('profile-a', 'PC Sala', first), _target('profile-b', 'PC Quarto', second)],
+        ),
+      ))));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Executar nos dois PCs'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Confirmar nos dois'));
+      await tester.pumpAndSettle();
+
+      expect(first.executeCalls, 1);
+      expect(second.executeCalls, 1);
+      expect(first.lastDeviceId, 'profile-a');
+      expect(second.lastDeviceId, 'profile-b');
+      expect(find.text('PC Sala'), findsOneWidget);
+      expect(find.text('PC Quarto'), findsOneWidget);
+      expect(find.text('Status: succeeded'), findsNWidgets(2));
+      expect(find.text('Status Geral: succeeded'), findsNothing);
+    });
+
+    testWidgets('falha parcial só aparece para o PC correspondente', (tester) async {
+      final routine = _routine();
+      final first = FakeWorkspaceClient(routines: [routine]);
+      final second = FakeWorkspaceClient(routines: [routine])..failExecution = true;
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+        child: WorkspaceRoutinesCard(
+          client: first,
+          dualTargets: [_target('pc-1', 'PC Sala', first), _target('pc-2', 'PC Quarto', second)],
+        ),
+      ))));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Executar nos dois PCs'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Confirmar nos dois'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('PC Sala'), findsOneWidget);
+      expect(find.text('Status: succeeded'), findsOneWidget);
+      expect(find.textContaining('PC Quarto'), findsOneWidget);
+      expect(find.textContaining('Falha de comunicação'), findsOneWidget);
+      expect(find.textContaining('private network detail'), findsNothing);
+      expect(find.text('Status Geral: succeeded'), findsNothing);
     });
   });
 }

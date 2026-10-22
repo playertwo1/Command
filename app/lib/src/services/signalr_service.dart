@@ -228,11 +228,15 @@ class SystemStats {
       gpuUsage: parseDouble(json['gpuUsage'] ?? json['GpuUsage']),
       diskUsage: parseDouble(json['diskUsage'] ?? json['DiskUsage']),
       diskTotalGb: parseDouble(json['diskTotalGB'] ?? json['DiskTotalGB']),
-      diskAvailableGb: parseDouble(json['diskAvailableGB'] ?? json['DiskAvailableGB']),
+      diskAvailableGb: parseDouble(
+        json['diskAvailableGB'] ?? json['DiskAvailableGB'],
+      ),
       uptimeSeconds: parseInt(json['uptimeSeconds'] ?? json['UptimeSeconds']),
       cpuTempC: parseNullableDouble(json['cpuTempC'] ?? json['CpuTempC']),
       gpuTempC: parseNullableDouble(json['gpuTempC'] ?? json['GpuTempC']),
-      batteryPercent: parseNullableInt(json['batteryPercent'] ?? json['BatteryPercent']),
+      batteryPercent: parseNullableInt(
+        json['batteryPercent'] ?? json['BatteryPercent'],
+      ),
       isCharging: parseNullableBool(json['isCharging'] ?? json['IsCharging']),
       hasBattery: json['hasBattery'] == true || json['HasBattery'] == true,
       history: parseHistory(json['history'] ?? json['History']),
@@ -247,9 +251,12 @@ class SignalRService {
   // Signals
   final systemStats = signal<SystemStats>(SystemStats());
   final connectionStatus = signal<String>("Disconnected");
+  final isRevoked = signal<bool>(false);
+  final lastSeen = signal<DateTime?>(null);
   final lastDebugData = signal<String>("No Data");
-  final currentUrl =
-      signal<String>("Not Initialized"); // DEBUG: Track current URL
+  final currentUrl = signal<String>(
+    "Not Initialized",
+  ); // DEBUG: Track current URL
 
   // NEW: Real-time Volume/Media signals
   final volumeUpdates = signal<Map<String, dynamic>>({});
@@ -262,8 +269,11 @@ class SignalRService {
   final muteStates = signal<Map<String, bool>>({});
 
   // Estado do Discord (connected/mute/deaf) para botões de Discord refletirem.
-  final discordState =
-      signal<Map<String, dynamic>>({'connected': false, 'mute': false, 'deaf': false});
+  final discordState = signal<Map<String, dynamic>>({
+    'connected': false,
+    'mute': false,
+    'deaf': false,
+  });
 
   // Grade física do deck (rows/cols) reportada pelo celular; usada pelo configurador web.
   final deckLayout = signal<Map<String, int>>({'rows': 3, 'columns': 5});
@@ -277,7 +287,10 @@ class SignalRService {
   // Estado do plugin Tuya + os dispositivos. O backend só manda o snapshot completo em
   // eventos raros (conectou, reenumerou); mudança de estado de aparelho chega em
   // ReceiveTuyaDeviceState e é fundida aqui, pra não repassar a lista inteira a cada clique.
-  final tuyaState = signal<Map<String, dynamic>>({'paired': false, 'devices': []});
+  final tuyaState = signal<Map<String, dynamic>>({
+    'paired': false,
+    'devices': [],
+  });
 
   // Perfil do app em foco no PC ({profileId, app}); profileId nulo = app sem perfil.
   final autoProfile = signal<Map<String, dynamic>>({});
@@ -301,8 +314,11 @@ class SignalRService {
 
   void _registerStateHandler(String event) {
     // Os eventos que já têm signal próprio continuam nele.
-    if (const {'ReceiveObsState', 'ReceiveDiscordState', 'ReceiveTuyaState'}
-        .contains(event)) {
+    if (const {
+      'ReceiveObsState',
+      'ReceiveDiscordState',
+      'ReceiveTuyaState',
+    }.contains(event)) {
       return;
     }
     _hubConnection?.on(event, (arguments) {
@@ -363,7 +379,8 @@ class SignalRService {
     if (_retryTimer?.isActive ?? false) return; // ja tem uma tentativa agendada
 
     const steps = [2000, 5000, 10000, 20000, 30000];
-    final delay = steps[_retryCount < steps.length ? _retryCount : steps.length - 1];
+    final delay =
+        steps[_retryCount < steps.length ? _retryCount : steps.length - 1];
     _retryCount++;
     connectionStatus.value = 'Reconnecting in ${delay ~/ 1000}s...';
 
@@ -384,6 +401,7 @@ class SignalRService {
   /// Encerra a conexao e cancela reconexoes pendentes.
   Future<void> dispose() async {
     _stopped = true;
+    connectionStatus.value = 'Suspended';
     _retryTimer?.cancel();
     _retryTimer = null;
     final conn = _hubConnection;
@@ -455,6 +473,7 @@ class SignalRService {
           // SignalR parses JSON for us roughly, but we check type
           final data = arguments[0] as Map<String, dynamic>;
           systemStats.value = SystemStats.fromJson(data);
+          lastSeen.value = DateTime.now();
         } catch (e) {
           _logger.warning('Error parsing stats: $e');
           lastDebugData.value = "Parse Error: $e";
@@ -529,8 +548,7 @@ class SignalRService {
     _hubConnection?.on('ReceiveDiscordState', (arguments) {
       if (arguments != null && arguments.isNotEmpty) {
         try {
-          discordState.value =
-              Map<String, dynamic>.from(arguments[0] as Map);
+          discordState.value = Map<String, dynamic>.from(arguments[0] as Map);
         } catch (e) {
           _logger.warning('Error parsing ReceiveDiscordState: $e');
         }
@@ -596,10 +614,14 @@ class SignalRService {
         final changes = Map<String, dynamic>.from(msg['status'] as Map);
 
         final snapshot = Map<String, dynamic>.from(tuyaState.value);
-        final devices = List<dynamic>.from(snapshot['devices'] as List? ?? const []);
+        final devices = List<dynamic>.from(
+          snapshot['devices'] as List? ?? const [],
+        );
 
         final index = devices.indexWhere((d) => (d as Map)['id'] == deviceId);
-        if (index < 0) return; // aparelho fora do cache: ignora até a próxima enumeração
+        if (index < 0) {
+          return; // aparelho fora do cache: ignora até a próxima enumeração
+        }
 
         final device = Map<String, dynamic>.from(devices[index] as Map);
         device['status'] = {
@@ -631,6 +653,7 @@ class SignalRService {
 
     _hubConnection?.onclose(({error}) {
       connectionStatus.value = "Disconnected: $error";
+      if ('$error'.contains('401')) isRevoked.value = true;
       // Cai aqui quando o servidor fecha a conexao ou o reconnect automatico
       // desiste. Sem reagendar, o estado ao vivo nunca mais voltava.
       _scheduleRetry();
@@ -642,6 +665,7 @@ class SignalRService {
 
     _hubConnection?.onreconnected(({connectionId}) {
       connectionStatus.value = "Connected";
+      isRevoked.value = false;
       _retryCount = 0;
     });
 
@@ -649,16 +673,20 @@ class SignalRService {
       await _hubConnection?.start();
       _logger.info('SignalR Connected');
       connectionStatus.value = "Connected";
+      isRevoked.value = false;
       _retryCount = 0;
       _retryTimer?.cancel();
     } catch (e) {
       _logger.severe('SignalR Connection Failed: $e');
       connectionStatus.value = "Conn Error: $e";
+      if ('$e'.contains('401')) isRevoked.value = true;
       _scheduleRetry();
     }
   }
 
   Future<void> updateUrl(String baseUrl, {String? apiKey}) async {
+    lastSeen.value = null;
+    isRevoked.value = false;
     // Marca como parada deliberada para o onclose do stop() abaixo nao agendar
     // uma reconexao para a URL ANTIGA; o init() em seguida limpa a flag.
     _stopped = true;

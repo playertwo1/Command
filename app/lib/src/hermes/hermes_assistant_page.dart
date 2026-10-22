@@ -20,6 +20,7 @@ class HermesAssistantPage extends StatefulWidget {
   final DroidDeckClient client;
   final String? initialPrompt;
   final String? screenshotId;
+  final String? targetPcName;
   final Future<void> Function(HermesSuggestedAction action)? onExecuteConfirmedAction;
 
   const HermesAssistantPage({
@@ -27,6 +28,7 @@ class HermesAssistantPage extends StatefulWidget {
     required this.client,
     this.initialPrompt,
     this.screenshotId,
+    this.targetPcName,
     this.onExecuteConfirmedAction,
   });
 
@@ -143,6 +145,10 @@ class _HermesAssistantPageState extends State<HermesAssistantPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (widget.targetPcName != null) ...[
+              Text('PC-alvo: ${widget.targetPcName}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              const SizedBox(height: 6),
+            ],
             Text(
               action.title,
               style: const TextStyle(

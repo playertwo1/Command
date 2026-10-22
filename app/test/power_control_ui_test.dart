@@ -99,6 +99,7 @@ void main() {
             body: PowerControlCard(
               client: client,
               savedMacAddress: 'AA:BB:CC:DD:EE:FF',
+              targetPcName: 'PC Sala',
               onOpenDockMode: () => dockModeCalls++,
             ),
           ),
@@ -118,6 +119,7 @@ void main() {
 
       // Diálogo de confirmação obrigatória
       expect(find.text('Confirmar Controle de Sessão'), findsOneWidget);
+      expect(find.textContaining('PC-alvo: PC Sala'), findsOneWidget);
       expect(
         find.text('Atenção: Ao bloquear ou suspender o PC, a captura de tela ficará indisponível até o desbloqueio local.'),
         findsOneWidget,

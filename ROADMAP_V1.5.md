@@ -1,10 +1,12 @@
 # ROADMAP v1.5 — Command: Multi-PC Simultâneo, Controle Remoto, Aba Hermes e Conectividade sem Atrito
 
-**Status:** APROVADO pelo proprietário em 2026-10-19 — em execução (M0). Repositório continua privado até I0.7.
+**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado a pedido em 2026-10-20 e reordenado em 2026-10-21. Fase ativa: **checkpoint M1**; M1 permanece `IN_PROGRESS`. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; publicação depende de I0.7.
 **Pré-requisito:** Release v1.1.0 (`command-v1.1.0` — 461 testes PASS)
 **Meta Principal:** Manter **2 PCs conectados ao mesmo tempo** no app, adicionar **trackpad/teclado remoto com prévia ao vivo**, uma **aba Hermes** (chat, notificações, escolha de modelo e de esforço via Hermes-Relay) usando o mesmo pareamento do Command, **descoberta automática por mDNS** e **transferências retomáveis**.
 
-**Ordem de entrega:** Multi-PC (M) → Controle remoto (R) → Hermes (A) → Descoberta (D) → Transferências (T) → Homologação (H).
+**Ordem de entrega:** U0.4a (priorizado a pedido do proprietário em 2026-10-21; porte técnico concluído) → retomar checkpoint M1 + aceite U0.1 → U0.4b/c/d → U0.2a (volume) → R0/R1/R2 → A0/A1/A2 → D0 (USB somente se U0.3 for viável) → T0 → I0 → H0. U0 é uma frente transversal, não um merge nem uma fase executada inteira de uma vez. U0.2b/U0.5 e backlog v2 não bloqueiam a entrega principal.
+
+**Fontes da revisão:** [matriz completa e respostas](docs/UPSTREAM_IDEIAS_2026-10-20.md#4-revisao-consolidada-2026-10-20), [registro de proveniência](research/UPSTREAM.md). A revisão documental não atualiza resultados de testes nem fecha aceite visual.
 
 ---
 
@@ -18,6 +20,8 @@
 6. **Hermes continua opcional (Regra 2):** sem o Hermes-Relay, a aba mostra "Não configurado" e todo o resto do app funciona. Nenhuma ação do PC passa a depender de IA.
 7. **Sem terminal/shell via Hermes (Regra 3):** o Command **não** expõe os canais `terminal` e "hands" do Hermes-Relay (CLI desktop, arquivos, busca). A aba usa só chat, notificações e configuração de modelo/esforço.
 8. `NOT_RUN` não é `PASS`: cada fase fecha com teste automatizado e evidência atual no emulador ou no dispositivo.
+9. **Portes seletivos (Regras 3/4/6/8):** registrar URL, SHA, data e licença por componente antes de copiar; preservar isolamento por PC, allowlist, credenciais fora de logs e limites de arquivos. Confirmação humana não autoriza criar execução arbitrária.
+10. **Transporte não concede privilégio:** LAN, USB, Tailscale e loopback encaminhado exigem identidade e autorização válidas. Falha de identificação não pode tornar uma requisição confiável.
 
 ---
 
@@ -42,31 +46,42 @@
 
 | Fase | Área | Entrega | Dependência | Estado |
 |------|------|---------|-------------|--------|
-| **M0** | Mobile | Multi-PC simultâneo (2 conexões paralelas) | — | `IN_PROGRESS` |
-| **M1** | Mobile | Painel combinado dos PCs + seletor de alvo | M0 | `TODO` |
+| **M0** | Mobile | Multi-PC simultâneo (2 conexões paralelas) | — | `DONE` |
+| **M1** | Mobile | Painel combinado dos PCs + seletor de alvo | M0 | `IN_PROGRESS` |
 | **R0** | Backend | API de entrada remota (mouse/teclado) | — | `TODO` |
 | **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `TODO` |
 | **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `TODO` |
-| **A0** | Pesquisa/Infra | Auditoria + instalação do Hermes-Relay nos 2 PCs | — | `TODO` |
+| **A0** | Pesquisa/Infra | Auditoria + Hermes Dashboard nos 2 PCs; plugin condicional | R2 na ordem de entrega | `TODO` |
 | **A1** | Backend | Broker de pareamento Hermes no Bridge (reaproveita o login) | A0 | `TODO` |
 | **A2** | Mobile | Aba Hermes: chat, notificações, modelo e esforço | A1, M0 | `TODO` |
 | **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `TODO` |
 | **T0** | Full | Transferência retomável em blocos | — | `TODO` |
-| **I0** | Infra | Instalador de 1 comando (`irm … \| iex`) + repositório público | T0 | `TODO` |
+| **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; A0 para opção Hermes | `TODO` |
+| **U0** | Full | Portes seletivos e requisitos de protocolo; sem merge global | Por subitem; ver seção U0 | `PARTIAL` — U0.1 e U0.4a técnicos registrados |
 | **H0** | Full | Homologação E2E em 2 máquinas físicas (2ª instalada via I0) | todas | `TODO` |
 
 ### 🖥️🖥️ M0 — Multi-PC Simultâneo
 **Hoje (v0.2 S7):** o `PcProfileManager` salva vários PCs, mas só **um** fica ativo por vez (troca rápida).
 - [x] **M0.1:** Trocar o cliente ativo único por um registro de conexões por `pcId` (um `BridgeClient` + hub SignalR por PC), cada uma com ciclo de vida independente.
-- [ ] **M0.2:** Estado por PC: online/offline/revogado, `last_seen` e métricas próprias. A queda de um PC não afeta o outro.
-- [ ] **M0.3:** Limite **fixo de 2** conexões ativas. Os outros perfis salvos continuam disponíveis para troca. Em segundo plano, só polling econômico, sem WebSocket permanente (regra da v0.6).
+- [x] **M0.2:** Estado por PC: online/offline/revogado, `last_seen` e métricas próprias. A tela de configuração conecta/desconecta o segundo PC e exibe estado, hora da última telemetria recebida, CPU e RAM por conexão; falha de autenticação 401 aparece como revogado.
+- [x] **M0.3:** Limite **fixo de 2** conexões ativas. Os outros perfis salvos continuam disponíveis para troca. Em segundo plano, os hubs são suspensos sem polling; ao retomar o app, apenas os dois PCs ativos reconectam.
 - [x] **M0.4:** Testes: dois PCs mockados, falha de um isolada, revogação de um sem derrubar o outro, ação roteada ao `pcId` correto e recusa de uma 3ª conexão.
 
 ### 📊 M1 — Painel Combinado
-- [ ] **M1.1:** Visão "Meus 2 PCs" com cartões lado a lado (CPU/RAM/estado), indicando qual PC está offline.
-- [ ] **M1.2:** Cada ação, rotina e transferência mostra e exige o **PC-alvo** de forma explícita; confirmações destrutivas exibem o nome do PC.
-- [ ] **M1.3:** Atividade recente unificada, filtrável por PC.
-- [ ] **M1.4:** (Opcional) Rotina "nos dois": a mesma ação da allowlist nos 2 PCs, com resultado por PC (sem sucesso agregado falso).
+- [ ] **M1.1 (implementado):** Visão "Meus 2 PCs" com cartões lado a lado (CPU/RAM/estado), indicando qual PC está offline. Falta validar dois perfis Command conectados e obter aceite visual humano.
+- [ ] **M1.2 (implementado):** Cada ação, rotina e transferência mostra e exige o **PC-alvo** de forma explícita; confirmações destrutivas exibem o nome do PC. Falta validar o roteamento/confirmações com duas Bridges Command e obter aceite humano.
+- [x] **M1.3 (2026-10-20, técnico):** Atividade recente consolida os até dois perfis carregados, ordena por horário, rotula por PC, filtra e limpa com confirmação por PC. Falha parcial preserva o resultado individual. `flutter test -j 1 test/app_catalog_and_jobs_test.dart` — 4 PASS; `flutter build apk --debug --no-pub` — PASS; APK instalado e Status aberto no `Pixel_9` (API 37). O filtro renderizou, mas o histórico ficou indisponível no único perfil salvo, que aponta à upstream DroidDeckPC, não à Bridge Command; integração real com duas Bridges Command segue `NOT_RUN`.
+- [x] **M1.4 (2026-10-20, técnico; validação física pendente):** Cartão busca as definições remotas nos dois perfis ativos e só habilita "Executar nos dois PCs" quando os dois hubs estão `Connected` e os `toJson()` completos são idênticos. A confirmação identifica ambos os PCs e lista os passos. Cada chamada usa o cliente e `deviceId` do próprio perfil; `DroidDeckClient.executeRoutine()` agora envia `X-Device-Id` no header esperado pelo Bridge. Cancelamento, divergência, desconexão durante a confirmação, sucesso duplo e falha parcial estão cobertos por testes Flutter (**12 PASS** em três arquivos). Resultados/erros são separados por PC, sem retry, rollback ou sucesso agregado; exceções de transporte não são exibidas em texto cru. Allowlist preservada (`app.launch`, `app.kill`, `screenshot.capture`, `delay`), sem shell ou tipos novos. `flutter build apk --debug --no-pub` — PASS; APK instalado e iniciado no AVD `emulator-5554` (API 37). **`NOT_RUN`/`PENDING_HUMAN`:** execução em duas Bridges Command físicas, chegada do header e isolamento de captura observados no Bridge, revisão/aceite visual.
+
+**Constatações verificadas em M1.4:** `WorkspaceRoutinesCard` consulta a rotina no início e após mudança/salvamento; a execução dupla só considera os dois perfis ativos de `PcConnections`, nunca perfis apenas salvos. O cliente envia `deviceId` em `X-Device-Id`, conforme `RoutinesController`; um teste do interceptor confirma header e query. A integração e o isolamento de captura no Bridge ainda dependem de duas Bridges Command disponíveis. A execução em duas Bridges não é transacional: queda de rede pode produzir efeito em um PC e falha no outro; mostrar resultados individuais, sem rollback/retry.
+
+**Retomada 2026-10-20:** M1.1/M1.2 implementados no app. Build atual instalado e aberto no `Pixel_9` (API 37, 1080×2424); o cartão combinado aparece com um único perfil salvo. Atividade Recente mostra o filtro e o estado indisponível contra a Bridge upstream. Serviços/Top Processos mostram mensagem amigável de HTTP 404; isso não comprova validação contra a Bridge Command. Dois perfis Command conectados, métricas comparativas e confirmações destrutivas continuam `NOT_RUN`; aceite humano `PENDING_HUMAN`.
+
+**Retomada (2026-10-21):** a pedido do proprietário, U0.4a foi reordenado para antes do checkpoint final de M1 e recebeu porte técnico. O checkpoint M1 volta a ser a prioridade: validar M1.1–M1.4 com duas Bridges Command físicas, confirmar roteamento/isolamento e obter aceite humano antes de fechar M1 e avançar para U0.4b.
+
+**Checkpoint M1:** após U0.4a, voltar às validações pendentes com duas Bridges Command: troca do alvo durante resposta pendente, isolamento após queda/revogação, nome do PC em confirmação destrutiva, atividade unificada/filtrada e execução isolada da rotina em cada perfil. O AVD anterior mostrou o estado indisponível da upstream DroidDeckPC, não a integração Command. Registrar captura sem credenciais/dados privados e obter aceite humano para M1.1/M1.2. Então fechar M1 e avançar para U0.4b.
+
+**Progresso M1.3 (2026-10-20):** a página consolida até dois perfis, identifica cada linha por nome (e sufixo de ID quando nomes repetem), filtra e confirma limpeza informando os PCs. Falha parcial mantém o resultado individual por PC. Teste de widgets: 4 PASS. `flutter analyze` nos arquivos tocados reportou 3 diagnósticos `info` já existentes em `status_page.dart` (import redundante, API depreciada e concatenação); sem erros ou warnings. Build debug PASS, instalação e abertura no AVD Pixel_9 PASS. A revisão visual confirmou o filtro e o estado indisponível do feed sob a Bridge upstream; a causa específica não foi isolada. Agregação real entre dois PCs e aceite visual permanecem `NOT_RUN`/`PENDING_HUMAN`.
 
 ### 🖱️ R0 — API de Entrada Remota (Backend)
 - [ ] **R0.1:** `RemoteInputController` (`/api/v1/input`): `move` (delta), `click` (botão), `scroll`, `key` (allowlist via `KeySequence`) e `text` (até 500 caracteres por envio). Reaproveitar `Lib/Input/KeyboardInput`; adicionar mouse via `SendInput`.
@@ -85,64 +100,116 @@
 - [ ] **R2.3:** Mesmas regras de sessão bloqueada e consentimento do R0.
 
 ### 🔎 A0 — Auditoria e Instalação do Hermes-Relay (Regra 8)
-**Fato verificado (2026-10-19):** clone local em `research/upstream/hermes-relay`, SHA `62de6b51289d933a3f8d68841652b044130aa72f` (2026-10-07), licença **MIT** (Axiom Labs). O app upstream é **Kotlin nativo**; a aba será um **cliente Flutter novo**, escrito contra o protocolo documentado (`docs/relay-protocol.md`: WSS `/ws`, envelopes por canal).
-- [ ] **A0.1:** Registrar URL, SHA, data e licença em `research/UPSTREAM.md`. Criar a ADR `docs/adr/ADR-00x-hermes-relay.md` com a decisão D-v1.5-04.
+**Fato verificado (clone conferido em 2026-10-20):** `research/upstream/hermes-relay` permanece no SHA `62de6b51289d933a3f8d68841652b044130aa72f` (2026-10-07), licença **MIT** (Axiom Labs). O app upstream é Kotlin; a aba será Flutter próprio. A0 deve mapear Dashboard/Gateway como contrato primário e consultar `docs/relay-protocol.md` somente para extensões Relay necessárias; o `/ws` Relay não deve ser confundido com o WS Gateway.
+- [ ] **A0.1:** Completar `research/UPSTREAM.md`: preservar o SHA anterior, obter e comparar `android-v1.19.0` / `server-v1.13.1` (`da782a8d74eb6631ea2f097b3cc69c6452ec33de`), atualizar apenas o clone de pesquisa e registrar arquivos efetivamente auditados. Notas de release não equivalem a auditoria integral. Criar ADR com cliente Flutter próprio, broker HTTP/WS e plugin opcional; fixar também versão/SHA do Hermes Agent compatível.
 - [ ] **A0.2:** Mapear os canais usados (chat, notificações, modelos/esforço) e os excluídos (voz, terminal, bridge/hands, dashboard completo), além dos limites de rate do servidor.
 - [ ] **A0.3:** **Hipótese a verificar:** a escolha de modelo vem de `GET /v1/models` (Hermes WebAPI). Confirmar se o protocolo expõe um parâmetro de **esforço/raciocínio**; se não expuser, registrar a limitação e propor a alternativa antes de A2.
-- [ ] **A0.4:** Documentar e executar a instalação do `hermes-agent` + plugin Hermes-Relay **nos 2 PCs**, em `docs/INSTALL_HERMES.md`: dependências, porta 8767, firewall privado e como desligar. Revisar os scripts `install.sh`/`uninstall.sh` antes de executar qualquer um, e confirmar se existe caminho oficial para Windows.
+- [ ] **A0.4:** Documentar em `docs/INSTALL_HERMES.md` e instalar Hermes Agent + Dashboard nos dois PCs, ouvindo somente em `127.0.0.1:9119`. Conferir suporte Windows e scripts fixados por versão/hash antes de executar. Verificar notificações upstream primeiro; plugin Relay somente se a capacidade necessária não existir. Se adotado, usar ingresso allowlisted do Dashboard sem abrir `8767` na LAN. Registrar início, parada, revogação e comportamento com Hermes desligado.
 - [ ] **A0.5:** Comparar com o `HermesController` atual (v0.4): o que a aba substitui e o que continua.
 
 **Caminho mais fácil (pesquisado em 2026-10-19 no clone local):**
 - O **Hermes-Relay CLI** (`desktop/`, instalado com `install.ps1`) é um **cliente**: ele dá ao agente "mãos" no PC (terminal, PowerShell, arquivos). Isso conflita com a Regra 3, e ele não é o servidor de chat. **Não usar.**
-- O app oficial deles conversa, no caminho padrão, com o **Hermes Dashboard/Gateway vanilla** (`hermes dashboard`, porta 9119). Isso cobre chat, sessões e **Manage (modelos)** sem nenhum plugin. Há instalador oficial para Windows: `iex (irm https://hermes-agent.nousresearch.com/install.ps1)` → `hermes setup --portal` → `hermes dashboard --no-open --host 0.0.0.0 --port 9119`. O login é feito com usuário/senha (`HERMES_DASHBOARD_*` em `~/.hermes/.env`).
-- O **plugin Relay** (porta 8767) é opcional e só é necessário para as **notificações**.
+- O app oficial usa **Hermes Dashboard/Gateway vanilla** para chat, sessões e Manage. A0 deve conferir o instalador Windows e sua versão atual, baixá-lo para revisão e fixar o hash; não executar conteúdo remoto diretamente. Iniciar Dashboard somente em loopback; credenciais locais nunca entram em evidências.
+- O **plugin Relay** é opcional. Android 1.15 documenta avisos comuns upstream; A0.2 deve distinguir esses avisos de Notification Companion/entrega offline antes de declarar o plugin necessário.
 - **Decisão proposta:** A0.4 instala o Hermes vanilla + Dashboard nos 2 PCs. O plugin Relay só entra se as notificações exigirem. Antes de executar o `install.ps1` remoto, baixá-lo, ler e fixar o hash (Regra 8).
 
 ### 🔐 A1 — Broker de Login (reaproveitar o login)
-**Proposta (revisada):** o celular já está autenticado no Bridge (API key DPAPI + roles da v1.0). O Bridge guarda as credenciais do Dashboard local protegidas por DPAPI e faz o login no Hermes do mesmo PC via loopback (`127.0.0.1:9119`), atuando como proxy autenticado do chat. Assim o usuário **não precisa fazer um segundo login**, e o Dashboard não precisa ficar exposto na LAN. Se as notificações exigirem o plugin Relay, o código de pareamento vem da rota loopback `/pairing/register`.
-- [ ] **A1.1:** `HermesRelayController` (`/api/v1/hermes-relay`): `GET status` (instalado, online e versão, sem segredos) e as rotas de chat, modelos e esforço, todas repassadas ao Dashboard local via loopback, **somente** para dispositivos autenticados no Command. A senha do Dashboard nunca chega ao celular.
+**Contrato de planejamento revisado:** celular autenticado no Command; Bridge guarda as credenciais do Dashboard com DPAPI e mantém sessões upstream separadas por dispositivo Command e PC. HTTP para consultas/configuração, WS para streaming. O Bridge obtém um novo ticket de uso único a cada conexão WS ao Gateway; preserva Host/Origin/IP e não registra tickets. O Dashboard permanece em loopback. Rotas do plugin, se necessário, serão confirmadas em A0; não presumir que a API Relay substitui a autenticação Dashboard.
+- [ ] **A1.1:** `HermesRelayController` (`/api/v1/hermes-relay`): status sem segredos e contratos explícitos de chat/modelos/esforço; broker HTTP + WS autenticado, sem aceitar URL/path/canal arbitrário. Credenciais, cookies e tickets upstream nunca chegam ao celular. Contrato WS incompleto, replay ou origem inválida devem negar acesso.
 - [ ] **A1.2:** Qualquer celular pareado pode se conectar ao Hermes (D-v1.5-07). Auditar o evento sem registrar o código nem o token.
-- [ ] **A1.3:** O app troca o código por um token de sessão do relay e guarda esse token no armazenamento seguro, **por PC** (cada PC tem o seu Hermes). Revogar o dispositivo no Command também descarta a sessão Hermes daquele PC.
-- [ ] **A1.4:** Testes: relay ausente, relay offline, código expirado ou reutilizado, dispositivo revogado.
+- [ ] **A1.3:** Manter tokens/sessões Hermes somente no Bridge, vinculados ao dispositivo Command, PC e identidade upstream exata. Listar, encurtar e revogar sem renovar silenciosamente; revogação Command fecha conexões e invalida a sessão associada. Proibir fallback por nome quando ID exato estiver ausente, duplicado ou conflitante. Convite/código temporário só no fluxo local autorizado do PC.
+- [ ] **A1.4:** Evidência: Hermes ausente/offline; ticket expirado/reutilizado; Host/Origin/IP inválidos; sessão revogada; dois PCs com perfis homônimos; troca de alvo durante resposta; nenhum segredo/caminho privado em logs. Verificar separadamente roles Command e autorização Dashboard/Relay.
 
 ### 💬 A2 — Aba Hermes no App
-- [ ] **A2.1:** Nova aba **Hermes** na navegação principal, seguindo o `DESIGN.md`/Amethyst Command. Quando o relay está disponível, ela substitui o card passivo "Not configured".
-- [ ] **A2.2:** Chat em streaming via WSS, com reconexão, histórico da sessão e os estados offline, não configurado e sessão expirada.
-- [ ] **A2.3:** Seletor de **modelo** e de **esforço** por conversa, liberado para qualquer celular pareado. Se A0.3 mostrar que o esforço não é suportado, o controle não aparece (sem controle fictício).
-- [ ] **A2.4:** Notificações do agente no Android, respeitando a privacidade de tela de bloqueio da v0.6.
+- [ ] **A2.1:** Aba **Hermes** na navegação principal, seguindo DESIGN/Amethyst. Quando o Dashboard estiver configurado via broker, substituir o card passivo; plugin ausente não impede chat upstream. Separar estados de Dashboard e extensões opcionais.
+- [ ] **A2.2:** Chat em streaming pelo broker, com estados offline/não configurado/sessão expirada e transcript/rascunho preservados por PC/conversa. Histórico com janela recente de até 500 mensagens, retry em páginas menores, limites agregados de bytes/memória e erro explícito para mensagem grande demais. Recuperar turno silencioso pelo estado autoritativo sem Stop, reenvio automático ou duplicação. Não mudar para Direct API silenciosamente.
+- [ ] **A2.3:** Carregar modelos ao abrir o seletor, antes da primeira mensagem; modelo/esforço por conversa e PC, liberados para qualquer celular pareado. Se A0.3 mostrar que esforço não é suportado, ocultar o controle (sem controle fictício).
+- [ ] **A2.4:** Não lidas e notificações isoladas por PC/agente/conversa, com permissão explícita e privacidade de tela de bloqueio da v0.6. Não usar nome/conteúdo sensível na tela bloqueada; abrir sempre a conversa de origem.
 - [ ] **A2.5:** Com 2 PCs conectados, a aba mostra com qual PC/Hermes você está falando e permite trocar.
+- [ ] **A2.5b:** Clarify em lote, uma pergunta por vez, preservando progresso confirmado por ID de solicitação/PC/conversa. Aprovar somente operações tipadas permitidas; pedidos desconhecidos, shell ou sudo ficam indisponíveis com motivo, mesmo com confirmação humana. Coleta de segredos fica fora até existir contrato específico aprovado; nunca em logs. Reconexão não repete aprovação.
+- [ ] **A2.5c:** Anexos, se incluídos no contrato A0, usam raízes autorizadas, limite atual de 100 MiB, validação de caminho/tipo e SHA-256. Mídia temporária com dono e expiração; limpeza não apaga arquivos do usuário. Download arbitrário de arquivos do host não é autorizado pelo chat.
 - [ ] **A2.6:** Testes de widget e unidade com servidor WSS mockado.
 
 ### 📡 D0 — Descoberta e Reconexão
 - [ ] **D0.1:** O Bridge anuncia `_command._tcp` via mDNS (nome amigável + porta), desativável na configuração.
 - [ ] **D0.2:** O app lista os PCs descobertos para parear e atualiza o endereço dos PCs já pareados quando o IP muda, sempre validando a identidade/certificado do Bridge, nunca só o nome.
-- [ ] **D0.3:** Fallback ordenado LAN → Tailscale → último endereço conhecido, por PC.
+- [ ] **D0.3:** Fallback LAN → USB habilitado e homologado (U0.3) → Tailscale → último endereço conhecido, sem repetir candidato, sempre por PC e identidade validada. Sem USB aprovado, seguir LAN → Tailscale. `:10443` é referência de topologia Hermes, não porta obrigatória do Bridge nem autorização para expor Dashboard.
 
 ### 📦 T0 — Transferências Retomáveis
 - [ ] **T0.1:** Upload e download em blocos (ex.: 4 MiB) com `offset`, mantendo o limite, a blocklist e a proteção anti-traversal atuais.
 - [ ] **T0.2:** Retomar após queda de rede ou do app; SHA-256 final obrigatório; partes órfãs expiram e são limpas no startup.
 - [ ] **T0.3:** Testes: interrupção no meio, bloco corrompido, retomada com hash divergente → rejeitar.
 
-### 🚀 I0 — Instalador de 1 Comando e Publicação do Repositório
-**Decisão D-v1.5-11 (2026-10-19):** tornar o repositório público para permitir `irm https://raw.githubusercontent.com/playertwo1/Command/main/install.ps1 | iex`.
+### 🚀 I0 — Instalador Windows próprio e Distribuição
+**Direção atualizada a pedido (2026-10-20):** priorizar instalação direta por `Command-Setup.exe`; zip portátil e script assistido são alternativas. Reutilizar o Velopack já presente, sem novo framework de instalação. A intenção D-v1.5-11 de publicação permanece condicionada a I0.7; gerar/testar um instalador local não exige tornar o repositório público.
+
+**Achado verificado:** `.github/workflows/release.yml` usa `DroidDeckPC`, título DroidDeck e artefato DroidDeck-Setup.exe; `DroidDeck/Lib/AppUpdater.cs` aponta para `ggfto/DroidDeck`. Corrigir identidade e origem antes de distribuir para não instalar/atualizar o produto errado.
 - [ ] **I0.1 (gate obrigatório antes de publicar):** varredura de segredos em **todo o histórico Git** (gitleaks/trufflehog): chaves de assinatura, `key.properties`, `.env`, tokens, API keys, IPs/hostnames privados e evidências com dados pessoais. Se encontrar algo, rotacionar o segredo e limpar o histórico **antes** de tornar o repo público. Revisar `docs/evidence/` e `docs/assets/` (screenshots reais).
-- [ ] **I0.2:** Conferir as licenças: o upstream DroidDeck permite o fork público? Registrar em `LICENSE`/`NOTICE` a atribuição do DroidDeck e do Hermes-Relay (MIT).
-- [ ] **I0.3:** `install.ps1` na raiz: baixa o zip da última Release + `SHA256SUMS`, confere o hash (aborta se divergir), extrai em `%LocalAppData%` sem admin, cria o atalho de inicialização, pede consentimento para a regra de firewall privada e abre o QR de pareamento. Se já existir o `Setup.exe` do Velopack (v1.0), apenas baixá-lo, verificá-lo e executá-lo.
+- [ ] **I0.2:** Conferir licenças por componente: raiz DroidDeck Apache-2.0, `app/LICENSE` GPL-3.0, Hermes-Relay MIT. Preservar avisos/atribuições e preparar o código-fonte correspondente aos binários sujeitos a essas obrigações. Resolver distribuição antes de liberar artefatos, sem assumir que todo o fork é Apache.
+- [ ] **I0.3a:** Empacotar `Command-Setup.exe` com identidade Velopack própria e metadados Command, mantendo executável interno compatível. Atualizador consulta somente releases Command; definir tag/canal e impedir fallback para upstream. Auditar caminhos e migração dos dados antes de renomear diretórios/packId; preservar instalação DroidDeck independente e credenciais DPAPI do Command.
+- [ ] **I0.3b:** Instalação por usuário sem admin: atalho, tray, autostart opcional e QR temporário local. Firewall privado exige consentimento e elevação legítima quando necessária, com recuperação clara se negada. Instalador não contorna UAC/SmartScreen nem inclui tokens, chaves ou dados pessoais.
+- [ ] **I0.3c:** Publicar manifesto de versão e SHA-256 junto ao instalador e zip portátil; documentar assinatura de código existente ou ausente. Preparar `install.ps1` que resolve uma release específica, valida integridade antes de executar e aborta em divergência. Não colocar token de repositório privado no script/binário; distribuição privada ou pública será definida em I0.7.
 - [ ] **I0.4:** Etapa opcional "Instalar Hermes? [s/N]": roda o instalador oficial do Hermes (auditado e com hash fixado em A0.4), configura o Dashboard em `127.0.0.1:9119` e entrega as credenciais ao Bridge via DPAPI.
-- [ ] **I0.5:** Desinstalação via `install.ps1 -Uninstall`. SmartScreen: só exibir a instrução de `Unblock-File`, sem contorná-lo automaticamente.
-- [ ] **I0.6:** Testar em uma máquina limpa (a 2ª máquina física do H0) e registrar a evidência.
+- [ ] **I0.5:** Desinstalação pelo Windows e alternativa assistida: remover só arquivos/atalhos/regras pertencentes ao Command; preservar dados por padrão e pedir opção explícita para apagá-los. Documentar falha de atualização e recuperação para versão anterior compatível. SmartScreen não é contornado; informar origem e situação da assinatura.
+- [ ] **I0.6:** Evidência na segunda máquina física limpa: instalar, abrir tray, parear, reiniciar, atualizar, simular download corrompido/falha de rede e desinstalar. Conferir preservação de dados, coexistência DroidDeck/Command, origem do updater e funcionamento sem Hermes. Não marcar PASS com base apenas na geração do setup.
 - [ ] **I0.7:** Tornar o repositório público — **somente** após I0.1/I0.2 PASS e confirmação explícita do proprietário no momento da publicação.
 
 ### ✅ H0 — Homologação
-- [ ] **H0.1:** E2E com **2 máquinas físicas**, cada uma com Bridge e Hermes-Relay, controladas pelo mesmo app ao mesmo tempo.
+- [ ] **H0.1:** E2E com **2 máquinas físicas**, cada uma com Bridge e Hermes Dashboard; plugin somente quando exigido pelo contrato A0. Segundo PC instalado pelo setup Command.
 - [ ] **H0.2:** Bateria: métricas paralelas, ação no PC certo, trackpad, texto livre, prévia ao vivo, pareamento Hermes sem segundo login, chat, notificações, troca de modelo/esforço, mDNS após troca de IP, transferência interrompida e retomada e o app inteiro funcionando com o relay desligado.
-- [ ] **H0.3:** `dotnet test` + `flutter test` + `flutter analyze` verdes; evidências em `docs/evidence/V1.5/`; atualizar `STATE.md`.
+- [ ] **H0.3:** `dotnet test` + `flutter test` + `flutter analyze` verdes; evidências em `docs/evidence/v1.5/`; atualizar `STATE.md`. Testes antigos não substituem execução no build homologado.
+- [ ] **H0.4:** Evidenciar isolamento de PCs/credenciais, revogação durante streaming, ViewerOnly, UAC/bloqueio, logs sanitizados, anexos fora da raiz negados e transporte USB somente se incluído. Aceite humano da UI e do instalador separado do PASS técnico.
 
 ---
+
+### 🔄 U0 — Sincronização seletiva com upstream (2026-10-20)
+**Base e método:** fork originado em DroidDeck v1.9.1, com alterações próprias posteriores. Revisão de v1.10/v1.11 e Hermes Android 1.15–1.19 / Plugin 1.11–1.13.1 em 2026-10-20. **Porte manual seletivo é o padrão**. Apenas `270a5a1`, `9608517`, `70f09f0` e `31c099a` passaram no `git apply --check` individual; isso não comprova cherry-pick de três vias, dependências ou execução. Matriz completa em `docs/UPSTREAM_IDEIAS_2026-10-20.md`, seção 4.
+
+- [ ] **U0.0 — gate por porte:** conferir árvore suja, caminhos afetados, licença/URL/SHA/data em `research/UPSTREAM.md`, regras 3/4/6/8 e dependências. Inspecionar o diff selecionado; não reintroduzir endpoints genéricos, marca upstream nem telas removidas. Evidência nova de testes/build/UI pertence ao porte, não à revisão documental.
+
+**Aproveitar (DroidDeck):**
+- [x] **U0.1:** (2026-10-20, portado à mão — os arquivos do commit não existem no fork; `flutter test` 174 PASS. Aceite visual no aparelho `NOT_RUN`.) Correções de texto/estado de conexão honestos (`b4647a6`) — conversa direto com a pendência do M1 sobre o erro Dio exibido cru.
+- [ ] **U0.2a — APROVEITAR / M / após U0.4:** volume e botões grandes (`4c6ec61`), reaproveitando Mixer e DTOs tipados. Validar range, permissões, PC-alvo e resposta real ao arrastar; GIF só com limite de bytes/dimensões e impacto de memória definido. Validar gesto e acessibilidade no AVD.
+- [ ] **U0.2b — AVALIAR / G / opcional:** `12736f6` por provider existente (OBS/Discord/Tuya/monitor/mídia), sem copiar `Dictionary<string,string>` como contrato genérico. Definir IDs autorizados, tipos, ranges e destinos cadastrados; novos providers ficam em v2. Não bloquear U0.2a.
+- [ ] **U0.3 — AVALIAR / G / em D0:** porte de `4cd92f6` usa `adb reverse tcp:4787 tcp:4787`, ADB no PC e depuração autorizada no Android. Habilitação explícita; rotas/estado por PC; desligar remove somente encaminhamento próprio. Não confiar em loopback por falha ao descobrir PID; sem serial em logs. Download de platform-tools versionado/verificado, com extração limitada. Gate: cabo removido, PC errado, revogação, dois perfis, ADB ausente e reinício; comprovar em aparelho físico antes de oferecer como fallback. Sem viabilidade comprovada, adiar e manter LAN/Tailscale.
+- [x] **U0.4a — APROVEITAR / P (2026-10-21, porte manual):** `47d15ff` — a chave do painel combina ID e posição (linha/coluna), separando botões salvos e células novas. `flutter test -j 1 --no-pub test/stream_deck_desktop_layout_test.dart` — 1 PASS (troca A→B e descarte de rascunho ao alternar entre células novas); `flutter build web --no-pub` — PASS. O navegador abriu a saída estática, mas sem Bridge/perfil/API para repetir o fluxo manualmente; não houve alteração visual de produto.
+- [ ] **U0.4b — APROVEITAR / M:** grade `88f528c` e medidores/deck vazio `0e1e1f2`; preservar layout salvo e tema Amethyst em tamanhos diferentes, sem telemetria fictícia.
+- [ ] **U0.4c — APROVEITAR / P:** timer/contador/backup `270a5a1`; adaptar texto operacional ao mínimo de 12 px, sem encolhimento ilimitado. Não reativar backup oculto sem seu contrato de segurança.
+- [ ] **U0.4d — APROVEITAR / M:** extrair de `d4d5375` orientação e edições seguras, sem tema amarelo/gatilhos. Portar textos locais de bandeja/pareamento `949e731`; clima `9608517` é candidato pequeno a cherry-pick, sujeito ao gate U0.0.
+- [ ] **U0.5a — AVALIAR / M:** notificações Windows `2ee77b1`: adesão explícita, contagem sem conteúdo, negação/revogação de permissão e tela bloqueada. Auditar viabilidade do listener no pacote Windows escolhido.
+- [ ] **U0.5b — AVALIAR / G:** uso IA `80ddefd` lê OAuth Claude e históricos Claude/Codex. Não ler dados pessoais durante a avaliação sem autorização; preferir fonte suportada e métricas agregadas, sem credenciais em logs. Não importar o leitor inteiro por conveniência.
+- [ ] **U0.5c — AVALIAR / M:** condições `f94f5f7` como extensão opcional de M1.4; condição desconhecida/horário inválido deve negar, não retornar verdadeiro. Autorizar cada ação no momento da execução, preservar confirmações e resultado por PC.
+
+**REJEITAR nesta proposta:** scripts `470fe1e` (R3); gatilhos `4079f67` como implementados (confirmações não garantidas); cliente web/iOS `e75169e` (novo escopo de autenticação); link público `b443b20` (site externo e parâmetros potencialmente privados); branding `0388f42`/`dd4d758` (marca Command). Isso não os aprova automaticamente para v2.
+
+**Backlog v2, não ativo:** Elgato `6db2252` (G: IDs permitidos, limites de ZIP/imagem e caminhos), espanhol `70f09f0` (M: traduzir também telas próprias), integrações `31c099a`/`8689282` (G: avaliar separadamente credenciais, MQTT e automações). Cada entrada precisa de decisão específica antes da implementação.
+
+**Aproveitar (Hermes-Relay, referência de protocolo para A1/A2 — sem copiar código Kotlin):**
+- Plugin 1.13.1: alvo por `device_id` exato, sem fallback por nome para outro PC → adotar a mesma regra no broker A1 com 2 PCs.
+- Plugin 1.13.0: novos convites com rotas/certificado são descritos para CLI+UI; avaliar conceito em A1.3/D0.2 sem presumir compatibilidade Flutter. Plugin 1.13.1: cadeia PEM, exportação só do certificado folha e gestão de sessões são referências para A1.3.
+- Android 1.15.0 ("upstream-first"): chat, anexos, arquivos do host e avisos usam os contratos autenticados do Dashboard/Gateway; o plugin Relay é só camada extra → confirma a decisão do A0 (Hermes vanilla + Dashboard, plugin opcional). Transcript, rascunho e sessão sobrevivem a logout/queda sem trocar de rota.
+- Android 1.16.0: login do Dashboard **amarrado à sua conexão** ao trocar de gateway; a rota de um não invalida a sessão do outro; perfis homônimos em gateways diferentes não se confundem → requisito direto do A1.3/A2.5 com 2 PCs.
+- Android 1.17.0: Clarify em lote respondido uma pergunta por vez, com progresso confirmado entre reconexões → entra no A2.5b.
+- Plugin 1.11.0: ingresso Relay pela origem Dashboard com rotas allowlistadas e autenticações independentes; referência para A0.4. Listener `:10443` é opção da topologia Hermes, não substitui identidade/autorização Command nem justifica abrir novas portas.
+- Plugin 1.11.3/1.12.0: WebSocket com ticket de uso único + checagem Host/Origin/IP; falha de auth não grava campos do cliente em log → mesmas regras no proxy do A1.
+- **Não aproveitar:** CLI+UI 0.4.0-beta.6…10 (controle do computador via CUA, terminal, "mãos" no PC) — viola a Regra 3; Git workspace do plugin 1.11.0, voz Realtime/overlay e Bot Mode — fora do escopo da v1.5.
+- Android 1.18.0: aproveitar modelos ao abrir seletor; cards sujeitos à allowlist A2.5b. Sudo/segredos não entram por confirmação genérica; consentimento HTTP não substitui transporte protegido. Android 1.18.1: login em segundo plano somente se houver futura decisão de OIDC móvel, desnecessário no broker atual.
+- Android 1.19.0: histórico limitado, recuperação sem Stop, não lidas e notificações por conversa em A2.2/A2.4. Não assumir que screenshot está resolvido: issues upstream #743/#745 permaneciam citadas como abertas nas releases consultadas.
 
 ## 4. Fora do escopo da v1.5
 Voz do Hermes, dashboard completo do agente (chaves, skills, perfis), mais de 2 PCs simultâneos, streaming de alta taxa/áudio, controle sem sessão desbloqueada, clipboard automático, análise de prints por IA e app Wear OS. Ficam para avaliação na v2.0.
 
 ## 5. Pendências
-- Aprovação final do proprietário para iniciar M0.
+- M1: prioridade após U0.4a é o checkpoint de validação conectada; M1.1–M1.3 foram adiadas pelo proprietário e M1.4 ainda não foi validado em duas Bridges físicas. Antes de fechar M1, validar roteamento, histórico unificado, isolamento/confirmações de alvo, rotina por PC e obter aceite humano. M0 já está registrado como DONE.
+- U0.0: completar auditoria por arquivo antes de cada porte; apenas itens APROVEITAR entram na sequência. Itens AVALIAR precisam de conclusão documentada; ausência de decisão não significa aprovação.
+- A0.1: atualizar e auditar clone Hermes; o novo SHA já está registrado como referência de release, não como código integralmente auditado.
 - Resultado de A0.3 (suporte a esforço) e de A0.4 (instalação no Windows) pode exigir ajustar A2 antes de implementá-la.
+- I0: fechar identidade/canal do updater, migração de dados e obrigações de distribuição; publicação, commit e push continuam exigindo pedido explícito.
+
+## 6. Evidência e retomada por outro agente
+
+Executar uma subfase por vez. Antes de alterar produção, ler STATE, este roadmap, DESIGN para UI e a linha correspondente da matriz upstream. Identificar arquivos existentes e dependências; não aplicar os commits em lote.
+
+Ao encerrar, registrar: item/arquivos, SHA de origem, alterações concorrentes presentes, comandos realmente executados, resultado técnico, captura/ambiente e pendências. Usar `NOT_RUN` para teste/build/dispositivo não executado e `PENDING_HUMAN` para aceite visual. Os critérios de teste deste roadmap são trabalho futuro, não evidência produzida pela edição documental.
+
+**Próxima execução concreta:** checkpoint M1 acima, agora que U0.4a recebeu porte técnico; depois U0.4b/c/d. Não iniciar instalação Hermes, USB ou publicação enquanto suas fases/gates não forem alcançados.

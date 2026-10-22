@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:droiddeck/core/core.dart';
@@ -7,17 +8,7 @@ import 'package:droiddeck/src/home/screenshot_viewer.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final testPngBytes = Uint8List.fromList([
-    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
-    0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-    0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
-    0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
-    0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
-    0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
-    0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-    0x42, 0x60, 0x82
-  ]);
+  late Uint8List testPngBytes;
 
   final testInfo = ScreenshotInfo(
     id: 'sc_test_123',
@@ -28,6 +19,18 @@ void main() {
     createdAtUtc: DateTime.utc(2026, 10, 17, 12, 0),
     expiresAtUtc: DateTime.utc(2026, 10, 17, 12, 10),
   );
+
+  setUpAll(() async {
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder).drawRect(
+      const ui.Rect.fromLTWH(0, 0, 640, 360),
+      ui.Paint()..color = const ui.Color(0xFF111111),
+    );
+    final image = await recorder.endRecording().toImage(640, 360);
+    final png = await image.toByteData(format: ui.ImageByteFormat.png);
+    testPngBytes = png!.buffer.asUint8List();
+    image.dispose();
+  });
 
   testWidgets('Renders ScreenshotViewerPage with annotation tools', (tester) async {
     await tester.pumpWidget(

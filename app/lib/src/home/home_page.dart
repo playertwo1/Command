@@ -74,7 +74,7 @@ class HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     isAuthError
-                        ? tr('Falha de autenticação (chave inválida ou expirada).\nRefaça o pareamento.')
+                        ? tr('O PC não reconheceu este aparelho (a chave mudou ou é de outro PC).\nPareie de novo pelo QR.')
                         : tr('Erro: {error}', {'error': err}),
                     textAlign: TextAlign.center,
                   ),

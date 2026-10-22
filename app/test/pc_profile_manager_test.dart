@@ -149,7 +149,7 @@ void main() {
       expect(swapButton, findsOneWidget);
 
       // Card do PC exibe o nome do PC ativo
-      expect(find.text('PC Escritório'), findsOneWidget);
+      expect(find.text('PC Escritório'), findsNWidgets(2)); // Painel combinado + PC ativo
 
       // Toca no botão de troca para abrir o modal
       await tester.tap(swapButton);
@@ -157,17 +157,17 @@ void main() {
 
       // Modal aberto com o título e a lista de computadores
       expect(find.text('Computadores Pareados'), findsOneWidget);
-      expect(find.text('PC Escritório'), findsNWidgets(2)); // Card + Modal
-      expect(find.text('PC Sala'), findsOneWidget);
+      expect(find.text('PC Escritório'), findsNWidgets(3)); // Painel combinado + PC ativo + Modal
+      expect(find.text('PC Sala'), findsNWidgets(2)); // Painel combinado + Modal
       expect(find.text('Gerenciar PCs e Novo Pareamento'), findsOneWidget);
 
       // Toca no segundo PC para alternar
-      await tester.tap(find.text('PC Sala'));
+      await tester.tap(find.text('PC Sala').last);
       await tester.pumpAndSettle();
 
       // Verifica que o PC ativo foi alternado
       expect(PcStore.currentId, 'pc2');
-      expect(find.text('PC Sala'), findsOneWidget);
+      expect(find.text('PC Sala'), findsNWidgets(2)); // Painel combinado + PC ativo
     });
   });
 }

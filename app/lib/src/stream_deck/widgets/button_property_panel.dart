@@ -26,6 +26,9 @@ class ButtonPropertyPanel extends StatefulWidget {
     this.profiles = const [],
   });
 
+  static Key stateKeyFor(DeckButton button) =>
+      ValueKey((button.id, button.row, button.column));
+
   @override
   State<ButtonPropertyPanel> createState() => _ButtonPropertyPanelState();
 }

@@ -38,5 +38,13 @@ Consulte a skill global [`director-flash-orchestrator`](file:///C:/Users/notefae
   4. Resultado verificável por comando objetivo (`dotnet test`, `flutter test`, `flutter analyze`).
 - **Antes de delegar:** Registre em 1 linha a justificativa e o ownership de arquivos. Reutilize o mesmo subagente via `send_message` na mesma frente. Exija retorno de no máximo 8 linhas (`STATUS | arquivos | validação | pendências`, sem diffs/logs longos).
 
+## Emulador Android
+- Iniciar: `powershell -File $env:USERPROFILE\scripts\emu.ps1 start`; parar ao terminar: `... stop`.
+- Usar o MCP `maestro` para interagir com o app.
+- Preferir ler a hierarquia de UI (texto) a screenshots; screenshot só para validar layout visual.
+- Não abrir o Android Studio; build pelo terminal: `./gradlew installDebug`.
+- Logs: `adb logcat -d *:E` (só erros), nunca logcat contínuo.
+- Fluxos repetidos viram arquivos `.maestro/*.yaml` e são executados com `maestro test`.
+
 ## Git
 O projeto está conectado ao repositório GitHub privado `playertwo1/Command`. Commits e push continuam exigindo autorização explícita do proprietário.

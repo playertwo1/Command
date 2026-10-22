@@ -38,7 +38,8 @@ class ConfigPageState extends State<ConfigPage> {
     var pcs = await PcStore.load();
     // PC migrado da versão antiga ainda sem nome: pergunta ao PC em uso.
     final current = pcs.where((p) => p.id == PcStore.currentId).firstOrNull;
-    if (current != null && (current.name == 'PC' || current.name == current.ip)) {
+    if (current != null &&
+        (current.name == 'PC' || current.name == current.ip)) {
       await fetchPcName(current);
       pcs = await PcStore.load();
     }
@@ -51,32 +52,80 @@ class ConfigPageState extends State<ConfigPage> {
 
   /// PCs pareados: tocar troca de PC; o menu renomeia ou esquece.
   Widget _buildPcList() {
+    final connections = Injector.get<PcConnections>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(tr('PCs pareados'), style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
         for (final pc in _pcs)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(pc.id == PcStore.currentId
-                ? Icons.radio_button_checked
-                : Icons.radio_button_unchecked),
-            title: Text(pc.name),
-            subtitle: Text('${pc.ip}:${pc.port}'),
-            onTap: pc.id == PcStore.currentId ? null : () => switchToPc(context, pc),
-            trailing: PopupMenuButton<String>(
-              onSelected: (v) => v == 'rename' ? _renamePc(pc) : _removePc(pc),
-              itemBuilder: (_) => [
-                PopupMenuItem(value: 'rename', child: Text(tr('Renomear'))),
-                PopupMenuItem(value: 'remove', child: Text(tr('Esquecer este PC'))),
-              ],
-            ),
-          ),
+          Watch((context) {
+            final isCurrent = pc.id == PcStore.currentId;
+            final service = connections.forPc(pc.id);
+            final status = service?.connectionStatus.watch(context);
+            final lastSeen = service?.lastSeen.watch(context);
+            final stats = service?.systemStats.watch(context);
+            final revoked = service?.isRevoked.watch(context) == true;
+            final online = status == 'Connected';
+            final parallel = !isCurrent && service != null;
+            final seenText = lastSeen == null
+                ? tr('Nunca nesta sessão')
+                : '${tr('Visto')} ${TimeOfDay.fromDateTime(lastSeen).format(context)}';
+            return ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                isCurrent
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+              ),
+              title: Text(pc.name),
+              subtitle: Text(
+                '${pc.ip}:${pc.port} · ${online
+                    ? tr('Online')
+                    : revoked
+                    ? tr('Revogado')
+                    : parallel
+                    ? tr('Offline')
+                    : tr('Desconectado')}'
+                '${online && stats != null ? ' · CPU ${stats.cpuUsage.toStringAsFixed(0)}% · RAM ${stats.ramUsage.toStringAsFixed(0)}%' : ''}'
+                ' · $seenText',
+              ),
+              onTap: isCurrent ? null : () => switchToPc(context, pc),
+              trailing: PopupMenuButton<String>(
+                onSelected: (v) async {
+                  if (v == 'rename') await _renamePc(pc);
+                  if (v == 'remove') await _removePc(pc);
+                  if (v == 'connect') await connections.connectSecondary(pc);
+                  if (v == 'disconnect') await connections.onPcRemoved(pc.id);
+                  if (mounted) setState(() {});
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 'rename', child: Text(tr('Renomear'))),
+                  if (!isCurrent)
+                    PopupMenuItem(
+                      value: parallel ? 'disconnect' : 'connect',
+                      child: Text(
+                        parallel
+                            ? tr('Desconectar paralelo')
+                            : tr('Conectar em paralelo'),
+                      ),
+                    ),
+                  PopupMenuItem(
+                    value: 'remove',
+                    child: Text(tr('Esquecer este PC')),
+                  ),
+                ],
+              ),
+            );
+          }),
         Text(
-          tr('Para acrescentar outro PC, pareie com o QR dele (ou digite o IP abaixo).'),
+          tr(
+            'Para acrescentar outro PC, pareie com o QR dele (ou digite o IP abaixo).',
+          ),
           style: TextStyle(
-              fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -90,10 +139,14 @@ class ConfigPageState extends State<ConfigPage> {
         title: Text(tr('Nome do PC')),
         content: TextField(controller: ctrl, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Cancelar'))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(tr('Cancelar')),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-              child: Text(tr('Salvar'))),
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: Text(tr('Salvar')),
+          ),
         ],
       ),
     );
@@ -123,12 +176,16 @@ class ConfigPageState extends State<ConfigPage> {
       if (result != 'Not Found') {
         _ipController.text = result;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(tr('Servidor encontrado: {server}', {'server': result}))),
+          SnackBar(
+            content: Text(
+              tr('Servidor encontrado: {server}', {'server': result}),
+            ),
+          ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(tr('Servidor não encontrado'))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(tr('Servidor não encontrado'))));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,8 +224,13 @@ class ConfigPageState extends State<ConfigPage> {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(Constants.ipAddrKey, ip); // Save raw IP for UI
-    await prefs.setString(Constants.portKey, port); // persiste a porta p/ o splash
-    final apiKey = prefs.getString(Constants.apiKeyKey); // mantém a chave do pareamento
+    await prefs.setString(
+      Constants.portKey,
+      port,
+    ); // persiste a porta p/ o splash
+    final apiKey = prefs.getString(
+      Constants.apiKeyKey,
+    ); // mantém a chave do pareamento
     final host = ip.contains(':') ? ip.substring(0, ip.indexOf(':')) : ip;
     final pc = await PcStore.upsert(ip: host, port: port, apiKey: apiKey);
     fetchPcName(pc);
@@ -179,7 +241,10 @@ class ConfigPageState extends State<ConfigPage> {
     client.setApiKey(apiKey);
 
     final signalR = Injector.get<SignalRService>();
-    await signalR.updateUrl(baseUrl, apiKey: apiKey); // Use local baseUrl, not client.baseUrl
+    await signalR.updateUrl(
+      baseUrl,
+      apiKey: apiKey,
+    ); // Use local baseUrl, not client.baseUrl
 
     if (mounted) {
       Navigator.of(context).pushReplacementNamed('/home');
@@ -187,9 +252,9 @@ class ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _pairWithQr() async {
-    final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const QrScanPage()),
-    );
+    final result = await Navigator.of(
+      context,
+    ).push<String>(MaterialPageRoute(builder: (_) => const QrScanPage()));
     if (result == null || !mounted) return;
 
     final uri = Uri.tryParse(result);
@@ -203,16 +268,19 @@ class ConfigPageState extends State<ConfigPage> {
         ip.isEmpty ||
         key == null ||
         key.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('QR de pareamento inválido'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(tr('Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.'))));
       return;
     }
 
     final baseUrl = 'http://$ip:$port';
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(Constants.ipAddrKey, ip);
-    await prefs.setString(Constants.portKey, port); // persiste a porta p/ o splash
+    await prefs.setString(
+      Constants.portKey,
+      port,
+    ); // persiste a porta p/ o splash
     await prefs.setString(Constants.apiKeyKey, key);
     // Parear com outro PC acrescenta à lista; o mesmo IP atualiza a chave.
     final pc = await PcStore.upsert(ip: ip, port: port, apiKey: key);
@@ -225,9 +293,9 @@ class ConfigPageState extends State<ConfigPage> {
     await signalR.updateUrl(baseUrl, apiKey: key);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Pareado com sucesso!'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(tr('Pareado com sucesso!'))));
       Navigator.of(context).pushReplacementNamed('/home');
     }
   }
@@ -235,89 +303,98 @@ class ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(tr('Configuração')),
-      ),
+      appBar: AppBar(title: Text(tr('Configuração'))),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-            if (_pcs.isNotEmpty) ...[
-              _buildPcList(),
-              const Divider(height: 24),
-            ],
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const WelcomePage()),
-                ),
-                icon: const Icon(Icons.help_outline),
-                label: Text(tr('Ainda não instalou no PC? Veja como')),
-              ),
-            ),
-            TextField(
-              controller: _ipController,
-              decoration: InputDecoration(
-                labelText: tr('IP do Servidor'),
-                hintText: '192.168.x.x',
-              ),
-            ),
-            const SizedBox(height: 16),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton.icon(
-                    onPressed: _findServer,
-                    icon: const Icon(Icons.search),
-                    label: Text(tr('Pesquisar Servidor')),
+              if (_pcs.isNotEmpty) ...[
+                _buildPcList(),
+                const Divider(height: 24),
+              ],
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const WelcomePage()),
                   ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _pairWithQr,
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(tr('Parear (QR)')),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _saveAndGoBack,
-              child: Text(tr('Salvar')),
-            ),
-            const Divider(height: 32),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.palette_outlined),
-              title: Text(tr('Aparência')),
-              subtitle: Text(tr('Tema, cores, estilo dos botões, vibração e idioma')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AppearanceSettingsPage()),
+                  icon: const Icon(Icons.help_outline),
+                  label: Text(tr('Ainda não instalou no PC? Veja como')),
+                ),
               ),
-            ),
-            // F7-01: Controles de backup/macros não entregues removidos da interface de configurações
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.extension_outlined),
-              title: Text(tr('Integrações')),
-              subtitle: Text(tr(
-                  'Discord, OBS, Twitch, YouTube, Spotify, Soundboard, Home Assistant e Tuya')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const IntegrationsPage()),
+              TextField(
+                controller: _ipController,
+                decoration: InputDecoration(
+                  labelText: tr('IP do Servidor'),
+                  hintText: '192.168.x.x',
+                ),
               ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.notifications_active_outlined),
-              title: Text(tr('Limiares de Alerta de Recursos')),
-              subtitle: Text(tr('Limites de CPU, RAM, temperatura, disco e bateria')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const HealthAlertSettingsPage()),
+              const SizedBox(height: 16),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton.icon(
+                      onPressed: _findServer,
+                      icon: const Icon(Icons.search),
+                      label: Text(tr('Pesquisar Servidor')),
+                    ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _pairWithQr,
+                icon: const Icon(Icons.qr_code_scanner),
+                label: Text(tr('Parear (QR)')),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _saveAndGoBack,
+                child: Text(tr('Salvar')),
+              ),
+              const Divider(height: 32),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.palette_outlined),
+                title: Text(tr('Aparência')),
+                subtitle: Text(
+                  tr('Tema, cores, estilo dos botões, vibração e idioma'),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AppearanceSettingsPage(),
+                  ),
+                ),
+              ),
+              // F7-01: Controles de backup/macros não entregues removidos da interface de configurações
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.extension_outlined),
+                title: Text(tr('Integrações')),
+                subtitle: Text(
+                  tr(
+                    'Discord, OBS, Twitch, YouTube, Spotify, Soundboard, Home Assistant e Tuya',
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const IntegrationsPage()),
+                ),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.notifications_active_outlined),
+                title: Text(tr('Limiares de Alerta de Recursos')),
+                subtitle: Text(
+                  tr('Limites de CPU, RAM, temperatura, disco e bateria'),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const HealthAlertSettingsPage(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

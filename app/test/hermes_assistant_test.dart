@@ -90,6 +90,7 @@ void main() {
         home: HermesAssistantPage(
           client: client,
           initialPrompt: 'Diagnosticar Lentidão',
+          targetPcName: 'PC Sala',
           onExecuteConfirmedAction: (action) async {
             executedAction = action;
           },
@@ -107,6 +108,7 @@ void main() {
 
     // Deve abrir o AlertDialog de confirmação explícita
     expect(find.text('Confirmar Ação Sugerida'), findsOneWidget);
+    expect(find.text('PC-alvo: PC Sala'), findsOneWidget);
     expect(find.text('Cancelar'), findsOneWidget);
     expect(find.text('Executar Agora'), findsOneWidget);
     expect(executedAction, isNull);
