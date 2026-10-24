@@ -34,8 +34,10 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🎧 Spotify, Twitch e YouTube com status ao vivo.
   - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
   - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
-- **Extensões Command (v1.1.0 Estável):**
+- **Extensões Command (v1.1.1 — piloto Multi-PC):**
   - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU, Bateria e Temperatura).
+  - 🖥️ Dois PCs conectados simultaneamente, com estado, CPU/RAM e seleção visível do PC-alvo.
+  - 🎯 Aplicativos, rotinas, energia e transferências direcionados ao PC selecionado.
   - 🎨 Tema visual Command Amethyst Dark (`#050408`, `#161424`, `#A78BFA`) e cartões de status do sistema.
   - 🌐 Configurador Web Flutter integrado em `wwwroot/` (servido em `http://localhost:4787` com resolução explícita de `WebRootPath` e auto-autenticação via loopback).
   - 🛡️ Permissões granulares por dispositivo (`ViewerOnly` vs `FullControl`) e guardião de PIN/Biometria.
@@ -44,6 +46,10 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - ⚡ Controle de energia remoto seguro (Wake-on-LAN, Bloqueio de Sessão e Suspensão).
   - 🔄 Rotinas encadeadas determinísticas de automação e Modo Dock contínuo.
   - 🤖 Suporte arquitetural para o assistente local opcional Hermes (100% funcional sem IA).
+
+### 📱 APK Android 1.1.1 — piloto M1
+
+O APK e o guia de pareamento Multi-PC estão na [prerelease privada v1.1.1](https://github.com/playertwo1/Command/releases/tag/command-v1.1.1). O segundo PC precisa ser pareado explicitamente pelo QR da Bridge; depois, em **Configurações → PCs pareados**, escolha **Conectar em paralelo**. Na tela **Status**, toque no cartão do PC para selecioná-lo como alvo. A validação em duas máquinas físicas ainda está pendente.
 
 ---
 
