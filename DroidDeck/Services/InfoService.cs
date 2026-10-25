@@ -284,8 +284,11 @@ namespace DroidDeck.Services
             var client = _http.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(10);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("DroidDeck");
+            // O valor vai para todos os celulares de uma vez, então não há idioma do pedido:
+            // o nome da cidade sai no idioma do Windows (antes era sempre português).
+            var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
             using var geo = JsonDocument.Parse(await client.GetStringAsync(
-                "https://geocoding-api.open-meteo.com/v1/search?count=1&language=pt&name=" + Uri.EscapeDataString(city)));
+                $"https://geocoding-api.open-meteo.com/v1/search?count=1&language={lang}&name=" + Uri.EscapeDataString(city)));
             if (!geo.RootElement.TryGetProperty("results", out var results) || results.GetArrayLength() == 0)
                 throw new InvalidOperationException("Cidade não encontrada");
             var place = results[0];

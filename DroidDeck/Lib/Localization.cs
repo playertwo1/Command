@@ -26,6 +26,26 @@ namespace DroidDeck.Lib
             set => _english.Value = value;
         }
 
+        /// <summary>Textos da bandeja e das janelas locais seguem o idioma do Windows.</summary>
+        public static string Ui(string pt)
+        {
+            var language = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            if (language == "en") return En.TryGetValue(pt, out var en) ? en : pt;
+            if (language == "es")
+                return EsUi.TryGetValue(pt, out var es)
+                    ? es
+                    : En.TryGetValue(pt, out var fallback) ? fallback : pt;
+            return pt;
+        }
+
+        public static string Ui(string pt, params (string key, object? value)[] args)
+        {
+            var text = Ui(pt);
+            foreach (var (key, value) in args)
+                text = text.Replace("{" + key + "}", value?.ToString() ?? "");
+            return text;
+        }
+
         public static string T(string pt) =>
             English && En.TryGetValue(pt, out var en) ? en : pt;
 

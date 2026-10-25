@@ -6,6 +6,7 @@ import 'package:droiddeck/src/config/appearance_settings_page.dart';
 import 'package:droiddeck/src/config/integrations_page.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'package:droiddeck/src/stream_deck/widgets/connection_chip.dart';
 import 'package:droiddeck/src/stream_deck/backup/backup_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
@@ -28,6 +29,7 @@ class SteamDeckDesktopLayout extends StatefulWidget {
 
 class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
   DeckButton? _selectedButton;
+  final _panelKey = GlobalKey<ButtonPropertyPanelState>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +76,12 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                           tooltip: tr('Excluir perfil'),
                           onPressed: () => _deleteProfile(profile),
                         ),
-                        onTap: () {
+                        onTap: () => _guardDirty(() {
                           widget.controller.switchProfile(profile.id);
                           setState(() {
                             _selectedButton = null;
                           });
-                        },
+                        }),
                       );
                     },
                   ),
@@ -135,30 +137,9 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
                     right: 16,
                     child: Row(
                       children: [
-                        // SIGNALR DEBUG INDICATOR
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Builder(builder: (context) {
-                            final status = Injector.get<SignalRService>()
-                                .connectionStatus
-                                .watch(context);
-                            final debugData = Injector.get<SignalRService>()
-                                .lastDebugData
-                                .watch(context); // Watch debug signal
-                            Color color = Colors.grey;
-                            if (status == "Connected") color = Colors.green;
-                            if (status.startsWith("Conn Error"))
-                              color = Colors.red;
-                            return Tooltip(
-                              message: "$status\n$debugData", // Show Data
-                              child: Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                    color: color, shape: BoxShape.circle),
-                              ),
-                            );
-                          }),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: ConnectionChip(),
                         ),
                         IconButton(
                           icon: const Icon(Icons.extension_outlined),
@@ -206,28 +187,108 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
               border: Border(left: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
             ),
             child: _selectedButton == null
-                ? Center(child: Text(tr('Selecione um botão para editar')))
+                ? _buildEditorGuide()
                 : ButtonPropertyPanel(
-                    key: ButtonPropertyPanel.stateKeyFor(_selectedButton!),
+                    key: _panelKey,
                     button: _selectedButton!,
                     profiles: profiles,
                     onSave: (btn) {
-                      widget.controller.updateButton(btn);
-                      // Update local selection to reflect changes
-                      setState(() {
-                        _selectedButton = btn;
-                      });
+                      if (btn.id.isEmpty) {
+                        _clearWithUndo(_selectedButton!);
+                        setState(() => _selectedButton = null);
+                      } else {
+                        widget.controller.updateButton(btn);
+                        setState(() => _selectedButton = btn);
+                      }
                     },
-                    onCancel: () {
-                      setState(() {
-                        _selectedButton = null;
-                      });
-                    },
+                    onCancel: () => _guardDirty(
+                      () => setState(() => _selectedButton = null),
+                    ),
                   ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildEditorGuide() {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    Widget step(IconData icon, String text) => Padding(
+          padding: const EdgeInsets.only(top: 18),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(child: Text(text, style: TextStyle(color: muted, height: 1.35))),
+            ],
+          ),
+        );
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            tr('Como configurar o deck'),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          step(Icons.add_box_outlined, tr('Selecione uma célula vazia para criar um botão.')),
+          step(Icons.touch_app_outlined, tr('Selecione um botão para editar rótulo, ação e aparência.')),
+          step(Icons.open_with, tr('Arraste um botão para mover ou trocar de posição.')),
+          step(Icons.phone_android, tr('As alterações salvas aparecem no celular.')),
+        ],
+      ),
+    );
+  }
+
+  /// Limpa imediatamente e permite restaurar o conteúdo anterior pelo aviso.
+  void _clearWithUndo(DeckButton previous) {
+    widget.controller.updateButton(DeckButton(
+      id: '',
+      row: previous.row,
+      column: previous.column,
+      label: '',
+      backgroundColor: '',
+    ));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(tr('Botão removido.')),
+      duration: const Duration(seconds: 6),
+      action: SnackBarAction(
+        label: tr('Desfazer'),
+        onPressed: () => widget.controller.updateButton(previous),
+      ),
+    ));
+  }
+
+  /// Protege o rascunho quando a seleção ou o perfil vai mudar.
+  Future<void> _guardDirty(VoidCallback proceed) async {
+    if (_panelKey.currentState?.isDirty != true) {
+      proceed();
+      return;
+    }
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr('Descartar as alterações?')),
+        content: Text(tr('O botão tem mudanças que ainda não foram salvas.')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(tr('Continuar editando')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(tr('Descartar')),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) proceed();
   }
 
   Widget _buildDeckGrid(DeckProfile profile) {
@@ -279,13 +340,22 @@ class _SteamDeckDesktopLayoutState extends State<SteamDeckDesktopLayout> {
     final isSelectedPos =
         _selectedButton?.row == row && _selectedButton?.column == col;
 
-    void select(DeckButton b) => setState(() => _selectedButton = b);
+    void select(DeckButton b) {
+      if (_selectedButton?.id == b.id &&
+          _selectedButton?.row == b.row &&
+          _selectedButton?.column == b.column) {
+        return;
+      }
+      _guardDirty(() => setState(() => _selectedButton = b));
+    }
 
     return DragTarget<DeckButton>(
       onWillAcceptWithDetails: (d) => d.data.row != row || d.data.column != col,
       onAcceptWithDetails: (d) {
-        widget.controller.moveButton(d.data, row, col);
-        setState(() => _selectedButton = null);
+        _guardDirty(() {
+          widget.controller.moveButton(d.data, row, col);
+          setState(() => _selectedButton = null);
+        });
       },
       builder: (context, candidate, rejected) {
         final highlight = candidate.isNotEmpty;

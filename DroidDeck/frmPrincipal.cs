@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using DroidDeck.Lib;
 
 namespace DroidDeck
 {
@@ -42,7 +43,8 @@ namespace DroidDeck
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            ntiTray.ShowBalloonTip(3000, "DroidDeck", "Rodando na bandeja — servidor em " + WebUrl, ToolTipIcon.Info);
+            ntiTray.ShowBalloonTip(3000, "Command",
+                L.Ui("Rodando na bandeja — servidor em {url}", ("url", WebUrl)), ToolTipIcon.Info);
 
             if (Program.FirstRunAfterInstall)
                 BeginInvoke(FirstRunSetup);
@@ -64,29 +66,28 @@ namespace DroidDeck
 
             if (Lib.FirewallSetup.RulesExist()) return;
             var answer = MessageBox.Show(
-                "Para o celular encontrar e conectar no DroidDeck, o Firewall do Windows precisa " +
-                $"liberar as portas {Lib.PairingInfo.Port} (TCP) e {Lib.FirewallSetup.DiscoveryPort} (UDP), " +
-                "só para a sua rede local.\n\nLiberar agora? O Windows vai pedir permissão de administrador.",
-                "DroidDeck", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                L.Ui("Para o celular encontrar e conectar no Command, o Firewall do Windows precisa liberar as portas {tcp} (TCP) e {udp} (UDP), só para a sua rede local.\n\nLiberar agora? O Windows vai pedir permissão de administrador.",
+                    ("tcp", Lib.PairingInfo.Port), ("udp", Lib.FirewallSetup.DiscoveryPort)),
+                "Command", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (answer == DialogResult.Yes) AllowFirewall();
         }
 
         private void AllowFirewall()
         {
             if (Lib.FirewallSetup.AddRules())
-                ntiTray.ShowBalloonTip(3000, "DroidDeck", "Firewall liberado para a rede local.", ToolTipIcon.Info);
+                ntiTray.ShowBalloonTip(3000, "Command", L.Ui("Firewall liberado para a rede local."), ToolTipIcon.Info);
             else
-                ntiTray.ShowBalloonTip(5000, "DroidDeck",
-                    "O firewall não foi alterado. Você pode tentar de novo pelo menu da bandeja.", ToolTipIcon.Warning);
+                ntiTray.ShowBalloonTip(5000, "Command",
+                    L.Ui("O firewall não foi alterado. Você pode tentar de novo pelo menu da bandeja."), ToolTipIcon.Warning);
             _firewallItem.Checked = Lib.FirewallSetup.RulesExist();
         }
 
         private void OnUpdateReady(string version)
         {
-            _updateItem.Text = $"Reiniciar para atualizar (v{version})";
-            ntiTray.ShowBalloonTip(5000, "DroidDeck",
-                $"A versão {version} foi baixada e entra na próxima vez que o DroidDeck abrir. " +
-                "Para atualizar agora, use o menu da bandeja.", ToolTipIcon.Info);
+            _updateItem.Text = L.Ui("Reiniciar para atualizar (v{version})", ("version", version));
+            ntiTray.ShowBalloonTip(5000, "Command",
+                L.Ui("A versão {version} foi baixada e entra na próxima vez que o Command abrir. Para atualizar agora, use o menu da bandeja.",
+                    ("version", version)), ToolTipIcon.Info);
         }
 
         private async void OnUpdateClick()
@@ -104,14 +105,14 @@ namespace DroidDeck
             }
 
             _updateItem.Enabled = false;
-            _updateItem.Text = "Procurando atualização…";
+            _updateItem.Text = L.Ui("Procurando atualização…");
             var version = await updater.CheckAndDownloadAsync();
             _updateItem.Enabled = true;
             if (version == null)
             {
-                _updateItem.Text = "Procurar atualização";
-                ntiTray.ShowBalloonTip(3000, "DroidDeck",
-                    $"Você está na versão mais recente ({updater.CurrentVersion}).", ToolTipIcon.Info);
+                _updateItem.Text = L.Ui("Procurar atualização");
+                ntiTray.ShowBalloonTip(3000, "Command",
+                    L.Ui("Você está na versão mais recente ({version}).", ("version", updater.CurrentVersion)), ToolTipIcon.Info);
             }
         }
 
@@ -119,24 +120,24 @@ namespace DroidDeck
         {
             var menu = new ContextMenuStrip();
 
-            var openItem = new ToolStripMenuItem("Abrir no navegador");
+            var openItem = new ToolStripMenuItem(L.Ui("Abrir no navegador"));
             openItem.Click += (_, _) => OpenWebUi();
 
-            var pairItem = new ToolStripMenuItem("Parear dispositivo (QR)…");
+            var pairItem = new ToolStripMenuItem(L.Ui("Parear dispositivo (QR)…"));
             pairItem.Click += (_, _) =>
             {
                 using var f = new frmPairing();
                 f.ShowDialog();
             };
 
-            _autoStartItem = new ToolStripMenuItem("Iniciar com o Windows")
+            _autoStartItem = new ToolStripMenuItem(L.Ui("Iniciar com o Windows"))
             {
                 CheckOnClick = true,
                 Checked = IsAutoStartEnabled(),
             };
             _autoStartItem.Click += (_, _) => SetAutoStart(_autoStartItem.Checked);
 
-            _firewallItem = new ToolStripMenuItem("Liberar no firewall (rede local)")
+            _firewallItem = new ToolStripMenuItem(L.Ui("Liberar no firewall (rede local)"))
             {
                 Checked = Lib.FirewallSetup.RulesExist(),
             };
@@ -144,14 +145,16 @@ namespace DroidDeck
 
             // Copia instalada: procura e aplica atualizacoes. Zip/dev: abre a pagina da release.
             var version = Program.Updater.CurrentVersion;
-            var versionItem = new ToolStripMenuItem(version != null ? $"DroidDeck v{version}" : "DroidDeck (sem instalador)")
+            var versionItem = new ToolStripMenuItem(version != null
+                ? L.Ui("Command v{version}", ("version", version))
+                : L.Ui("Command (sem instalador)"))
             {
                 Enabled = false,
             };
             _updateItem = new ToolStripMenuItem(Program.Updater.IsInstalled ? "Procurar atualização" : "Baixar versão mais recente…");
             _updateItem.Click += (_, _) => OnUpdateClick();
 
-            var exitItem = new ToolStripMenuItem("Sair");
+            var exitItem = new ToolStripMenuItem(L.Ui("Sair"));
             exitItem.Click += (_, _) => Application.Exit();
 
             menu.Items.Add(openItem);

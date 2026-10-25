@@ -223,4 +223,28 @@ const Map<String, String> enDeck = {
   'Toque em um + para criar um botão simples aqui. Para atalhos e programas, abra o configurador Command no PC. As alterações sincronizadas aparecem neste aparelho.':
       'Tap a + to create a simple button here. For shortcuts and programs, open the Command configurator on your PC. Synced changes will appear on this device.',
   'Criar botão': 'Create a button',
+  'Conectado ao PC': 'Connected to PC',
+  'Conectando…': 'Connecting…',
+  'Reconectando…': 'Reconnecting…',
+  'PC não configurado': 'PC not configured',
+  'Falha ao iniciar conexão': 'Connection could not start',
+  'Erro de conexão': 'Connection error',
+  'Conexão suspensa': 'Connection suspended',
+  'Sem conexão com o PC': 'Not connected to PC',
+  'Como configurar o deck': 'Set up your deck',
+  'Selecione uma célula vazia para criar um botão.':
+      'Select an empty cell to create a button.',
+  'Selecione um botão para editar rótulo, ação e aparência.':
+      'Select a button to edit its label, action, and appearance.',
+  'Arraste um botão para mover ou trocar de posição.':
+      'Drag a button to move or swap its position.',
+  'As alterações salvas aparecem no celular.':
+      'Saved changes appear on your phone.',
+  'Botão removido.': 'Button removed.',
+  'Desfazer': 'Undo',
+  'Descartar as alterações?': 'Discard changes?',
+  'O botão tem mudanças que ainda não foram salvas.':
+      'This button has unsaved changes.',
+  'Continuar editando': 'Keep editing',
+  'Descartar': 'Discard',
 };

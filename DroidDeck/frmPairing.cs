@@ -15,7 +15,7 @@ namespace DroidDeck
     {
         public frmPairing()
         {
-            Text = "DroidDeck — Parear dispositivo";
+            Text = L.Ui("Command — Parear dispositivo");
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -28,7 +28,7 @@ namespace DroidDeck
 
             var info = new Label
             {
-                Text = "No app DroidDeck, vá em Configurar → Parear (QR)\ne escaneie este código para conectar com segurança.",
+                Text = L.Ui("No app Command, vá em Configurar → Parear (QR)\ne escaneie este código para conectar com segurança."),
                 Location = new Point(10, 8),
                 Size = new Size(340, 40),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -64,7 +64,7 @@ namespace DroidDeck
 
             var details = new TextBox
             {
-                Text = $"IP: {ip}:{PairingInfo.Port}    Chave: {key}",
+                Text = L.Ui("IP: {ip}    Chave: {key}", ("ip", $"{ip}:{PairingInfo.Port}"), ("key", key)),
                 Location = new Point(10, 380),
                 Size = new Size(340, 44),
                 Multiline = true,
@@ -76,7 +76,7 @@ namespace DroidDeck
 
             var close = new Button
             {
-                Text = "Fechar",
+                Text = L.Ui("Fechar"),
                 Location = new Point(140, 432),
                 Size = new Size(80, 30),
             };

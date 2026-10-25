@@ -263,6 +263,31 @@ namespace DroidDeck.Lib
             ["url é obrigatório"] = "url is required",
             ["URL de som invalida (so http/https)."] = "Invalid sound URL (http/https only).",
             ["Arquivo de som grande demais."] = "Sound file is too large.",
+
+            // Interface local do Command
+            ["Rodando na bandeja — servidor em {url}"] = "Running in the system tray — server at {url}",
+            ["Para o celular encontrar e conectar no Command, o Firewall do Windows precisa liberar as portas {tcp} (TCP) e {udp} (UDP), só para a sua rede local.\n\nLiberar agora? O Windows vai pedir permissão de administrador."] = "For your phone to find and connect to Command, Windows Firewall must allow ports {tcp} (TCP) and {udp} (UDP) on your local network only.\n\nAllow now? Windows will request administrator permission.",
+            ["Firewall liberado para a rede local."] = "Firewall allowed on the local network.",
+            ["O firewall não foi alterado. Você pode tentar de novo pelo menu da bandeja."] = "The firewall was not changed. You can try again from the tray menu.",
+            ["A versão {version} foi baixada e entra na próxima vez que o Command abrir. Para atualizar agora, use o menu da bandeja."] = "Version {version} was downloaded and will be applied the next time Command starts. Use the tray menu to update now.",
+            ["Atualizações remotas estão desativadas neste instalador piloto."] = "Remote updates are disabled in this pilot installer.",
+            ["Procurando atualização…"] = "Checking for updates…",
+            ["Procurar atualização"] = "Check for updates",
+            ["Você está na versão mais recente ({version})."] = "You have the latest version ({version}).",
+            ["Ver releases do Command"] = "View Command releases",
+            ["Atualizações desativadas neste piloto"] = "Updates disabled in this pilot",
+            ["Command (sem instalador)"] = "Command (not installed)",
+            ["Command v{version}"] = "Command v{version}",
+            ["Abrir no navegador"] = "Open in browser",
+            ["Parear dispositivo (QR)…"] = "Pair device (QR)…",
+            ["Iniciar com o Windows"] = "Start with Windows",
+            ["Liberar no firewall (rede local)"] = "Allow through firewall (local network)",
+            ["Reiniciar para atualizar (v{version})"] = "Restart to update (v{version})",
+            ["Sair"] = "Exit",
+            ["Command — Parear dispositivo"] = "Command — Pair device",
+            ["No app Command, vá em Configurar → Parear (QR)\ne escaneie este código para conectar com segurança."] = "In the Command app, go to Settings → Pair (QR)\nand scan this code to connect securely.",
+            ["IP: {ip}    Chave: {key}"] = "IP: {ip}    Key: {key}",
+            ["Fechar"] = "Close",
         };
     }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
 import 'package:droiddeck/src/stream_deck/actions/action_picker.dart';
@@ -30,12 +32,18 @@ class ButtonPropertyPanel extends StatefulWidget {
       ValueKey((button.id, button.row, button.column));
 
   @override
-  State<ButtonPropertyPanel> createState() => _ButtonPropertyPanelState();
+  State<ButtonPropertyPanel> createState() => ButtonPropertyPanelState();
 }
 
-class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
+class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   final _catalog = ActionCatalog.instance;
   late final _labelController = TextEditingController(text: widget.button.label);
+  late final String _newId = DateTime.now().millisecondsSinceEpoch.toString();
+  String? _initialJson;
+
+  /// Há mudanças no formulário que ainda não foram salvas?
+  bool get isDirty =>
+      _initialJson != null && jsonEncode(_compose().toJson()) != _initialJson;
 
   /// Ação de cada gesto. Null = nenhuma.
   late DeckAction? _tap = widget.button.action?.type == 'none' ? null : widget.button.action;
@@ -63,6 +71,7 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   void initState() {
     super.initState();
     _catalog.load();
+    _initialJson = jsonEncode(_compose().toJson());
   }
 
   @override
@@ -71,13 +80,11 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
     super.dispose();
   }
 
-  void _save() {
+  DeckButton _compose() {
     final hasInfo = _infoType != null && _infoType!.isNotEmpty;
     final activeLabel = _twoState.activeLabel.trim();
-    widget.onSave(DeckButton(
-      id: widget.button.id.isEmpty
-          ? DateTime.now().millisecondsSinceEpoch.toString()
-          : widget.button.id,
+    return DeckButton(
+      id: widget.button.id.isEmpty ? _newId : widget.button.id,
       row: widget.button.row,
       column: widget.button.column,
       label: _labelController.text,
@@ -95,7 +102,13 @@ class _ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       activeLabel: _showsActive && activeLabel.isNotEmpty ? activeLabel : null,
       activeIconName: _showsActive ? _twoState.activeIcon : null,
       activeIconBase64: _showsActive ? _twoState.activeIconBase64 : null,
-    ));
+    );
+  }
+
+  void _save() {
+    final button = _compose();
+    setState(() => _initialJson = jsonEncode(button.toJson()));
+    widget.onSave(button);
   }
 
   void _delete() {
