@@ -39,7 +39,8 @@ class _BackupButtonsState extends State<BackupButtons> {
   static String _errorText(Object e) {
     if (e is DioException) {
       final data = e.response?.data;
-      if (data is Map && data['error'] is String) return data['error'] as String;
+      if (data is Map && data['error'] is String)
+        return data['error'] as String;
       if (e.response == null) return tr('O PC não respondeu.');
     }
     return tr('Não deu certo: {error}', {'error': e});
@@ -50,7 +51,9 @@ class _BackupButtonsState extends State<BackupButtons> {
     final now = DateTime.now();
     String two(int v) => v.toString().padLeft(2, '0');
     await saveBackupFile(
-        bytes, 'DroidDeck-${now.year}-${two(now.month)}-${two(now.day)}.droiddeck');
+      bytes,
+      'DroidDeck-${now.year}-${two(now.month)}-${two(now.day)}.droiddeck',
+    );
     return '';
   }
 
@@ -61,17 +64,21 @@ class _BackupButtonsState extends State<BackupButtons> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(tr('Importar backup?')),
-        content: Text(tr(
-          'Os perfis do arquivo entram no deck. Um perfil que já existe aqui (o mesmo '
-          'perfil, de um backup anterior) é substituído pela versão do arquivo.',
-        )),
+        content: Text(
+          tr(
+            'Os perfis do arquivo entram no deck. Um perfil que já existe aqui (o mesmo '
+            'perfil, de um backup anterior) é substituído pela versão do arquivo.',
+          ),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(tr('Cancelar'))),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(tr('Cancelar')),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(tr('Importar'))),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(tr('Importar')),
+          ),
         ],
       ),
     );
@@ -88,17 +95,18 @@ class _BackupButtonsState extends State<BackupButtons> {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     if (widget.dense) {
       Widget button(IconData icon, String label, VoidCallback onTap) => Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-            child: TextButton.icon(
-              onPressed: _busy ? null : onTap,
-              icon: Icon(icon, size: 18),
-              label: Text(label),
-              style: TextButton.styleFrom(
-                minimumSize: const Size(double.infinity, 36),
-                foregroundColor: muted,
-              ),
-            ),
-          );
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+        child: TextButton.icon(
+          onPressed: _busy ? null : onTap,
+          icon: Icon(icon, size: 18),
+          label: Text(label),
+          style: TextButton.styleFrom(
+            alignment: Alignment.centerLeft,
+            minimumSize: const Size(double.infinity, 38),
+            foregroundColor: muted,
+          ),
+        ),
+      );
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -116,13 +124,17 @@ class _BackupButtonsState extends State<BackupButtons> {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.save_alt),
           title: Text(tr('Exportar backup do deck')),
-          subtitle: Text(tr(
-              'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.')),
+          subtitle: Text(
+            tr(
+              'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.',
+            ),
+          ),
           trailing: _busy
               ? const SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
               : null,
           onTap: _busy ? null : () => _run(_export),
         ),

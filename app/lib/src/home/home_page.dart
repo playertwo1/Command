@@ -51,8 +51,7 @@ class HomePageState extends State<HomePage> {
         isFullscreen: false,
       );
     }
-    return Scaffold(
-      body: Watch((context) {
+    final pageBody = Watch((context) {
         final deckOnly = ThemeController.instance.deckOnly.value;
         // O deck tem carregamento e modo offline próprios; a espera aqui é só do áudio.
         if (!deckOnly &&
@@ -150,8 +149,8 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         );
-      }),
-      bottomNavigationBar: Watch((context) {
+      });
+    final bottomNavigation = Watch((context) {
         if (controller.isFullscreen.value ||
             ThemeController.instance.deckOnly.value) {
           return const SizedBox.shrink();
@@ -186,7 +185,57 @@ class HomePageState extends State<HomePage> {
             });
           },
         );
-      }),
+      });
+    final size = MediaQuery.sizeOf(context);
+    final compactLandscape = size.width > size.height && size.height < 600;
+    return Scaffold(
+      body: compactLandscape
+          ? Row(
+              children: [
+                Watch((context) {
+                  if (controller.isFullscreen.value ||
+                      ThemeController.instance.deckOnly.value) {
+                    return const SizedBox.shrink();
+                  }
+                  return SafeArea(
+                    right: false,
+                    child: NavigationRail(
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: _goToTab,
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        NavigationRailDestination(
+                          icon: const Icon(Icons.monitor_heart_outlined),
+                          selectedIcon: const Icon(Icons.monitor_heart),
+                          label: Text(tr('Status')),
+                        ),
+                        NavigationRailDestination(
+                          icon: const Icon(Icons.grid_view),
+                          selectedIcon: const Icon(Icons.grid_view_rounded),
+                          label: const Text('Deck'),
+                        ),
+                        NavigationRailDestination(
+                          icon: const Icon(Icons.tune),
+                          label: Text(tr('Áudio')),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                Expanded(child: pageBody),
+              ],
+            )
+          : pageBody,
+      bottomNavigationBar: compactLandscape ? null : bottomNavigation,
     );
+  }
+
+  void _goToTab(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    setState(() => selectedIndex = index);
   }
 }

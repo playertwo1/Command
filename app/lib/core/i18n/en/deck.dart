@@ -219,4 +219,8 @@ const Map<String, String> enDeck = {
   'Desligar tela': 'Screen off',
   'Microfone': 'Microphone',
   'Saída de áudio': 'Audio output',
+  'Seu deck está vazio': 'Your deck is empty',
+  'Toque em um + para criar um botão simples aqui. Para atalhos e programas, abra o configurador Command no PC. As alterações sincronizadas aparecem neste aparelho.':
+      'Tap a + to create a simple button here. For shortcuts and programs, open the Command configurator on your PC. Synced changes will appear on this device.',
+  'Criar botão': 'Create a button',
 };

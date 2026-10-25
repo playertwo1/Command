@@ -1,6 +1,7 @@
 import 'package:droiddeck/src/config/pc_switcher.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/src/stream_deck/layout/desktop_layout.dart';
+import 'package:droiddeck/src/stream_deck/layout/grid_placement.dart';
 import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
 import 'package:droiddeck/src/stream_deck/stream_deck_controller.dart';
 import 'package:droiddeck/src/stream_deck/widgets/dynamic_deck_button.dart';
@@ -303,39 +304,78 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     });
   }
 
-  /// Grade fixa cols×rows, centralizada, sem rolagem.
+  /// Ajusta a grade ao espaço disponível sem alterar as posições persistidas.
   Widget _buildButtonGrid(
     DeckProfile profile,
     List<DeckProfile> profiles,
     _GridFit g,
   ) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(g.rows, (row) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: row < g.rows - 1 ? g.spacing : 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(g.cols, (col) {
-                final existing = profile.buttons.firstWhereOrNull(
-                  (b) => b.row == row && b.column == col,
-                );
-                return Padding(
-                  padding: EdgeInsets.only(
-                    right: col < g.cols - 1 ? g.spacing : 0,
-                  ),
-                  child: SizedBox(
-                    width: g.cell,
-                    height: g.cell,
-                    child: _buildCell(row, col, existing, profiles),
-                  ),
-                );
-              }),
-            ),
-          );
-        }),
-      ),
+    final reflow = profile.buttons.any(
+      (button) => button.row < 0 ||
+          button.column < 0 ||
+          button.row >= g.rows ||
+          button.column >= g.cols,
+    );
+    final displayButtons = reflow
+        ? reflowButtons(profile.buttons, g.cols)
+        : profile.buttons;
+    final originalById = {for (final button in profile.buttons) button.id: button};
+    final Map<String, DeckButton> buttonAt = {};
+    for (final button in displayButtons) {
+      buttonAt.putIfAbsent(
+        '${button.row}:${button.column}',
+        () => originalById[button.id] ?? button,
+      );
+    }
+
+    var rows = g.rows;
+    var columns = g.cols;
+    if (profile.buttons.isNotEmpty && !_editMode) {
+      rows = 0;
+      columns = 0;
+      for (final button in displayButtons) {
+        if (button.row + 1 > rows) rows = button.row + 1;
+        if (button.column + 1 > columns) columns = button.column + 1;
+      }
+    } else if (reflow && displayButtons.isNotEmpty) {
+      final contentRows = (displayButtons.length + g.cols - 1) ~/ g.cols;
+      if (contentRows > rows) rows = contentRows;
+    }
+
+    final showEmptySlots = _editMode || profile.buttons.isEmpty;
+    final grid = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(rows, (row) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: row < rows - 1 ? g.spacing : 0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(columns, (col) {
+              final existing = buttonAt['$row:$col'];
+              final showEmpty = existing == null && showEmptySlots && !reflow;
+              return Padding(
+                padding: EdgeInsets.only(right: col < columns - 1 ? g.spacing : 0),
+                child: SizedBox(
+                  width: g.cell,
+                  height: g.cell,
+                  child: existing != null
+                      ? _buildCell(row, col, existing, profiles)
+                      : showEmpty
+                          ? _buildCell(row, col, null, profiles)
+                          : const SizedBox.shrink(),
+                ),
+              );
+            }),
+          ),
+        );
+      }),
+    );
+
+    final centered = Center(child: grid);
+    if (rows <= g.rows) return centered;
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(vertical: g.spacing),
+      child: centered,
     );
   }
 
@@ -586,6 +626,19 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                       return _buildButtonGrid(profiles[pageIndex], profiles, g);
                     },
                   ),
+                  if (error == null &&
+                      currentProfile != null &&
+                      profiles.every((profile) => profile.buttons.isEmpty))
+                    Positioned(
+                      // Keep the onboarding CTA clear of the fullscreen FAB.
+                      bottom: 88,
+                      left: 16,
+                      right: 16,
+                      child: _EmptyDeckHint(
+                        onEdit: () => setState(() => _editMode = true),
+                        editing: _editMode,
+                      ),
+                    ),
                   if (error != null)
                     Positioned(
                       bottom: 16,
@@ -688,4 +741,56 @@ class _GridFit {
     required this.cell,
     required this.spacing,
   });
+}
+
+class _EmptyDeckHint extends StatelessWidget {
+  final VoidCallback onEdit;
+  final bool editing;
+
+  const _EmptyDeckHint({required this.onEdit, required this.editing});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Card(
+          color: colors.surfaceContainerHigh,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr('Seu deck está vazio'),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  tr('Toque em um + para criar um botão simples aqui. Para atalhos e programas, abra o configurador Command no PC. As alterações sincronizadas aparecem neste aparelho.'),
+                  style: TextStyle(color: colors.onSurfaceVariant, height: 1.35),
+                ),
+                if (!editing) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton.icon(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit, size: 18),
+                      label: Text(tr('Criar botão')),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

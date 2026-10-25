@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
+import '../buttons/button_look.dart';
 
 /// Botão de timer/cronômetro/pomodoro/contador. O PC manda o estado só quando algo
 /// muda; aqui o tempo anda sozinho a partir do instante em que o estado chegou.
@@ -81,12 +82,16 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
-      final all = Injector.get<SignalRService>()
-          .stateOf(TimerDeckButton.stateEvent);
-      final receivedAt = (all['_receivedAt'] as num?)?.toInt() ??
+      final all = Injector.get<SignalRService>().stateOf(
+        TimerDeckButton.stateEvent,
+      );
+      final receivedAt =
+          (all['_receivedAt'] as num?)?.toInt() ??
           DateTime.now().millisecondsSinceEpoch;
       final raw = all[_timerId];
-      final t = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+      final t = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : <String, dynamic>{};
 
       final running = t['running'] == true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -108,7 +113,8 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
     if (running) {
       elapsed += DateTime.now().millisecondsSinceEpoch - receivedAt;
     }
-    final duration = (t['durationMs'] as num?)?.toInt() ??
+    final duration =
+        (t['durationMs'] as num?)?.toInt() ??
         ((double.tryParse(_params['durationMin'] ?? '') ?? 5) * 60000).round();
 
     String big;
@@ -161,46 +167,91 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
       activeColor: widget.activeColor,
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
-      child: LayoutBuilder(builder: (context, c) {
-        final fg = DeckTile.foregroundOf(context);
-        return Padding(
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(op == 'reset' ? Icons.restart_alt : icon, size: 16),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final fg = DeckTile.foregroundOf(context);
+          final textScaler = MediaQuery.textScalerOf(context);
+          final textWidth = c.maxWidth.isFinite
+              ? (c.maxWidth - 8).clamp(0.0, double.infinity).toDouble()
+              : 64.0;
+          // The tile frame applies its own inset before this child. Account for
+          // the additional padding below when deciding whether the icon fits.
+          final contentHeight = c.maxHeight.isFinite
+              ? (c.maxHeight - 8).clamp(0.0, double.infinity).toDouble()
+              : double.infinity;
+          final numberPreferred = (textWidth * 0.36)
+              .clamp(12.0, 22.0)
+              .toDouble();
+          final labelPreferred = (textWidth * 0.2).clamp(12.0, 14.0).toDouble();
+          final numberSize = ButtonLook.fitWordsFontSize(
+            big,
+            numberPreferred,
+            textWidth,
+            textScaler,
+          );
+          final labelSize = ButtonLook.fitWordsFontSize(
+            label,
+            labelPreferred,
+            textWidth,
+            textScaler,
+          );
+          final compact = contentHeight < 72 || textWidth < 72;
+
+          return Padding(
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!compact) ...[
+                  Icon(op == 'reset' ? Icons.restart_alt : icon, size: 16),
+                  const SizedBox(height: 2),
+                ],
+                Text(
                   big,
-                  style: const TextStyle(
-                    fontSize: 22,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: numberSize,
                     fontWeight: FontWeight.bold,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
-              ),
-              Text(label,
+                const SizedBox(height: 2),
+                Text(
+                  label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 10, color: fg.withValues(alpha: 0.75))),
-              if (progress != null) ...[
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: progress.clamp(0.0, 1.0),
-                    minHeight: 3,
-                    backgroundColor: fg.withValues(alpha: 0.15),
-                    valueColor: AlwaysStoppedAnimation(fg.withValues(alpha: 0.8)),
+                    fontSize: labelSize,
+                    color: fg.withValues(alpha: 0.75),
                   ),
                 ),
+                if (progress != null && contentHeight >= 80) ...[
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: textWidth * 0.8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        minHeight: 3,
+                        backgroundColor: fg.withValues(alpha: 0.15),
+                        valueColor: AlwaysStoppedAnimation(
+                          fg.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
-          ),
-        );
-      }),
+            ),
+          );
+        },
+      ),
     );
   }
 

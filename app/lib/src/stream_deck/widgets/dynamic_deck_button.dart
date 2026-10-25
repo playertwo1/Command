@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:droiddeck/src/stream_deck/widgets/deck_grid_button.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/core/core.dart';
@@ -163,19 +165,19 @@ class DynamicDeckButton extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, c) {
         final fg = DeckTile.foregroundOf(context);
-        final small = c.maxWidth < 70 || c.maxHeight < 70;
+        final side = math.min(c.maxWidth, c.maxHeight);
+        final small = side < 70;
+        final diameter = math.max(0.0, side - 12).toDouble();
         return Stack(
           alignment: Alignment.center,
           children: [
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: CircularProgressIndicator(
+            SizedBox.square(
+              dimension: diameter,
+              child: CircularProgressIndicator(
                   value: p,
                   strokeWidth: small ? 4 : 6,
                   backgroundColor: fg.withValues(alpha: 0.12),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
-                ),
               ),
             ),
             // Encolhe o texto para caber dentro do anel em botões pequenos.

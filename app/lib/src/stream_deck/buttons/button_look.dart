@@ -109,11 +109,27 @@ class ButtonLook {
           icon,
           if (text != null && text.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
-              maxLines: 2,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final preferred =
+                    (constraints.maxWidth * 0.15).clamp(12.0, 16.0).toDouble();
+                final fontSize = fitWordsFontSize(
+                  text,
+                  preferred,
+                  constraints.maxWidth,
+                  MediaQuery.textScalerOf(context),
+                );
+                return Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w600,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  maxLines: 2,
+                );
+              },
             ),
           ],
         ],
@@ -159,4 +175,44 @@ class ButtonLook {
   /// Tira o "data:image/...;base64," da frente, quando vem.
   static String stripDataUri(String data) =>
       data.startsWith('data:') ? data.substring(data.indexOf(',') + 1) : data;
+
+  /// Reduz o tamanho até a palavra mais larga caber, mantendo o mínimo de 12 px.
+  static double fitWordsFontSize(
+    String text,
+    double preferred,
+    double maxWidth,
+    TextScaler scaler,
+  ) {
+    if (!maxWidth.isFinite || maxWidth <= 0) return preferred;
+    final words = text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty);
+    bool fits(double size) {
+      for (final word in words) {
+        final painter = TextPainter(
+          text: TextSpan(
+            text: word,
+            style: TextStyle(fontSize: size, fontWeight: FontWeight.w600),
+          ),
+          textDirection: TextDirection.ltr,
+          textScaler: scaler,
+          maxLines: 1,
+        )..layout();
+        if (painter.width > maxWidth) return false;
+      }
+      return true;
+    }
+
+    if (fits(preferred)) return preferred;
+    if (!fits(12)) return 12;
+    var low = 12.0;
+    var high = preferred;
+    for (var i = 0; i < 8; i++) {
+      final mid = (low + high) / 2;
+      if (fits(mid)) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    return low;
+  }
 }
