@@ -20,14 +20,14 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 | F5 | FL-3 screenshot | PASS | `docs/assets/emulator_screenshot_card.png`, `emulator_screenshot_viewer.png` |
 | F6 | FL-4 transferência íntegra | PASS | `docs/assets/emulator_transfer_card.png`, `emulator_transfer_download.png`, `emulator_transfer_upload.png` |
 | F7 | Revisão independente sem achado crítico/alto | PASS | `docs/assets/emulator_f7_*.png`, `app/test/fault_tolerance_and_visual_test.dart` |
-| F8 | Instalação repetível + cinco fluxos sem Hermes | PASS | `docs/INSTALL.md`, `docs/TROUBLESHOOTING.md`, `docs/assets/emulator_f8_*.png` |
+| F8 | Instalação repetível + cinco fluxos independentes | PASS | `docs/INSTALL.md`, `docs/TROUBLESHOOTING.md`, `docs/assets/emulator_f8_*.png` |
 
-- Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de Hermes para controle direto.
+- Nunca aprovar implementação com credenciais expostas, shell arbitrário, arquivos fora das raízes autorizadas ou dependência de serviço externo para controle direto.
 
 ## F9 — piloto e decisão do MVP
 - [x] Bateria de piloto com 30 execuções registradas, com no mínimo seis por fluxo (FL-1…FL-5). Registrado em `docs/evidence/F9/PILOT_LOG.md` e `docs/evidence/F9/pilot_log.json`.
 - [x] Taxa de sucesso (29/30 = 96.67% >= 95%), zero falhas críticas, integridade SHA-256 e privacidade avaliadas.
-- [x] Hermes ausente/desligado durante os cinco fluxos diretos (Card "Not configured", 0 chamadas de IA, operação 100% autônoma via Bridge .NET 8).
+- [x] Os cinco fluxos diretos não dependem de serviço de IA e operam via Bridge .NET 8.
 - [x] Evidências reunidas e formalizadas em `docs/MVP_APPROVAL.md`.
 - Resultado técnico: **PASS** · Aprovação humana do MVP: **PENDING (Submetido para homologação em `docs/MVP_APPROVAL.md`)**.
 
@@ -41,7 +41,6 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
 
 | Onda | Entrega | Status | Testes | Evidência |
 |---|---|---|---|---|
-| **v0.4** | Módulo Hermes IA Opcional, Sanitização de Dados e Console Assistivo | PASS | 251 C# / 123 Flutter PASS | `ROADMAP_V0.4.md`, `HermesSanitizerTests.cs`, `HermesServiceTests.cs`, `hermes_*_test.dart` |
 | **v0.5** | Automação, Perfis de Workspace e Macros Encadeadas | PASS | 261 C# / 130 Flutter PASS | `ROADMAP_V0.5.md`, `RoutineServiceTests.cs`, `WebhookNotificationServiceTests.cs`, `workspace_routines_test.dart` |
 | **v0.6** | Mobilidade Expandida, Wake-on-LAN, Energia e Modo Dock | PASS | 268 C# / 145 Flutter PASS | `ROADMAP_V0.6.md`, `PowerControlTests.cs`, `power_control_ui_test.dart`, `wake_on_lan_test.dart`, `dock_mode_test.dart` |
 

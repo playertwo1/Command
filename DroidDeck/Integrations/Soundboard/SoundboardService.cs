@@ -18,7 +18,7 @@ using NAudio.Wave.SampleProviders;
 namespace DroidDeck.Services
 {
     /// <summary>
-    /// Configuração da soundboard, persistida em %LocalAppData%\DroidDeck\soundboard.json
+    /// Configuração da soundboard, persistida em %LocalAppData%\Command\soundboard.json
     /// (mesma convenção do Discord/OBS).
     /// </summary>
     public class SoundboardConfig
@@ -99,7 +99,7 @@ namespace DroidDeck.Services
             _hub = hub;
         }
 
-        // ---- Config em %LocalAppData%\DroidDeck\soundboard.json ----
+        // ---- Config em %LocalAppData%\Command\soundboard.json ----
         private static string BaseDir
         {
             get

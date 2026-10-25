@@ -7,7 +7,6 @@ class DockDashboardPage extends StatelessWidget {
   final String pcName;
   final VoidCallback? onLockPc;
   final VoidCallback? onCaptureScreen;
-  final VoidCallback? onOpenHermes;
 
   const DockDashboardPage({
     super.key,
@@ -15,7 +14,6 @@ class DockDashboardPage extends StatelessWidget {
     required this.pcName,
     this.onLockPc,
     this.onCaptureScreen,
-    this.onOpenHermes,
   });
 
   static const Color amethystAccent = Color(0xFFA78BFA);
@@ -192,24 +190,6 @@ class DockDashboardPage extends StatelessWidget {
                         textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                       onPressed: onCaptureScreen,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.auto_awesome, size: 16, color: amethystAccent),
-                      label: const Text('Hermes IA'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonBg,
-                        foregroundColor: amethystAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: amethystAccent.withValues(alpha: 0.4)),
-                        ),
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                      onPressed: onOpenHermes,
                     ),
                   ),
                   const SizedBox(width: 8),

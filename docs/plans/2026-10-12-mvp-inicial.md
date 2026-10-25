@@ -1,8 +1,8 @@
 # Command — roadmap do MVP v0.1
 
-**Estado: APPROVED / PLANNED.** Aprovado pelo proprietário em 2026-10-12. As fases F0–F9 estão planejadas e ainda não executadas. Este documento é a fonte oficial do roadmap em `ROADMAP.md`; o planejamento anterior está preservado em `docs/history/ROADMAP-2026-10-10-original.md`.
+**Estado: HISTÓRICO.** Plano do MVP v0.x aprovado em 2026-10-12. O escopo ativo do projeto está em `ROADMAP_V1.5.md`.
 
-**Objetivo:** entregar um APK Android e um Bridge Windows para consultar e operar um PC pessoal com segurança, resultados reais e independência do Hermes.
+**Objetivo:** entregar um APK Android e um Bridge Windows para consultar e operar um PC pessoal com segurança, sem depender de serviços externos.
 
 **Arquitetura:** Android → API autenticada do Bridge → operações Windows → resultado correlacionado → atividade. Bridge executa na sessão do usuário; autenticação, catálogo, métricas, captura e transferências são independentes de IA.
 
@@ -21,9 +21,9 @@
 - Capturar uma screenshot manual, visualizar, salvar e compartilhar.
 - Enviar um arquivo de teste do Android ao PC e baixá-lo de volta usando duas pastas autorizadas, com SHA-256.
 - Consultar histórico de ações com resultado final ou erro legível; operação aceita não aparece como concluída.
-- Executar os cinco fluxos do manual com Hermes ausente ou desligado.
+- Executar os cinco fluxos do manual sem depender de serviços externos.
 
-**Ficam após o MVP:** chat/voz/delegação Hermes, temperatura/GPU, multi-PC, macros/modos, serviços Windows, backup remoto, n8n, widgets/Watch, Wake-on-LAN, controle de mouse/teclado, streaming, retomada de transferências e análise de prints por IA. A aba Hermes pode aparecer com “Não configurado”; não conterá controles fictícios ou chat simulado.
+**Ficam após o MVP:** temperatura/GPU, multi-PC, macros/modos, serviços Windows, backup remoto, n8n, widgets/Watch, Wake-on-LAN, controle de mouse/teclado, streaming e retomada de transferências.
 
 ## 2. Decisões propostas para aprovação
 
@@ -41,7 +41,7 @@ Os valores desta seção são escolhas desta proposta, não exigências já fixa
 | Retenção | Histórico técnico local por 7 dias, botão para limpar; excluir tokens, imagens, argumentos sensíveis e caminhos pessoais dos registros. Temporários de transferências encerradas/falhas expiram em até 24 horas. |
 | Idempotência | Identidade de execução = aparelho + chave de idempotência; registro persistente por 24 horas. Repetição devolve o mesmo job; payload diferente com a mesma chave é rejeitado. Pedido novo de mutação expira em 5 minutos; replay vencido não executa mesmo após limpeza do registro. |
 | Falha/reinício | Nunca reenviar mutação automaticamente. Bridge reiniciado marca jobs interrompidos como indeterminados quando não consegue comprovar o efeito. Não repete execução para “recuperar” um job. |
-| IA | Independência é obrigatória. Integração Hermes é uma entrega posterior, não requisito para liberar v0.1. |
+| IA | Nenhuma integração de IA é requisito para liberar v0.1. |
 
 ## 3. Fases e ordem
 
@@ -69,9 +69,9 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 **Entrada:** manual, referências Stitch e esqueleto atual. **Saída:** duas ADRs e inventário verificável.
 
 - [ ] F0-01 — inventariar PC/Android de teste, Git, SDK Android, JDK e .NET; registrar versões e ausências em `research/ENVIRONMENT.md`. Não instalar dependências nem acessar aparelho sem a autorização aplicável.
-- [ ] F0-02 — inspecionar Hermes-Relay, Hy4ri/hermes-mobile, DroidDeck e LibreHardwareMonitor em `research/upstream/`; fixar URL/SHA/data e verificar LICENSE, dependências e scripts antes de executar. Registrar em `research/UPSTREAM.md`.
+- [ ] F0-02 — inspecionar DroidDeck e LibreHardwareMonitor em `research/upstream/`; fixar URL/SHA/data e verificar LICENSE, dependências e scripts antes de executar. Registrar em `research/UPSTREAM.md`.
 - [ ] F0-03 — tentar builds isolados dos candidatos Android e Bridge pertinentes à decisão. Guardar comandos reais, ambiente, resultados e limitações em `docs/evidence/F0/`; falha não autoriza copiar código não auditado.
-- [ ] F0-04 — entregar `docs/adr/ADR-001-base-android.md` e `ADR-002-bridge.md`, comparando fork/reuso com base nova quanto a manutenção, licença, segurança, custo de adaptação e independência do Hermes. Entregar `research/API_MATRIX.md` com implementado/verificado/ausente por candidato.
+- [ ] F0-04 — entregar `docs/adr/ADR-001-base-android.md` e `ADR-002-bridge.md`, comparando fork/reuso com base nova quanto a manutenção, licença, segurança, custo de adaptação e independência de serviços externos. Entregar `research/API_MATRIX.md` com implementado/verificado/ausente por candidato.
 
 **Conclusão:** cada candidato tem evidência ou motivo de rejeição; ADRs recomendam uma opção implementável; proprietário aprova a base antes de F1. Se nenhum candidato servir, propor Compose e Bridge próprios nas ADRs. Um upstream rejeitado não bloqueia permanentemente o projeto.
 
@@ -154,16 +154,16 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 
 **Conclusão:** todos os critérios das fases anteriores continuam válidos; nenhuma falha crítica/alta aberta; ações favoritas em até três toques depois de escolher PC, sem contar confirmação de segurança e seleção de arquivo; aceite visual registrado.
 
-### F8 — instalação repetível e prova sem Hermes
+### F8 — instalação repetível e prova de independência operacional
 
 **Entrada:** integração revisada. **Saída:** pacote pessoal instalável com instruções reais.
 
 - [ ] F8-01 — produzir APK de teste e pacote Bridge com versão/hash; documentar instalação/início/parada/pareamento/revogação/desinstalação em `docs/INSTALL.md`. Definir e proteger chaves de assinatura de teste; instalador público/atualização automática ficam após MVP.
 - [ ] F8-02 — instalar a partir dos pacotes, reiniciar PC/Android e repetir conexão e cinco fluxos. Bridge inicia na sessão do usuário; startup automático somente com opção explícita. Documentar limitações em `docs/TROUBLESHOOTING.md`.
-- [ ] F8-03 — executar todos os fluxos com Hermes ausente ou desligado; comprovar que nenhum comando direto usa autenticação, runtime ou endpoint Hermes. Tela Hermes apenas informa estado não configurado.
+- [ ] F8-03 — executar todos os fluxos sem depender de serviços externos de IA; comprovar que nenhum comando direto depende de runtime ou endpoint de IA.
 - [ ] F8-04 — validar LAN. Se Tailscale já estiver disponível e autorizado, testar rede externa com autenticação/pinning preservados. Se não estiver, registrar NOT_RUN e limitar a declaração de suporte à LAN.
 
-**Conclusão:** instalação reproduzível no ambiente piloto; cinco fluxos operacionais sem Hermes; limites de rede documentados e pacote pronto para o uso pessoal em F9.
+**Conclusão:** instalação reproduzível no ambiente piloto; cinco fluxos operacionais independentes de serviços externos; limites de rede documentados e pacote pronto para o uso pessoal em F9.
 
 ### F9 — piloto e aceite final
 
@@ -174,7 +174,7 @@ Não iniciar a fase seguinte com critério obrigatório pendente. Segurança é 
 - [ ] F9-03 — consolidar evidências F0–F8, lista de problemas e verificação de zero execução não autorizada, corrupção/perda e duplicação destrutiva. Falha crítica impede aprovação; depois de corrigida, repetir verificação relevante e reiniciar o piloto de sete dias.
 - [ ] F9-04 — entregar relatório com resultado `PASS / FAIL / ESCALATE`, rede efetivamente validada, artefatos e limitações; proprietário registra `APPROVED / CHANGES_REQUIRED`.
 
-**Conclusão:** metas cumpridas, nenhuma falha crítica aberta e aprovação humana registrada. Só então planejar temperatura, chat Hermes e evolução.
+**Conclusão:** metas cumpridas, nenhuma falha crítica aberta e aprovação humana registrada. Só então planejar temperatura e demais evoluções.
 
 ## 5. Contratos comuns e responsabilidades
 
@@ -205,7 +205,6 @@ F1 fixa rotas, DTOs e limites no contrato. Operações de app, captura e transfe
 
 - G4 foi dividido em ações, screenshot e arquivos para tornar erros e entregas rastreáveis.
 - A primeira entrega utilizável chega em F3, com pareamento e métricas reais, antes de construir todas as operações.
-- Integração Hermes P1 fica depois do aceite do MVP; a prova de independência continua obrigatória em F8.
 - Candidato que falha no G0 pode ser rejeitado, com base própria escolhida mediante ADR/aprovação; não exigir eternamente build de um upstream descartado.
 - Valores de limite/expiração/retenção e regra de 29/30 sucessos foram explicitados para eliminar interpretações divergentes entre IAs.
 - São usados os caminhos já adotados no esqueleto (`STATE.md`, `docs/adr/`, `docs/DECISIONS.md`); não criar documentos paralelos de estado.

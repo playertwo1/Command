@@ -1,13 +1,28 @@
-import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 
-/// Interpretador determinístico offline de comandos rápidos (Onda v0.4 - H4).
+class QuickCommandAction {
+  final String actionType;
+  final String targetId;
+  final String title;
+  final String reason;
+  final bool requiresConfirmation;
+
+  const QuickCommandAction({
+    required this.actionType,
+    required this.targetId,
+    required this.title,
+    required this.reason,
+    this.requiresConfirmation = true,
+  });
+}
+
+/// Interpretador determinístico offline dos comandos rápidos locais.
 class QuickCommandParser {
-  static HermesSuggestedAction? parseLocalIntent(String input) {
+  static QuickCommandAction? parseLocalIntent(String input) {
     final clean = input.trim().toLowerCase();
 
     if (clean == 'abrir obsidian') {
-      return const HermesSuggestedAction(
+      return const QuickCommandAction(
         actionType: 'app.launch',
         targetId: 'obsidian',
         title: 'Abrir Obsidian',
@@ -17,7 +32,7 @@ class QuickCommandParser {
     }
 
     if (clean == 'abrir orbit') {
-      return const HermesSuggestedAction(
+      return const QuickCommandAction(
         actionType: 'app.launch',
         targetId: 'orbit',
         title: 'Abrir Orbit',
@@ -27,7 +42,7 @@ class QuickCommandParser {
     }
 
     if (clean == 'abrir bloco de notas' || clean == 'abrir notepad') {
-      return const HermesSuggestedAction(
+      return const QuickCommandAction(
         actionType: 'app.launch',
         targetId: 'test_notepad',
         title: 'Abrir Bloco de Notas',
@@ -40,7 +55,7 @@ class QuickCommandParser {
         clean == 'encerrar notepad' ||
         clean == 'fechar notepad' ||
         clean == 'encerrar bloco de notas') {
-      return const HermesSuggestedAction(
+      return const QuickCommandAction(
         actionType: 'app.kill',
         targetId: 'test_notepad',
         title: 'Encerrar Bloco de Notas',
@@ -50,7 +65,7 @@ class QuickCommandParser {
     }
 
     if (clean == 'capturar tela' || clean == 'print' || clean == 'tirar print') {
-      return const HermesSuggestedAction(
+      return const QuickCommandAction(
         actionType: 'screenshot.capture',
         targetId: 'primary_monitor',
         title: 'Capturar Tela',
@@ -63,24 +78,22 @@ class QuickCommandParser {
   }
 }
 
-/// Barra de comando rápido para acionamento local ou assistência Hermes (Onda v0.4 - H4).
-class QuickCommandBar extends StatefulWidget {
-  final DroidDeckClient client;
-  final Future<void> Function(HermesSuggestedAction action)? onTriggerAction;
-  final void Function(String unrecognizedPrompt)? onFallbackToHermes;
+/// Barra de comandos locais com ações tipadas e confirmação explícita.
+class LocalQuickCommandBar extends StatefulWidget {
+  final String targetPcName;
+  final Future<void> Function(QuickCommandAction action)? onTriggerAction;
 
-  const QuickCommandBar({
+  const LocalQuickCommandBar({
     super.key,
-    required this.client,
+    required this.targetPcName,
     this.onTriggerAction,
-    this.onFallbackToHermes,
   });
 
   @override
-  State<QuickCommandBar> createState() => _QuickCommandBarState();
+  State<LocalQuickCommandBar> createState() => _LocalQuickCommandBarState();
 }
 
-class _QuickCommandBarState extends State<QuickCommandBar> {
+class _LocalQuickCommandBarState extends State<LocalQuickCommandBar> {
   final TextEditingController _controller = TextEditingController();
   bool _isProcessing = false;
 
@@ -103,23 +116,18 @@ class _QuickCommandBarState extends State<QuickCommandBar> {
       _controller.clear();
       await _confirmAndExecute(action);
     } else {
-      if (widget.onFallbackToHermes != null) {
-        _controller.clear();
-        widget.onFallbackToHermes!(text);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Comando não reconhecido localmente: "$text"'),
-              backgroundColor: const Color(0xFF2E2A40),
-            ),
-          );
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Comando não reconhecido localmente: "$text"'),
+            backgroundColor: const Color(0xFF2E2A40),
+          ),
+        );
       }
     }
   }
 
-  Future<void> _confirmAndExecute(HermesSuggestedAction action) async {
+  Future<void> _confirmAndExecute(QuickCommandAction action) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -147,6 +155,11 @@ class _QuickCommandBarState extends State<QuickCommandBar> {
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 12),
+            Text(
+              'PC-alvo: ${widget.targetPcName}',
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(

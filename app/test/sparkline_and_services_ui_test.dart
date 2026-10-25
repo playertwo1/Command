@@ -4,6 +4,7 @@ import 'package:droiddeck/src/home/status_page.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeDiagnosticsClient extends DroidDeckClient {
   FakeDiagnosticsClient() : super(baseUrl: 'http://localhost:4787');
@@ -85,6 +86,10 @@ class FakeDiagnosticsClient extends DroidDeckClient {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('Fase S5 — Sparklines 60s, Serviços Windows e Top Processos', () {
     testWidgets('MetricSparkline renderiza sem erros com diferentes quantidades de dados',
         (tester) async {

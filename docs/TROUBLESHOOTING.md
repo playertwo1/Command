@@ -89,9 +89,3 @@ Este documento reúne diagnósticos, resoluções de problemas comuns e limites 
 - **Causa:** Tentativa de enviar arquivos com extensões executáveis bloqueadas (`.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`, `.dll`, etc.) para a pasta `inbound`.
 
 ---
-
-## 6. Independência da IA (Hermes)
-
-### Sintoma: Card Hermes exibe "Não configurado"
-- **Comportamento Esperado:** O projeto Command v0.1.0 foi desenhado especificamente para ter **100% de independência de inteligência artificial** no controle e monitoramento direto do PC.
-- O card do Hermes exibe "Não configurado" para indicar de forma transparente que nenhuma chave de IA ou serviço de terceiros está sendo utilizado ou é necessário para o funcionamento de todas as ferramentas de telemetria, captura, arquivos e ações do sistema.

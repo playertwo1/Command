@@ -53,7 +53,7 @@ namespace DroidDeck.Integrations
 
     /// <summary>
     /// Base das integracoes com conta (Home Assistant, Spotify, Twitch, YouTube): guarda a
-    /// configuracao cifrada em %LocalAppData%\DroidDeck\{nome}.json, publica o estado ao vivo
+    /// configuracao cifrada em %LocalAppData%\Command\{nome}.json, publica o estado ao vivo
     /// e expoe o mesmo fluxo para a tela do app (configurar, entrar, sair).
     /// </summary>
     public abstract class AccountIntegration : BackgroundService, IIntegration

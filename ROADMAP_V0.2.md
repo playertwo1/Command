@@ -65,7 +65,7 @@ flowchart TD
 2. **Zero Execução ou Kill Arbitrário:** O monitoramento de serviços (`S3`) e de top processos (`S3`) é **estritamente somente leitura**. O encerramento continua restrito aos aplicativos com `CanKill = true` da allowlist.
 3. **Sem Spam de Alertas:** Alertas de sobrecarga (`S6`) devem respeitar um *cooldown* mínimo de 60 segundos entre notificações da mesma métrica.
 4. **Privacidade em Diagnósticos:** O relatório exportável (`S9`) nunca deve incluir `apiKey`, tokens, variáveis de ambiente ou caminhos pessoais fora do resumo sanitizado.
-5. **Independência de IA Mantida:** Todas as 11 fases funcionam 100% sem Hermes.
+5. **Independência de IA Mantida:** Todas as 11 fases funcionam sem serviços externos de IA.
 
 ---
 

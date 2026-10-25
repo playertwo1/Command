@@ -50,7 +50,7 @@
 **Objetivo:** Conectar o motor de rotinas a notificações externas sanitizadas via Webhook.
 
 - [x] **M3.1:** Integrar rotinas de limpeza e foco (`Limpeza de Foco`) na `StatusPage`.
-- [x] **M3.2:** Criar `IWebhookNotificationService` e `WebhookNotificationService.cs` com sanitização estrita via `HermesContextSanitizer`.
+- [x] **M3.2:** Criar `IWebhookNotificationService` e `WebhookNotificationService.cs` com sanitização de texto sensível.
 - [x] **M3.3:** Criar testes em `tests/DroidDeck.Tests/WebhookNotificationServiceTests.cs`.
 
 ---

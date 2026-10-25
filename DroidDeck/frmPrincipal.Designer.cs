@@ -36,9 +36,9 @@ namespace DroidDeck
             // 
             // ntiTray
             // 
-            this.ntiTray.BalloonTipTitle = "DroidDeck";
+            this.ntiTray.BalloonTipTitle = "Command";
             this.ntiTray.Icon = ((System.Drawing.Icon)(resources.GetObject("ntiTray.Icon")));
-            this.ntiTray.Text = "DroidDeck";
+            this.ntiTray.Text = "Command";
             // 
             // frmPrincipal
             // 
@@ -48,7 +48,7 @@ namespace DroidDeck
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "frmPrincipal";
-            this.Text = "DroidDeck";
+            this.Text = "Command";
             this.ResumeLayout(false);
 
         }

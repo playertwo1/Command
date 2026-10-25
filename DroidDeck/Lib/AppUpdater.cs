@@ -7,16 +7,20 @@ using Velopack.Sources;
 namespace DroidDeck.Lib
 {
     /// <summary>
-    /// Atualizacao automatica pelas Releases do GitHub (Velopack).
+    /// Atualizacao automatica pelas Releases do GitHub (Velopack), quando um feed Command
+    /// estiver explicitamente habilitado.
     ///
-    /// So age na copia instalada pelo DroidDeck-Setup.exe; o .zip e o "dotnet run" seguem
-    /// como antes. A atualizacao e baixada em segundo plano e aplicada na proxima vez que o
-    /// DroidDeck abrir (VelopackApp aplica pacotes pendentes no startup), ou na hora, se o
+    /// O piloto local deixa as consultas desativadas: o repositorio Command e privado e nao
+    /// deve haver fallback para releases do DroidDeck. A atualizacao e baixada em segundo plano
+    /// e aplicada na proxima vez que o Command abrir, ou na hora, se o
     /// usuario aceitar reiniciar.
     /// </summary>
     public class AppUpdater
     {
-        public const string RepoUrl = "https://github.com/ggfto/DroidDeck";
+        public const string RepoUrl = "https://github.com/playertwo1/Command";
+
+        // Habilitar somente quando o feed Command tiver sido publicado e aprovado.
+        private const bool UpdateChecksEnabled = false;
 
         private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(6);
 
@@ -29,6 +33,8 @@ namespace DroidDeck.Lib
 
         public bool IsInstalled => _manager.IsInstalled;
 
+        public bool IsUpdateFeedConfigured => UpdateChecksEnabled;
+
         public string? CurrentVersion => _manager.CurrentVersion?.ToString();
 
         public string? PendingVersion => _ready?.TargetFullRelease.Version.ToString();
@@ -36,7 +42,7 @@ namespace DroidDeck.Lib
         /// <summary>Checa agora e depois a cada <see cref="CheckInterval"/>.</summary>
         public void StartBackgroundChecks(CancellationToken token)
         {
-            if (!IsInstalled) return;
+            if (!IsInstalled || !UpdateChecksEnabled) return;
             _ = Task.Run(async () =>
             {
                 // Deixa o servidor subir primeiro; atualizar nao tem pressa.
@@ -55,7 +61,7 @@ namespace DroidDeck.Lib
         /// </summary>
         public async Task<string?> CheckAndDownloadAsync()
         {
-            if (!IsInstalled) return null;
+            if (!IsInstalled || !UpdateChecksEnabled) return null;
             await _lock.WaitAsync();
             try
             {
@@ -82,7 +88,7 @@ namespace DroidDeck.Lib
             }
         }
 
-        /// <summary>Fecha o DroidDeck, aplica a atualizacao baixada e abre de novo.</summary>
+        /// <summary>Fecha o Command, aplica a atualizacao baixada e abre de novo.</summary>
         public void ApplyAndRestart()
         {
             if (_ready == null) return;

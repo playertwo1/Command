@@ -1,4 +1,4 @@
-name: Release
+name: Command Release
 
 # Disparo MANUAL (Actions -> Release -> Run workflow). O semantic-release decide a
 # versão a partir dos commits (feat -> minor, fix -> patch, BREAKING -> major),
@@ -75,28 +75,29 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force publish/wwwroot | Out-Null
           Copy-Item app/build/web/* publish/wwwroot -Recurse -Force
+          Copy-Item LICENSE publish/LICENSE
+          Copy-Item app/LICENSE publish/LICENSE-APP-GPL-3.0
 
       - name: Zip
         shell: pwsh
-        run: Compress-Archive -Path publish/* -DestinationPath DroidDeck-win-x64.zip -Force
+        run: Compress-Archive -Path publish/* -DestinationPath Command-win-x64.zip -Force
 
-      # Instalador com atualizacao automatica. O app procura releases.win.json e o .nupkg
-      # na ultima Release do GitHub, entao os dois vao anexados junto com o Setup.
+      # Identidade Command. O updater permanece desativado enquanto o feed não estiver aprovado.
       - name: Instalador (Velopack)
         shell: pwsh
         run: |
           dotnet tool install -g vpk --version 1.2.161
-          vpk pack --packId DroidDeckPC --packVersion $env:VERSION --packDir publish `
-            --mainExe DroidDeck.exe --packTitle DroidDeck --packAuthors "Gabriel Freitas" `
+          vpk pack --runtime win-x64 --packId CommandPC --packVersion $env:VERSION --packDir publish `
+            --mainExe DroidDeck.exe --packTitle Command --packAuthors "Command" `
             --icon DroidDeck/volume-_2_.ico --outputDir velopack
-          Move-Item velopack/DroidDeckPC-win-Setup.exe velopack/DroidDeck-Setup.exe
-          Remove-Item velopack/DroidDeckPC-win-Portable.zip
+          Move-Item velopack/CommandPC-win-Setup.exe velopack/Command-Setup.exe
+          Remove-Item velopack/CommandPC-win-Portable.zip
 
       - uses: actions/upload-artifact@v7
         with:
           name: backend
           path: |
-            DroidDeck-win-x64.zip
+            Command-win-x64.zip
             velopack/
 
   app:
@@ -123,14 +124,15 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > app/release.jks
-            printf 'storeFile=release.jks\nstorePassword=%s\nkeyPassword=%s\nkeyAlias=%s\n' \
-              "$STORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > key.properties
-            echo "Assinatura: chave de release"
-          else
-            echo "Assinatura: debug (sem secrets)"
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEY_ALIAS" ] || \
+             [ -z "$KEY_PASSWORD" ] || [ -z "$STORE_PASSWORD" ]; then
+            echo "::error::Release Android bloqueada: os quatro secrets de assinatura são obrigatórios."
+            exit 1
           fi
+          echo "$KEYSTORE_B64" | base64 -d > app/release.jks
+          printf 'storeFile=release.jks\nstorePassword=%s\nkeyPassword=%s\nkeyAlias=%s\n' \
+            "$STORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > key.properties
+          echo "Assinatura: chave de release"
 
       - name: Build do APK
         working-directory: app

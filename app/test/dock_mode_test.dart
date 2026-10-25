@@ -10,7 +10,6 @@ void main() {
     testWidgets('renderiza telemetria em alto contraste e botões de ação', (tester) async {
       int lockCalls = 0;
       int captureCalls = 0;
-      int hermesCalls = 0;
 
       final stats = SystemStats(
         cpuUsage: 42.5,
@@ -27,7 +26,6 @@ void main() {
             pcName: 'DESKTOP-ULTRA',
             onLockPc: () => lockCalls++,
             onCaptureScreen: () => captureCalls++,
-            onOpenHermes: () => hermesCalls++,
           ),
         ),
       );
@@ -50,7 +48,6 @@ void main() {
       // Botões rápidos
       expect(find.text('Bloquear PC'), findsOneWidget);
       expect(find.text('Capturar Tela'), findsOneWidget);
-      expect(find.text('Hermes IA'), findsOneWidget);
       expect(find.text('Sair do Dock'), findsOneWidget);
 
       // Toca em Bloquear PC
@@ -63,10 +60,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(captureCalls, 1);
 
-      // Toca em Hermes IA
-      await tester.tap(find.text('Hermes IA'));
-      await tester.pumpAndSettle();
-      expect(hermesCalls, 1);
     });
   });
 }

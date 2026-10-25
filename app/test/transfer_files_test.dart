@@ -6,6 +6,7 @@ import 'package:droiddeck/src/home/status_page.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeTransferClient extends DroidDeckClient {
   List<TransferItem> outboundFiles = [];
@@ -127,6 +128,7 @@ void main() {
     late SignalRService signalRService;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       client = FakeTransferClient();
       signalRService = SignalRService();
     });

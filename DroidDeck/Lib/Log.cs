@@ -141,7 +141,7 @@ namespace DroidDeck.Lib
             {
                 target = new NLog.Targets.FileTarget("logfile")
                 {
-                    FileName = Path.Combine(logpath, "DroidDeck.log"),
+                    FileName = Path.Combine(logpath, "Command.log"),
                     Layout = "${longdate}|${level}|${message}|${exception:format=tostring}"
                 };
             }
@@ -169,8 +169,9 @@ namespace DroidDeck.Lib
             try
             {
                 var path = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DroidDeck.log");
-                var file = new FileInfo(path);                if (file.Exists && file.Length > 10 * MaxLogSize) file.Delete();
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Command.log");
+                var file = new FileInfo(path);
+                if (file.Exists && file.Length > 10 * MaxLogSize) file.Delete();
             }
             catch
             {
@@ -181,9 +182,9 @@ namespace DroidDeck.Lib
         private static string GetPlaformFolder()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return "${specialfolder:folder=UserProfile}/Library/Preferences/DroidDeck.log";
+                return "${specialfolder:folder=UserProfile}/Library/Preferences/Command.log";
 
-            return "${specialfolder:folder=LocalApplicationData}/DroidDeck.log";
+            return "${specialfolder:folder=LocalApplicationData}/Command.log";
         }
         #endregion
     }

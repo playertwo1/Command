@@ -64,8 +64,5 @@ void main() {
     expect(find.text('Tempo ligado'), findsOneWidget);
     expect(find.text('2h 2m'), findsOneWidget);
 
-    // Hermes IA
-    expect(find.text('Hermes IA'), findsOneWidget);
-    expect(find.text('Não configurado'), findsOneWidget);
   });
 }

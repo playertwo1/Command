@@ -33,7 +33,6 @@ namespace DroidDeck
             services.AddSingleton<ITransferService, TransferService>();
             services.AddSingleton<IWindowsServiceMonitor, WindowsServiceMonitor>();
             services.AddSingleton<ITopProcessesService, TopProcessesService>();
-            services.AddSingleton<IHermesService, HermesService>();
             services.AddSingleton<IWebhookNotificationService, WebhookNotificationService>();
             services.AddSingleton<IRoutineService, RoutineService>();
             services.AddSingleton<IPowerControlService, PowerControlService>();

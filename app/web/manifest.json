@@ -1,11 +1,11 @@
 {
-    "name": "DroidDeck",
-    "short_name": "DroidDeck",
+    "name": "Command",
+    "short_name": "Command",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "DroidDeck — configurador do deck.",
+    "description": "Command — painel local do PC.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

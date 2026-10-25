@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace DroidDeck.Services.Tuya
 {
-    /// <summary>Sessao de uma conta Tuya, persistida em %LocalAppData%\DroidDeck\tuya.json.</summary>
+    /// <summary>Sessao de uma conta Tuya, persistida em %LocalAppData%\Command\tuya.json.</summary>
     public class TuyaConfig
     {
         public string? UserCode { get; set; }

@@ -18,7 +18,7 @@ namespace DroidDeck
     {
         public static frmPrincipal? FrmPrincipal { get; private set; }
 
-        /// <summary>Primeira execucao depois de instalar pelo DroidDeck-Setup.exe.</summary>
+        /// <summary>Primeira execucao depois de instalar pelo Command-Setup.exe.</summary>
         public static bool FirstRunAfterInstall { get; private set; }
 
         public static readonly AppUpdater Updater = new();

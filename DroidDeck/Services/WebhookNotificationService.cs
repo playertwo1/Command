@@ -61,8 +61,8 @@ namespace DroidDeck.Services
 
         public string FormatSanitizedPayload(string title, string body)
         {
-            string cleanTitle = HermesContextSanitizer.SanitizeText(title);
-            string cleanBody = HermesContextSanitizer.SanitizeText(body);
+            string cleanTitle = SensitiveTextSanitizer.SanitizeText(title);
+            string cleanBody = SensitiveTextSanitizer.SanitizeText(body);
 
             var payloadObj = new
             {

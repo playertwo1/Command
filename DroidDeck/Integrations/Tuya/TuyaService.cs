@@ -17,7 +17,7 @@ namespace DroidDeck.Services
 {
     /// <summary>
     /// Plugin Tuya/Smart Life (cobre as marcas que sao rebrand da Tuya: Nova Digital, Positivo,
-    /// RSmart, Elgin...). Mesmo formato do ObsService: config em %LocalAppData%\DroidDeck,
+    /// RSmart, Elgin...). Mesmo formato do ObsService: config em %LocalAppData%\Command,
     /// estado espelhado ao vivo pelo SignalR, e um watchdog cuidando da conexao.
     ///
     /// O estado vem por PUSH (MQTT), nunca por polling: o tier gratuito da Tuya permite ~26 mil
@@ -57,7 +57,7 @@ namespace DroidDeck.Services
             _config = LoadConfig();
         }
 
-        // ---- Config em %LocalAppData%\DroidDeck\tuya.json ----
+        // ---- Config em %LocalAppData%\Command\tuya.json ----
 
         private static string ConfigPath
         {

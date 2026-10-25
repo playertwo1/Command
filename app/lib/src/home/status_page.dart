@@ -16,9 +16,7 @@ import 'screenshot_viewer.dart';
 import '../desktop_stream/desktop_stream_controller.dart';
 import '../desktop_stream/desktop_live_stream_viewer.dart';
 import '../transfers/remote_file_manager_page.dart';
-import '../hermes/hermes_config_sheet.dart';
-import '../hermes/hermes_assistant_page.dart';
-import '../hermes/quick_command_bar.dart';
+import 'local_quick_command_bar.dart';
 import '../routines/workspace_routines_card.dart';
 import '../power/power_control_card.dart';
 import '../security/security_center_card.dart';
@@ -119,13 +117,6 @@ class _StatusPageState extends State<StatusPage> {
   int? _jitterMs;
   int? _previousLatencyMs;
   bool _measuringLatency = false;
-
-  HermesConfigData _hermesConfig = const HermesConfigData(
-    enabled: false,
-    endpointUrl: '',
-    modelName: 'gemini-3.8-flash',
-    hasApiKey: false,
-  );
 
   final DesktopStreamController _streamController = DesktopStreamController();
   late final HealthAlertService _healthAlertService;
@@ -370,9 +361,20 @@ class _StatusPageState extends State<StatusPage> {
     await client.clearJobs();
   }
 
-  Future<void> _captureScreenshot() async {
+  Future<void> _captureScreenshot({bool rethrowOnError = false}) async {
     final client = _targetClient;
-    if (client == null || _capturingScreenshot) return;
+    if (client == null) {
+      if (rethrowOnError) {
+        throw StateError('Nenhum PC conectado está selecionado.');
+      }
+      return;
+    }
+    if (_capturingScreenshot) {
+      if (rethrowOnError) {
+        throw StateError('Já existe uma captura de tela em andamento.');
+      }
+      return;
+    }
 
     setState(() {
       _capturingScreenshot = true;
@@ -428,6 +430,7 @@ class _StatusPageState extends State<StatusPage> {
         });
         _fetchJobs();
       }
+      if (rethrowOnError) rethrow;
     } finally {
       if (mounted) {
         setState(() => _capturingScreenshot = false);
@@ -2645,8 +2648,8 @@ class _StatusPageState extends State<StatusPage> {
 
               const SizedBox(height: 12),
 
-              // Módulo Hermes (Opcional - Onda v0.4)
-              _buildHermesCard(context, theme),
+              // Comandos determinísticos com confirmação explícita.
+              _buildLocalQuickCommands(),
 
               const SizedBox(height: 12),
 
@@ -2894,7 +2897,6 @@ class _StatusPageState extends State<StatusPage> {
                         stats: stats,
                         pcName: activePc?.name ?? 'Command PC',
                         onCaptureScreen: _captureScreenshot,
-                        onOpenHermes: () => _openHermesAssistantPage(context),
                       ),
                     ),
                   );
@@ -3159,191 +3161,42 @@ class _StatusPageState extends State<StatusPage> {
     );
   }
 
-  Future<void> _executeConfirmedHermesAction(
-    HermesSuggestedAction action,
-  ) async {
+  Widget _buildLocalQuickCommands() {
+    return LocalQuickCommandBar(
+      targetPcName: _targetPc?.name ?? tr('Nenhum PC selecionado'),
+      onTriggerAction: _executeConfirmedQuickCommand,
+    );
+  }
+
+  Future<void> _executeConfirmedQuickCommand(QuickCommandAction action) async {
     final client = _targetClient;
-    if (client == null) return;
-    final reqId = 'hermes_${DateTime.now().microsecondsSinceEpoch}';
-    if (action.actionType == 'app.launch') {
-      await client.launchApp(action.targetId, requestId: reqId);
-      await _fetchApps();
-      await _fetchJobs();
-    } else if (action.actionType == 'app.kill') {
-      await client.killApp(action.targetId, requestId: reqId, confirmed: true);
-      await _fetchApps();
-      await _fetchJobs();
-    } else if (action.actionType == 'screenshot.capture') {
-      await _captureScreenshot();
+    if (client == null) {
+      throw StateError('Nenhum PC conectado está selecionado.');
     }
-  }
-
-  void _openHermesConfigSheet(BuildContext context) {
-    final pc = _currentPc;
-    final effectiveClient =
-        _client ??
-        DroidDeckClient(
-          baseUrl: pc != null
-              ? 'http://${pc.ip}:${pc.port}'
-              : 'http://10.0.2.2:4787',
-        );
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => HermesConfigSheet(
-        client: effectiveClient,
-        initialConfig: _hermesConfig,
-        onSaved: (updated) {
-          if (mounted) {
-            setState(() => _hermesConfig = updated);
-          }
-        },
-      ),
-    );
-  }
-
-  void _openHermesAssistantPage(
-    BuildContext context, {
-    String? initialPrompt,
-    String? screenshotId,
-  }) {
-    final pc = _currentPc;
-    final effectiveClient =
-        _client ??
-        DroidDeckClient(
-          baseUrl: pc != null
-              ? 'http://${pc.ip}:${pc.port}'
-              : 'http://10.0.2.2:4787',
-        );
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => HermesAssistantPage(
-          client: effectiveClient,
-          initialPrompt: initialPrompt,
-          screenshotId: screenshotId,
-          targetPcName: _targetPc?.name,
-          onExecuteConfirmedAction: _executeConfirmedHermesAction,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHermesCard(BuildContext context, ThemeData theme) {
-    final pc = _currentPc;
-    final effectiveClient =
-        _client ??
-        DroidDeckClient(
-          baseUrl: pc != null
-              ? 'http://${pc.ip}:${pc.port}'
-              : 'http://10.0.2.2:4787',
-        );
-
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: _hermesConfig.enabled
-              ? const Color(0xFFA78BFA).withValues(alpha: 0.45)
-              : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.auto_awesome,
-                  size: 20,
-                  color: Color(0xFFA78BFA),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Hermes IA',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        tr('Módulo de inteligência opcional'),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _hermesConfig.enabled
-                        ? const Color(0xFF34D5A0).withValues(alpha: 0.18)
-                        : theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _hermesConfig.enabled ? tr('Ativo') : tr('Não configurado'),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: _hermesConfig.enabled
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: _hermesConfig.enabled
-                          ? const Color(0xFF34D5A0)
-                          : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  key: const ValueKey('hermes_config_button'),
-                  icon: const Icon(
-                    Icons.tune,
-                    size: 18,
-                    color: Color(0xFFA78BFA),
-                  ),
-                  tooltip: tr('Configurar Hermes IA'),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => _openHermesConfigSheet(context),
-                ),
-                IconButton(
-                  key: const ValueKey('hermes_assistant_button'),
-                  icon: const Icon(
-                    Icons.chat_bubble_outline,
-                    size: 18,
-                    color: Color(0xFFA78BFA),
-                  ),
-                  tooltip: tr('Abrir Assistente Hermes'),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => _openHermesAssistantPage(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            QuickCommandBar(
-              client: effectiveClient,
-              onTriggerAction: _executeConfirmedHermesAction,
-              onFallbackToHermes: (prompt) {
-                _openHermesAssistantPage(context, initialPrompt: prompt);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+    final reqId = 'quick_${DateTime.now().microsecondsSinceEpoch}';
+    if (action.actionType == 'app.launch') {
+      final job = await client.launchApp(action.targetId, requestId: reqId);
+      await _fetchApps();
+      await _fetchJobs();
+      if (job.status != 'succeeded') {
+        throw StateError(job.errorMessage ?? 'O Bridge não confirmou a abertura do aplicativo.');
+      }
+    } else if (action.actionType == 'app.kill') {
+      final job = await client.killApp(
+        action.targetId,
+        requestId: reqId,
+        confirmed: true,
+      );
+      await _fetchApps();
+      await _fetchJobs();
+      if (job.status != 'succeeded') {
+        throw StateError(job.errorMessage ?? 'O Bridge não confirmou o encerramento do aplicativo.');
+      }
+    } else if (action.actionType == 'screenshot.capture') {
+      await _captureScreenshot(rethrowOnError: true);
+    } else {
+      throw StateError('Ação local não autorizada.');
+    }
   }
 
   Widget _buildLiveStreamCard(ThemeData theme) {
@@ -3520,20 +3373,11 @@ class _StatusPageState extends State<StatusPage> {
                       icon: const Icon(Icons.zoom_in, size: 16),
                       label: Text(tr('Visualizar')),
                       onPressed: () {
-                        final scId = _lastScreenshot!.id;
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (viewerCtx) => ScreenshotViewerPage(
+                            builder: (_) => ScreenshotViewerPage(
                               info: _lastScreenshot!,
                               imageBytes: _lastScreenshotBytes!,
-                              onAskHermes: () {
-                                _openHermesAssistantPage(
-                                  viewerCtx,
-                                  initialPrompt:
-                                      'Analise esta captura de tela do PC',
-                                  screenshotId: scId,
-                                );
-                              },
                             ),
                           ),
                         );

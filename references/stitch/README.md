@@ -16,7 +16,6 @@ As capturas locais preservam as telas numeradas e as explorações adicionais ex
 ![Aplicativos e processos](screens/04-aplicativos-processos.png)
 ![Detalhe do PC](screens/05-tela-pc.png)
 ![Ações](screens/07-acoes.png)
-![Hermes](screens/08-hermes-ai.png)
 ![Atividade](screens/10-atividade.png)
 ![Configurações](screens/11-configuracoes.png)
 ![Pareamento](screens/12-pareamento-pc.png)

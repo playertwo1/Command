@@ -1,11 +1,6 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/hermes/quick_command_bar.dart';
+import 'package:droiddeck/src/home/local_quick_command_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-class FakeDeckClient extends DroidDeckClient {
-  FakeDeckClient() : super(baseUrl: 'http://localhost:4787');
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -55,24 +50,23 @@ void main() {
       expect(screen2.targetId, 'primary_monitor');
     });
 
-    test('retorna null para comandos não locais / delegáveis à IA', () {
+    test('retorna null para comandos que não estão na lista local', () {
       expect(QuickCommandParser.parseLocalIntent('qual o uso de cpu agora?'), isNull);
       expect(QuickCommandParser.parseLocalIntent('pesquisar na internet'), isNull);
       expect(QuickCommandParser.parseLocalIntent(''), isNull);
     });
   });
 
-  group('QuickCommandBar widget tests', () {
+  group('LocalQuickCommandBar widget tests', () {
     testWidgets('renderiza input e processa comando local com confirmação obrigatória', (tester) async {
-      final client = FakeDeckClient();
-      HermesSuggestedAction? executedAction;
+      QuickCommandAction? executedAction;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Center(
-              child: QuickCommandBar(
-                client: client,
+              child: LocalQuickCommandBar(
+                targetPcName: 'BOOKFAEL',
                 onTriggerAction: (action) async {
                   executedAction = action;
                 },
@@ -93,6 +87,7 @@ void main() {
       // Diálogo de confirmação deve ser exibido
       expect(find.text('Confirmar Ação Rápida'), findsOneWidget);
       expect(find.text('Abrir Obsidian'), findsOneWidget);
+      expect(find.text('PC-alvo: BOOKFAEL'), findsOneWidget);
       expect(find.text('Cancelar'), findsOneWidget);
       expect(find.text('Executar Agora'), findsOneWidget);
 
@@ -117,20 +112,12 @@ void main() {
       expect(find.textContaining('executada com sucesso'), findsOneWidget);
     });
 
-    testWidgets('aciona fallback para Hermes quando comando não é local', (tester) async {
-      final client = FakeDeckClient();
-      String? fallbackPrompt;
-
+    testWidgets('recusa comando fora da lista local', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
-              child: QuickCommandBar(
-                client: client,
-                onFallbackToHermes: (prompt) {
-                  fallbackPrompt = prompt;
-                },
-              ),
+              child: LocalQuickCommandBar(targetPcName: 'BOOKFAEL'),
             ),
           ),
         ),
@@ -141,9 +128,35 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await tester.pumpAndSettle();
 
-      expect(fallbackPrompt, 'diagnosticar gargalo no pc');
-      // Diálogo local não deve ter sido aberto
+      expect(find.textContaining('Comando não reconhecido localmente'), findsOneWidget);
       expect(find.text('Confirmar Ação Rápida'), findsNothing);
+    });
+
+    testWidgets('não informa sucesso quando a ação falha', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: LocalQuickCommandBar(
+                targetPcName: 'BOOKFAEL',
+                onTriggerAction: (_) async {
+                  throw StateError('Bridge indisponível');
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'abrir obsidian');
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Executar Agora'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Falha ao executar ação'), findsOneWidget);
+      expect(find.textContaining('executada com sucesso'), findsNothing);
     });
   });
 }

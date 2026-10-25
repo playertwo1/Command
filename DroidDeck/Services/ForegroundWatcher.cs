@@ -55,7 +55,7 @@ namespace DroidDeck.Services
                     if (DeckHub.ConnectedCount > 0)
                     {
                         var pid = ForegroundPid();
-                        // A propria janela do DroidDeck (QR, avisos) nao conta como troca.
+                        // A propria janela do Command (QR, avisos) nao conta como troca.
                         if (pid != 0 && pid != _lastPid && pid != ownPid)
                         {
                             _lastPid = pid;

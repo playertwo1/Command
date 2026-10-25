@@ -7,7 +7,7 @@ namespace DroidDeck.Auth
 {
     /// <summary>
     /// Carrega (ou gera na primeira vez) a chave de API forte usada para autenticar o app.
-    /// Persistida em %LocalAppData%\DroidDeck\apikey — fora do código e do repositório.
+    /// Persistida em %LocalAppData%\Command\apikey — fora do código e do repositório.
     /// Substitui a antiga chave fixa "changeme". Cifrada com DPAPI (ver <see cref="SecretFile"/>).
     /// </summary>
     public static class ApiKeyProvider

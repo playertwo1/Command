@@ -59,7 +59,7 @@ namespace DroidDeck.Services
             _hub = hub;
         }
 
-        // ---- Config em %LocalAppData%\DroidDeck\obs.json ----
+        // ---- Config em %LocalAppData%\Command\obs.json ----
         private static string ConfigPath
         {
             get

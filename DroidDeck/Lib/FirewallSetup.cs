@@ -16,8 +16,8 @@ namespace DroidDeck.Lib
     {
         public const int DiscoveryPort = 7573;
 
-        private static string TcpRule => $"DroidDeck (TCP {PairingInfo.Port})";
-        private static string UdpRule => $"DroidDeck discovery (UDP {DiscoveryPort})";
+        private static string TcpRule => $"Command (TCP {PairingInfo.Port})";
+        private static string UdpRule => $"Command discovery (UDP {DiscoveryPort})";
 
         /// <summary>As duas regras ja existem? Consultar nao exige administrador.</summary>
         public static bool RulesExist() => RuleExists(TcpRule) && RuleExists(UdpRule);

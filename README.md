@@ -45,11 +45,11 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🔄 Verificação de atualização e integridade de pacotes via SHA-256 (Velopack ready).
   - ⚡ Controle de energia remoto seguro (Wake-on-LAN, Bloqueio de Sessão e Suspensão).
   - 🔄 Rotinas encadeadas determinísticas de automação e Modo Dock contínuo.
-  - 🤖 Suporte arquitetural para o assistente local opcional Hermes (100% funcional sem IA).
+  - ⚡ Comandos locais determinísticos com confirmação explícita e alvos tipados.
 
 ### 📱 APK Android 1.1.2 — piloto M1
 
-O APK e o guia Multi-PC estão na [prerelease privada v1.1.2](https://github.com/playertwo1/Command/releases/tag/command-v1.1.2). Após parear explicitamente os dois PCs pelo QR de cada Bridge, o app recupera as duas conexões ao abrir. Trocar pelo menu ou pelo cartão seleciona o mesmo PC para alvo e telemetria; o anterior volta em paralelo. Uma desconexão paralela manual continua respeitada e pode ser revertida em **Configurações → PCs pareados → Conectar em paralelo**. A instalação e a troca individual nos dois PCs foram confirmadas pelo proprietário na 1.1.1; a validação simultânea desta correção e o aceite visual permanecem pendentes.
+O APK e o guia Multi-PC estão na [prerelease privada v1.1.2](https://github.com/playertwo1/Command/releases/tag/command-v1.1.2). Após parear explicitamente os dois PCs pelo QR de cada Bridge, o app recupera as duas conexões ao abrir. Trocar pelo menu ou pelo cartão seleciona o mesmo PC para alvo e telemetria; o anterior volta em paralelo. Uma desconexão paralela manual continua respeitada e pode ser revertida em **Configurações → PCs pareados → Conectar em paralelo**. Em 2026-10-25, o proprietário confirmou que a correção funciona nos dois PCs e aprovou visualmente M1. Não foram fornecidos logs separados de cada fluxo físico.
 
 ---
 
@@ -161,9 +161,8 @@ cd app
 
 O Command é um **fork** do [DroidDeck](https://github.com/ggfto/DroidDeck), criado por **Gabriel Freitas ([@ggfto](https://github.com/ggfto))**. A ideia original e a base do projeto (Bridge Windows, app companion, pareamento por QR, integrações com OBS, Discord, Tuya, Soundboard, Mixer, Steam e outras) são trabalho dele. O histórico de commits do DroidDeck está preservado neste repositório. Obrigado, Gabriel! 💜
 
-O Command acrescenta telemetria, ações autorizadas, captura de tela, transferências, Hermes, rotinas, Wake-on-LAN, segurança por dispositivo, backup criptografado e auto-update sobre essa base.
+O Command acrescenta telemetria, ações autorizadas, captura de tela, transferências, rotinas, Wake-on-LAN, segurança por dispositivo, backup criptografado e auto-update sobre essa base.
 
 - O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE), a mesma do DroidDeck.
 - O aplicativo Flutter é distribuído sob a licença [GPL 3.0](app/LICENSE), a mesma do app do DroidDeck.
-- A integração com o Hermes (aba Hermes da v1.5) se baseia no protocolo e na documentação do [Hermes-Relay](https://github.com/Codename-11/hermes-relay), da Axiom Labs ([@Codename-11](https://github.com/Codename-11)), licença MIT, e no [Hermes Agent](https://github.com/NousResearch/hermes-agent), da Nous Research. Obrigado pelo trabalho aberto! 💜
 - Os arquivos alterados em relação ao upstream estão identificados no histórico Git (base: DroidDeck v1.9.1, `5cd2ddc`).

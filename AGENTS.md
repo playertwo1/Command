@@ -4,7 +4,8 @@ Contrato curto para Codex, Claude, Gemini e outros agentes. Comece por `STATE.md
 
 ## Fontes de verdade
 - `STATE.md` — estado atual e próxima ação.
-- `ROADMAP.md` — escopo aprovado, ordem e critérios detalhados.
+- `ROADMAP_V1.5.md` — escopo ativo aprovado, ordem e critérios detalhados.
+- `ROADMAP.md` — histórico do MVP v0.x.
 - `PROJECT.md` — visão, MVP e exclusões.
 - `docs/MANUAL_MVP.md` — transcrição do manual original (`.docx`), incluindo catálogo de repositórios e ideias pós-MVP.
 - `DESIGN.md` — referência visual; ler antes de qualquer trabalho de interface.
@@ -12,8 +13,8 @@ Contrato curto para Codex, Claude, Gemini e outros agentes. Comece por `STATE.md
 - `docs/RELEASE_CHECKLIST.md` — evidência técnica e aceite.
 
 ## Regras do projeto
-1. Execute apenas a fase ativa do `ROADMAP.md`. Não implemente componentes de produção antes de concluir F0 e receber aprovação humana das bases escolhidas.
-2. Hermes é opcional. O controle direto do PC deve funcionar sem IA.
+1. Execute apenas a fase ativa de `ROADMAP_V1.5.md`; `ROADMAP.md` é histórico do MVP v0.x. Não implemente componentes de produção antes de concluir F0 e receber aprovação humana das bases escolhidas.
+2. O controle direto do PC não depende de serviços de IA ou de terceiros.
 3. Não crie endpoint de shell ou execução arbitrária. Ações do PC precisam de IDs, parâmetros tipados, allowlist e confirmação adequada.
 4. Pareamento deve ser explícito, revogável e temporário. O token temporário pode aparecer somente no fluxo local autorizado no PC; nunca registre credenciais persistentes, tokens ou dados privados em logs ou evidências.
 5. Não contorne bloqueio de sessão, UAC ou limitações do Windows para capturar tela ou iniciar apps.
@@ -42,7 +43,7 @@ Consulte a skill global [`director-flash-orchestrator`](file:///C:/Users/notefae
 - Iniciar: `powershell -File $env:USERPROFILE\scripts\emu.ps1 start`; parar ao terminar: `... stop`.
 - Usar o MCP `maestro` para interagir com o app.
 - Preferir ler a hierarquia de UI (texto) a screenshots; screenshot só para validar layout visual.
-- Não abrir o Android Studio; build pelo terminal: `./gradlew installDebug`.
+- Não abrir o Android Studio; build e execução pelo terminal: `flutter run` (instala e roda no emulador ligado) ou `flutter build apk --debug` (só gera o APK).
 - Logs: `adb logcat -d *:E` (só erros), nunca logcat contínuo.
 - Fluxos repetidos viram arquivos `.maestro/*.yaml` e são executados com `maestro test`.
 

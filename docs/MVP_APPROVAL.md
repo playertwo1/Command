@@ -64,7 +64,7 @@ A bateria foi executada em 6 rodadas contínuas cobrindo os cinco fluxos essenci
 2. **Zero Bypass de UAC ou Sessão Bloqueada:** O serviço de screenshot verifica o desktop interativo via Win32 `OpenInputDesktop`. Quando a tela está bloqueada, a API retorna `423 Locked (SESSION_LOCKED)` sem tentar contornar privilégios.
 3. **Zero Vazamento de Credenciais:** As chaves de API são armazenadas via Windows DPAPI (`ProtectedData.Protect`) e nunca são exibidas em logs, URLs ou evidências.
 4. **Zero Corrupção ou Perda de Arquivos:** Todas as transferências utilizam arquivos temporários atômicos (`.tmp`), validação estrita de integridade SHA-256 cliente/servidor, bloqueio de extensões executáveis e prevenção contra path traversal (`..`, `\`, `:`).
-5. **Independência Total de IA (Hermes):** O módulo Hermes permanece marcado como passivo ("Not configured"). Nenhuma operação de controle do PC faz requisições a provedores de LLM ou depende de IA.
+5. **Independência operacional:** Nenhuma operação direta de controle do PC depende de serviço externo de IA.
 
 ---
 
@@ -72,7 +72,7 @@ A bateria foi executada em 6 rodadas contínuas cobrindo os cinco fluxos essenci
 
 1. **Rede Suportada:** Suporte oficial v0.1.0 restrito à **LAN** (mesma sub-rede Wi-Fi / cabo Ethernet). Conexão remota via Tailscale foi documentada mas classificada como `NOT_RUN` nesta versão devido à ausência de aparelho externo pareado na sessão.
 2. **Ações do PC:** Catálogo deliberadamente restrito aos três aplicativos homologados (`obsidian`, `orbit`, `test_notepad`).
-3. **Evoluções Pós-MVP (v0.2+):** Monitoramento térmico de CPU/GPU, alertas de hardware, múltiplos PCs, pareamento mDNS e assistente Hermes opcional ficam para as fases pós-MVP.
+3. **Evoluções Pós-MVP (v0.2+):** Monitoramento térmico de CPU/GPU, alertas de hardware, múltiplos PCs e pareamento mDNS ficam para as fases pós-MVP.
 
 ---
 

@@ -13,12 +13,12 @@ Uma pessoa com um celular Android e um PC Windows pessoal. Primeiro piloto: Gala
 2. Consultar estado online/offline e métricas reais de CPU, RAM, disco e uptime.
 3. Executar operações diretas autorizadas: abrir/encerrar apps permitidos, pedir uma screenshot e transferir arquivos em pastas de teste autorizadas, com resultado verificável.
 
-Todas as operações diretas devem funcionar com Hermes desligado. O escopo completo e seus critérios estão no [ROADMAP.md](ROADMAP.md).
+Todas as operações diretas funcionam sem serviço externo de IA. O escopo ativo e seus critérios estão no [ROADMAP_V1.5.md](ROADMAP_V1.5.md).
 
 ## Fora do MVP
 - Shell remoto livre, administração arbitrária, acesso público ou bypass de sessão bloqueada/UAC.
 - Streaming contínuo de tela, mouse/teclado, captura automática, múltiplos PCs e macros visuais.
-- Voz e delegação com poder de execução, integrações avançadas ou dependência operacional do Hermes.
+- Voz, delegação autônoma com poder de execução e dependência operacional de serviços externos.
 
 ## Restrições
 - Android nativo e Bridge Windows em sessão interativa; stack final condicionada à F0.
@@ -33,4 +33,4 @@ Piloto pessoal de sete dias e pelo menos 30 ações diretas; meta recomendada de
 O proprietário do projeto aprova decisões de base e o gate final do MVP. Revisão técnica independente registra as evidências.
 
 ## Alternativas em avaliação
-Hermes-Relay, Hy4ri/hermes-mobile, DroidDeck e LibreHardwareMonitor; outras referências e licenças constam do roadmap. Nenhum fork foi aprovado ainda.
+DroidDeck e LibreHardwareMonitor; referências históricas e licenças constam dos arquivos de pesquisa. Nenhum outro fork foi aprovado.

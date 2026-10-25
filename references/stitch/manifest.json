@@ -1,12 +1,5 @@
 [
   {
-    "title": "COMMAND — Hermes AI",
-    "sourceScreen": "projects/5594973370148065118/screens/2bc07898173c4769af807415b95d8ad6",
-    "file": "references/stitch/screens/exploracao-hermes-ai.png",
-    "bytes": 54052,
-    "sha256": "BFBFAC96A77A1D46586DF8526145785BA6DF9FEDBC6FDCBC511E0B1F0830995A"
-  },
-  {
     "title": "COMMAND — 01. Início",
     "sourceScreen": "projects/5594973370148065118/screens/b3c711c8e66c4e7285c13a5a307c7471",
     "file": "references/stitch/screens/01-inicio.png",
@@ -40,13 +33,6 @@
     "file": "references/stitch/screens/exploracao-atividade.png",
     "bytes": 49765,
     "sha256": "822E6E18E6BB136E6CCB84806E7242127FD4B6AE472DE90EF6D6F263E2AC332A"
-  },
-  {
-    "title": "COMMAND — 08. Hermes AI",
-    "sourceScreen": "projects/5594973370148065118/screens/47b696e3bfc24faab903a7fc19b25f6c",
-    "file": "references/stitch/screens/08-hermes-ai.png",
-    "bytes": 54953,
-    "sha256": "5455FBED7EF25A88C2428C65AD8E81A9140E675062AE0C1699367B1919649BB2"
   },
   {
     "title": "COMMAND — 04. Aplicativos e Processos",

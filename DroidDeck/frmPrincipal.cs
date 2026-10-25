@@ -8,13 +8,13 @@ namespace DroidDeck
 {
     /// <summary>
     /// Janela invisível que serve apenas de host para o ícone de bandeja (NotifyIcon).
-    /// O DroidDeck roda como app de bandeja: o servidor web sobe em paralelo (ver Program.cs)
+    /// O Command roda como app de bandeja: o servidor web sobe em paralelo (ver Program.cs)
     /// e o usuário interage pelo menu do ícone. Não há janela visível.
     /// </summary>
     public partial class frmPrincipal : Form
     {
         private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        private const string AppRunName = "DroidDeck";
+        private const string AppRunName = "Command";
         private const string WebUrl = "http://localhost:4787/";
 
         private ToolStripMenuItem _autoStartItem = null!;
@@ -98,6 +98,12 @@ namespace DroidDeck
                 OpenUrl(Lib.AppUpdater.RepoUrl + "/releases/latest");
                 return;
             }
+            if (!updater.IsUpdateFeedConfigured)
+            {
+                ntiTray.ShowBalloonTip(5000, "Command",
+                    L.Ui("Atualizações remotas estão desativadas neste instalador piloto."), ToolTipIcon.Info);
+                return;
+            }
             if (updater.PendingVersion != null)
             {
                 updater.ApplyAndRestart();
@@ -143,7 +149,7 @@ namespace DroidDeck
             };
             _firewallItem.Click += (_, _) => AllowFirewall();
 
-            // Copia instalada: procura e aplica atualizacoes. Zip/dev: abre a pagina da release.
+            // O piloto não consulta um feed privado. Builds de desenvolvimento abrem a página Command.
             var version = Program.Updater.CurrentVersion;
             var versionItem = new ToolStripMenuItem(version != null
                 ? L.Ui("Command v{version}", ("version", version))
@@ -151,7 +157,14 @@ namespace DroidDeck
             {
                 Enabled = false,
             };
-            _updateItem = new ToolStripMenuItem(Program.Updater.IsInstalled ? "Procurar atualização" : "Baixar versão mais recente…");
+            var hasUpdateFeed = Program.Updater.IsUpdateFeedConfigured;
+            var isInstalled = Program.Updater.IsInstalled;
+            _updateItem = new ToolStripMenuItem(isInstalled
+                ? hasUpdateFeed ? L.Ui("Procurar atualização") : L.Ui("Atualizações desativadas neste piloto")
+                : L.Ui("Ver releases do Command"))
+            {
+                Enabled = !isInstalled || hasUpdateFeed,
+            };
             _updateItem.Click += (_, _) => OnUpdateClick();
 
             var exitItem = new ToolStripMenuItem(L.Ui("Sair"));
@@ -220,7 +233,7 @@ namespace DroidDeck
 
         /// <summary>
         /// Desinstalacao: tira o autostart so se ele aponta para esta copia. Outra copia do
-        /// DroidDeck (um .zip antigo, um build de dev) continua iniciando com o Windows.
+        /// Outra copia do Command (um .zip ou build de dev) continua iniciando com o Windows.
         /// </summary>
         internal static void RemoveAutoStartIfOurs()
         {

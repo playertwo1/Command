@@ -23,8 +23,8 @@ namespace DroidDeck.Lib
     {
         private const string Header = "DDSECRET1";
 
-        // Nao e segredo: so separa os blobs do DroidDeck dos de outros apps do mesmo usuario.
-        private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("DroidDeck.SecretFile.v1");
+        // Nao e segredo: separa os blobs do Command dos do DroidDeck e de outros apps.
+        private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("Command.SecretFile.v1");
 
         /// <summary>Le e decifra. Arquivo legado em texto puro e migrado para cifrado.</summary>
         public static string ReadAllText(string path)

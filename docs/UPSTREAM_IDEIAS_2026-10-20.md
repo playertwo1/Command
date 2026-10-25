@@ -2,7 +2,7 @@
 
 **Histórico da proposta original (Claude → Codex):** o levantamento inicial usou notas de release e apenas o diff `b4647a6`. A revisão posterior leu diffs direcionados e notas adicionais; seus vereditos estão na seção 4 e foram incorporados ao `ROADMAP_V1.5.md`. As tabelas originais abaixo permanecem como fonte dos links.
 
-Base do fork: DroidDeck v1.9.1 (`5cd2ddc`). Clone auditado do Hermes-Relay: `62de6b5` (2026-10-07).
+Base do fork: DroidDeck v1.9.1 (`5cd2ddc`).
 
 > **Revisão incorporada ao roadmap em 2026-10-20, a pedido do proprietário:** as seções 1–3 preservam a proposta original. A seção 4 substitui seus vereditos e responde às perguntas; implementação segue exclusivamente a fase ativa de `ROADMAP_V1.5.md`. A afirmação original sobre diffs não lidos descreve o levantamento anterior.
 
@@ -44,33 +44,9 @@ Releases: [v1.10.0](https://github.com/ggfto/DroidDeck/releases/tag/v1.10.0) · 
 | Perfil por link/QR público | [b443b20](https://github.com/ggfto/DroidDeck/commit/b443b2046e3f5720da8ffb2887528473c56f560d) | depende do site deles |
 | Logo/ícones/site do DroidDeck | [0388f42](https://github.com/ggfto/DroidDeck/commit/0388f42172c9a40c63dd4e48ec409f2d5c729b0a) · [dd4d758](https://github.com/ggfto/DroidDeck/commit/dd4d758844a3038536bb13b78764162bbb16aa76) | marca própria (Command) |
 
-## 2. Hermes-Relay (referência de protocolo, MIT — não copiar Kotlin)
-
-[Todas as releases](https://github.com/Codename-11/hermes-relay/releases) · [diff do clone auditado até hoje](https://github.com/Codename-11/hermes-relay/compare/62de6b51289d933a3f8d68841652b044130aa72f...android-v1.19.0)
-
-| Release | Ideia | Onde entra |
-|---|---|---|
-| [Android v1.15.0](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.15.0) | "Upstream-first": chat, anexos e avisos via Dashboard/Gateway; plugin opcional. Transcript/rascunho sobrevivem a queda | A0 (confirma decisão), A2.2 |
-| [Android v1.16.0](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.16.0) | Login amarrado a cada conexão; um gateway não invalida o outro; perfis homônimos separados | A1.3, A2.5 (2 PCs) |
-| [Android v1.17.0](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.17.0) | Clarify em lote, uma pergunta por vez, progresso sobrevive a reconexão | A2.5b |
-| [Android v1.18.0](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.18.0) | Cards de Clarify/aprovação/sudo/segredo do Gateway atual; modelos carregados ao abrir o seletor; HTTP fora de rede privada exige aceite explícito | A2.3, A2.5b |
-| [Android v1.18.1](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.18.1) | Login via navegador não cai em segundo plano | A1 (se usar OIDC) |
-| [Android v1.19.0](https://github.com/Codename-11/hermes-relay/releases/tag/android-v1.19.0) | Histórico paginado (janela 500, retry menor); turno silencioso recuperado sem Stop; não lidas; notificação com agente+conversa | A2.2, A2.4 |
-| [Plugin v1.11.0](https://github.com/Codename-11/hermes-relay/releases/tag/server-v1.11.0) | Relay pela mesma origem do Dashboard `:9119`; listener Tailscale `:10443` | A0.4 (sem abrir 8767), D0.3 |
-| [Plugin v1.11.3](https://github.com/Codename-11/hermes-relay/releases/tag/server-v1.11.3) | WS com ticket de uso único + Host/Origin/IP | A1.1 |
-| [Plugin v1.12.0](https://github.com/Codename-11/hermes-relay/releases/tag/server-v1.12.0) | Falha de auth não loga campos do cliente; mídia expira e some do log | A1 / regra de logs |
-| [Plugin v1.13.0](https://github.com/Codename-11/hermes-relay/releases/tag/server-v1.13.0) | Convite de pareamento com rotas candidatas + pin de certificado | A1.3, D0.2 |
-| [Plugin v1.13.1](https://github.com/Codename-11/hermes-relay/releases/tag/server-v1.13.1) | Alvo por `device_id` exato, sem fallback por nome; listar/encurtar/revogar sessões | A1 (2 PCs), A1.3 |
-
-### Não aproveitar
-- [CLI+UI 0.4.0-beta.6 … beta.10](https://github.com/Codename-11/hermes-relay/releases/tag/desktop-v0.4.0-beta.10): controle do PC pelo agente (CUA, terminal) — viola Regra 3.
-- Git workspace (Plugin 1.11.0), voz Realtime/overlay (Android 1.17.0, Plugin 1.12.0), Bot Mode — fora da v1.5.
-
-## 3. Perguntas para o Codex
+## 2. Perguntas para o Codex
 1. U0 deve ser cherry-pick por commit ou porte manual (o fork divergiu — `b4647a6` não aplicava)?
 2. USB (`4cd92f6`) usa `adb reverse`? Exige ADB no PC do usuário — vale na v1.5?
-3. A1 deve seguir o ticket WS de uso único do Gateway ou só proxy HTTP?
-4. Atualizar o clone auditado do Hermes-Relay para `android-v1.19.0` antes do A0.1?
 
 ## 4. Revisão consolidada 2026-10-20
 
@@ -102,24 +78,11 @@ Releases: [v1.10.0](https://github.com/ggfto/DroidDeck/releases/tag/v1.10.0) · 
 | Web/iOS `e75169e` | REJEITAR | Não aplicar nesta versão | G | Novo escopo futuro | Novo cliente/fluxo de autenticação; LAN não é proibição por si (R4). |
 | Perfil público `b443b20` | REJEITAR | Não aplicar como está | M | Fora de v1.5 | Site externo e parâmetros de ações potencialmente privados (R3/R4/R6). |
 | Branding `0388f42`/`dd4d758` | REJEITAR | Não aplicar assets | P | Marca própria I0 | Logo/ícones não são implementação do instalador Command. |
-| Android 1.15 upstream-first | APROVEITAR | Contrato Flutter/C# | G | A0/A2.2 | Plugin opcional; anexos limitados às raízes autorizadas (R6). |
-| Android 1.16 conexão isolada | APROVEITAR | Porte de contrato | M | A1.3/A2.5 | Um gateway não invalida outro; separar perfis homônimos (R4). |
-| Android 1.17 Clarify | APROVEITAR | Porte de contrato | M | A2.5b | Preservar progresso por solicitação sem repetir aprovação (R3/R4). |
-| Android 1.18 cards/modelos/HTTP | AVALIAR | Porte parcial | G | A2.3/A2.5b | Modelos/Clarify úteis; sudo/segredos fora, aceite HTTP não cifra credenciais. |
-| Android 1.18.1 login background | AVALIAR | Só se OIDC móvel | M | A1 condicional | Broker atual autentica no PC, sem callback móvel. |
-| Android 1.19 recuperação/não lidas | APROVEITAR | Porte de contrato | G | A2.2/A2.4 | Limites de histórico, recuperação sem Stop e conversa correta. |
-| Plugin 1.11 origem única | APROVEITAR | Adaptar topologia | M | A0.4/D0.3 | Rotas permitidas e autenticações Dashboard/Relay independentes. |
-| Plugin 1.11.3 WS | APROVEITAR | Adaptar handshake | M | A1.1 | Corrige guards existentes; ticket único, Host/Origin/IP (R4). |
-| Plugin 1.12 logs/mídia | APROVEITAR | Porte de requisitos | M | A1/A2/T0 | Sem campos privados em logs; limpeza só de mídia temporária própria (R4/R6). |
-| Plugin 1.13 convites | AVALIAR | Porte de conceito | G | A1.3/D0.2 | Novidade CLI+UI; pin nasce do pareamento confiável, não do anúncio. |
-| Plugin 1.13.1 ID/revogação | APROVEITAR | Porte de contrato | M | A1.3/A2.5 | Falhar em identidade ausente/duplicada; nunca trocar de PC por nome (R4). |
 
 ### Respostas e decisões de planejamento
 
 1. **Porte seletivo como padrão.** Clima é o candidato simples a cherry-pick; os outros patches compatíveis ainda exigem ajustes de produto/política. Não aplicar lote nem considerar checagem textual como teste funcional.
 2. **USB usa adb reverse e exige ADB/depuração autorizada.** Manter opcional na v1.5, condicionado a U0.3. Corrigir ativação automática, estado LAN estático único, confiança loopback quando falha identificação, serial em log, limpeza do reverse e download sem versão/hash fixos. Benefício de latência é hipótese não medida.
-3. **A1 usa broker HTTP + WS.** Credenciais e sessão upstream no PC, ticket novo a cada conexão Gateway, roles e rotas limitadas. Não enviar token Relay ao celular; revogação Command encerra a sessão correspondente. Ticket não substitui autorização Relay independente.
-4. **Atualizar a referência de pesquisa durante A0.1.** Preservar SHA anterior e comparar as duas trilhas; Android 1.19/Plugin 1.13.1 apontam ao mesmo SHA. Atualizar clone não significa auditar tudo ou instalar plugin. Clone não foi atualizado nesta revisão.
 
 ### Instalador e limites da revisão
 

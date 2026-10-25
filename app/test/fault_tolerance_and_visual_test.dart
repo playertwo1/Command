@@ -7,6 +7,7 @@ import 'package:droiddeck/src/stream_deck/actions/action_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockDroidDeckClient extends Mock implements DroidDeckClient {}
 class MockSignalRService extends Mock implements SignalRService {}
@@ -14,6 +15,10 @@ class MockSignalRService extends Mock implements SignalRService {}
 void main() {
   setUpAll(() {
     registerFallbackValue(Uri());
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
   group('F7 - Falhas, Tolerância a Quedas e Fidelidade Visual', () {

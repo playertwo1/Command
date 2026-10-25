@@ -60,7 +60,7 @@ O design markdown do projeto Stitch descreve canvas preto `#050408`, shell `#131
 Roboto Flex para títulos e texto. JetBrains Mono para métricas, identificadores e rótulos operacionais, mantendo números tabulares. Material Symbols Rounded para ícones. Não reduza texto operacional abaixo de 12 px sem validação de legibilidade.
 
 ## Layout
-Grade estrutural de 8 dp com passos de 4 dp; margem padrão de 16 dp, cartões separados por 16 dp e padding de 16–24 dp. Composição vertical para celular, priorizando conexão real do PC, métricas e ações comuns. Telas do MVP segundo o manual: Início, Computadores, Detalhe do PC, Ações, Atividade e Hermes (somente estado “Não configurado” no v0.1); navegação final definida em F3. Adaptar para larguras reais sem rolagem horizontal.
+Grade estrutural de 8 dp com passos de 4 dp; margem padrão de 16 dp, cartões separados por 16 dp e padding de 16–24 dp. Composição vertical para celular, priorizando conexão real do PC, métricas e ações comuns. Telas do MVP segundo o manual: Início, Computadores, Detalhe do PC, Ações e Atividade; navegação final definida em F3. Adaptar para larguras reais sem rolagem horizontal.
 
 ## Elevation & Depth
 Separar níveis por tom, contorno fino e realce amethyst. Evitar sombras fortes em fundo AMOLED. Estado carregando, offline, erro, confirmação e sucesso confirmado precisam de apresentação distinta.

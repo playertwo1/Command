@@ -10,12 +10,12 @@
         "successComment": false,
         "failComment": false,
         "assets": [
-          { "path": "dist/velopack/DroidDeck-Setup.exe", "label": "DroidDeck para Windows (instalador, atualiza sozinho)" },
-          { "path": "dist/DroidDeck-win-x64.zip", "label": "DroidDeck para Windows (.zip, sem instalar)" },
-          { "path": "dist/velopack/*.nupkg" },
-          { "path": "dist/velopack/releases.win.json" },
-          { "path": "dist/velopack/assets.win.json" },
-          { "path": "dist/velopack/RELEASES" },
+          { "path": "dist/velopack/Command-Setup.exe", "label": "Command para Windows (instalador)" },
+          { "path": "dist/Command-win-x64.zip", "label": "Command para Windows (.zip, sem instalar)" },
+          { "path": "dist/velopack/*.nupkg", "label": "Command update packages" },
+          { "path": "dist/velopack/releases.win.json", "label": "Command update feed" },
+          { "path": "dist/velopack/assets.win.json", "label": "Command update assets" },
+          { "path": "dist/velopack/RELEASES", "label": "Command release manifest" },
           { "path": "dist/DroidDeck.apk", "label": "App Android (.apk)" }
         ]
       }

@@ -94,7 +94,7 @@ namespace DroidDeck.Services
             _hub = hub;
         }
 
-        // ---- Config persistida em %LocalAppData%\DroidDeck\discord.json ----
+        // ---- Config persistida em %LocalAppData%\Command\discord.json ----
         private static string ConfigPath
         {
             get

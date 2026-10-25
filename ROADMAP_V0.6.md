@@ -57,7 +57,7 @@
 **Objetivo:** Oferecer acesso de 1 segundo às métricas vitais e ações principais direto do ícone do app (App Shortcuts) e modo compacto para uso em mesa/dock.
 
 - [x] **W3.1:** Configurar **App Shortcuts** estáticos no Android (`app/android/app/src/main/res/xml/shortcuts.xml`) para acesso direto da Home: *"Status do PC"*, *"Capturar Tela"*, *"Modo Trabalho"*, *"Wake-on-LAN"*.
-- [x] **W3.2:** Criar modo **Mini-Dashboard (`DockDashboardPage`)** em tela cheia de alto contraste com relógio digital, gauges grandes de CPU/RAM/GPU/Temp e 4 botões rápidos (`Bloquear PC`, `Capturar Tela`, `Hermes IA`, `Sair do Dock`).
+- [x] **W3.2:** Criar modo **Mini-Dashboard (`DockDashboardPage`)** em tela cheia de alto contraste com relógio digital, gauges grandes de CPU/RAM/GPU/Temp e botões rápidos (`Bloquear PC`, `Capturar Tela`, `Sair do Dock`).
 - [x] **W3.3:** Criar testes de widget em `app/test/dock_mode_test.dart` (`3/3` PASS).
 
 ---
