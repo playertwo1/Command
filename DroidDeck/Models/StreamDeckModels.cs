@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DroidDeck.Models
@@ -55,6 +56,16 @@ namespace DroidDeck.Models
 
         /// <summary>Parametros do botao de informacao (cidade do clima, comando, URL...).</summary>
         public Dictionary<string, string>? DynamicParameters { get; set; }
+
+        private int _columnSpan = 1;
+
+        /// <summary>Quantidade de colunas ocupadas pela célula visual (limitada a 1–4).</summary>
+        public int ColumnSpan { get => _columnSpan; set => _columnSpan = Math.Clamp(value, 1, 4); }
+
+        private int _rowSpan = 1;
+
+        /// <summary>Quantidade de linhas ocupadas pela célula visual (limitada a 1–4).</summary>
+        public int RowSpan { get => _rowSpan; set => _rowSpan = Math.Clamp(value, 1, 4); }
 
         /// <summary>Acao de um gesto: "tap" (padrao), "longPress", "doubleTap" ou "active" (Toggle ligado).</summary>
         public DeckAction? ActionFor(string? gesture) => (gesture ?? "").ToLowerInvariant() switch

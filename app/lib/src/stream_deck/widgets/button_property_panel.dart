@@ -58,11 +58,15 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   late String? _infoType = widget.button.dynamicType;
   late Map<String, String> _infoParams = Map.of(widget.button.dynamicParameters ?? const {});
   late TwoStateValue _twoState = TwoStateValue.of(widget.button);
+  late int _columnSpan = widget.button.columnSpan;
+  late int _rowSpan = widget.button.rowSpan;
 
   /// Ações que refletem um estado ligado/desligado (e portanto têm "cor de ativo").
   bool get _isStatefulAction => _catalog.find(_tap?.type)?.stateful ?? false;
 
-  bool get _showsActive => _isStatefulAction || _twoState.toggle;
+  bool get _isMixerSlider => _infoType == 'mixer_slider';
+
+  bool get _showsActive => !_isMixerSlider && (_isStatefulAction || _twoState.toggle);
 
   /// No navegador o painel roda no configurador (localhost); fora dele, no celular.
   bool get _remote => !kIsWeb;
@@ -94,14 +98,16 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       iconBase64: _iconBase64,
       dynamicType: _infoType,
       dynamicParameters: hasInfo && _infoParams.isNotEmpty ? Map.of(_infoParams) : null,
-      action: _tap,
-      longPressAction: _longPress,
-      doubleTapAction: _doubleTap,
-      toggle: _twoState.toggle,
-      activeAction: _twoState.toggle ? _twoState.activeAction : null,
+      action: _isMixerSlider ? null : _tap,
+      longPressAction: _isMixerSlider ? null : _longPress,
+      doubleTapAction: _isMixerSlider ? null : _doubleTap,
+      toggle: !_isMixerSlider && _twoState.toggle,
+      activeAction: !_isMixerSlider && _twoState.toggle ? _twoState.activeAction : null,
       activeLabel: _showsActive && activeLabel.isNotEmpty ? activeLabel : null,
       activeIconName: _showsActive ? _twoState.activeIcon : null,
       activeIconBase64: _showsActive ? _twoState.activeIconBase64 : null,
+      columnSpan: _columnSpan,
+      rowSpan: _rowSpan,
     );
   }
 
@@ -179,17 +185,41 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _picker(tr('Ação'), _tap, (a) => setState(() => _tap = a)),
-                  const SizedBox(height: 16),
-                  _buildGestures(),
-                  const SizedBox(height: 12),
-                  TwoStateSection(
-                    value: _twoState,
-                    statefulAction: _isStatefulAction,
-                    actionPicker: _picker,
-                    onChanged: (v) => setState(() => _twoState = v),
+                  DropdownButtonFormField<String>(
+                    initialValue: '${_columnSpan}x${_rowSpan}',
+                    decoration: InputDecoration(
+                      labelText: tr('Tamanho na grade'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: '1x1', child: Text('1 × 1')),
+                      DropdownMenuItem(value: '2x1', child: Text('2 × 1')),
+                      DropdownMenuItem(value: '1x2', child: Text('1 × 2')),
+                      DropdownMenuItem(value: '2x2', child: Text('2 × 2')),
+                    ],
+                    onChanged: (value) {
+                      if (value == null) return;
+                      final span = value.split('x');
+                      setState(() {
+                        _columnSpan = int.parse(span[0]);
+                        _rowSpan = int.parse(span[1]);
+                      });
+                    },
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+                  if (!_isMixerSlider) ...[
+                    _picker(tr('Ação'), _tap, (a) => setState(() => _tap = a)),
+                    const SizedBox(height: 16),
+                    _buildGestures(),
+                    const SizedBox(height: 12),
+                    TwoStateSection(
+                      value: _twoState,
+                      statefulAction: _isStatefulAction,
+                      actionPicker: _picker,
+                      onChanged: (v) => setState(() => _twoState = v),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   InfoSection(
                     type: _infoType,
                     params: _infoParams,
@@ -198,6 +228,9 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
                     onChanged: (type, params) => setState(() {
                       _infoType = type;
                       _infoParams = params;
+                      if (type == 'mixer_slider' && _columnSpan == 1 && _rowSpan == 1) {
+                        _columnSpan = 2;
+                      }
                     }),
                   ),
                   const SizedBox(height: 32),

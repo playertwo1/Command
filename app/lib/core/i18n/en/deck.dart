@@ -141,6 +141,17 @@ const Map<String, String> enDeck = {
   'Tocando agora': 'Now playing',
   'Saída de um comando (PC)': 'Command output (PC)',
   'Valor de uma URL (PC)': 'Value from a URL (PC)',
+  'Controle de volume do PC': 'PC volume control',
+  'Ajusta o volume do dispositivo selecionado no PC atual. Este controle não executa comandos.':
+      'Adjusts the selected audio device on the current PC. This control does not run commands.',
+  'Selecione um dispositivo de áudio': 'Select an audio device',
+  'Dispositivo indisponível': 'Device unavailable',
+  'Não foi possível listar os dispositivos de áudio.': 'Could not list audio devices.',
+  'Atualizar lista': 'Refresh list',
+  'Tamanho na grade': 'Grid size',
+  'Volume do dispositivo': 'Device volume',
+  'Volume indisponível': 'Volume unavailable',
+  'Carregando volume…': 'Loading volume…',
   'Botões que rodam um comando ou leem uma URL no PC só mudam no '
           'configurador do PC (http://localhost:4787).':
       'Buttons that run a command or read a URL on the PC can only be changed in '

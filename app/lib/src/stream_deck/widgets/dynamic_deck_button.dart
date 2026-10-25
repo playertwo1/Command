@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:droiddeck/src/stream_deck/widgets/deck_grid_button.dart';
+import 'package:droiddeck/src/stream_deck/widgets/mixer_slider_deck_button.dart';
+import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,16 @@ class DynamicDeckButton extends StatelessWidget {
         button.dynamicType!.isEmpty ||
         button.dynamicType == 'none') {
       return DeckGridButton(
+        button: button,
+        onTap: onTap,
+        onLongPress: onLongPress,
+      );
+    }
+
+    if (button.dynamicType == 'mixer_slider') {
+      final parameters = button.dynamicParameters ?? const <String, String>{};
+      return MixerSliderDeckButton(
+        key: ValueKey('${PcStore.currentId}:${button.id}:${parameters['deviceKind']}:${parameters['deviceId']}'),
         button: button,
         onTap: onTap,
         onLongPress: onLongPress,

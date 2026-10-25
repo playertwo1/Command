@@ -35,6 +35,8 @@ DeckButton _$DeckButtonFromJson(Map<String, dynamic> json) => DeckButton(
   dynamicParameters: (json['dynamicParameters'] as Map<String, dynamic>?)?.map(
     (k, e) => MapEntry(k, e as String),
   ),
+  columnSpan: (json['columnSpan'] as num?)?.toInt() ?? 1,
+  rowSpan: (json['rowSpan'] as num?)?.toInt() ?? 1,
 );
 
 Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
@@ -57,4 +59,6 @@ Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
       'activeIconName': instance.activeIconName,
       'activeIconBase64': instance.activeIconBase64,
       'dynamicParameters': instance.dynamicParameters,
+      'columnSpan': instance.columnSpan,
+      'rowSpan': instance.rowSpan,
     };

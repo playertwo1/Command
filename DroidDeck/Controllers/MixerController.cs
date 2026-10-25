@@ -49,7 +49,17 @@ namespace DroidDeck.Controllers
             if (device.Id == null) return NotFound(); // id inexistente/desconectado
 
             MixerMaster? result;
-            try { result = device.SetOptions(id, data); }
+            try
+            {
+                // O caminho tipado do controle deslizante também precisa aceitar volume zero.
+                // A aplicação antiga de MixerMaster interpreta zero como ausência de mudança.
+                if (data.Session < 0 && data.Volume.HasValue)
+                {
+                    var state = _mixerService.SetDeviceAudio(id, volume: data.Volume.Value, mute: data.Mute);
+                    result = state == null ? null : new MixerMaster(id);
+                }
+                else result = device.SetOptions(id, data);
+            }
             catch (Exception ex)
             {
                 // Ex.: COMException se o device sumiu entre a checagem e o SetOptions.
@@ -93,7 +103,15 @@ namespace DroidDeck.Controllers
             if (device.Id == null) return NotFound(); // id inexistente/desconectado
 
             MixerMaster? result;
-            try { result = device.SetOptions(id, data); }
+            try
+            {
+                if (data.Session < 0 && data.Volume.HasValue)
+                {
+                    var state = _mixerService.SetDeviceAudio(id, volume: data.Volume.Value, mute: data.Mute);
+                    result = state == null ? null : new MixerMaster(id);
+                }
+                else result = device.SetOptions(id, data);
+            }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "SetInput falhou para {id}", id);

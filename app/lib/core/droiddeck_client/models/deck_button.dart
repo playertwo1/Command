@@ -67,6 +67,13 @@ class DeckButton {
   @JsonKey(name: 'dynamicParameters')
   final Map<String, String>? dynamicParameters;
 
+  /// Dimensão visual em casas da grade; 1×1 mantém compatibilidade com decks existentes.
+  @JsonKey(name: 'columnSpan', defaultValue: 1)
+  final int columnSpan;
+
+  @JsonKey(name: 'rowSpan', defaultValue: 1)
+  final int rowSpan;
+
   DeckButton({
     required this.id,
     required this.row,
@@ -86,7 +93,10 @@ class DeckButton {
     this.activeIconName,
     this.activeIconBase64,
     this.dynamicParameters,
-  });
+    int columnSpan = 1,
+    int rowSpan = 1,
+  })  : columnSpan = columnSpan.clamp(1, 4).toInt(),
+        rowSpan = rowSpan.clamp(1, 4).toInt();
 
   bool get hasActiveLook =>
       (activeLabel?.isNotEmpty ?? false) ||
@@ -101,6 +111,8 @@ class DeckButton {
     int? column,
     String? label,
     DeckAction? action,
+    int? columnSpan,
+    int? rowSpan,
   }) =>
       DeckButton(
         id: id ?? this.id,
@@ -121,6 +133,8 @@ class DeckButton {
         activeIconName: activeIconName,
         activeIconBase64: activeIconBase64,
         dynamicParameters: dynamicParameters,
+        columnSpan: columnSpan ?? this.columnSpan,
+        rowSpan: rowSpan ?? this.rowSpan,
       );
 
   /// Ação de um gesto: 'tap', 'longPress' ou 'doubleTap'.

@@ -320,55 +320,59 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
         ? reflowButtons(profile.buttons, g.cols)
         : profile.buttons;
     final originalById = {for (final button in profile.buttons) button.id: button};
-    final Map<String, DeckButton> buttonAt = {};
-    for (final button in displayButtons) {
-      buttonAt.putIfAbsent(
-        '${button.row}:${button.column}',
-        () => originalById[button.id] ?? button,
-      );
-    }
-
     var rows = g.rows;
     var columns = g.cols;
     if (profile.buttons.isNotEmpty && !_editMode) {
       rows = 0;
       columns = 0;
       for (final button in displayButtons) {
-        if (button.row + 1 > rows) rows = button.row + 1;
-        if (button.column + 1 > columns) columns = button.column + 1;
+        final bottom = button.row + button.rowSpan.clamp(1, 4).toInt();
+        final right = button.column + button.columnSpan.clamp(1, 4).toInt();
+        if (bottom > rows) rows = bottom;
+        if (right > columns) columns = right;
       }
-    } else if (reflow && displayButtons.isNotEmpty) {
-      final contentRows = (displayButtons.length + g.cols - 1) ~/ g.cols;
-      if (contentRows > rows) rows = contentRows;
+    } else if (displayButtons.isNotEmpty) {
+      for (final button in displayButtons) {
+        final bottom = button.row + button.rowSpan.clamp(1, 4).toInt();
+        if (bottom > rows) rows = bottom;
+      }
     }
-
+    rows = rows.clamp(1, 200).toInt();
+    columns = columns.clamp(1, g.cols).toInt();
+    final layout = GridLayout.of(displayButtons, rows, columns);
+    final cellStep = g.cell + g.spacing;
+    double spanExtent(int span) => span * g.cell + (span - 1) * g.spacing;
     final showEmptySlots = _editMode || profile.buttons.isEmpty;
-    final grid = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(rows, (row) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: row < rows - 1 ? g.spacing : 0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(columns, (col) {
-              final existing = buttonAt['$row:$col'];
-              final showEmpty = existing == null && showEmptySlots && !reflow;
-              return Padding(
-                padding: EdgeInsets.only(right: col < columns - 1 ? g.spacing : 0),
-                child: SizedBox(
+    final grid = SizedBox(
+      width: spanExtent(columns),
+      height: spanExtent(rows),
+      child: Stack(
+        children: [
+          for (var row = 0; row < rows; row++)
+            for (var col = 0; col < columns; col++)
+              if (layout.isFree(row, col) && showEmptySlots && !reflow)
+                Positioned(
+                  left: col * cellStep,
+                  top: row * cellStep,
                   width: g.cell,
                   height: g.cell,
-                  child: existing != null
-                      ? _buildCell(row, col, existing, profiles)
-                      : showEmpty
-                          ? _buildCell(row, col, null, profiles)
-                          : const SizedBox.shrink(),
+                  child: _buildCell(row, col, null, profiles),
                 ),
-              );
-            }),
-          ),
-        );
-      }),
+          for (final placement in layout.placements)
+            Positioned(
+              left: placement.column * cellStep,
+              top: placement.row * cellStep,
+              width: spanExtent(placement.columnSpan),
+              height: spanExtent(placement.rowSpan),
+              child: _buildCell(
+                placement.row,
+                placement.column,
+                originalById[placement.button.id] ?? placement.button,
+                profiles,
+              ),
+            ),
+        ],
+      ),
     );
 
     final centered = Center(child: grid);
@@ -401,11 +405,14 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     // Toque longo com ação própria executa a ação; sem ela (ou no modo de edição),
     // abre o editor como sempre.
     final hasLongPress = existing.longPressAction != null;
+    final isVolumeSlider = existing.dynamicType == 'mixer_slider';
     final tile = DynamicDeckButton(
       button: existing,
       onTap: _editMode
           ? () => _editButton(existing)
-          : () => _handlePress(existing, profiles),
+          : isVolumeSlider
+              ? () {}
+              : () => _handlePress(existing, profiles),
       onLongPress: !_editMode && hasLongPress
           ? () => _handlePress(existing, profiles, gesture: 'longPress')
           : () => _editButton(existing),
