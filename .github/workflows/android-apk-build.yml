@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK 1.1.1
+    name: Build Android APK
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout source
@@ -31,11 +31,11 @@ jobs:
         working-directory: app
         run: |
           flutter pub get --enforce-lockfile
-          flutter build apk --release --build-name=1.1.1 --build-number=12
+          flutter build apk --release --no-pub
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: command-app-v1.1.1-build
+          name: command-android-build
           path: app/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7

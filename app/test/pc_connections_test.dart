@@ -1,6 +1,9 @@
 import 'package:droiddeck/src/connection/pc_connections.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:droiddeck/src/home/pc_dashboard_card.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +21,7 @@ class _FakeSignalR extends SignalRService {
     disposed = false;
     url = baseUrl;
     key = apiKey;
-    if (failInit) connectionStatus.value = 'Disconnected';
+    connectionStatus.value = failInit ? 'Disconnected' : 'Connected';
   }
 
   @override
@@ -59,6 +62,35 @@ void main() {
     expect(conns.forPc(c.id), isNull);
   });
 
+  testWidgets('painel acompanha a conexão paralela aberta após renderizar', (
+    tester,
+  ) async {
+    primary.connectionStatus.value = 'Connected';
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Watch(
+            (context) => PcDashboardCard(
+              primaryPc: a,
+              secondaryPc: conns.secondaryPc ?? b,
+              primaryConnection: primary,
+              secondaryConnection: conns.secondary,
+              targetPcId: a.id,
+              onTargetSelected: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Online'), findsOneWidget);
+    await conns.connectSecondary(b);
+    await tester.pumpAndSettle();
+    expect(find.text('Online'), findsNWidgets(2));
+    await conns.disconnectSecondary();
+    await tester.pumpAndSettle();
+    expect(find.text('Offline'), findsOneWidget);
+  });
+
   test(
     'nunca há 3 conexões: um novo segundo PC substitui o anterior',
     () async {
@@ -89,13 +121,18 @@ void main() {
     expect(primary.connectionStatus.value, 'Connected');
   });
 
-  test('focar o segundo PC troca os papéis sem desconectar nenhum', () async {
+  test('focar o segundo PC reabre o anterior com a própria chave', () async {
     await conns.connectSecondary(b);
     final previous = await PcStore.current();
     await PcStore.select(b);
     await conns.onFocusChanged(previous);
     expect(conns.secondaryPc?.id, a.id);
     expect(created.last.url, a.baseUrl);
+    expect(created.last.key, 'ka');
+    await PcStore.select(a);
+    await conns.onFocusChanged(b);
+    expect(conns.secondaryPc?.id, b.id);
+    expect(created.last.key, 'kb');
   });
 
   test('o segundo PC salvo é reaberto na abertura do app', () async {
@@ -111,6 +148,58 @@ void main() {
     await reopened.restore();
     expect(reopened.secondaryPc?.id, b.id);
   });
+
+  test('trocar sem paralelo prévio mantém o PC anterior conectado', () async {
+    await PcStore.select(b);
+    await conns.onFocusChanged(a);
+    expect(conns.secondaryPc?.id, a.id);
+    expect(conns.forPc(a.id)?.connectionStatus.value, 'Connected');
+    expect(created.single.key, 'ka');
+    expect(conns.forPc(b.id), same(primary));
+  });
+
+  test(
+    'abertura recupera os dois PCs pareados sem opção manual prévia',
+    () async {
+      await PcStore.remove(c.id);
+      await conns.restore();
+      expect(conns.secondaryPc?.id, b.id);
+      expect(created.single.key, 'kb');
+    },
+  );
+
+  test(
+    'desconexão paralela explícita é respeitada na próxima abertura',
+    () async {
+      await PcStore.remove(c.id);
+      await conns.connectSecondary(b);
+      await conns.disconnectSecondary();
+      await conns.restore();
+      expect(conns.secondaryPc, isNull);
+      expect(created, hasLength(1));
+      await PcStore.select(b);
+      await conns.onFocusChanged(a);
+      expect(conns.secondaryPc, isNull);
+      expect(created, hasLength(1));
+    },
+  );
+
+  test('não escolhe automaticamente entre mais de dois PCs pareados', () async {
+    await conns.restore();
+    expect(conns.secondaryPc, isNull);
+  });
+
+  test(
+    'trocar para um terceiro mantém apenas o paralelo já escolhido',
+    () async {
+      await conns.connectSecondary(b);
+      await PcStore.select(c);
+      await conns.onFocusChanged(a);
+      expect(conns.secondaryPc?.id, b.id);
+      expect(created, hasLength(1));
+      expect(conns.forPc(a.id), isNull);
+    },
+  );
 
   test(
     'suspende os dois hubs em background e reconecta os mesmos PCs ao retomar',

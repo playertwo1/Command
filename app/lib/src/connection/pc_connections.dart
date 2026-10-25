@@ -1,6 +1,7 @@
 import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 /// Conexões simultâneas com PCs (Command v1.5 M0).
 ///
@@ -18,17 +19,16 @@ class PcConnections {
   final SignalRService primary;
   final SignalRService Function() _factory;
 
-  SavedPc? _secondaryPc;
-  SignalRService? _secondary;
+  final _secondaryState = signal<({SavedPc pc, SignalRService service})?>(null);
   bool _backgrounded = false;
 
-  SavedPc? get secondaryPc => _secondaryPc;
-  SignalRService? get secondary => _secondary;
+  SavedPc? get secondaryPc => _secondaryState.value?.pc;
+  SignalRService? get secondary => _secondaryState.value?.service;
 
   /// Conexão de um PC, ou null se ele não está conectado.
   SignalRService? forPc(String pcId) {
     if (pcId == PcStore.currentId) return primary;
-    if (pcId == _secondaryPc?.id) return _secondary;
+    if (pcId == secondaryPc?.id) return secondary;
     return null;
   }
 
@@ -38,11 +38,10 @@ class PcConnections {
     if (pc.id == PcStore.currentId) {
       throw ArgumentError('O PC em foco já está conectado.');
     }
-    if (pc.id == _secondaryPc?.id) return;
+    if (pc.id == secondaryPc?.id) return;
     await disconnectSecondary();
     final service = _factory();
-    _secondaryPc = pc;
-    _secondary = service;
+    _secondaryState.value = (pc: pc, service: service);
     await (await SharedPreferences.getInstance()).setString(
       _secondaryKey,
       pc.id,
@@ -51,36 +50,48 @@ class PcConnections {
   }
 
   Future<void> disconnectSecondary() async {
-    final old = _secondary;
-    _secondary = null;
-    _secondaryPc = null;
-    await (await SharedPreferences.getInstance()).remove(_secondaryKey);
+    final old = secondary;
+    _secondaryState.value = null;
+    // Vazio distingue desconexão explícita de uma instalação sem preferência.
+    await (await SharedPreferences.getInstance()).setString(_secondaryKey, '');
     await old?.dispose();
   }
 
-  /// Reabre o segundo PC salvo (na abertura do app).
+  /// Reabre o paralelo salvo. Na migração, dois perfis já pareados dispensam
+  /// uma opção manual adicional; uma desconexão explícita continua respeitada.
   Future<void> restore() async {
     final id = (await SharedPreferences.getInstance()).getString(_secondaryKey);
-    if (id == null || id == PcStore.currentId) return;
-    for (final pc in await PcStore.load()) {
+    if (id == '') return;
+    final pcs = await PcStore.load();
+    if (id == null || id == PcStore.currentId) {
+      if (pcs.length == maxConnections) {
+        for (final pc in pcs) {
+          if (pc.id != PcStore.currentId) return connectSecondary(pc);
+        }
+      }
+      return;
+    }
+    for (final pc in pcs) {
       if (pc.id == id) return connectSecondary(pc);
     }
     await disconnectSecondary(); // PC removido desde a última abertura.
   }
 
-  /// Chamar depois de o PC em foco mudar de [previous] para o atual: se o novo
-  /// foco era o segundo PC, os dois trocam de papel, e nada é desconectado.
+  /// Após trocar o foco, reabre o PC anterior em paralelo, inclusive quando
+  /// ainda não havia um segundo hub. Preserva um paralelo diferente do novo foco.
   Future<void> onFocusChanged(SavedPc? previous) async {
-    if (_secondaryPc?.id != PcStore.currentId) return;
-    await disconnectSecondary();
-    if (previous != null && previous.id != PcStore.currentId) {
-      await connectSecondary(previous);
+    if (previous == null || previous.id == PcStore.currentId) return;
+    if (secondaryPc != null && secondaryPc?.id != PcStore.currentId) return;
+    if (secondaryPc == null) {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getString(_secondaryKey) == '') return;
     }
+    await connectSecondary(previous);
   }
 
   /// Chamar quando um PC é removido ou revogado: só a conexão dele cai.
   Future<void> onPcRemoved(String pcId) async {
-    if (pcId == _secondaryPc?.id) await disconnectSecondary();
+    if (pcId == secondaryPc?.id) await disconnectSecondary();
   }
 
   /// Libera os hubs enquanto o app está em segundo plano; sem polling em background.
@@ -88,7 +99,7 @@ class PcConnections {
     if (_backgrounded) return;
     _backgrounded = true;
     await primary.dispose();
-    await _secondary?.dispose();
+    await secondary?.dispose();
   }
 
   /// Reconecta apenas os dois PCs ativos quando o app volta ao primeiro plano.
@@ -99,9 +110,10 @@ class PcConnections {
     if (current != null) {
       await primary.init(current.baseUrl, apiKey: current.apiKey);
     }
-    final secondary = _secondaryPc;
-    if (secondary != null && _secondary != null) {
-      await _secondary!.init(secondary.baseUrl, apiKey: secondary.apiKey);
+    final pc = secondaryPc;
+    final service = secondary;
+    if (pc != null && service != null) {
+      await service.init(pc.baseUrl, apiKey: pc.apiKey);
     }
   }
 }

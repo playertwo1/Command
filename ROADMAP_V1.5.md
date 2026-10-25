@@ -1,6 +1,6 @@
 # ROADMAP v1.5 — Command: Multi-PC Simultâneo, Controle Remoto, Aba Hermes e Conectividade sem Atrito
 
-**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24 a pedido do proprietário. Fase ativa: **I0.3a/b — instalador piloto privado**; M1 continua `IN_PROGRESS`, com seu checkpoint físico aguardando instalação. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; uma prerelease privada foi publicada a pedido em 2026-10-24. A distribuição pública continua dependente de I0.1, I0.2 e I0.7.
+**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24 a pedido do proprietário. Fase ativa: **checkpoint M1**; proprietário confirmou instalação e troca individual nos dois PCs em 2026-10-25, mas a conexão simultânea revelou falha corrigida na 1.1.2 e ainda aguarda novo teste físico. M1 continua `IN_PROGRESS`; o piloto I0.3a/b ainda tem gates pendentes. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; a distribuição pública continua dependente de I0.1, I0.2 e I0.7.
 **Pré-requisito:** Release v1.1.0 (`command-v1.1.0` — 461 testes PASS)
 **Meta Principal:** Manter **2 PCs conectados ao mesmo tempo** no app, adicionar **trackpad/teclado remoto com prévia ao vivo**, uma **aba Hermes** (chat, notificações, escolha de modelo e de esforço via Hermes-Relay) usando o mesmo pareamento do Command, **descoberta automática por mDNS** e **transferências retomáveis**.
 

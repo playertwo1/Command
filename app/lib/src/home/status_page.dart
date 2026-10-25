@@ -81,6 +81,7 @@ class _StatusPageState extends State<StatusPage> {
   SavedPc? _currentPc;
   List<SavedPc> _savedPcs = [];
   String? _targetPcId;
+  bool _switchingPc = false;
   final Map<String, DroidDeckClient> _targetClients = {};
   int _targetGeneration = 0;
   int _appsGeneration = -1;
@@ -241,17 +242,7 @@ class _StatusPageState extends State<StatusPage> {
       primaryConnection: primaryConnection,
       secondaryConnection: connections?.secondary,
       targetPcId: _targetPc?.id,
-      onTargetSelected: (pc) {
-        setState(() {
-          _targetPcId = pc.id;
-          _targetGeneration++;
-          _apps = [];
-          _outboundFiles = [];
-        });
-        _fetchApps();
-        _fetchJobs();
-        _fetchTransfers();
-      },
+      onTargetSelected: _handleSwitchPc,
     );
   }
 
@@ -275,7 +266,7 @@ class _StatusPageState extends State<StatusPage> {
     super.dispose();
   }
 
-  Future<void> _loadPc() async {
+  Future<void> _loadPc({bool resetTarget = false}) async {
     try {
       final pcs = await PcStore.load();
       if (mounted) {
@@ -284,7 +275,9 @@ class _StatusPageState extends State<StatusPage> {
           _currentPc =
               pcs.where((p) => p.id == PcStore.currentId).firstOrNull ??
               (pcs.isNotEmpty ? pcs.first : null);
-          if (_targetPcId == null || !pcs.any((pc) => pc.id == _targetPcId)) {
+          if (resetTarget ||
+              _targetPcId == null ||
+              !pcs.any((pc) => pc.id == _targetPcId)) {
             _targetPcId = _currentPc?.id;
           }
         });
@@ -1838,39 +1831,50 @@ class _StatusPageState extends State<StatusPage> {
   }
 
   Future<void> _handleSwitchPc(SavedPc pc) async {
-    final previous = await PcStore.current();
-    await PcStore.select(pc);
-    final client = _client;
-    if (client != null) {
-      client.setBaseUrl(pc.baseUrl);
-      client.setApiKey(pc.apiKey);
-    }
-    final signalR = widget.signalRService;
-    if (signalR != null) {
-      await signalR.updateUrl(pc.baseUrl, apiKey: pc.apiKey);
-    } else {
-      try {
-        await Injector.get<SignalRService>().updateUrl(
-          pc.baseUrl,
-          apiKey: pc.apiKey,
-        );
-      } catch (_) {}
-    }
+    if (_switchingPc || pc.id == _currentPc?.id) return;
+    setState(() {
+      _switchingPc = true;
+      _targetGeneration++;
+      _apps = [];
+      _outboundFiles = [];
+    });
     try {
-      await Injector.get<PcConnections>().onFocusChanged(previous);
-    } catch (_) {} // Testes de widget rodam sem o binding.
-    await _loadPc();
-    await _loadAppsAndJobs();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            tr('Alternado com sucesso para "{name}".', {'name': pc.name}),
+      final previous = await PcStore.current();
+      await PcStore.select(pc);
+      final client = _client;
+      if (client != null) {
+        client.setBaseUrl(pc.baseUrl);
+        client.setApiKey(pc.apiKey);
+      }
+      final signalR = widget.signalRService;
+      if (signalR != null) {
+        await signalR.updateUrl(pc.baseUrl, apiKey: pc.apiKey);
+      } else {
+        try {
+          await Injector.get<SignalRService>().updateUrl(
+            pc.baseUrl,
+            apiKey: pc.apiKey,
+          );
+        } catch (_) {}
+      }
+      await _loadPc(resetTarget: true);
+      try {
+        await Injector.get<PcConnections>().onFocusChanged(previous);
+      } catch (_) {} // Testes de widget rodam sem o binding.
+      await _loadAppsAndJobs();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              tr('Alternado com sucesso para "{name}".', {'name': pc.name}),
+            ),
+            backgroundColor: const Color(0xFF34D5A0),
+            duration: const Duration(seconds: 2),
           ),
-          backgroundColor: const Color(0xFF34D5A0),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _switchingPc = false);
     }
   }
 

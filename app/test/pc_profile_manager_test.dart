@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:droiddeck/src/connection/constants.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
 import 'package:droiddeck/src/home/status_page.dart';
+import 'package:droiddeck/src/home/pc_dashboard_card.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 
 class FakeSignalRService extends SignalRService {
@@ -168,6 +169,15 @@ void main() {
       // Verifica que o PC ativo foi alternado
       expect(PcStore.currentId, 'pc2');
       expect(find.text('PC Sala'), findsNWidgets(2)); // Painel combinado + PC ativo
+      expect(find.descendant(of: find.byType(PcDashboardCard), matching: find.text('PC-alvo: PC Sala')), findsOneWidget);
+
+      // Tocar no cartão troca também a telemetria e o perfil ativo.
+      await tester.tap(find.byKey(const ValueKey('pc-target-pc1')));
+      await tester.pumpAndSettle();
+      expect(PcStore.currentId, 'pc1');
+      expect(find.descendant(of: find.byType(PcDashboardCard), matching: find.text('PC-alvo: PC Escritório')), findsOneWidget);
+      expect(find.text('PC Escritório'), findsNWidgets(2));
+      expect(signalR.currentUrl.value, 'http://192.168.1.10:4787');
     });
   });
 }

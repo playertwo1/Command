@@ -34,7 +34,7 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🎧 Spotify, Twitch e YouTube com status ao vivo.
   - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
   - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
-- **Extensões Command (v1.1.1 — piloto Multi-PC):**
+- **Extensões Command (v1.1.2 — piloto Multi-PC):**
   - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU, Bateria e Temperatura).
   - 🖥️ Dois PCs conectados simultaneamente, com estado, CPU/RAM e seleção visível do PC-alvo.
   - 🎯 Aplicativos, rotinas, energia e transferências direcionados ao PC selecionado.
@@ -47,9 +47,9 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🔄 Rotinas encadeadas determinísticas de automação e Modo Dock contínuo.
   - 🤖 Suporte arquitetural para o assistente local opcional Hermes (100% funcional sem IA).
 
-### 📱 APK Android 1.1.1 — piloto M1
+### 📱 APK Android 1.1.2 — piloto M1
 
-O APK e o guia de pareamento Multi-PC estão na [prerelease privada v1.1.1](https://github.com/playertwo1/Command/releases/tag/command-v1.1.1). O segundo PC precisa ser pareado explicitamente pelo QR da Bridge; depois, em **Configurações → PCs pareados**, escolha **Conectar em paralelo**. Na tela **Status**, toque no cartão do PC para selecioná-lo como alvo. A validação em duas máquinas físicas ainda está pendente.
+O APK e o guia Multi-PC estão na [prerelease privada v1.1.2](https://github.com/playertwo1/Command/releases/tag/command-v1.1.2). Após parear explicitamente os dois PCs pelo QR de cada Bridge, o app recupera as duas conexões ao abrir. Trocar pelo menu ou pelo cartão seleciona o mesmo PC para alvo e telemetria; o anterior volta em paralelo. Uma desconexão paralela manual continua respeitada e pode ser revertida em **Configurações → PCs pareados → Conectar em paralelo**. A instalação e a troca individual nos dois PCs foram confirmadas pelo proprietário na 1.1.1; a validação simultânea desta correção e o aceite visual permanecem pendentes.
 
 ---
 
