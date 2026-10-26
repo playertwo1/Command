@@ -64,3 +64,34 @@ Critérios e cenários de cada fase estão em `ROADMAP.md`. Registrar a evidênc
   - `dist/command-bridge-v1.0.0-win-x64.zip` (SHA-256: `a2cf893ae36c0332769d51971d376d2372bdde64bc9b1c9dfd59f63a200b3593`)
   - `dist/command-app-v1.0.0-debug.apk` (SHA-256: `814777662bd42c6173c4df78877bb3fb80530f1501398ecdc40bd0c2f2fa8600`)
   - `dist/SHA256SUMS-v1.0.0.txt`
+
+## Onda v1.5 — Multi-PC Simultâneo, Entrada Remota, Prévia ao Vivo, mDNS, Transferências Retomáveis e Instalador Assistido
+
+| Fase | Entrega | Status | Testes | Evidência |
+|---|---|---|---|---|
+| **M0** | Multi-PC Simultâneo (2 conexões paralelas e hubs independentes) | PASS | 9 Flutter PASS | `pc_connections_test.dart` |
+| **M1** | Painel Combinado dos 2 PCs, Ações Direcionadas e Feed Unificado | PASS | 32 Flutter PASS | `docs/evidence/v1.5/`, aceite visual `PASS_HUMAN` |
+| **R0** | API de Entrada Remota tipada (/api/v1/input), Sessão e Bloqueio 423 | PASS | 71 C# PASS | `RemoteInputControllerTests.cs`, `RemoteControlSessionTests.cs` |
+| **R1** | Trackpad Virtual, Atalhos Rápidos e Teclado com Limite 500 chars | PASS | 30 Flutter PASS | `trackpad_page_test.dart`, `remote_input_client_test.dart` |
+| **R2** | Prévia ao Vivo (ScreenStreamController) com Toque-para-Clicar | PASS | 12 Flutter / 4 C# PASS | `stream_view_tap_click_test.dart`, `DesktopLiveStreamControllerTests.cs` |
+| **D0** | Descoberta Automática mDNS (_command._tcp) e Reconexão LAN/Tailscale | PASS | 5 C# / 10 Flutter PASS | `MdnsDiscoveryTests.cs`, `reconnection_fallback_service_test.dart` |
+| **T0** | Transferências em Blocos (4 MiB) Retomáveis com Integridade SHA-256 | PASS | 6 C# / 5 Flutter PASS | `TransferServiceTests.cs`, `resumable_transfer_test.dart` |
+| **I0.2** | Matriz de Licenciamento Formalizada (Apache-2.0 / GPL-3.0) | PASS | Documentado | `docs/LICENSES.md` |
+| **I0.3a** | Identidade do Instalador e Pipelines GitHub Actions | PASS | Integrado | `.github/workflows/release.yml`, `package.json` |
+| **I0.3b** | Instalação por Usuário sem Admin e Autostart Opcional (HKCU) | PASS | Integrado | `docs/INSTALL.md` |
+| **I0.3c** | Migração Segura de Dados Legados DroidDeck (DPAPI + CLI) | PASS | 11 C# PASS | `LegacyDataMigrationTests.cs`, `LegacyDataMigrationService.cs` |
+| **I0.3d** | Instalador Assistido com Validação Estrita SHA-256 (`install.ps1`) | PASS | Validado | `scripts/install.ps1`, `install.ps1` |
+| **I0.5** | Desinstalação com Preservação Padrão de Dados (`uninstall.ps1`) | PASS | Validado | `scripts/uninstall.ps1`, `uninstall.ps1` |
+| **I0.6 / H0** | Homologação Física E2E em 2 Máquinas Físicas | AGUARDANDO | 637 testes PASS | `docs/evidence/v1.5/H0_HOMOLOGACAO.md` (`PENDING_HUMAN`) |
+
+- **Suíte Total de Testes Automatizados v1.5:**
+  - .NET 8 (Backend Bridge): **390/390 PASS**
+  - Flutter (App Mobile): **247/247 PASS**
+  - Total: **637/637 testes automatizados PASS (0 falhas)**
+  - Análise Estática Flutter: **exit 0 (0 erros, 0 avisos)**
+
+- **Artefatos Oficiais de Produção v1.5.0:**
+  - `dist/command-installer/1.5.0-local.20261026.x64/Command-Setup.exe` (SHA-256: `522e1d66bbfba576c40f6792a713df7975794c0c1977ec54156b43901e0b6da6`)
+  - `dist/command-bridge-v1.5.0-win-x64.zip` (SHA-256: `d6eb550a117d9b49532559199ec896e5da244c5e0da598f1b66e3447be114e4b`)
+  - `dist/command-app-v1.5.0.apk` / `dist/Command.apk` (SHA-256: `643f3ee9c4d69f347cb21d3ca36c98421c7035a8d14aae6fbbca235416e00c30`)
+  - `dist/SHA256SUMS-v1.5.0.txt`
