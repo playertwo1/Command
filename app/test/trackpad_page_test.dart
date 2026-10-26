@@ -44,9 +44,18 @@ class MockRemoteInputClient extends DroidDeckClient {
   }
 
   @override
-  Future<void> sendMouseClick(String button, {String action = 'click', String? deviceId}) async {
+  Future<void> sendMouseClick(
+    String button, {
+    String action = 'click',
+    double? normalizedX,
+    double? normalizedY,
+    String? deviceId,
+  }) async {
     calls.add('sendMouseClick');
-    clickCalls.add({'button': button, 'action': action});
+    final map = <String, dynamic>{'button': button, 'action': action};
+    if (normalizedX != null) map['normalizedX'] = normalizedX;
+    if (normalizedY != null) map['normalizedY'] = normalizedY;
+    clickCalls.add(map);
   }
 
   @override

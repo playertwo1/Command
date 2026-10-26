@@ -3247,6 +3247,7 @@ class _StatusPageState extends State<StatusPage> {
       controller: _streamController,
       baseUrl: baseUrl,
       apiKey: apiKey,
+      client: client,
     );
   }
 

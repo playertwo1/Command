@@ -18,6 +18,7 @@ namespace DroidDeck.Lib.Input
         private const uint MOUSEEVENTF_MIDDLEUP = 0x0040;
         private const uint MOUSEEVENTF_WHEEL = 0x0800;
         private const uint MOUSEEVENTF_HWHEEL = 0x1000;
+        private const uint MOUSEEVENTF_ABSOLUTE = 0x8000;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct MOUSEINPUT
@@ -113,6 +114,69 @@ namespace DroidDeck.Lib.Input
                     Dispatch(new[] { MakeMouseInput(downFlag), MakeMouseInput(upFlag) });
                     break;
             }
+        }
+
+        public void SendMouseClickAt(MouseButton button, MouseAction action, double normalizedX, double normalizedY)
+        {
+            if (!OperatingSystem.IsWindows()) return;
+
+            normalizedX = Math.Clamp(normalizedX, 0.0, 1.0);
+            normalizedY = Math.Clamp(normalizedY, 0.0, 1.0);
+
+            int absX = (int)Math.Round(normalizedX * 65535.0);
+            int absY = (int)Math.Round(normalizedY * 65535.0);
+
+            var moveInput = new INPUT
+            {
+                type = INPUT_MOUSE,
+                u = new InputUnion
+                {
+                    mi = new MOUSEINPUT
+                    {
+                        dx = absX,
+                        dy = absY,
+                        dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE
+                    }
+                }
+            };
+
+            uint downFlag = button switch
+            {
+                MouseButton.Right => MOUSEEVENTF_RIGHTDOWN,
+                MouseButton.Middle => MOUSEEVENTF_MIDDLEDOWN,
+                _ => MOUSEEVENTF_LEFTDOWN
+            };
+
+            uint upFlag = button switch
+            {
+                MouseButton.Right => MOUSEEVENTF_RIGHTUP,
+                MouseButton.Middle => MOUSEEVENTF_MIDDLEUP,
+                _ => MOUSEEVENTF_LEFTUP
+            };
+
+            var inputs = new List<INPUT>(5) { moveInput };
+            switch (action)
+            {
+                case MouseAction.Down:
+                    inputs.Add(MakeMouseInput(downFlag));
+                    break;
+                case MouseAction.Up:
+                    inputs.Add(MakeMouseInput(upFlag));
+                    break;
+                case MouseAction.DoubleClick:
+                    inputs.Add(MakeMouseInput(downFlag));
+                    inputs.Add(MakeMouseInput(upFlag));
+                    inputs.Add(MakeMouseInput(downFlag));
+                    inputs.Add(MakeMouseInput(upFlag));
+                    break;
+                case MouseAction.Click:
+                default:
+                    inputs.Add(MakeMouseInput(downFlag));
+                    inputs.Add(MakeMouseInput(upFlag));
+                    break;
+            }
+
+            Dispatch(inputs.ToArray());
         }
 
         public void SendMouseScroll(int deltaX, int deltaY)

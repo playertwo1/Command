@@ -10,7 +10,9 @@ namespace DroidDeck.Models
 
     public sealed record MouseClickRequest(
         [Required] string Button,
-        string? Action = "click");
+        string? Action = "click",
+        double? NormalizedX = null,
+        double? NormalizedY = null);
 
     public sealed record MouseScrollRequest(
         int DeltaX = 0,
@@ -32,6 +34,8 @@ namespace DroidDeck.Models
 
         public string? Button { get; set; }
         public string? Action { get; set; }
+        public double? NormalizedX { get; set; }
+        public double? NormalizedY { get; set; }
 
         public int? DeltaX { get; set; }
         public int? DeltaY { get; set; }

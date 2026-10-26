@@ -47,7 +47,7 @@
 | **M1** | Mobile | Painel combinado dos PCs + seletor de alvo | M0 | `DONE` |
 | **R0** | Backend | API de entrada remota (mouse/teclado) | — | `DONE` (364 C# tests PASS) |
 | **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `DONE` (218 Flutter tests PASS) |
-| **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `TODO` |
+| **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `DONE` |
 | **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `TODO` |
 | **T0** | Full | Transferência retomável em blocos | — | `TODO` |
 | **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; I0.3a/b piloto antecipado antes do checkpoint M1 | `IN_PROGRESS` — somente instalador local piloto |
@@ -97,9 +97,9 @@
 - [x] **R1.3:** Seletor de PC-alvo integrado ao cabeçalho (permitindo alternar o PC-alvo entre os perfis ativos do M0/M1), card na `StatusPage` e rota `/trackpad`. Testes automatizados cobrindo modelos, cliente Dio com mock e tela de trackpad (30 novos testes; suíte Flutter com 218/218 PASS). Próxima fase: R2 (Prévia ao Vivo).
 
 ### 📺 R2 — Prévia ao Vivo
-- [ ] **R2.1:** Usar o `ScreenStreamController` existente com FPS e qualidade baixos e ajustáveis; encerrar o stream ao sair da tela. Verificar primeiro o que o controller já suporta.
-- [ ] **R2.2:** Toque na prévia = clique na coordenada correspondente (mapeamento de escala; só o monitor principal).
-- [ ] **R2.3:** Mesmas regras de sessão bloqueada e consentimento do R0.
+- [x] **R2.1:** Usar o `ScreenStreamController` existente com FPS e qualidade baixos e ajustáveis; encerramento automático do stream ao sair da tela (`dispose`/`stop`) liberando o lock no PC.
+- [x] **R2.2:** Toque na prévia = clique na coordenada correspondente (mapeamento de escala com `ScreenCoordinateMapper`; proporção extraída do frame JPEG; monitor principal). Modo alternável entre Toque-para-Clicar e Zoom/Navegação, com feedback visual na coordenada do toque e toque longo para clique direito.
+- [x] **R2.3:** Mesmas regras de sessão bloqueada e consentimento do R0 (captura de 423/UAC com banner de aviso, 403 Forbidden, 409 conflito e encerramento limpo da sessão no dispose). Suíte Flutter 230/230 PASS e .NET 368/368 PASS. Próxima fase ativa: D0 (Descoberta e Reconexão mDNS).
 
 ### 📡 D0 — Descoberta e Reconexão
 - [ ] **D0.1:** O Bridge anuncia `_command._tcp` via mDNS (nome amigável + porta), desativável na configuração.

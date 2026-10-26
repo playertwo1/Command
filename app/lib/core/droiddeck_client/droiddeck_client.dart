@@ -942,12 +942,23 @@ class DroidDeckClient {
     }
   }
 
-  /// Envia clique ou ação de botão do mouse (Fase R1).
-  Future<void> sendMouseClick(String button, {String action = 'click', String? deviceId}) async {
+  /// Envia clique ou ação de botão do mouse, opcionalmente com coordenadas normalizadas (Fase R1/R2).
+  Future<void> sendMouseClick(
+    String button, {
+    String action = 'click',
+    double? normalizedX,
+    double? normalizedY,
+    String? deviceId,
+  }) async {
     try {
       await _dio.post(
         '/api/v1/input/click',
-        data: {'button': button, 'action': action},
+        data: {
+          'button': button,
+          'action': action,
+          if (normalizedX != null) 'normalizedX': normalizedX,
+          if (normalizedY != null) 'normalizedY': normalizedY,
+        },
         options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
       );
     } on DioException catch (e) {

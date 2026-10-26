@@ -146,6 +146,38 @@ namespace DroidDeck.Tests
         }
 
         [Fact]
+        public void Click_ComCoordenadasNormalizadas_ChamaSendMouseClickAt()
+        {
+            var sessionMock = new Mock<IRemoteControlSessionService>();
+            sessionMock.Setup(s => s.ValidateCanInput("device-1", "FullControl"))
+                .Returns(SessionValidateResult.Allowed);
+
+            var injectorMock = new Mock<IRemoteInputInjector>();
+            var controller = CreateController(sessionMock.Object, injectorMock.Object);
+
+            var result = controller.Click(new MouseClickRequest("left", "click", 0.5, 0.25)) as NoContentResult;
+            Assert.NotNull(result);
+            Assert.Equal(204, result.StatusCode);
+            injectorMock.Verify(i => i.SendMouseClickAt(MouseButton.Left, MouseAction.Click, 0.5, 0.25), Times.Once);
+        }
+
+        [Theory]
+        [InlineData(-0.1, 0.5)]
+        [InlineData(1.1, 0.5)]
+        [InlineData(0.5, double.NaN)]
+        public void Click_CoordenadasInvalidas_Retorna400(double nx, double ny)
+        {
+            var sessionMock = new Mock<IRemoteControlSessionService>();
+            var injectorMock = new Mock<IRemoteInputInjector>();
+            var controller = CreateController(sessionMock.Object, injectorMock.Object);
+
+            var result = controller.Click(new MouseClickRequest("left", "click", nx, ny)) as BadRequestObjectResult;
+            Assert.NotNull(result);
+            Assert.Equal(400, result.StatusCode);
+            injectorMock.Verify(i => i.SendMouseClickAt(It.IsAny<MouseButton>(), It.IsAny<MouseAction>(), It.IsAny<double>(), It.IsAny<double>()), Times.Never);
+        }
+
+        [Fact]
         public void Click_RejeitaBotaoInvalidoCom400()
         {
             var sessionMock = new Mock<IRemoteControlSessionService>();

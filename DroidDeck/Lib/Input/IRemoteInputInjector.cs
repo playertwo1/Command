@@ -19,6 +19,7 @@ namespace DroidDeck.Lib.Input
     {
         void SendMouseMove(int dx, int dy);
         void SendMouseButton(MouseButton button, MouseAction action);
+        void SendMouseClickAt(MouseButton button, MouseAction action, double normalizedX, double normalizedY);
         void SendMouseScroll(int deltaX, int deltaY);
         void SendKey(string normalizedSequence);
         void SendText(string text);

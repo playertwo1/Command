@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'screen_coordinate_mapper.dart';
 
 enum StreamQualityPreset {
   low(fps: 5, quality: 50, scale: 0.5, label: 'Econômica (5 FPS)'),
@@ -30,12 +30,14 @@ class DesktopStreamController extends ChangeNotifier {
   int _fps = 0;
   final List<DateTime> _frameTimestamps = [];
   StreamQualityPreset _preset = StreamQualityPreset.medium;
+  double _aspectRatio = 16.0 / 9.0;
 
   bool get isPlaying => _isPlaying;
   Uint8List? get latestFrame => _latestFrame;
   String? get errorMessage => _errorMessage;
   int get fps => _fps;
   StreamQualityPreset get preset => _preset;
+  double get aspectRatio => _aspectRatio;
 
   void setPreset(StreamQualityPreset newPreset) {
     if (_preset == newPreset) return;
@@ -44,11 +46,24 @@ class DesktopStreamController extends ChangeNotifier {
   }
 
   @visibleForTesting
-  void setStreamStateForTesting({bool? isPlaying, Uint8List? frame, int? fps, String? error}) {
+  void setStreamStateForTesting({
+    bool? isPlaying,
+    Uint8List? frame,
+    int? fps,
+    String? error,
+    double? aspectRatio,
+  }) {
     if (isPlaying != null) _isPlaying = isPlaying;
-    if (frame != null) _latestFrame = frame;
+    if (frame != null) {
+      _latestFrame = frame;
+      final dims = ScreenCoordinateMapper.extractJpegDimensions(frame);
+      if (dims != null && dims.aspectRatio > 0) {
+        _aspectRatio = dims.aspectRatio;
+      }
+    }
     if (fps != null) _fps = fps;
     if (error != null) _errorMessage = error;
+    if (aspectRatio != null) _aspectRatio = aspectRatio;
     notifyListeners();
   }
 
@@ -162,6 +177,10 @@ class DesktopStreamController extends ChangeNotifier {
       buffer.removeRange(0, endIndex + 1);
 
       _latestFrame = frameBytes;
+      final dims = ScreenCoordinateMapper.extractJpegDimensions(frameBytes);
+      if (dims != null && dims.aspectRatio > 0) {
+        _aspectRatio = dims.aspectRatio;
+      }
       _recordFrameForFps();
       notifyListeners();
     }

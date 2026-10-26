@@ -108,12 +108,32 @@ namespace DroidDeck.Controllers
                 return BadRequest(new { error = "INVALID_MOUSE_BUTTON_OR_ACTION" });
             }
 
+            if (request.NormalizedX.HasValue || request.NormalizedY.HasValue)
+            {
+                if (!request.NormalizedX.HasValue || !request.NormalizedY.HasValue ||
+                    double.IsNaN(request.NormalizedX.Value) || double.IsInfinity(request.NormalizedX.Value) ||
+                    double.IsNaN(request.NormalizedY.Value) || double.IsInfinity(request.NormalizedY.Value) ||
+                    request.NormalizedX.Value < 0.0 || request.NormalizedX.Value > 1.0 ||
+                    request.NormalizedY.Value < 0.0 || request.NormalizedY.Value > 1.0)
+                {
+                    return BadRequest(new { error = "INVALID_NORMALIZED_COORDINATES" });
+                }
+            }
+
             var (deviceId, role) = GetCurrentDevice();
             var val = _sessionService.ValidateCanInput(deviceId, role);
             if (val.Status != SessionValidateStatus.Allowed)
                 return MapSessionValidationResult(val);
 
-            _injector.SendMouseButton(button, action);
+            if (request.NormalizedX.HasValue && request.NormalizedY.HasValue)
+            {
+                _injector.SendMouseClickAt(button, action, request.NormalizedX.Value, request.NormalizedY.Value);
+            }
+            else
+            {
+                _injector.SendMouseButton(button, action);
+            }
+
             return NoContent();
         }
 
@@ -189,7 +209,7 @@ namespace DroidDeck.Controllers
             return request.Type.ToLowerInvariant() switch
             {
                 "move" => Move(new MouseMoveRequest(request.Dx ?? 0, request.Dy ?? 0)),
-                "click" => Click(new MouseClickRequest(request.Button ?? "left", request.Action ?? "click")),
+                "click" => Click(new MouseClickRequest(request.Button ?? "left", request.Action ?? "click", request.NormalizedX, request.NormalizedY)),
                 "scroll" => Scroll(new MouseScrollRequest(request.DeltaX ?? 0, request.DeltaY ?? 0)),
                 "key" => Key(new KeyInputRequest(request.Key ?? string.Empty)),
                 "text" => Text(new TextInputRequest(request.Text ?? string.Empty)),
