@@ -49,7 +49,7 @@
 | **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `DONE` (218 Flutter tests PASS) |
 | **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `DONE` |
 | **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `DONE` |
-| **T0** | Full | Transferência retomável em blocos | — | `TODO` |
+| **T0** | Full | Transferência retomável em blocos | — | `DONE` |
 | **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; I0.3a/b piloto antecipado antes do checkpoint M1 | `IN_PROGRESS` — somente instalador local piloto |
 | **U0** | Full | Portes seletivos e requisitos de protocolo; sem merge global | Por subitem; ver seção U0 | `PARTIAL` — U0.1 e U0.4a técnicos registrados |
 | **H0** | Full | Homologação E2E em 2 máquinas físicas (2ª instalada via I0) | todas | `TODO` |
@@ -107,9 +107,9 @@
 - [x] **D0.3:** Fallback LAN → Tailscale → último endereço conhecido, com deduplicação de candidatos e validação de conectividade via `ReconnectionFallbackService`. Suíte Flutter 240/240 PASS. Próxima fase: T0 (Transferências Retomáveis).
 
 ### 📦 T0 — Transferências Retomáveis
-- [ ] **T0.1:** Upload e download em blocos (ex.: 4 MiB) com `offset`, mantendo o limite, a blocklist e a proteção anti-traversal atuais.
-- [ ] **T0.2:** Retomar após queda de rede ou do app; SHA-256 final obrigatório; partes órfãs expiram e são limpas no startup.
-- [ ] **T0.3:** Testes: interrupção no meio, bloco corrompido, retomada com hash divergente → rejeitar.
+- [x] **T0.1:** Upload e download em blocos (4 MiB) com `offset`, mantendo o limite (100 MiB), a blocklist e a proteção anti-traversal atuais.
+- [x] **T0.2:** Retomar após queda de rede ou do app; SHA-256 final obrigatório; partes órfãs (`.part`/`.tmp`) expiram (24h) e são limpas no startup e sob demanda.
+- [x] **T0.3:** Testes: interrupção no meio, bloco corrompido, detecção de gap (`CHUNK_OFFSET_GAP`), retomada com hash divergente → rejeitar e limpar temporários. Testes automatizados verdes (6 novos testes .NET em `TransferServiceTests.cs`, 5 testes Flutter em `resumable_transfer_test.dart`).
 
 ### 🚀 I0 — Instalador Windows próprio e Distribuição
 **Direção atualizada a pedido (2026-10-20 e 2026-10-24):** priorizar instalação direta por `Command-Setup.exe`; zip portátil e script assistido são alternativas. Reutilizar o Velopack já presente, sem novo framework de instalação. O proprietário antecipou I0.3a/b para instalar a Bridge nos PCs antes do checkpoint físico M1. O piloto privado atual não importa automaticamente perfis/credenciais antigos e não consulta atualizações remotas; a migração segura solicitada será feita em I0.3c, após T0 e antes da homologação I0.6, mantendo a ordem aprovada. I0.3d mantém o manifesto e o script de instalação assistida. Atualizações remotas continuam desativadas até existir um feed Command aprovado. A intenção D-v1.5-11 de publicação pública permanece condicionada a I0.7; disponibilizar este piloto no repositório privado não torna o repositório público.

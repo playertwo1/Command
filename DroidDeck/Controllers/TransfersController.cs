@@ -79,28 +79,38 @@ namespace DroidDeck.Controllers
         /// Baixa um arquivo localizado em qualquer subpasta autorizada de 'outbound'.
         /// </summary>
         [HttpGet("{rootId}/download")]
-        public IActionResult DownloadFileByPath([FromRoute] string rootId, [FromQuery] string path)
+        public IActionResult DownloadFileByPath(
+            [FromRoute] string rootId,
+            [FromQuery] string path,
+            [FromQuery] long? offset = null,
+            [FromQuery] long? length = null)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 return BadRequest(new { code = "EMPTY_PATH", message = "O parâmetro path é obrigatório." });
             }
 
-            return DownloadFile(rootId, path);
+            return DownloadFile(rootId, path, offset, length);
         }
 
         /// <summary>
         /// Baixa um arquivo da raiz de saída com validação de caminho e hash SHA-256 no cabeçalho.
+        /// Suporta fatiamento por bloco com offset e length.
         /// </summary>
         [HttpGet("{rootId}/{fileName}")]
-        public IActionResult DownloadFile([FromRoute] string rootId, [FromRoute] string fileName)
+        public IActionResult DownloadFile(
+            [FromRoute] string rootId,
+            [FromRoute] string fileName,
+            [FromQuery] long? offset = null,
+            [FromQuery] long? length = null)
         {
-            var result = _transferService.GetFileForDownload(rootId, fileName, GetRequestingDeviceId());
+            var result = _transferService.GetFileForDownload(rootId, fileName, GetRequestingDeviceId(), offset, length);
             if (!result.Success)
             {
                 return result.ErrorCode switch
                 {
                     "FILE_NOT_FOUND" => NotFound(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "INVALID_RANGE" => StatusCode(416, new { code = result.ErrorCode, message = result.ErrorMessage }),
                     "PATH_TRAVERSAL" or "INVALID_FILENAME" or "INVALID_FILENAME_PATTERN" or "BLOCKED_EXTENSION"
                         => BadRequest(new { code = result.ErrorCode, message = result.ErrorMessage }),
                     "ACCESS_DENIED" => StatusCode(403, new { code = result.ErrorCode, message = result.ErrorMessage }),
@@ -108,10 +118,94 @@ namespace DroidDeck.Controllers
                 };
             }
 
-            Response.Headers.Append("X-Checksum-Sha256", result.Sha256);
+            Response.Headers.Append("Accept-Ranges", "bytes");
             Response.Headers.Append("X-File-Size", result.SizeBytes.ToString());
 
-            return File(result.Stream!, result.ContentType, result.FileName);
+            if (!string.IsNullOrEmpty(result.Sha256))
+            {
+                Response.Headers.Append("X-Checksum-Sha256", result.Sha256);
+            }
+
+            if (result.IsChunked)
+            {
+                long end = result.Offset + result.ChunkLength - 1;
+                Response.Headers.Append("Content-Range", $"bytes {result.Offset}-{end}/{result.SizeBytes}");
+                Response.StatusCode = StatusCodes.Status206PartialContent;
+                return File(result.Stream!, result.ContentType, result.FileName);
+            }
+
+            return File(result.Stream!, result.ContentType, result.FileName, enableRangeProcessing: true);
+        }
+
+        /// <summary>
+        /// Envia um bloco de arquivo para upload resumível na raiz 'inbound'.
+        /// </summary>
+        [HttpPost("upload/chunk")]
+        [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB limit per chunk (chunks are 4 MB)
+        public async Task<IActionResult> UploadChunk(
+            [FromForm] string uploadId,
+            [FromForm] string fileName,
+            [FromForm] long offset,
+            [FromForm] long totalSize,
+            [FromForm] bool isLastChunk,
+            [FromForm] IFormFile? chunk,
+            [FromForm] string? rootId,
+            [FromForm] string? expectedSha256,
+            [FromForm] string? requestId)
+        {
+            if (chunk == null || chunk.Length == 0)
+            {
+                return BadRequest(new { code = "EMPTY_CHUNK", message = "Nenhum dado recebido no bloco." });
+            }
+
+            string actualRoot = string.IsNullOrWhiteSpace(rootId) ? "inbound" : rootId;
+            using var stream = chunk.OpenReadStream();
+
+            var result = await _transferService.UploadChunkAsync(
+                uploadId,
+                actualRoot,
+                fileName,
+                offset,
+                totalSize,
+                isLastChunk,
+                stream,
+                expectedSha256,
+                GetRequestingDeviceId(),
+                requestId);
+
+            if (!result.Success)
+            {
+                return result.ErrorCode switch
+                {
+                    "FILE_ALREADY_EXISTS" => Conflict(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "FILE_TOO_LARGE" => StatusCode(413, new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "CHECKSUM_MISMATCH" => BadRequest(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "CHUNK_OFFSET_GAP" => Conflict(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    "PART_NOT_FOUND" => NotFound(new { code = result.ErrorCode, message = result.ErrorMessage }),
+                    _ => BadRequest(new { code = result.ErrorCode, message = result.ErrorMessage })
+                };
+            }
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Consulta o status e progresso de um upload resumível em andamento.
+        /// </summary>
+        [HttpGet("upload/status")]
+        public IActionResult GetUploadStatus(
+            [FromQuery] string uploadId,
+            [FromQuery] string fileName,
+            [FromQuery] string? rootId = null)
+        {
+            if (string.IsNullOrWhiteSpace(uploadId) || string.IsNullOrWhiteSpace(fileName))
+            {
+                return BadRequest(new { code = "INVALID_PARAMETERS", message = "uploadId e fileName são obrigatórios." });
+            }
+
+            string actualRoot = string.IsNullOrWhiteSpace(rootId) ? "inbound" : rootId;
+            var status = _transferService.GetUploadStatus(uploadId, actualRoot, fileName);
+            return Ok(status);
         }
 
         /// <summary>

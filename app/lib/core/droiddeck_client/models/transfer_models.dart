@@ -133,3 +133,67 @@ class DirectoryBrowseResult {
   }
 }
 
+class ChunkUploadResponse {
+  final bool success;
+  final String errorCode;
+  final String errorMessage;
+  final String uploadId;
+  final String fileName;
+  final int bytesReceived;
+  final bool isComplete;
+  final TransferItem? item;
+
+  const ChunkUploadResponse({
+    required this.success,
+    this.errorCode = '',
+    this.errorMessage = '',
+    this.uploadId = '',
+    this.fileName = '',
+    this.bytesReceived = 0,
+    this.isComplete = false,
+    this.item,
+  });
+
+  factory ChunkUploadResponse.fromJson(Map<String, dynamic> json) {
+    return ChunkUploadResponse(
+      success: json['success'] as bool? ?? false,
+      errorCode: json['errorCode'] as String? ?? '',
+      errorMessage: json['errorMessage'] as String? ?? '',
+      uploadId: json['uploadId'] as String? ?? '',
+      fileName: json['fileName'] as String? ?? '',
+      bytesReceived: (json['bytesReceived'] as num?)?.toInt() ?? 0,
+      isComplete: json['isComplete'] as bool? ?? false,
+      item: json['item'] != null ? TransferItem.fromJson(json['item'] as Map<String, dynamic>) : null,
+    );
+  }
+}
+
+class ResumableUploadStatus {
+  final bool exists;
+  final String uploadId;
+  final String fileName;
+  final int bytesReceived;
+  final int totalSize;
+  final bool isComplete;
+
+  const ResumableUploadStatus({
+    required this.exists,
+    required this.uploadId,
+    required this.fileName,
+    required this.bytesReceived,
+    required this.totalSize,
+    required this.isComplete,
+  });
+
+  factory ResumableUploadStatus.fromJson(Map<String, dynamic> json) {
+    return ResumableUploadStatus(
+      exists: json['exists'] as bool? ?? false,
+      uploadId: json['uploadId'] as String? ?? '',
+      fileName: json['fileName'] as String? ?? '',
+      bytesReceived: (json['bytesReceived'] as num?)?.toInt() ?? 0,
+      totalSize: (json['totalSize'] as num?)?.toInt() ?? 0,
+      isComplete: json['isComplete'] as bool? ?? false,
+    );
+  }
+}
+

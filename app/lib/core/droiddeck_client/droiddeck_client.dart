@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:crypto/crypto.dart';
 
 import 'package:droiddeck/core/i18n/i18n.dart';
 import 'package:dio/dio.dart';
@@ -640,13 +641,25 @@ class DroidDeckClient {
   }
 
   /// Baixa um arquivo localizado em subpastas de 'outbound'.
-  Future<FileDownloadData> downloadNestedFile(String relativePath, {String? deviceId}) async {
+  Future<FileDownloadData> downloadNestedFile(
+    String relativePath, {
+    String? deviceId,
+    int? offset,
+    int? length,
+  }) async {
     final response = await _dio.get<List<int>>(
       '/api/transfers/outbound/download',
-      queryParameters: {'path': relativePath},
+      queryParameters: {
+        'path': relativePath,
+        if (offset != null) 'offset': offset,
+        if (length != null) 'length': length,
+      },
       options: Options(
         responseType: ResponseType.bytes,
-        headers: deviceId != null ? {'X-Device-Id': deviceId} : null,
+        headers: {
+          if (deviceId != null) 'X-Device-Id': deviceId,
+          if (offset != null) 'Range': 'bytes=$offset-${length != null ? (offset + length - 1) : ""}',
+        },
       ),
     );
     final sha256 = response.headers.value('X-Checksum-Sha256') ?? '';
@@ -659,12 +672,24 @@ class DroidDeckClient {
   }
 
   /// Baixa um arquivo da pasta de saída do PC e retorna os bytes e hash SHA-256.
-  Future<FileDownloadData> downloadOutboundFile(String fileName, {String? deviceId}) async {
+  Future<FileDownloadData> downloadOutboundFile(
+    String fileName, {
+    String? deviceId,
+    int? offset,
+    int? length,
+  }) async {
     final response = await _dio.get<List<int>>(
       '/api/transfers/outbound/$fileName',
+      queryParameters: {
+        if (offset != null) 'offset': offset,
+        if (length != null) 'length': length,
+      },
       options: Options(
         responseType: ResponseType.bytes,
-        headers: deviceId != null ? {'X-Device-Id': deviceId} : null,
+        headers: {
+          if (deviceId != null) 'X-Device-Id': deviceId,
+          if (offset != null) 'Range': 'bytes=$offset-${length != null ? (offset + length - 1) : ""}',
+        },
       ),
     );
     final sha256 = response.headers.value('X-Checksum-Sha256') ?? '';
@@ -697,6 +722,134 @@ class DroidDeckClient {
     );
     final item = TransferItem.fromJson(response.data as Map<String, dynamic>);
     return UploadTransferResult(success: true, item: item);
+  }
+
+  /// Consulta o status de um upload resumível em andamento no PC (T0.1 / T0.2).
+  Future<ResumableUploadStatus> getResumableUploadStatus({
+    required String uploadId,
+    required String fileName,
+    String? rootId,
+    String? deviceId,
+  }) async {
+    final response = await _dio.get(
+      '/api/transfers/upload/status',
+      queryParameters: {
+        'uploadId': uploadId,
+        'fileName': fileName,
+        if (rootId != null) 'rootId': rootId,
+      },
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+    );
+    return ResumableUploadStatus.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Envia um bloco individual de arquivo para o PC (T0.1 / T0.2).
+  Future<ChunkUploadResponse> uploadChunk({
+    required String uploadId,
+    required String fileName,
+    required int offset,
+    required int totalSize,
+    required bool isLastChunk,
+    required Uint8List chunkBytes,
+    String? expectedSha256,
+    String? rootId,
+    String? requestId,
+    String? deviceId,
+  }) async {
+    final formData = FormData.fromMap({
+      'uploadId': uploadId,
+      'fileName': fileName,
+      'offset': offset,
+      'totalSize': totalSize,
+      'isLastChunk': isLastChunk,
+      'chunk': MultipartFile.fromBytes(chunkBytes, filename: '$fileName.part'),
+      if (rootId != null) 'rootId': rootId,
+      if (expectedSha256 != null) 'expectedSha256': expectedSha256,
+      if (requestId != null) 'requestId': requestId,
+    });
+
+    final response = await _dio.post(
+      '/api/transfers/upload/chunk',
+      data: formData,
+      options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+    );
+    return ChunkUploadResponse.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Faz upload de um arquivo de forma resumível, dividindo em blocos (padrão 4 MiB)
+  /// e verificando o progresso pré-existente antes de iniciar (T0.1/T0.2).
+  Future<ChunkUploadResponse> uploadFileResumable({
+    required String fileName,
+    required Uint8List bytes,
+    String? uploadId,
+    int chunkSize = 4 * 1024 * 1024,
+    void Function(int sentBytes, int totalBytes)? onProgress,
+    String? expectedSha256,
+    String? rootId,
+    String? requestId,
+    String? deviceId,
+  }) async {
+    final actualUploadId = uploadId ?? 'upl_${DateTime.now().millisecondsSinceEpoch}_${bytes.length}';
+    final actualSha = expectedSha256 ?? sha256.convert(bytes).toString().toLowerCase();
+    final totalSize = bytes.length;
+
+    int currentOffset = 0;
+    try {
+      final status = await getResumableUploadStatus(
+        uploadId: actualUploadId,
+        fileName: fileName,
+        rootId: rootId,
+        deviceId: deviceId,
+      );
+      if (status.exists) {
+        if (status.isComplete) {
+          return ChunkUploadResponse(
+            success: true,
+            isComplete: true,
+            uploadId: actualUploadId,
+            fileName: fileName,
+            bytesReceived: totalSize,
+          );
+        }
+        if (status.bytesReceived > 0 && status.bytesReceived <= totalSize) {
+          currentOffset = status.bytesReceived;
+          onProgress?.call(currentOffset, totalSize);
+        }
+      }
+    } catch (_) {
+      // Se a consulta de status falhar, começa do início
+      currentOffset = 0;
+    }
+
+    ChunkUploadResponse lastResponse = const ChunkUploadResponse(success: false);
+
+    while (currentOffset < totalSize) {
+      final end = (currentOffset + chunkSize > totalSize) ? totalSize : currentOffset + chunkSize;
+      final isLast = end == totalSize;
+      final chunkBytes = bytes.sublist(currentOffset, end);
+
+      lastResponse = await uploadChunk(
+        uploadId: actualUploadId,
+        fileName: fileName,
+        offset: currentOffset,
+        totalSize: totalSize,
+        isLastChunk: isLast,
+        chunkBytes: chunkBytes,
+        expectedSha256: isLast ? actualSha : null,
+        rootId: rootId,
+        requestId: requestId,
+        deviceId: deviceId,
+      );
+
+      if (!lastResponse.success) {
+        return lastResponse;
+      }
+
+      currentOffset = end;
+      onProgress?.call(currentOffset, totalSize);
+    }
+
+    return lastResponse;
   }
 
   /// Consulta os serviços do Windows permitidos na allowlist de monitoramento (S3/S5).

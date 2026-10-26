@@ -51,6 +51,7 @@ namespace DroidDeck.Services
 
             EnsureDirectoryExists(_inboundRoot);
             EnsureDirectoryExists(_outboundRoot);
+            CleanOrphanedParts();
         }
 
         public string InboundRootPath => _inboundRoot;
@@ -227,7 +228,12 @@ namespace DroidDeck.Services
             }
         }
 
-        public FileDownloadResult GetFileForDownload(string rootId, string fileName, string requestingDeviceId)
+        public FileDownloadResult GetFileForDownload(
+            string rootId,
+            string fileName,
+            string requestingDeviceId,
+            long? offset = null,
+            long? length = null)
         {
             if (!string.Equals(rootId, "outbound", StringComparison.OrdinalIgnoreCase))
             {
@@ -318,8 +324,32 @@ namespace DroidDeck.Services
                 };
             }
 
-            string sha256 = ComputeFileSha256(targetPath);
+            long fileLength = fi.Length;
+            long actualOffset = offset ?? 0;
+            if (actualOffset < 0 || (actualOffset >= fileLength && fileLength > 0))
+            {
+                return new FileDownloadResult
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_RANGE",
+                    ErrorMessage = "Offset de download fora dos limites do arquivo."
+                };
+            }
+
+            long remaining = fileLength - actualOffset;
+            long actualChunkLength = length.HasValue ? Math.Min(length.Value, remaining) : remaining;
+
             var fs = new FileStream(targetPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (actualOffset > 0)
+            {
+                fs.Seek(actualOffset, SeekOrigin.Begin);
+            }
+
+            Stream resultStream = (offset.HasValue || length.HasValue)
+                ? new BoundedReadStream(fs, actualChunkLength)
+                : fs;
+
+            string sha256 = ComputeFileSha256(targetPath);
 
             var job = _jobHistoryService.GetOrCreateJob(Guid.NewGuid().ToString("N"), "transfer.download", cleanName, requestingDeviceId, out _);
             _jobHistoryService.UpdateJob(job.Id, "succeeded");
@@ -327,11 +357,14 @@ namespace DroidDeck.Services
             return new FileDownloadResult
             {
                 Success = true,
-                Stream = fs,
+                Stream = resultStream,
                 FileName = cleanName,
                 SizeBytes = fi.Length,
                 Sha256 = sha256,
-                ContentType = GetMimeType(cleanName)
+                ContentType = GetMimeType(cleanName),
+                Offset = actualOffset,
+                ChunkLength = actualChunkLength,
+                IsChunked = offset.HasValue || length.HasValue
             };
         }
 
@@ -577,6 +610,320 @@ namespace DroidDeck.Services
             }
         }
 
+        public async Task<ChunkUploadResult> UploadChunkAsync(
+            string uploadId,
+            string rootId,
+            string fileName,
+            long offset,
+            long totalSize,
+            bool isLastChunk,
+            Stream chunkStream,
+            string? expectedSha256,
+            string requestingDeviceId,
+            string? requestId = null)
+        {
+            if (!string.Equals(rootId, "inbound", StringComparison.OrdinalIgnoreCase))
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_ROOT",
+                    ErrorMessage = "Upload permitido exclusivamente para a raiz 'inbound'."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(uploadId) || !Regex.IsMatch(uploadId, @"^[a-zA-Z0-9_\-]{1,64}$"))
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_UPLOAD_ID",
+                    ErrorMessage = "Identificador de upload inválido."
+                };
+            }
+
+            var validation = ValidateFileName(fileName);
+            if (!validation.IsValid)
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = validation.ErrorCode,
+                    ErrorMessage = validation.ErrorMessage
+                };
+            }
+
+            string cleanName = validation.CleanFileName;
+            string targetPath = Path.Combine(_inboundRoot, cleanName);
+
+            if (!IsPathWithinDirectory(targetPath, _inboundRoot))
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "PATH_TRAVERSAL",
+                    ErrorMessage = "Caminho fora dos limites autorizados da raiz de entrada."
+                };
+            }
+
+            // Se o arquivo final completo já existe, rejeita sobrescrita
+            if (File.Exists(targetPath))
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "FILE_ALREADY_EXISTS",
+                    ErrorMessage = $"O arquivo '{cleanName}' já existe na pasta de entrada."
+                };
+            }
+
+            if (totalSize <= 0 || totalSize > MaxFileSizeBytes)
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "FILE_TOO_LARGE",
+                    ErrorMessage = $"O tamanho total excede o limite máximo permitido de {MaxFileSizeBytes / (1024 * 1024)} MiB."
+                };
+            }
+
+            if (offset < 0 || offset >= totalSize)
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "INVALID_CHUNK_OFFSET",
+                    ErrorMessage = "Offset do bloco fora dos limites válidos."
+                };
+            }
+
+            string partPath = Path.Combine(_inboundRoot, $"{cleanName}.{uploadId}.part");
+            if (!IsPathWithinDirectory(partPath, _inboundRoot))
+            {
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "PATH_TRAVERSAL",
+                    ErrorMessage = "Caminho de bloco temporário inválido."
+                };
+            }
+
+            try
+            {
+                FileStream fs;
+                if (offset == 0)
+                {
+                    fs = new FileStream(partPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                }
+                else
+                {
+                    if (!File.Exists(partPath))
+                    {
+                        return new ChunkUploadResult
+                        {
+                            Success = false,
+                            ErrorCode = "PART_NOT_FOUND",
+                            ErrorMessage = "Arquivo de bloco temporário não encontrado para retomada."
+                        };
+                    }
+
+                    fs = new FileStream(partPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
+                    long existingPartLength = fs.Length;
+                    if (existingPartLength < offset)
+                    {
+                        fs.Dispose();
+                        return new ChunkUploadResult
+                        {
+                            Success = false,
+                            ErrorCode = "CHUNK_OFFSET_GAP",
+                            ErrorMessage = $"Offset recebido ({offset}) excede os bytes recebidos até o momento ({existingPartLength})."
+                        };
+                    }
+                    fs.Seek(offset, SeekOrigin.Begin);
+                }
+
+                using (fs)
+                {
+                    byte[] buffer = new byte[81920];
+                    int read;
+                    while ((read = await chunkStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await fs.WriteAsync(buffer, 0, read);
+                        if (fs.Position > MaxFileSizeBytes)
+                        {
+                            fs.Close();
+                            TryDeleteFile(partPath);
+                            return new ChunkUploadResult
+                            {
+                                Success = false,
+                                ErrorCode = "FILE_TOO_LARGE",
+                                ErrorMessage = "Tamanho acumulado excede o limite permitido."
+                            };
+                        }
+                    }
+
+                    await fs.FlushAsync();
+                }
+
+                long currentLength = new FileInfo(partPath).Length;
+
+                if (isLastChunk)
+                {
+                    if (currentLength != totalSize)
+                    {
+                        return new ChunkUploadResult
+                        {
+                            Success = false,
+                            ErrorCode = "INCOMPLETE_FILE",
+                            ErrorMessage = $"Tamanho final ({currentLength}) não confere com o total esperado ({totalSize})."
+                        };
+                    }
+
+                    string computedSha = ComputeFileSha256(partPath);
+                    if (!string.IsNullOrWhiteSpace(expectedSha256))
+                    {
+                        string normalized = expectedSha256.Trim().ToLowerInvariant();
+                        if (!string.Equals(computedSha, normalized, StringComparison.OrdinalIgnoreCase))
+                        {
+                            TryDeleteFile(partPath);
+                            return new ChunkUploadResult
+                            {
+                                Success = false,
+                                ErrorCode = "CHECKSUM_MISMATCH",
+                                ErrorMessage = $"Falha de integridade: SHA-256 computado ({computedSha}) difere do esperado ({normalized})."
+                            };
+                        }
+                    }
+
+                    // Promove atômico
+                    File.Move(partPath, targetPath);
+
+                    var dto = new TransferItemDto
+                    {
+                        Name = cleanName,
+                        SizeBytes = currentLength,
+                        Sha256 = computedSha,
+                        ModifiedAtUtc = DateTime.UtcNow
+                    };
+
+                    var job = _jobHistoryService.GetOrCreateJob(requestId ?? Guid.NewGuid().ToString("N"), "transfer.upload", cleanName, requestingDeviceId, out _);
+                    _jobHistoryService.UpdateJob(job.Id, "succeeded");
+
+                    _logger.LogInformation("Upload em blocos concluído: {FileName} ({SizeBytes} bytes, SHA256 {Sha}) por {Device}",
+                        cleanName, currentLength, computedSha, requestingDeviceId);
+
+                    return new ChunkUploadResult
+                    {
+                        Success = true,
+                        IsComplete = true,
+                        UploadId = uploadId,
+                        FileName = cleanName,
+                        BytesReceived = currentLength,
+                        Item = dto
+                    };
+                }
+
+                return new ChunkUploadResult
+                {
+                    Success = true,
+                    IsComplete = false,
+                    UploadId = uploadId,
+                    FileName = cleanName,
+                    BytesReceived = currentLength
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Falha durante gravação de bloco para {FileName}", cleanName);
+                return new ChunkUploadResult
+                {
+                    Success = false,
+                    ErrorCode = "WRITE_FAILED",
+                    ErrorMessage = $"Falha ao gravar bloco: {ex.Message}"
+                };
+            }
+        }
+
+        public ResumableUploadStatusResult GetUploadStatus(string uploadId, string rootId, string fileName)
+        {
+            var validation = ValidateFileName(fileName);
+            if (!validation.IsValid)
+            {
+                return new ResumableUploadStatusResult { Exists = false, UploadId = uploadId, FileName = fileName };
+            }
+
+            string cleanName = validation.CleanFileName;
+            string targetPath = Path.Combine(_inboundRoot, cleanName);
+            if (File.Exists(targetPath))
+            {
+                var fi = new FileInfo(targetPath);
+                return new ResumableUploadStatusResult
+                {
+                    Exists = true,
+                    IsComplete = true,
+                    UploadId = uploadId,
+                    FileName = cleanName,
+                    BytesReceived = fi.Length,
+                    TotalSize = fi.Length
+                };
+            }
+
+            string partPath = Path.Combine(_inboundRoot, $"{cleanName}.{uploadId}.part");
+            if (File.Exists(partPath))
+            {
+                var fi = new FileInfo(partPath);
+                return new ResumableUploadStatusResult
+                {
+                    Exists = true,
+                    IsComplete = false,
+                    UploadId = uploadId,
+                    FileName = cleanName,
+                    BytesReceived = fi.Length,
+                    TotalSize = 0
+                };
+            }
+
+            return new ResumableUploadStatusResult
+            {
+                Exists = false,
+                UploadId = uploadId,
+                FileName = cleanName
+            };
+        }
+
+        public int CleanOrphanedParts(TimeSpan? olderThan = null)
+        {
+            var threshold = olderThan ?? TimeSpan.FromHours(24);
+            var cutoff = DateTime.UtcNow - threshold;
+            int count = 0;
+
+            try
+            {
+                var dir = new DirectoryInfo(_inboundRoot);
+                if (!dir.Exists) return 0;
+
+                foreach (var file in dir.EnumerateFiles())
+                {
+                    if (file.Extension.Equals(".part", StringComparison.OrdinalIgnoreCase) ||
+                        file.Extension.Equals(".tmp", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (file.LastWriteTimeUtc < cutoff)
+                        {
+                            TryDeleteFile(file.FullName);
+                            count++;
+                            _logger.LogInformation("Arquivo de parte órfão expirado removido: {File}", file.Name);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Erro ao limpar arquivos de partes órfãos");
+            }
+
+            return count;
+        }
+
         private static void TryDeleteFile(string path)
         {
             try
@@ -585,5 +932,49 @@ namespace DroidDeck.Services
             }
             catch { }
         }
+    }
+
+    internal class BoundedReadStream : Stream
+    {
+        private readonly Stream _inner;
+        private readonly long _limit;
+        private long _readBytes;
+
+        public BoundedReadStream(Stream inner, long limit)
+        {
+            _inner = inner;
+            _limit = limit;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            long remaining = _limit - _readBytes;
+            if (remaining <= 0) return 0;
+            int toRead = (int)Math.Min(count, remaining);
+            int read = _inner.Read(buffer, offset, toRead);
+            _readBytes += read;
+            return read;
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            long remaining = _limit - _readBytes;
+            if (remaining <= 0) return 0;
+            int toRead = (int)Math.Min(count, remaining);
+            int read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken);
+            _readBytes += read;
+            return read;
+        }
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => _limit;
+        public override long Position { get => _readBytes; set => throw new NotSupportedException(); }
+        public override void Flush() => _inner.Flush();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        protected override void Dispose(bool disposing) { if (disposing) _inner.Dispose(); base.Dispose(disposing); }
     }
 }

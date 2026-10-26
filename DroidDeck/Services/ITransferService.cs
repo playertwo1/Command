@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,7 +21,29 @@ namespace DroidDeck.Services
             string requestingDeviceId,
             string? requestId = null);
 
-        FileDownloadResult GetFileForDownload(string rootId, string fileName, string requestingDeviceId);
+        Task<ChunkUploadResult> UploadChunkAsync(
+            string uploadId,
+            string rootId,
+            string fileName,
+            long offset,
+            long totalSize,
+            bool isLastChunk,
+            Stream chunkStream,
+            string? expectedSha256,
+            string requestingDeviceId,
+            string? requestId = null);
+
+        ResumableUploadStatusResult GetUploadStatus(string uploadId, string rootId, string fileName);
+
+        int CleanOrphanedParts(TimeSpan? olderThan = null);
+
+        FileDownloadResult GetFileForDownload(
+            string rootId,
+            string fileName,
+            string requestingDeviceId,
+            long? offset = null,
+            long? length = null);
+
         DirectoryBrowseResult BrowseDirectory(string rootId, string? subPath, string requestingDeviceId);
     }
 }

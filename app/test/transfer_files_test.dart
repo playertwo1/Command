@@ -30,7 +30,12 @@ class FakeTransferClient extends DroidDeckClient {
   }
 
   @override
-  Future<FileDownloadData> downloadOutboundFile(String fileName, {String? deviceId}) async {
+  Future<FileDownloadData> downloadOutboundFile(
+    String fileName, {
+    String? deviceId,
+    int? offset,
+    int? length,
+  }) async {
     downloadCalls++;
     final content = utf8.encode('relatorio,pc,sucesso\n1,100,true\n');
     final bytes = Uint8List.fromList(content);
