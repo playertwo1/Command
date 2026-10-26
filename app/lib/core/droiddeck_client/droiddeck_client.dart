@@ -24,6 +24,8 @@ import 'models/power_models.dart';
 export 'models/power_models.dart';
 import 'models/security_update_models.dart';
 export 'models/security_update_models.dart';
+import 'models/remote_input_models.dart';
+export 'models/remote_input_models.dart';
 
 class DroidDeckClient {
   final Dio _dio;
@@ -863,6 +865,133 @@ class DroidDeckClient {
   Future<SystemStabilityModel> getSystemStability() async {
     final response = await _dio.get('/api/v1/system/stability');
     return SystemStabilityModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Never _handleRemoteInputDioException(DioException e) {
+    final statusCode = e.response?.statusCode;
+    final data = e.response?.data;
+    String? reason;
+    String? activeDeviceId;
+    if (data is Map) {
+      reason = (data['error'] ?? data['reason'])?.toString();
+      activeDeviceId = data['activeDeviceId']?.toString();
+    }
+
+    if (statusCode == 423) {
+      throw RemoteInputLockedException(reason ?? 'Sessão do Windows bloqueada ou sem display ativo.');
+    } else if (statusCode == 403) {
+      throw RemoteInputForbiddenException(reason ?? 'Dispositivo sem permissão para controle remoto (ViewerOnly).');
+    } else if (statusCode == 409) {
+      throw RemoteInputConflictException(reason ?? 'Outro dispositivo já está controlando esta sessão.', activeDeviceId);
+    } else if (statusCode == 413) {
+      throw RemoteInputTextTooLargeException(reason ?? 'Texto excede o limite máximo permitido de 500 caracteres.');
+    } else if (statusCode == 429) {
+      throw RemoteInputRateLimitException(reason ?? 'Taxa de eventos remotos excedeu o limite seguro (rate limit).');
+    }
+    throw e;
+  }
+
+  /// Inicia uma sessão de controle remoto (Fase R1).
+  Future<RemoteControlSessionInfo> startRemoteInputSession({String? deviceId}) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/input/session/start',
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+      return RemoteControlSessionInfo.fromJson(Map<String, dynamic>.from(response.data as Map));
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Finaliza a sessão ativa de controle remoto (Fase R1).
+  Future<void> endRemoteInputSession({String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/session/end',
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Obtém o estado atual da sessão de controle remoto (Fase R1).
+  Future<RemoteControlSessionInfo> getRemoteInputSession({String? deviceId}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/input/session',
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+      return RemoteControlSessionInfo.fromJson(Map<String, dynamic>.from(response.data as Map));
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Envia deslocamento relativo do cursor do mouse (dx, dy) (Fase R1).
+  Future<void> sendMouseMove(double dx, double dy, {String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/move',
+        data: {'dx': dx, 'dy': dy},
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Envia clique ou ação de botão do mouse (Fase R1).
+  Future<void> sendMouseClick(String button, {String action = 'click', String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/click',
+        data: {'button': button, 'action': action},
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Envia rolagem de roda do mouse (deltaX, deltaY) (Fase R1).
+  Future<void> sendMouseScroll(int deltaX, int deltaY, {String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/scroll',
+        data: {'deltaX': deltaX, 'deltaY': deltaY},
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Envia tecla ou atalho validado contra a allowlist (Fase R1).
+  Future<void> sendKeyInput(String key, {String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/key',
+        data: {'key': key},
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
+  }
+
+  /// Envia texto com limite máximo de 500 caracteres (Fase R1).
+  Future<void> sendTextInput(String text, {String? deviceId}) async {
+    try {
+      await _dio.post(
+        '/api/v1/input/text',
+        data: {'text': text},
+        options: deviceId != null ? Options(headers: {'X-Device-Id': deviceId}) : null,
+      );
+    } on DioException catch (e) {
+      _handleRemoteInputDioException(e);
+    }
   }
 }
 

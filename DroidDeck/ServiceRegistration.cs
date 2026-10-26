@@ -40,6 +40,8 @@ namespace DroidDeck
             services.AddSingleton<IEncryptedBackupService, EncryptedBackupService>();
             services.AddSingleton<IUpdateVerificationService, UpdateVerificationService>();
             services.AddSingleton<ISystemStabilityMonitor, SystemStabilityMonitor>();
+            services.AddSingleton<Lib.Input.IRemoteInputInjector, Lib.Input.WindowsRemoteInputInjector>();
+            services.AddSingleton<IRemoteControlSessionService, RemoteControlSessionService>();
             services.AddHostedSingleton<TimerService>();
             services.AddHostedSingleton<InfoService>();
             services.AddHostedSingleton<ForegroundWatcher>();

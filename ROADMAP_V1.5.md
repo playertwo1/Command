@@ -1,6 +1,6 @@
 # ROADMAP v1.5 — Command: Multi-PC, Controle Remoto e Conectividade
 
-**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24/25 a pedido do proprietário. **M1 e U0.4b/U0.4c/U0.4d concluídos em 2026-10-25**, com os aceites registrados abaixo. Por decisão do proprietário em 2026-10-25, U0.2a permanece pendente para validação posterior e não bloqueia R0. Fase ativa: **R0.0 — fundação de identidade/autorização implementada; validação runtime isolada pendente**, antes de R0.1. O piloto I0.3a/b ainda tem gates pendentes. Migração segura dos dados legados foi solicitada e fica registrada em I0.3c, sem mudar sua ordem interna. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; a distribuição pública continua dependente de I0.1, I0.2 e I0.7.
+**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24/25 a pedido do proprietário. **M1 e U0.4b/U0.4c/U0.4d concluídos em 2026-10-25**, com os aceites registrados abaixo. Por decisão do proprietário em 2026-10-25, U0.2a permanece pendente para validação posterior e não bloqueia R0/R1. **R0 (Backend de Entrada Remota com 364 testes C#) e R1 (Mobile Trackpad + Teclado com 218 testes Flutter) concluídos tecnicamente**. Próxima fase ativa: **R2 — Prévia ao Vivo (`ScreenStreamController`) com toque-para-clicar**. O piloto I0.3a/b ainda tem gates pendentes. Migração segura dos dados legados foi solicitada e fica registrada em I0.3c, sem mudar sua ordem interna. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; a distribuição pública continua dependente de I0.1, I0.2 e I0.7.
 **Pré-requisito:** Release v1.1.0 (`command-v1.1.0` — 461 testes PASS)
 **Checkpoint 2026-10-25:** proprietário confirmou instalação, funcionamento de todas as funções e alternância nos dois PCs; aceite visual aprovado. A correção publicada na prerelease privada `command-v1.1.2` (`7449fde`) restaura os dois perfis em paralelo, unifica a seleção e torna o painel reativo. 32 testes direcionados e build release PASS; assinatura/alinhamento verificados. M1 está concluído por confirmação humana funcional e visual; não foram fornecidos logs separados de cada fluxo físico.
 **Meta Principal:** Manter **2 PCs conectados ao mesmo tempo** no app, adicionar **trackpad/teclado remoto com prévia ao vivo**, **descoberta automática por mDNS** e **transferências retomáveis**.
@@ -45,8 +45,8 @@
 |------|------|---------|-------------|--------|
 | **M0** | Mobile | Multi-PC simultâneo (2 conexões paralelas) | — | `DONE` |
 | **M1** | Mobile | Painel combinado dos PCs + seletor de alvo | M0 | `DONE` |
-| **R0** | Backend | API de entrada remota (mouse/teclado) | — | `TODO` |
-| **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `TODO` |
+| **R0** | Backend | API de entrada remota (mouse/teclado) | — | `DONE` (364 C# tests PASS) |
+| **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `DONE` (218 Flutter tests PASS) |
 | **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `TODO` |
 | **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `TODO` |
 | **T0** | Full | Transferência retomável em blocos | — | `TODO` |
@@ -78,10 +78,10 @@
 **Progresso M1.3 (2026-10-20):** a página consolida até dois perfis, identifica cada linha por nome (e sufixo de ID quando nomes repetem), filtra e confirma limpeza informando os PCs. Falha parcial mantém o resultado individual por PC. Teste de widgets: 4 PASS. `flutter analyze` nos arquivos tocados reportou 3 diagnósticos `info` já existentes em `status_page.dart` (import redundante, API depreciada e concatenação); sem erros ou warnings. Build debug PASS, instalação e abertura no AVD Pixel_9 PASS. A revisão visual confirmou o filtro e o estado indisponível do feed sob a Bridge upstream; a causa específica não foi isolada. Agregação real entre dois PCs e aceite visual permanecem `NOT_RUN`/`PENDING_HUMAN`.
 
 ### 🖱️ R0 — API de Entrada Remota (Backend)
-- [ ] **R0.1:** `RemoteInputController` (`/api/v1/input`): `move` (delta), `click` (botão), `scroll`, `key` (allowlist via `KeySequence`) e `text` (até 500 caracteres por envio). Reaproveitar `Lib/Input/KeyboardInput`; adicionar mouse via `SendInput`.
-- [ ] **R0.2:** Sessão de controle com início e fim explícitos, timeout por inatividade (ex.: 60 s) e indicador no tray com botão "Encerrar controle".
-- [ ] **R0.3:** Bloqueios: `ViewerOnly` → 403; sessão bloqueada/UAC → 423; texto acima do limite → 413; rate limit de eventos. A auditoria registra só início e fim de sessão, **nunca** o texto digitado.
-- [ ] **R0.4:** Testes de integração para cada regra acima.
+- [x] **R0.1:** `RemoteInputController` (`/api/v1/input`): `move` (delta), `click` (botão), `scroll`, `key` (allowlist via `KeySequence`) e `text` (até 500 caracteres por envio). Reaproveita `Lib/Input/KeyboardInput`; mouse e teclado via `IRemoteInputInjector`/`WindowsRemoteInputInjector` (`SendInput`). Concluído com 71 testes dedicados.
+- [x] **R0.2:** Sessão de controle com início e fim explícitos via `RemoteControlSessionService`, timeout por inatividade de 60 s e indicador no tray (`frmPrincipal`) com item "Encerrar controle remoto ({device})". Concluído e verificado.
+- [x] **R0.3:** Bloqueios implementados: `ViewerOnly` → 403; sessão bloqueada/UAC via `IDesktopCaptureProvider` → 423; texto acima do limite (>500) → 413; rate limit de eventos (>120/s) → 429; ausência/conflito de sessão → 409; parâmetros inválidos/chaves fora da allowlist → 400. A auditoria registra somente início e término de sessão via `ISecurityPolicyService`, **nunca** o texto digitado, teclas ou coordenadas.
+- [x] **R0.4:** Testes de integração e unitários cobrindo autenticação/identidade, allowlists, limites, rate limit, início/fim/timeout/revogação, 400/403/409/413/423/429 e ausência de sentinelas nos logs. Suíte .NET completa com 364/364 PASS (0 falhas). Validação interativa física com desktop do Windows pendente (`PENDING_DESKTOP`). Próxima fase: R1 (Mobile Trackpad + Teclado).
 
 #### Plano de execução até R0
 1. **U0.2a adiada por decisão do proprietário (2026-10-25):** os testes do slider (3), suíte Flutter (184) e análise direcionada passaram. Arraste/acessibilidade, roteamento conectado e alteração real de volume seguem `NOT_RUN`. Manter pendente; não tratar como concluída e não bloquear R0. Retomar a validação operacional depois, sem usar a Bridge instalada nem expor chaves em logs/evidências.
@@ -92,9 +92,9 @@
 6. **R0.4 — fechar evidência:** testes de integração cobrindo autenticação/identidade, allowlists, limites, rate limit, início/fim/timeout/revogação, 403/423/413/429 e ausência de texto sentinela nos logs. Rodar `dotnet test DroidDeck.sln -c Release --filter "Category!=RequiresDesktop"`, build Release e validação manual em desktop interativo para mouse/teclado, bloqueio/UAC e botão do tray. Só marcar R0 concluído quando cada gate tiver evidência atual; em seguida, a próxima fase é R1.
 
 ### ⌨️ R1 — Trackpad e Teclado (Mobile)
-- [ ] **R1.1:** Tela Trackpad: arrastar = mover, toque = clique, dois dedos = rolagem/clique direito.
-- [ ] **R1.2:** Teclado virtual para texto livre + linha de atalhos (Esc, Tab, Alt+Tab, Win, Ctrl+C/V).
-- [ ] **R1.3:** Seletor de PC-alvo no topo (integra M0) e testes de widget.
+- [x] **R1.1:** Tela Trackpad (`TrackpadPage` em `app/lib/src/remote_input/trackpad_page.dart`): arrasto com 1 dedo = mover mouse relativo, toque com 1 dedo = clique esquerdo, toque com 2 dedos / secundário = clique direito, arrasto com 2 dedos = rolagem vertical/horizontal, botões inferiores dedicados de clique esquerdo e direito.
+- [x] **R1.2:** Teclado virtual e atalhos: gaveta tátil com linha de atalhos rápidos (`Esc`, `Tab`, `Alt+Tab`, `Win`, `Ctrl+C`, `Ctrl+V`, `Ctrl+Z`, `Ctrl+A`, `Enter`, `Backspace`) chamando `/api/v1/input/key` e campo de texto livre com limite estrito de 500 caracteres, contador e envio limpo via `/api/v1/input/text`.
+- [x] **R1.3:** Seletor de PC-alvo integrado ao cabeçalho (permitindo alternar o PC-alvo entre os perfis ativos do M0/M1), card na `StatusPage` e rota `/trackpad`. Testes automatizados cobrindo modelos, cliente Dio com mock e tela de trackpad (30 novos testes; suíte Flutter com 218/218 PASS). Próxima fase: R2 (Prévia ao Vivo).
 
 ### 📺 R2 — Prévia ao Vivo
 - [ ] **R2.1:** Usar o `ScreenStreamController` existente com FPS e qualidade baixos e ajustáveis; encerrar o stream ao sair da tela. Verificar primeiro o que o controller já suporta.

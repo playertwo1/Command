@@ -20,6 +20,7 @@ namespace DroidDeck
         private ToolStripMenuItem _autoStartItem = null!;
         private ToolStripMenuItem _firewallItem = null!;
         private ToolStripMenuItem _updateItem = null!;
+        private ToolStripMenuItem _endRemoteControlItem = null!;
 
         public frmPrincipal()
         {
@@ -51,6 +52,29 @@ namespace DroidDeck
 
             Program.Updater.UpdateReady += version => BeginInvoke(() => OnUpdateReady(version));
             Program.Updater.StartBackgroundChecks(_updateCts.Token);
+
+            Services.RemoteControlSessionService.Shared.SessionChanged += session =>
+            {
+                if (IsDisposed || !IsHandleCreated) return;
+                try
+                {
+                    BeginInvoke(() =>
+                    {
+                        if (session != null)
+                        {
+                            _endRemoteControlItem.Text = L.Ui("Encerrar controle remoto ({device})", ("device", session.DeviceId));
+                            _endRemoteControlItem.Visible = true;
+                            ntiTray.ShowBalloonTip(3000, "Command",
+                                L.Ui("Controle remoto ativo pelo dispositivo {device}.", ("device", session.DeviceId)), ToolTipIcon.Info);
+                        }
+                        else
+                        {
+                            _endRemoteControlItem.Visible = false;
+                        }
+                    });
+                }
+                catch { }
+            };
         }
 
         private readonly System.Threading.CancellationTokenSource _updateCts = new();
@@ -136,6 +160,15 @@ namespace DroidDeck
                 f.ShowDialog();
             };
 
+            _endRemoteControlItem = new ToolStripMenuItem(L.Ui("Encerrar controle remoto"))
+            {
+                Visible = false,
+            };
+            _endRemoteControlItem.Click += (_, _) =>
+            {
+                Services.RemoteControlSessionService.Shared.ForceEndSession("TerminatedFromTray");
+            };
+
             _autoStartItem = new ToolStripMenuItem(L.Ui("Iniciar com o Windows"))
             {
                 CheckOnClick = true,
@@ -172,6 +205,7 @@ namespace DroidDeck
 
             menu.Items.Add(openItem);
             menu.Items.Add(pairItem);
+            menu.Items.Add(_endRemoteControlItem);
             menu.Items.Add(_autoStartItem);
             menu.Items.Add(_firewallItem);
             menu.Items.Add(new ToolStripSeparator());

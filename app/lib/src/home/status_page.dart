@@ -20,6 +20,8 @@ import 'local_quick_command_bar.dart';
 import '../routines/workspace_routines_card.dart';
 import '../power/power_control_card.dart';
 import '../security/security_center_card.dart';
+import '../remote_input/remote_input_card.dart';
+import '../remote_input/trackpad_page.dart';
 import '../dock/dock_dashboard_page.dart';
 
 class _ActivityEntry {
@@ -2897,6 +2899,26 @@ class _StatusPageState extends State<StatusPage> {
                         stats: stats,
                         pcName: activePc?.name ?? 'Command PC',
                         onCaptureScreen: _captureScreenshot,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // Controle Remoto de Mouse e Teclado (Fase R1)
+              RemoteInputCard(
+                client: _targetClient,
+                targetPc: _targetPc,
+                onOpenTrackpad: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => TrackpadPage(
+                        client: _targetClient,
+                        initialPc: _targetPc,
+                        availablePcs: _activityPcs,
+                        clientForPc: widget.clientForPc,
                       ),
                     ),
                   );

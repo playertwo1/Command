@@ -6,6 +6,7 @@ import 'src/pages/splash/splash_page.dart';
 import 'src/home/home_page.dart';
 import 'src/config/config_page.dart';
 import 'src/welcome/welcome_page.dart';
+import 'src/remote_input/trackpad_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,10 @@ class MyApp extends StatelessWidget {
         FlutterGetItPageBuilder(
           page: (_) => const WelcomePage(),
           path: '/welcome',
+        ),
+        FlutterGetItPageBuilder(
+          page: (_) => const TrackpadPage(),
+          path: '/trackpad',
         ),
       ],
     );
