@@ -16,7 +16,7 @@
           { "path": "dist/velopack/releases.win.json", "label": "Command update feed" },
           { "path": "dist/velopack/assets.win.json", "label": "Command update assets" },
           { "path": "dist/velopack/RELEASES", "label": "Command release manifest" },
-          { "path": "dist/DroidDeck.apk", "label": "App Android (.apk)" }
+          { "path": "dist/Command.apk", "label": "App Android (.apk)" }
         ]
       }
     ],
