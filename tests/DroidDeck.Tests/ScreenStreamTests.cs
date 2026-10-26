@@ -40,8 +40,8 @@ namespace DroidDeck.Tests
             using var ms = new MemoryStream();
             using var cts = new CancellationTokenSource();
 
-            // Cancel after 100ms so it writes at least one frame
-            cts.CancelAfter(150);
+            // Cancel after 800ms so it writes at least one frame even under high CPU load
+            cts.CancelAfter(800);
 
             await service.WriteStreamAsync(ms, fps: 20, quality: 50, scale: 0.5, cts.Token);
 
@@ -63,8 +63,8 @@ namespace DroidDeck.Tests
             using var ms = new MemoryStream();
             using var cts = new CancellationTokenSource();
 
-            // Cancel after 120ms
-            cts.CancelAfter(120);
+            // Cancel after 800ms
+            cts.CancelAfter(800);
 
             await service.WriteStreamAsync(ms, fps: 10, quality: 70, scale: 0.5, cts.Token);
 

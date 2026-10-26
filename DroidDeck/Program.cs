@@ -71,6 +71,19 @@ namespace DroidDeck
                 return;
             }
 
+            if (args.Contains("--check-migration"))
+            {
+                RunCheckMigration();
+                return;
+            }
+
+            if (args.Contains("--migrate-legacy"))
+            {
+                bool confirm = args.Contains("--confirm");
+                RunMigrateLegacy(confirm);
+                return;
+            }
+
             if (args.Contains("--headless") || args.Contains("--no-tray"))
             {
                 RunWebAppAsync(args, CancellationToken.None).GetAwaiter().GetResult();
@@ -357,6 +370,49 @@ namespace DroidDeck
         {
             var host = CreateHostBuilder(args).Build();
             await host.RunAsync(token);
+        }
+
+        private static void RunCheckMigration()
+        {
+            var service = new Services.LegacyDataMigrationService(
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<Services.LegacyDataMigrationService>.Instance);
+            var plan = service.BuildPlan();
+            Console.WriteLine($"[Migration Plan] HasLegacyData: {plan.HasLegacyData}");
+            Console.WriteLine($"  Legacy Roaming: {plan.LegacyRoamingPath}");
+            Console.WriteLine($"  Legacy Local:   {plan.LegacyLocalPath}");
+            Console.WriteLine($"  Target Roaming: {plan.TargetRoamingPath}");
+            Console.WriteLine($"  Target Local:   {plan.TargetLocalPath}");
+            Console.WriteLine($"  Candidate Count: {plan.Candidates.Count}");
+            foreach (var item in plan.Candidates)
+            {
+                Console.WriteLine($"    [{item.ItemType}] {item.RelativePath} ({item.SizeBytes} B) - TargetExists: {item.TargetExists}");
+            }
+            Environment.ExitCode = 0;
+        }
+
+        private static void RunMigrateLegacy(bool confirm)
+        {
+            if (!confirm)
+            {
+                Console.Error.WriteLine("[ERRO] A migração de dados legados requer o parâmetro --confirm para confirmação explícita.");
+                Environment.ExitCode = 1;
+                return;
+            }
+
+            var service = new Services.LegacyDataMigrationService(
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<Services.LegacyDataMigrationService>.Instance);
+            var result = service.ExecuteMigrationAsync(explicitConsent: true).GetAwaiter().GetResult();
+            Console.WriteLine($"[Migration Result] Success: {result.Success}");
+            Console.WriteLine($"  Migrated: {result.MigratedCount}");
+            Console.WriteLine($"  Skipped:  {result.SkippedCount}");
+            Console.WriteLine($"  Failed:   {result.FailedCount}");
+            if (!result.Success)
+            {
+                Console.Error.WriteLine($"  Error: {result.ErrorMessage}");
+                Environment.ExitCode = 2;
+                return;
+            }
+            Environment.ExitCode = 0;
         }
     }
 }

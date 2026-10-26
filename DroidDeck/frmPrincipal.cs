@@ -88,12 +88,59 @@ namespace DroidDeck
             SetAutoStart(true);
             _autoStartItem.Checked = true;
 
+            PromptLegacyMigrationIfAvailable(showWhenNoData: false);
+
             if (Lib.FirewallSetup.RulesExist()) return;
             var answer = MessageBox.Show(
                 L.Ui("Para o celular encontrar e conectar no Command, o Firewall do Windows precisa liberar as portas {tcp} (TCP) e {udp} (UDP), só para a sua rede local.\n\nLiberar agora? O Windows vai pedir permissão de administrador.",
                     ("tcp", Lib.PairingInfo.Port), ("udp", Lib.FirewallSetup.DiscoveryPort)),
                 "Command", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (answer == DialogResult.Yes) AllowFirewall();
+        }
+
+        private void PromptLegacyMigrationIfAvailable(bool showWhenNoData)
+        {
+            try
+            {
+                var migrationService = new Services.LegacyDataMigrationService(
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger<Services.LegacyDataMigrationService>.Instance);
+                var plan = migrationService.BuildPlan();
+                if (!plan.HasLegacyData)
+                {
+                    if (showWhenNoData)
+                    {
+                        MessageBox.Show(
+                            L.Ui("Nenhum dado ou perfil do DroidDeck legado foi encontrado neste computador."),
+                            "Command - Migração de Dados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    return;
+                }
+
+                var answer = MessageBox.Show(
+                    L.Ui("Foram encontrados dados de perfis e configurações do DroidDeck legado no seu computador ({count} arquivo(s)).\n\nDeseja migrar esses dados com segurança para o Command?\n\nOs arquivos originais serão preservados intactos.", ("count", plan.Candidates.Count.ToString())),
+                    "Command - Migração de Dados", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (answer == DialogResult.Yes)
+                {
+                    var result = migrationService.ExecuteMigrationAsync(explicitConsent: true).GetAwaiter().GetResult();
+                    if (result.Success)
+                    {
+                        ntiTray.ShowBalloonTip(5000, "Command",
+                            L.Ui("Migração concluída com sucesso ({migrated} arquivo(s) migrado(s)).", ("migrated", result.MigratedCount.ToString())),
+                            ToolTipIcon.Info);
+                    }
+                    else
+                    {
+                        ntiTray.ShowBalloonTip(5000, "Command",
+                            L.Ui("A migração teve {failed} falha(s). Os dados originais foram mantidos intactos.", ("failed", result.FailedCount.ToString())),
+                            ToolTipIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Lib.Log.Warning($"Erro ao verificar dados legados para migração: {ex.Message}");
+            }
         }
 
         private void AllowFirewall()
@@ -182,6 +229,9 @@ namespace DroidDeck
             };
             _firewallItem.Click += (_, _) => AllowFirewall();
 
+            var migrateItem = new ToolStripMenuItem(L.Ui("Migrar dados do DroidDeck…"));
+            migrateItem.Click += (_, _) => PromptLegacyMigrationIfAvailable(showWhenNoData: true);
+
             // O piloto não consulta um feed privado. Builds de desenvolvimento abrem a página Command.
             var version = Program.Updater.CurrentVersion;
             var versionItem = new ToolStripMenuItem(version != null
@@ -208,6 +258,7 @@ namespace DroidDeck
             menu.Items.Add(_endRemoteControlItem);
             menu.Items.Add(_autoStartItem);
             menu.Items.Add(_firewallItem);
+            menu.Items.Add(migrateItem);
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add(versionItem);
             menu.Items.Add(_updateItem);
