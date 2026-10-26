@@ -1,5 +1,5 @@
 import 'package:droiddeck/src/connection/constants.dart';
-import 'package:droiddeck/src/services/server_discovery_service.dart';
+import 'package:droiddeck/src/services/mdns_discovery_service.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/config/integrations_page.dart';
@@ -26,6 +26,7 @@ class ConfigPage extends StatefulWidget {
 class ConfigPageState extends State<ConfigPage> {
   final _ipController = TextEditingController();
   bool _isLoading = false;
+  List<DiscoveredCommandDevice> _discoveredDevices = [];
 
   @override
   void initState() {
@@ -173,28 +174,38 @@ class ConfigPageState extends State<ConfigPage> {
   Future<void> _findServer() async {
     setState(() => _isLoading = true);
     try {
-      final discovery = ServerDiscoveryService();
-      final result = await discovery.findServers('255.255.255.255', 5);
-      if (result != 'Not Found') {
-        _ipController.text = result;
+      final discovery = MdnsDiscoveryService();
+      final devices = await discovery.discoverDevices(timeout: const Duration(seconds: 3));
+      if (!mounted) return;
+      setState(() {
+        _discoveredDevices = devices;
+      });
+
+      if (devices.isNotEmpty) {
+        final first = devices.first;
+        _ipController.text = first.ip;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              tr('Servidor encontrado: {server}', {'server': result}),
+              tr('Encontrado: {server} ({ip})', {'server': first.name, 'ip': first.ip}),
             ),
           ),
         );
       } else {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(tr('Servidor não encontrado'))));
+        ).showSnackBar(SnackBar(content: Text(tr('Nenhum PC Command encontrado na rede'))));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr('Erro: {error}', {'error': e}))),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('Erro: {error}', {'error': e}))),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -393,6 +404,36 @@ class ConfigPageState extends State<ConfigPage> {
                   hintText: '192.168.x.x',
                 ),
               ),
+              if (_discoveredDevices.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    tr('PCs Encontrados na Rede (mDNS)'),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                for (final dev in _discoveredDevices)
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.computer, color: Color(0xFFA78BFA)),
+                      title: Text(dev.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('${dev.ip}:${dev.port}'),
+                      trailing: TextButton(
+                        onPressed: () {
+                          _ipController.text = dev.ip;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(tr('IP preenchido: {ip}', {'ip': dev.ip}))),
+                          );
+                        },
+                        child: Text(tr('Usar')),
+                      ),
+                    ),
+                  ),
+              ],
               const SizedBox(height: 16),
               _isLoading
                   ? const CircularProgressIndicator()

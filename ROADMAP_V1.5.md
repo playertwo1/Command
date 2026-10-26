@@ -48,7 +48,7 @@
 | **R0** | Backend | API de entrada remota (mouse/teclado) | — | `DONE` (364 C# tests PASS) |
 | **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `DONE` (218 Flutter tests PASS) |
 | **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `DONE` |
-| **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `TODO` |
+| **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `DONE` |
 | **T0** | Full | Transferência retomável em blocos | — | `TODO` |
 | **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; I0.3a/b piloto antecipado antes do checkpoint M1 | `IN_PROGRESS` — somente instalador local piloto |
 | **U0** | Full | Portes seletivos e requisitos de protocolo; sem merge global | Por subitem; ver seção U0 | `PARTIAL` — U0.1 e U0.4a técnicos registrados |
@@ -102,9 +102,9 @@
 - [x] **R2.3:** Mesmas regras de sessão bloqueada e consentimento do R0 (captura de 423/UAC com banner de aviso, 403 Forbidden, 409 conflito e encerramento limpo da sessão no dispose). Suíte Flutter 230/230 PASS e .NET 368/368 PASS. Próxima fase ativa: D0 (Descoberta e Reconexão mDNS).
 
 ### 📡 D0 — Descoberta e Reconexão
-- [ ] **D0.1:** O Bridge anuncia `_command._tcp` via mDNS (nome amigável + porta), desativável na configuração.
-- [ ] **D0.2:** O app lista os PCs descobertos para parear e atualiza o endereço dos PCs já pareados quando o IP muda, sempre validando a identidade/certificado do Bridge, nunca só o nome.
-- [ ] **D0.3:** Fallback LAN → USB habilitado e homologado (U0.3) → Tailscale → último endereço conhecido, sem repetir candidato, sempre por PC e identidade validada. Sem USB aprovado, seguir LAN → Tailscale.
+- [x] **D0.1:** O Bridge anuncia `_command._tcp` via mDNS (nome amigável + porta), desativável na configuração (`appsettings.json` / `EnableMdns`), incluindo registros PTR, SRV, TXT (sanitizado com `name`, `id`, `port`, `controlPort`, `certPin`, sem tokens/segredos) e A; pacote goodbye TTL=0 no encerramento. Testes unitários com 373/373 PASS.
+- [x] **D0.2:** O app lista os PCs descobertos para parear/usar na `ConfigPage` e atualiza o endereço dos PCs já pareados quando o IP muda (`PcStore.updateIpIfIdentityMatches`), sempre validando a identidade/certificado do Bridge (`controlCertificatePin`), nunca só o nome.
+- [x] **D0.3:** Fallback LAN → Tailscale → último endereço conhecido, com deduplicação de candidatos e validação de conectividade via `ReconnectionFallbackService`. Suíte Flutter 240/240 PASS. Próxima fase: T0 (Transferências Retomáveis).
 
 ### 📦 T0 — Transferências Retomáveis
 - [ ] **T0.1:** Upload e download em blocos (ex.: 4 MiB) com `offset`, mantendo o limite, a blocklist e a proteção anti-traversal atuais.

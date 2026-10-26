@@ -201,6 +201,17 @@ namespace DroidDeck
                             {
                                 Console.WriteLine("[Discovery] Serviço desativado (config).");
                             }
+
+                            var enableMdns = cfg["EnableMdns"];
+                            if (string.IsNullOrEmpty(enableMdns) || enableMdns.ToLowerInvariant() != "false")
+                            {
+                                services.AddHostedService<DroidDeck.Lib.Mdns.MdnsDiscoveryServer>();
+                                Console.WriteLine("[mDNS] Serviço registrado.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("[mDNS] Serviço desativado (config).");
+                            }
                         }
                         catch (Exception ex)
                         {

@@ -246,6 +246,42 @@ class PcStore {
     return true;
   }
 
+  /// Atualiza o endereço IP de um PC pareado quando o DHCP altera o IP na rede local (D0.2).
+  /// Exige validação estrita de identidade: o [certPin] do anúncio deve coincidir com
+  /// [controlCertificatePin] do perfil salvo; se o perfil não tiver pin (pareamento antigo)
+  /// ou o pin divergir, a alteração é sumariamente rejeitada para impedir sequestro de perfil.
+  static Future<bool> updateIpIfIdentityMatches({
+    required String pcId,
+    required String newIp,
+    required String? certPin,
+  }) async {
+    if (newIp.isEmpty || certPin == null || certPin.isEmpty) return false;
+
+    final list = await load();
+    final index = list.indexWhere((pc) => pc.id == pcId);
+    if (index < 0) return false;
+
+    final targetPc = list[index];
+
+    // Validação estrita: exige correspondência criptográfica da identidade
+    if (targetPc.controlCertificatePin == null ||
+        targetPc.controlCertificatePin!.toLowerCase() != certPin.toLowerCase()) {
+      return false;
+    }
+
+    if (targetPc.ip == newIp) return true; // já está atualizado
+
+    list[index] = targetPc.copyWith(ip: newIp);
+    await _save(list);
+
+    final prefs = await SharedPreferences.getInstance();
+    if (currentId == pcId) {
+      await prefs.setString(Constants.ipAddrKey, newIp);
+    }
+
+    return true;
+  }
+
   /// Passa a usar este PC: grava nas chaves de conexão que o app lê ao abrir.
   static Future<void> select(SavedPc pc) async {
     final prefs = await SharedPreferences.getInstance();
