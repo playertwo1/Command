@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:droiddeck/src/connection/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,9 @@ class SavedPc {
   final String ip;
   final String port;
   final String? apiKey;
+  final String? controlDeviceId;
+  final String? controlCertificatePin;
+  final String? controlCredential;
   final DateTime? lastConnectedAt;
 
   const SavedPc({
@@ -18,6 +22,9 @@ class SavedPc {
     required this.ip,
     required this.port,
     this.apiKey,
+    this.controlDeviceId,
+    this.controlCertificatePin,
+    this.controlCredential,
     this.lastConnectedAt,
   });
 
@@ -29,37 +36,47 @@ class SavedPc {
     String? ip,
     String? port,
     String? apiKey,
+    String? controlDeviceId,
+    String? controlCertificatePin,
+    String? controlCredential,
     DateTime? lastConnectedAt,
-  }) =>
-      SavedPc(
-        id: id,
-        name: name ?? this.name,
-        ip: ip ?? this.ip,
-        port: port ?? this.port,
-        apiKey: apiKey ?? this.apiKey,
-        lastConnectedAt: lastConnectedAt ?? this.lastConnectedAt,
-      );
+  }) => SavedPc(
+    id: id,
+    name: name ?? this.name,
+    ip: ip ?? this.ip,
+    port: port ?? this.port,
+    apiKey: apiKey ?? this.apiKey,
+    controlDeviceId: controlDeviceId ?? this.controlDeviceId,
+    controlCertificatePin: controlCertificatePin ?? this.controlCertificatePin,
+    controlCredential: controlCredential ?? this.controlCredential,
+    lastConnectedAt: lastConnectedAt ?? this.lastConnectedAt,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'ip': ip,
-        'port': port,
-        'apiKey': apiKey,
-        if (lastConnectedAt != null)
-          'lastConnectedAt': lastConnectedAt!.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'ip': ip,
+    'port': port,
+    'apiKey': apiKey,
+    if (controlDeviceId != null) 'controlDeviceId': controlDeviceId,
+    if (controlCertificatePin != null)
+      'controlCertificatePin': controlCertificatePin,
+    if (lastConnectedAt != null)
+      'lastConnectedAt': lastConnectedAt!.toIso8601String(),
+  };
 
   factory SavedPc.fromJson(Map<String, dynamic> j) => SavedPc(
-        id: '${j['id']}',
-        name: '${j['name'] ?? 'PC'}',
-        ip: '${j['ip']}',
-        port: '${j['port'] ?? Constants.defaultPort}',
-        apiKey: j['apiKey'] as String?,
-        lastConnectedAt: j['lastConnectedAt'] != null
-            ? DateTime.tryParse('${j['lastConnectedAt']}')
-            : null,
-      );
+    id: '${j['id']}',
+    name: '${j['name'] ?? 'PC'}',
+    ip: '${j['ip']}',
+    port: '${j['port'] ?? Constants.defaultPort}',
+    apiKey: j['apiKey'] as String?,
+    controlDeviceId: j['controlDeviceId'] as String?,
+    controlCertificatePin: j['controlCertificatePin'] as String?,
+    lastConnectedAt: j['lastConnectedAt'] != null
+        ? DateTime.tryParse('${j['lastConnectedAt']}')
+        : null,
+  );
 }
 
 /// Alias oficial de Perfil de PC (Command v0.2 - S7).
@@ -70,6 +87,9 @@ typedef PcProfile = SavedPc;
 class PcStore {
   static const _listKey = 'pcs';
   static const _currentKey = 'pc_current';
+  static const _secureStorage = FlutterSecureStorage();
+  static String _controlCredentialKey(String pcId) =>
+      'command_control_credential_$pcId';
 
   /// Id do PC em uso, carregado na abertura do app ([load]).
   static String? currentId;
@@ -99,9 +119,17 @@ class PcStore {
         }
       }
     }
-    currentId = prefs.getString(_currentKey) ??
+    currentId =
+        prefs.getString(_currentKey) ??
         (list.isNotEmpty ? list.first.id : null);
-    return list;
+    return [
+      for (final pc in list)
+        pc.copyWith(
+          controlCredential: await _secureStorage.read(
+            key: _controlCredentialKey(pc.id),
+          ),
+        ),
+    ];
   }
 
   static Future<SavedPc?> current() async {
@@ -129,6 +157,9 @@ class PcStore {
         ip: ip,
         port: port,
         apiKey: apiKey ?? list[index].apiKey,
+        controlDeviceId: list[index].controlDeviceId,
+        controlCertificatePin: list[index].controlCertificatePin,
+        controlCredential: list[index].controlCredential,
         lastConnectedAt: DateTime.now(),
       );
       list[index] = pc;
@@ -150,13 +181,25 @@ class PcStore {
 
   static Future<void> rename(String id, String name) async {
     final list = await load();
-    await _save([for (final p in list) p.id == id ? p.copyWith(name: name) : p]);
+    await _save([
+      for (final p in list) p.id == id ? p.copyWith(name: name) : p,
+    ]);
   }
 
   static Future<void> remove(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final list = (await load()).where((p) => p.id != id).toList();
-    await _save(list);
+    final credentialKey = _controlCredentialKey(id);
+    final credential = await _secureStorage.read(key: credentialKey);
+    await _secureStorage.delete(key: credentialKey);
+    try {
+      await _save(list);
+    } catch (_) {
+      if (credential != null) {
+        await _secureStorage.write(key: credentialKey, value: credential);
+      }
+      rethrow;
+    }
     await prefs.remove(scoped('deck_cache', id));
     await prefs.remove(scoped('deck_last_profile', id));
     if (currentId == id) {
@@ -169,6 +212,38 @@ class PcStore {
         await prefs.remove(Constants.apiKeyKey);
       }
     }
+  }
+
+  /// Stores the control credential only in Android/system secure storage.
+  static Future<bool> setControlCredential({
+    required String pcId,
+    required String deviceId,
+    required String certificatePin,
+    required String credential,
+  }) async {
+    final list = await load();
+    final index = list.indexWhere((pc) => pc.id == pcId);
+    if (index < 0) return false;
+
+    final key = _controlCredentialKey(pcId);
+    final previous = await _secureStorage.read(key: key);
+    await _secureStorage.write(key: key, value: credential);
+    list[index] = list[index].copyWith(
+      controlDeviceId: deviceId,
+      controlCertificatePin: certificatePin,
+      controlCredential: credential,
+    );
+    try {
+      await _save(list);
+    } catch (_) {
+      if (previous == null) {
+        await _secureStorage.delete(key: key);
+      } else {
+        await _secureStorage.write(key: key, value: previous);
+      }
+      rethrow;
+    }
+    return true;
   }
 
   /// Passa a usar este PC: grava nas chaves de conexão que o app lê ao abrir.
@@ -188,7 +263,7 @@ class PcStore {
     final now = DateTime.now();
     final updated = [
       for (final p in rawList)
-        p.id == pc.id ? p.copyWith(lastConnectedAt: now) : p
+        p.id == pc.id ? p.copyWith(lastConnectedAt: now) : p,
     ];
     await _save(updated);
   }
@@ -200,7 +275,10 @@ class PcStore {
   }
 
   static Future<void> _save(List<SavedPc> list) async =>
-      (await SharedPreferences.getInstance()).setString(_listKey, _encode(list));
+      (await SharedPreferences.getInstance()).setString(
+        _listKey,
+        _encode(list),
+      );
 
   static String _encode(List<SavedPc> list) =>
       jsonEncode(list.map((p) => p.toJson()).toList());

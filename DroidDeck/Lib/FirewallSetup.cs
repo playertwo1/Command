@@ -17,10 +17,11 @@ namespace DroidDeck.Lib
         public const int DiscoveryPort = 7573;
 
         private static string TcpRule => $"Command (TCP {PairingInfo.Port})";
+        private static string HttpsRule => $"Command control (TCP {PairingInfo.ControlPort})";
         private static string UdpRule => $"Command discovery (UDP {DiscoveryPort})";
 
         /// <summary>As duas regras ja existem? Consultar nao exige administrador.</summary>
-        public static bool RulesExist() => RuleExists(TcpRule) && RuleExists(UdpRule);
+        public static bool RulesExist() => RuleExists(TcpRule) && RuleExists(HttpsRule) && RuleExists(UdpRule);
 
         private static bool RuleExists(string name)
         {
@@ -53,12 +54,13 @@ namespace DroidDeck.Lib
             var commands = string.Join(" & ",
                 Delete(TcpRule), Delete(UdpRule),
                 Add(TcpRule, "TCP", PairingInfo.Port),
+                Delete(HttpsRule), Add(HttpsRule, "TCP", PairingInfo.ControlPort),
                 Add(UdpRule, "UDP", DiscoveryPort));
             return RunElevated(commands);
         }
 
         /// <summary>Remove as regras (desinstalacao). Tambem pede elevacao.</summary>
-        public static bool RemoveRules() => RunElevated(string.Join(" & ", Delete(TcpRule), Delete(UdpRule)));
+        public static bool RemoveRules() => RunElevated(string.Join(" & ", Delete(TcpRule), Delete(HttpsRule), Delete(UdpRule)));
 
         private static string Delete(string name) =>
             $"netsh advfirewall firewall delete rule name=\"{name}\" >nul 2>&1";
@@ -90,6 +92,6 @@ namespace DroidDeck.Lib
         }
 
         private static bool RulesExistAfter(string commands) =>
-            commands.Contains(" add rule") ? RulesExist() : !RuleExists(TcpRule);
+            commands.Contains(" add rule") ? RulesExist() : !RuleExists(TcpRule) && !RuleExists(HttpsRule);
     }
 }

@@ -9,6 +9,8 @@ import 'package:droiddeck/src/connection/pc_connections.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'control_pairing_qr.dart';
+import 'control_pairing_transport.dart';
 import 'qr_scan_page.dart';
 import 'appearance_settings_page.dart';
 import 'health_alert_settings_page.dart';
@@ -257,6 +259,12 @@ class ConfigPageState extends State<ConfigPage> {
     ).push<String>(MaterialPageRoute(builder: (_) => const QrScanPage()));
     if (result == null || !mounted) return;
 
+    final controlQr = ControlPairingQr.tryParse(result);
+    if (controlQr != null) {
+      await _pairRemoteControl(controlQr);
+      return;
+    }
+
     final uri = Uri.tryParse(result);
     final ip = uri?.queryParameters['ip'];
     final port = uri?.queryParameters['port'] ?? Constants.defaultPort;
@@ -268,9 +276,15 @@ class ConfigPageState extends State<ConfigPage> {
         ip.isEmpty ||
         key == null ||
         key.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(tr('Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tr(
+              'Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.',
+            ),
+          ),
+        ),
+      );
       return;
     }
 
@@ -297,6 +311,54 @@ class ConfigPageState extends State<ConfigPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(tr('Pareado com sucesso!'))));
       Navigator.of(context).pushReplacementNamed('/home');
+    }
+  }
+
+  Future<void> _pairRemoteControl(ControlPairingQr qr) async {
+    final matches = (await PcStore.load())
+        .where((pc) => pc.ip == qr.ip)
+        .toList();
+    if (matches.length != 1) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              tr(
+                'Pareie primeiro este PC pelo QR normal e tente o QR de controle novamente.',
+              ),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final credential = await exchangeControlPairingTicket(qr);
+      final stored = await PcStore.setControlCredential(
+        pcId: matches.single.id,
+        deviceId: credential.deviceId,
+        certificatePin: qr.pin,
+        credential: credential.credential,
+      );
+      if (!stored) throw StateError('Saved PC disappeared during pairing.');
+      if (!mounted) return;
+      await _loadIP();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr('Controle remoto autorizado para este PC.'))),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            tr(
+              'Não foi possível autorizar o controle remoto. O QR pode ter expirado ou o certificado não corresponde.',
+            ),
+          ),
+        ),
+      );
     }
   }
 

@@ -42,7 +42,19 @@ namespace DroidDeck
             // garantimos aqui. O usuário ainda pode sobrescrever via variável de ambiente.
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
             {
-                Environment.SetEnvironmentVariable("ASPNETCORE_URLS", $"http://0.0.0.0:{Lib.PairingInfo.Port}");
+                Environment.SetEnvironmentVariable("ASPNETCORE_URLS",
+                    $"http://0.0.0.0:{Lib.PairingInfo.Port};https://0.0.0.0:{Lib.PairingInfo.ControlPort}");
+            }
+            else
+            {
+                var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")!;
+                var hasControlHttps = urls.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(value => Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+                        uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) &&
+                        uri.Port == Lib.PairingInfo.ControlPort);
+                if (!hasControlHttps)
+                    Environment.SetEnvironmentVariable("ASPNETCORE_URLS",
+                        $"{urls.TrimEnd(';')};https://0.0.0.0:{Lib.PairingInfo.ControlPort}");
             }
 
             // Modo headless: sem janela/bandeja, roda apenas o servidor web.
@@ -141,6 +153,8 @@ namespace DroidDeck
                 {
                     webBuilder.UseContentRoot(contentRoot)
                               .UseWebRoot(Path.Combine(contentRoot, "wwwroot"));
+                    webBuilder.ConfigureKestrel(options => options.ConfigureHttpsDefaults(https =>
+                        https.ServerCertificate = Lib.BridgeCertificateProvider.GetCertificate()));
                     webBuilder.ConfigureServices(services =>
                     {
                         // Variáveis de app/versão
@@ -153,7 +167,10 @@ namespace DroidDeck
 
                         // Authentication: API Key
                         services.AddAuthentication("ApiKey")
-                                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, DroidDeck.Auth.ApiKeyAuthenticationHandler>("ApiKey", null);
+                                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, DroidDeck.Auth.ApiKeyAuthenticationHandler>("ApiKey", null)
+                                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, DroidDeck.Auth.PairedDeviceAuthenticationHandler>("PairedDevice", null);
+                        services.AddSingleton(DroidDeck.Auth.ControlPairingTicketStore.Shared);
+                        services.AddSingleton<DroidDeck.Auth.PairedDeviceCredentialStore>();
                         services.AddAuthorization(options =>
                         {
                             // Exige a API key em TODOS os endpoints, exceto os marcados [AllowAnonymous].
