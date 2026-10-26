@@ -126,12 +126,13 @@
 - [x] **I0.3d:** Publicar manifesto de versão e SHA-256 junto ao instalador e zip portátil; documentar assinatura de código existente ou ausente. Preparar `install.ps1` que resolve uma release específica, valida integridade antes de executar e aborta em divergência (`CHECKSUM_MISMATCH`). Sem tokens de repositório privado no script/binário. Teste automatizado de detecção de divergência aprovado.
 - [x] **I0.5:** Desinstalação pelo Windows nativa (Configurações / Painel de Controle) e script assistido `scripts/uninstall.ps1` (atalho `uninstall.ps1` na raiz): remove processos ativos, autostart e regras de firewall; preserva os dados de configuração por padrão (`%AppData%\Command` e `%LocalAppData%\Command`), com opção explícita para apagá-los (`-PurgeData`). Procedimento de recuperação de versão anterior e comportamento do SmartScreen documentados em `docs/INSTALL.md`.
 - **Registro dos pacotes oficiais de release v1.5.0 (2026-10-26):**
+  - Publicada no GitHub: [Command v1.5.0](https://github.com/playertwo1/Command/releases/tag/command-v1.5.0), tag `command-v1.5.0`.
   - `dist/command-installer/1.5.0-local.20261026.x64/Command-Setup.exe` (SHA-256: `522e1d66bbfba576c40f6792a713df7975794c0c1977ec54156b43901e0b6da6`).
   - `dist/command-bridge-v1.5.0-win-x64.zip` (SHA-256: `d6eb550a117d9b49532559199ec896e5da244c5e0da598f1b66e3447be114e4b`).
   - `dist/command-app-v1.5.0.apk` / `dist/Command.apk` (SHA-256: `643f3ee9c4d69f347cb21d3ca36c98421c7035a8d14aae6fbbca235416e00c30`).
   - Assinatura Android release v2 e alinhamento `zipalign -c -v 4` verificados com sucesso.
   - Testes automatizados consolidados: **637 PASS** (390 C# e 247 Flutter); `flutter analyze` exit 0.
-  - Roteiro de homologação física e formulário de evidência estruturados em `docs/evidence/v1.5/H0_HOMOLOGACAO.md`.
+  - Roteiro de homologação física e formulário de evidência estruturados em `docs/HOMOLOGACAO_V1.5.md` (e `docs/evidence/v1.5/H0_HOMOLOGACAO.md`).
 - [ ] **I0.6:** Evidência na segunda máquina física limpa: instalar, abrir tray, parear, reiniciar, atualizar, simular download corrompido/falha de rede e desinstalar. Conferir preservação de dados, coexistência DroidDeck/Command, origem do updater. Não marcar PASS com base apenas na geração do setup. Roteiro pronto em `docs/evidence/v1.5/H0_HOMOLOGACAO.md` aguardando execução física.
 - [ ] **I0.7:** Tornar o repositório público — **somente** após I0.1/I0.2 PASS e confirmação explícita do proprietário no momento da publicação.
 
