@@ -172,11 +172,11 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
   }
 
   /// Trata um gesto: abre pasta (open_profile), volta (back) ou executa a ação.
-  void _handlePress(
+  Future<void> _handlePress(
     DeckButton b,
     List<DeckProfile> profiles, {
     String gesture = 'tap',
-  }) {
+  }) async {
     // Botão de monitor ou de informação sem ação: só mostra, o toque não faz nada.
     if (gesture == 'tap' &&
         (b.dynamicType?.isNotEmpty ?? false) &&
@@ -209,6 +209,19 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     }
     // Dois estados vai ao PC mesmo sem ação: o toque alterna o estado lá.
     if (action == null && !(gesture == 'tap' && b.toggle)) return;
+    if (_needsPowerConfirm(action)) {
+      final ok = await _confirmPower(action!.parameters['operation'] ?? '');
+      if (ok != true || !mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      if (controller.offline.value) {
+        _offlineNotice(messenger);
+        return;
+      }
+      controller.executeButtonAction(b, gesture: gesture, confirmed: true).then((ok) {
+        if (!ok && mounted) _offlineNotice(messenger);
+      });
+      return;
+    }
     final messenger = ScaffoldMessenger.of(context);
     if (controller.offline.value) {
       _offlineNotice(messenger);
@@ -217,6 +230,30 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     controller.executeButtonAction(b, gesture: gesture).then((ok) {
       if (!ok) _offlineNotice(messenger);
     });
+  }
+
+  bool _needsPowerConfirm(DeckAction? action) {
+    if (action == null || action.type != 'windows') return false;
+    final op = action.parameters['operation'];
+    return op == 'shutdown' || op == 'restart';
+  }
+
+  Future<bool> _confirmPower(String operation) async {
+    final restart = operation == 'restart';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(restart ? tr('Reiniciar o PC') : tr('Desligar o PC')),
+        content: Text(restart
+            ? tr('Reiniciar o PC agora?')
+            : tr('Desligar o PC agora?')),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Cancelar'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Confirmar'))),
+        ],
+      ),
+    );
+    return ok == true;
   }
 
   void _offlineNotice(ScaffoldMessengerState messenger) {

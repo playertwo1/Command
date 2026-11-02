@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DroidDeck.Actions.Providers;
 using DroidDeck.Hubs;
 using DroidDeck.Lib;
 using DroidDeck.Models;
@@ -95,8 +96,10 @@ namespace DroidDeck.Controllers
             // Botao de dois estados: o toque alterna e escolhe a acao do estado.
             var tap = string.IsNullOrEmpty(request.Gesture) || request.Gesture.Equals("tap", System.StringComparison.OrdinalIgnoreCase);
             var action = button.Toggle && tap ? _toggles.Press(button) : button.ActionFor(request.Gesture);
+            if (WindowsProvider.NeedsConfirmation(action) && request.Confirmed != true)
+                return StatusCode(409, new { errorCode = "CONFIRMATION_REQUIRED", error = L.T("Confirmação explícita obrigatória.") });
             if (action != null)
-                await _executorService.ExecuteActionAsync(action, button.Id);
+                await _executorService.ExecuteActionAsync(action, button.Id, request.Confirmed);
             return Ok();
         }
 
@@ -108,12 +111,15 @@ namespace DroidDeck.Controllers
         public async Task<ActionResult> ExecuteAction([FromBody] DeckAction action)
         {
             if (action == null) return BadRequest();
+            var confirmed = string.Equals(Request.Headers["X-Confirmed"], "true", System.StringComparison.OrdinalIgnoreCase);
+            if (WindowsProvider.NeedsConfirmation(action) && !confirmed)
+                return StatusCode(409, new { errorCode = "CONFIRMATION_REQUIRED", error = L.T("Confirmação explícita obrigatória.") });
             if (!IsLocalRequest && ActionPolicy.IsPrivileged(action))
             {
                 _logger.LogWarning("Execute remoto recusado: acao privilegiada {Type}", action.Type);
                 return PrivilegedOnlyOnPc(null);
             }
-            await _executorService.ExecuteActionAsync(action);
+            await _executorService.ExecuteActionAsync(action, confirmed: confirmed);
             return Ok();
         }
 
@@ -152,5 +158,8 @@ namespace DroidDeck.Controllers
 
         /// <summary>"tap" (padrao), "longPress" ou "doubleTap".</summary>
         public string? Gesture { get; set; }
+
+        /// <summary>Obrigatorio para desligar ou reiniciar. Nao fica gravado no botao.</summary>
+        public bool Confirmed { get; set; }
     }
 }

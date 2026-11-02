@@ -101,7 +101,7 @@ class StreamDeckController {
   /// Executa a ação de um gesto ('tap', 'longPress', 'doubleTap'). Devolve false se o
   /// PC não respondeu, para a tela avisar.
   Future<bool> executeButtonAction(DeckButton button,
-      {String gesture = 'tap'}) async {
+      {String gesture = 'tap', bool confirmed = false}) async {
     // Botão de dois estados vai ao PC mesmo sem ação: o toque alterna o estado lá.
     final toggles = gesture == 'tap' && button.toggle;
     if (button.actionFor(gesture) == null && !toggles) return true;
@@ -117,7 +117,7 @@ class StreamDeckController {
     if (owner == null) return true;
 
     try {
-      await _client.pressButton(owner.id, button.id, gesture: gesture);
+      await _client.pressButton(owner.id, button.id, gesture: gesture, confirmed: confirmed);
       return true;
     } catch (e) {
       debugPrint('Error executing action: $e');

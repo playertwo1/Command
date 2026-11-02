@@ -61,6 +61,41 @@ namespace DroidDeck.Services
                 Executable = "notepad.exe",
                 ProcessName = "notepad"
             };
+
+            RegisterStoreApp("claude", "Claude", "App Claude", "launch",
+                @"shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude", "Claude");
+            RegisterStoreApp("codex", "Codex", "App Codex", "code",
+                @"shell:AppsFolder\OpenAI.Codex_2p2nqsd0c76g0!App", "ChatGPT");
+
+            var antigravity = ResolveAntigravityPath();
+            if (antigravity != null)
+            {
+                _allowedApps["antigravity"] = new AppCatalogItem
+                {
+                    Id = "antigravity",
+                    Name = "Antigravity",
+                    Description = "Antigravity",
+                    Icon = "code",
+                    CanKill = false,
+                    Executable = antigravity,
+                    ProcessName = "Antigravity"
+                };
+            }
+        }
+
+        private void RegisterStoreApp(string id, string name, string description, string icon, string appsFolder, string processName)
+        {
+            _allowedApps[id] = new AppCatalogItem
+            {
+                Id = id,
+                Name = name,
+                Description = description,
+                Icon = icon,
+                CanKill = false,
+                Executable = "explorer.exe",
+                Arguments = appsFolder,
+                ProcessName = processName
+            };
         }
 
         private static string? ResolveObsidianPath()
@@ -71,6 +106,21 @@ namespace DroidDeck.Services
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Obsidian\Obsidian.exe")
             };
 
+            foreach (var p in possiblePaths)
+            {
+                if (File.Exists(p)) return p;
+            }
+            return null;
+        }
+
+        private static string? ResolveAntigravityPath()
+        {
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string[] possiblePaths =
+            {
+                Path.Combine(local, @"Programs\antigravity\Antigravity.exe"),
+                Path.Combine(local, @"Programs\Antigravity IDE\Antigravity IDE.exe"),
+            };
             foreach (var p in possiblePaths)
             {
                 if (File.Exists(p)) return p;

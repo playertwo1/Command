@@ -65,6 +65,7 @@ namespace DroidDeck
             services.AddSingleton<IActionProvider, ObsProvider>();
             services.AddSingleton<IActionProvider, SoundboardProvider>();
             services.AddSingleton<IActionProvider, TuyaProvider>();
+            services.AddSingleton<IActionProvider, CatalogAppProvider>();
             services.AddSingleton<IActionProvider, WindowsProvider>();
             services.AddSingleton<IActionProvider, HttpProvider>();
             services.AddSingleton<IActionProvider, TimerProvider>();

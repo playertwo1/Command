@@ -54,6 +54,9 @@ namespace DroidDeck.Actions
         /// <summary>Id do botao apertado. Nulo em /execute avulso.</summary>
         public string? ButtonId { get; }
 
+        /// <summary>Pedido atual confirmou uma acao destrutiva. Nao vem do botao salvo.</summary>
+        public bool Confirmed { get; set; }
+
         public IDictionary<string, string> Parameters => Action.Parameters;
 
         public string Get(string key, string fallback = "") =>

@@ -91,6 +91,32 @@ namespace DroidDeck.Actions.Providers
         }
     }
 
+    /// <summary>Abre um id da allowlist. Sem caminho livre, entao o celular pode criar o botao.</summary>
+    public class CatalogAppProvider : IActionProvider
+    {
+        private readonly IAppCatalogService _catalog;
+
+        public CatalogAppProvider(IAppCatalogService catalog) => _catalog = catalog;
+
+        public string Type => "catalog_app";
+
+        public ActionSchema Describe() => new()
+        {
+            Type = Type,
+            Title = "Abrir app",
+            Icon = "launch",
+            Category = "Sistema",
+            Description = "Abre um aplicativo da lista autorizada.",
+            Fields = { ActionField.Dynamic("appId", "Aplicativo", "/api/apps") },
+        };
+
+        public Task ExecuteAsync(ActionContext c)
+        {
+            var id = c.Get("appId");
+            return id.Length == 0 ? Task.CompletedTask : _catalog.LaunchAsync(id);
+        }
+    }
+
     /// <summary>
     /// Acoes que so o app executa (navegar entre perfis). Ficam no schema para aparecerem no
     /// seletor de tipo; se chegarem ao servidor, nao ha o que fazer.

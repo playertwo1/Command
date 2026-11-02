@@ -47,7 +47,7 @@ namespace DroidDeck.Services
         }).ToList();
 
         /// <param name="buttonId">Botao que disparou a acao (nulo em /execute avulso).</param>
-        public async Task ExecuteActionAsync(DeckAction action, string? buttonId = null)
+        public async Task ExecuteActionAsync(DeckAction action, string? buttonId = null, bool confirmed = false)
         {
             var provider = Find(action.Type);
             if (provider == null)
@@ -59,7 +59,10 @@ namespace DroidDeck.Services
             try
             {
                 _logger.LogInformation("Executing action type: {Type}", action.Type);
-                await provider.ExecuteAsync(new ActionContext(action, buttonId, ExecuteActionAsync));
+                await provider.ExecuteAsync(new ActionContext(action, buttonId, (next, id) => ExecuteActionAsync(next, id, confirmed))
+                {
+                    Confirmed = confirmed,
+                });
             }
             catch (Exception ex)
             {

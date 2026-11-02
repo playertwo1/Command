@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DroidDeckAppConfig(
-      title: 'DroidDeck',
+      title: 'Command',
       bindings: AppBinding(),
       pageBuilders: [
         FlutterGetItPageBuilder(

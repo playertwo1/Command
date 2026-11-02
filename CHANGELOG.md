@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.6.0] — 2026-11-02 (Identidade Visual Oficial Android, Ícones Adaptativos e Ações Expandidas)
+- **Identidade Visual e Nome Oficial no Android:**
+  - Configurado `android:label` e `@string/app_name` como **"Command"** no manifesto Android (`AndroidManifest.xml` e `strings.xml`), eliminando a exibição residual do protótipo no instalador de pacotes do sistema.
+  - Implementação completa de ícones adaptativos nativos (`mipmap-anydpi-v26/ic_launcher.xml`) com background `#13101B` e safe zone centralizada de 72dp compatível com launchers modernas (Samsung One UI, Google Pixel, etc.).
+  - Geração de ícones legados e redondos em todas as densidades (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+  - Atualização do título raiz, splash page, welcome page e manifesto PWA Web (`manifest.json`) com tema e paleta ametista.
+- **Expansão de Ações do PC e Internacionalização:**
+  - `CatalogAppProvider`: abertura de aplicativos catalogados por ID tipado.
+  - Controles de energia do Windows: desligamento (`shutdown`), reinicialização (`restart`) e alteração de perfil de energia (`setPowerMode`: economia, equilibrado, desempenho).
+  - Dicionários de localização em inglês (`Localization.en.cs`) e português atualizados.
+- **Validação e Homologação:**
+  - 399/399 testes C# aprovados (`dotnet test`).
+  - 247/247 testes Flutter aprovados (`flutter test`), 0 erros e 0 avisos em `flutter analyze`.
+
+## [1.5.0] — 2026-10-26 (Multi-PC Simultâneo, Entrada Remota e Resiliência — Onda v1.5)
+- **Multi-PC Simultâneo e Painel Reativo (M0 & M1):**
+  - Conexões SignalR paralelas para até 2 PCs simultâneos com telemetria em tempo real (CPU, RAM, Uptime e RTT).
+- **Entrada Remota, Trackpad e Teclado Virtual (R0 & R1):**
+  - API tipada `/api/v1/input`, trackpad multitouch e teclado virtual com bloqueio nativo em UAC/Lock (`423 Locked`).
+- **Prévia ao Vivo e Toque-para-Clicar (R2):**
+  - Streaming MJPEG e mapeamento de coordenadas relativas da tela do PC.
+- **Descoberta mDNS e Transferências Retomáveis em Blocos de 4 MiB (D0 & T0):**
+  - Anúncio `_command._tcp.local`, reconexão em cascata e transferência de arquivos em blocos de 4 MiB com integridade SHA-256.
+- **Instalador Velopack e Migração DPAPI (I0):**
+  - Instalador `Command-Setup.exe` na sessão do usuário e migração transparente de dados legados.
+
 ## [1.1.0] — 2026-10-18 (Correção do Configurador Web Local e Empacotamento `wwwroot`)
 - **Correção de `401 Unauthorized` ao acessar `http://localhost:4787/`:**
   - **Causa raiz:** Na distribuição `v1.0.0`, o diretório `wwwroot/` (contendo o build do configurador web em Flutter) não havia sido incluído no pacote publicado. Sem `wwwroot/index.html`, o `StaticFileMiddleware` não interceptava a rota `/` e a requisição caía no `FallbackPolicy` de autorização da API (`RequireAuthenticatedUser` via `X-API-KEY`), retornando `401 Unauthorized`.

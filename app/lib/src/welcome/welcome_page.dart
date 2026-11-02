@@ -12,7 +12,7 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   static String get _shareText =>
-      tr('Baixe o DroidDeck para Windows: {url}', {'url': Constants.siteUrl});
+      tr('Baixe o Command para Windows: {url}', {'url': Constants.siteUrl});
 
   void _goToPairing(BuildContext context) {
     // Aberta a partir da configuração, só volta; no primeiro uso, segue para ela.
@@ -60,15 +60,15 @@ class WelcomePage extends StatelessWidget {
               Image.asset('assets/images/logo.png', height: 88),
               const SizedBox(height: 24),
               Text(
-                tr('Bem-vindo ao DroidDeck'),
+                tr('Bem-vindo ao Command'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Text(
-                tr('Este celular vira um painel de botões para o seu PC. Para '
-                    'funcionar, ele precisa do programa DroidDeck rodando no '
+                tr('Este celular vira um painel de controle e telemetria para o seu PC. Para '
+                    'funcionar, ele precisa do Command rodando no '
                     'computador (Windows 10 ou 11).'),
                 textAlign: TextAlign.center,
                 style: muted,
@@ -76,7 +76,7 @@ class WelcomePage extends StatelessWidget {
               const SizedBox(height: 28),
               _Step(
                 number: 1,
-                title: tr('No PC, baixe o DroidDeck'),
+                title: tr('No PC, baixe o Command'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -116,9 +116,9 @@ class WelcomePage extends StatelessWidget {
               ),
               _Step(
                 number: 2,
-                title: tr('Abra o DroidDeck.exe'),
+                title: tr('Abra o Command'),
                 child: Text(
-                  tr('Descompacte o arquivo e abra o DroidDeck.exe. Ele não abre '
+                  tr('Execute o Command-Setup.exe ou abra o Command. Ele não abre '
                       'janela: fica como um ícone na bandeja, perto do relógio.'),
                   style: muted,
                 ),
@@ -127,7 +127,7 @@ class WelcomePage extends StatelessWidget {
                 number: 3,
                 title: tr('Pareie este celular'),
                 child: Text(
-                  tr('Clique com o botão direito no ícone do DroidDeck → '
+                  tr('Clique com o botão direito no ícone do Command → '
                       '"Parear dispositivo (QR)" e escaneie o código aqui no app. '
                       'Celular e PC precisam estar na mesma rede Wi-Fi.'),
                   style: muted,

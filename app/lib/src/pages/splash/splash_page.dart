@@ -82,7 +82,7 @@ class SplashPageState extends State<SplashPage> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'DroidDeck',
+              'Command',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w800,

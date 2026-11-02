@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Command</string>
     <string name="shortcut_status_pc">Status do PC</string>
     <string name="shortcut_status_pc_long">Ver telemetria e status do PC</string>
     <string name="shortcut_capture_screen">Capturar Tela</string>

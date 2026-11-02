@@ -349,10 +349,15 @@ class DroidDeckClient {
   /// Aperta um botão salvo: o PC lê a ação do perfil. É o caminho do deck — o
   /// /execute com ação avulsa recusa (403), de fora do PC, ações que rodam código.
   Future<void> pressButton(String profileId, String buttonId,
-      {String gesture = 'tap'}) async {
+      {String gesture = 'tap', bool confirmed = false}) async {
     await _dio.post(
       '/api/StreamDeck/press',
-      data: {'profileId': profileId, 'buttonId': buttonId, 'gesture': gesture},
+      data: {
+        'profileId': profileId,
+        'buttonId': buttonId,
+        'gesture': gesture,
+        'confirmed': confirmed,
+      },
     );
   }
 
