@@ -34,22 +34,29 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 🎧 Spotify, Twitch e YouTube com status ao vivo.
   - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
   - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
-- **Extensões Command (v1.1.2 — piloto Multi-PC):**
-  - 📊 Telemetria detalhada de hardware (CPU, Memória RAM, Discos, Uptime, GPU, Bateria e Temperatura).
-  - 🖥️ Dois PCs conectados simultaneamente, com estado, CPU/RAM e seleção visível do PC-alvo.
-  - 🎯 Aplicativos, rotinas, energia e transferências direcionados ao PC selecionado.
-  - 🎨 Tema visual Command Amethyst Dark (`#050408`, `#161424`, `#A78BFA`) e cartões de status do sistema.
-  - 🌐 Configurador Web Flutter integrado em `wwwroot/` (servido em `http://localhost:4787` com resolução explícita de `WebRootPath` e auto-autenticação via loopback).
-  - 🛡️ Permissões granulares por dispositivo (`ViewerOnly` vs `FullControl`) e guardião de PIN/Biometria.
-  - 🔐 Backup e restauração criptografada AES-256-GCM + PBKDF2-SHA256 (100.000 iterações).
-  - 🔄 Verificação de atualização e integridade de pacotes via SHA-256 (Velopack ready).
-  - ⚡ Controle de energia remoto seguro (Wake-on-LAN, Bloqueio de Sessão e Suspensão).
-  - 🔄 Rotinas encadeadas determinísticas de automação e Modo Dock contínuo.
-  - ⚡ Comandos locais determinísticos com confirmação explícita e alvos tipados.
+- **Extensões Command (release 1.6.1):**
+  - 📊 Telemetria de CPU, RAM, disco, GPU, bateria e temperatura. Se o LibreHardwareMonitor não ler o sensor, a CPU cai para a zona ACPI e a GPU para o driver NVIDIA ou AMD, sem pedir administrador.
+  - 🌡️ No card dos dois PCs, a temperatura fica verde até 60°C, âmbar até 80°C e vermelha acima. Acima de 85°C o card avisa.
+  - 🖥️ Dois PCs ao mesmo tempo, com o PC-alvo escolhido no cartão.
+  - 🖱️ Trackpad, teclado e prévia da tela em resolução cheia.
+  - 🎛️ Stream Deck com cor HEX, ícone PNG/SVG/GIF, grade de 2×2 a 8×6, fundo e widgets de CPU, RAM, GPU, temperatura e mídia.
+  - ⚡ Bloquear, suspender, desligar e reiniciar, sempre com confirmação. Wake-on-LAN e Modo Dock continuam no mesmo card.
+  - 🔄 Rotinas editáveis, com atalhos da lista fechada, mídia, pausa e apps do catálogo.
+  - 🎨 Tema Amethyst (`#13101B`, `#1E1829`, `#A78BFA`).
+  - 🌐 Configurador web em `http://localhost:4787`.
+  - 🛡️ Papel por dispositivo e guardião de PIN/biometria.
+  - 🔐 Backup AES-256-GCM e pacotes conferidos por SHA-256.
 
-### 📱 APK Android 1.1.2 — piloto M1
+### Baixar a 1.6.1
 
-O APK e o guia Multi-PC estão na [prerelease privada v1.1.2](https://github.com/playertwo1/Command/releases/tag/command-v1.1.2). Após parear explicitamente os dois PCs pelo QR de cada Bridge, o app recupera as duas conexões ao abrir. Trocar pelo menu ou pelo cartão seleciona o mesmo PC para alvo e telemetria; o anterior volta em paralelo. Uma desconexão paralela manual continua respeitada e pode ser revertida em **Configurações → PCs pareados → Conectar em paralelo**. Em 2026-10-25, o proprietário confirmou que a correção funciona nos dois PCs e aprovou visualmente M1. Não foram fornecidos logs separados de cada fluxo físico.
+Os arquivos estão na [release 1.6.1](https://github.com/playertwo1/Command/releases/tag/command-v1.6.1).
+
+| Arquivo | Uso |
+|---|---|
+| `Command-Setup.exe` | Instalador do PC, Windows x64. Fica na bandeja. Não traz assinatura Authenticode. |
+| `command-app-v1.6.1.apk` | App Android, versão 1.6.1 (código 16). O certificado é o mesmo da 1.6.0. |
+
+Os hashes estão em `SHA256SUMS-v1.6.1.txt` na mesma release. Depois de instalar o PC, clique com o botão direito no ícone da bandeja, escolha parear e leia o QR no celular. Os dois aparelhos precisam estar na mesma rede.
 
 ---
 
@@ -161,7 +168,7 @@ cd app
 
 O Command é um **fork** do [DroidDeck](https://github.com/ggfto/DroidDeck), criado por **Gabriel Freitas ([@ggfto](https://github.com/ggfto))**. A ideia original e a base do projeto (Bridge Windows, app companion, pareamento por QR, integrações com OBS, Discord, Tuya, Soundboard, Mixer, Steam e outras) são trabalho dele. O histórico de commits do DroidDeck está preservado neste repositório. Obrigado, Gabriel! 💜
 
-O Command acrescenta telemetria, ações autorizadas, captura de tela, transferências, rotinas, Wake-on-LAN, segurança por dispositivo, backup criptografado e auto-update sobre essa base.
+O Command acrescenta telemetria, captura de tela, transferências, rotinas, energia, deck customizável, temperatura, segurança por dispositivo, backup criptografado e o instalador Velopack sobre essa base.
 
 - O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE), a mesma do DroidDeck.
 - O aplicativo Flutter é distribuído sob a licença [GPL 3.0](app/LICENSE), a mesma do app do DroidDeck.
