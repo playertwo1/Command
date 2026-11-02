@@ -27,10 +27,7 @@ class AnnotationPainter extends CustomPainter {
   final List<AnnotationItem> items;
   final AnnotationItem? currentItem;
 
-  const AnnotationPainter({
-    required this.items,
-    this.currentItem,
-  });
+  const AnnotationPainter({required this.items, this.currentItem});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -38,7 +35,9 @@ class AnnotationPainter extends CustomPainter {
       final paint = Paint()
         ..color = item.color
         ..strokeWidth = item.strokeWidth
-        ..style = item.mode == AnnotationMode.rectangle ? PaintingStyle.stroke : PaintingStyle.stroke
+        ..style = item.mode == AnnotationMode.rectangle
+            ? PaintingStyle.stroke
+            : PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
@@ -108,17 +107,20 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
   }
 
   Future<void> _shareOriginal() async {
-    await SharePlus.instance.share(ShareParams(
-      files: [
-        XFile.fromData(
-          widget.imageBytes,
-          name: 'command_screenshot_${widget.info.id}.jpg',
-          mimeType: 'image/jpeg',
-        ),
-      ],
-      fileNameOverrides: ['command_screenshot_${widget.info.id}.jpg'],
-      subject: 'Command Screenshot (${widget.info.width}x${widget.info.height})',
-    ));
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [
+          XFile.fromData(
+            widget.imageBytes,
+            name: 'command_screenshot_${widget.info.id}.jpg',
+            mimeType: 'image/jpeg',
+          ),
+        ],
+        fileNameOverrides: ['command_screenshot_${widget.info.id}.jpg'],
+        subject:
+            'Command Screenshot (${widget.info.width}x${widget.info.height})',
+      ),
+    );
   }
 
   Future<void> _shareAnnotated() async {
@@ -130,7 +132,9 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
     setState(() => _isExporting = true);
 
     try {
-      final boundary = _repaintBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          _repaintBoundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) {
         await _shareOriginal();
         return;
@@ -141,17 +145,22 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
       final pngBytes = byteData?.buffer.asUint8List();
 
       if (pngBytes != null) {
-        await SharePlus.instance.share(ShareParams(
-          files: [
-            XFile.fromData(
-              pngBytes,
-              name: 'command_screenshot_${widget.info.id}_annotated.png',
-              mimeType: 'image/png',
-            ),
-          ],
-          fileNameOverrides: ['command_screenshot_${widget.info.id}_annotated.png'],
-          subject: 'Command Screenshot Anotado (${widget.info.width}x${widget.info.height})',
-        ));
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [
+              XFile.fromData(
+                pngBytes,
+                name: 'command_screenshot_${widget.info.id}_annotated.png',
+                mimeType: 'image/png',
+              ),
+            ],
+            fileNameOverrides: [
+              'command_screenshot_${widget.info.id}_annotated.png',
+            ],
+            subject:
+                'Command Screenshot Anotado (${widget.info.width}x${widget.info.height})',
+          ),
+        );
       }
     } catch (_) {
       await _shareOriginal();
@@ -165,7 +174,9 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
     final hasAnnotations = _annotations.isNotEmpty;
 
     AnnotationItem? liveItem;
-    if (_activeMode == AnnotationMode.rectangle && _dragStart != null && _dragCurrent != null) {
+    if (_activeMode == AnnotationMode.rectangle &&
+        _dragStart != null &&
+        _dragCurrent != null) {
       liveItem = AnnotationItem(
         mode: AnnotationMode.rectangle,
         color: _selectedColor,
@@ -192,7 +203,11 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
           children: [
             const Text(
               'Captura de Tela',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Text(
               '${widget.info.width}x${widget.info.height} · ${(widget.info.sizeBytes / 1024).toStringAsFixed(1)} KB',
@@ -218,7 +233,10 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Icon(Icons.share_outlined),
             tooltip: hasAnnotations ? 'Compartilhar Anotado' : 'Compartilhar',
@@ -229,74 +247,85 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
       body: Column(
         children: [
           Expanded(
-            child: Center(
-              child: _activeMode == AnnotationMode.none
-                  ? InteractiveViewer(
+            child: _activeMode == AnnotationMode.none
+                ? Center(
+                    child: InteractiveViewer(
                       minScale: 0.5,
                       maxScale: 5.0,
                       child: Image.memory(
                         widget.imageBytes,
                         fit: BoxFit.contain,
                       ),
-                    )
-                  : GestureDetector(
-                      key: const Key('annotation_canvas_gesture'),
-                      onPanStart: (details) {
-                        final localPos = details.localPosition;
-                        if (_activeMode == AnnotationMode.rectangle) {
+                    ),
+                  )
+                : GestureDetector(
+                    key: const Key('annotation_canvas_gesture'),
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (details) {
+                      final localPos = details.localPosition;
+                      if (_activeMode == AnnotationMode.rectangle) {
+                        setState(() {
+                          _dragStart = localPos;
+                          _dragCurrent = localPos;
+                        });
+                      } else if (_activeMode == AnnotationMode.pen) {
+                        setState(() {
+                          _penPoints.clear();
+                          _penPoints.add(localPos);
+                        });
+                      }
+                    },
+                    onPanUpdate: (details) {
+                      final localPos = details.localPosition;
+                      if (_activeMode == AnnotationMode.rectangle) {
+                        setState(() {
+                          _dragCurrent = localPos;
+                        });
+                      } else if (_activeMode == AnnotationMode.pen) {
+                        setState(() {
+                          _penPoints.add(localPos);
+                        });
+                      }
+                    },
+                    onPanEnd: (_) {
+                      if (_activeMode == AnnotationMode.rectangle &&
+                          _dragStart != null &&
+                          _dragCurrent != null) {
+                        final rect = Rect.fromPoints(
+                          _dragStart!,
+                          _dragCurrent!,
+                        );
+                        if (rect.width > 5 && rect.height > 5) {
                           setState(() {
-                            _dragStart = localPos;
-                            _dragCurrent = localPos;
-                          });
-                        } else if (_activeMode == AnnotationMode.pen) {
-                          setState(() {
-                            _penPoints.clear();
-                            _penPoints.add(localPos);
-                          });
-                        }
-                      },
-                      onPanUpdate: (details) {
-                        final localPos = details.localPosition;
-                        if (_activeMode == AnnotationMode.rectangle) {
-                          setState(() {
-                            _dragCurrent = localPos;
-                          });
-                        } else if (_activeMode == AnnotationMode.pen) {
-                          setState(() {
-                            _penPoints.add(localPos);
-                          });
-                        }
-                      },
-                      onPanEnd: (_) {
-                        if (_activeMode == AnnotationMode.rectangle &&
-                            _dragStart != null &&
-                            _dragCurrent != null) {
-                          final rect = Rect.fromPoints(_dragStart!, _dragCurrent!);
-                          if (rect.width > 5 && rect.height > 5) {
-                            setState(() {
-                              _annotations.add(AnnotationItem(
+                            _annotations.add(
+                              AnnotationItem(
                                 mode: AnnotationMode.rectangle,
                                 color: _selectedColor,
                                 strokeWidth: 3.5,
                                 points: const [],
                                 rect: rect,
-                              ));
-                              _dragStart = null;
-                              _dragCurrent = null;
-                            });
-                          }
-                        } else if (_activeMode == AnnotationMode.pen && _penPoints.length > 1) {
-                          setState(() {
-                            _annotations.add(AnnotationItem(
+                              ),
+                            );
+                            _dragStart = null;
+                            _dragCurrent = null;
+                          });
+                        }
+                      } else if (_activeMode == AnnotationMode.pen &&
+                          _penPoints.length > 1) {
+                        setState(() {
+                          _annotations.add(
+                            AnnotationItem(
                               mode: AnnotationMode.pen,
                               color: _selectedColor,
                               strokeWidth: 3.0,
                               points: List.from(_penPoints),
-                            ));
-                            _penPoints.clear();
-                          });
-                        }
-                      },
+                            ),
+                          );
+                          _penPoints.clear();
+                        });
+                      }
+                    },
+                    child: SizedBox.expand(
                       child: RepaintBoundary(
                         key: _repaintBoundaryKey,
                         child: CustomPaint(
@@ -311,7 +340,7 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
                         ),
                       ),
                     ),
-            ),
+                  ),
           ),
 
           // Barra de Ferramentas de Edição e Anotação
@@ -323,21 +352,30 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.pan_tool_outlined),
-                  color: _activeMode == AnnotationMode.none ? const Color(0xFFA78BFA) : Colors.white60,
+                  color: _activeMode == AnnotationMode.none
+                      ? const Color(0xFFA78BFA)
+                      : Colors.white60,
                   tooltip: 'Modo Zoom & Pan',
-                  onPressed: () => setState(() => _activeMode = AnnotationMode.none),
+                  onPressed: () =>
+                      setState(() => _activeMode = AnnotationMode.none),
                 ),
                 IconButton(
                   icon: const Icon(Icons.crop_square),
-                  color: _activeMode == AnnotationMode.rectangle ? const Color(0xFFA78BFA) : Colors.white60,
+                  color: _activeMode == AnnotationMode.rectangle
+                      ? const Color(0xFFA78BFA)
+                      : Colors.white60,
                   tooltip: 'Destaque Retangular',
-                  onPressed: () => setState(() => _activeMode = AnnotationMode.rectangle),
+                  onPressed: () =>
+                      setState(() => _activeMode = AnnotationMode.rectangle),
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
-                  color: _activeMode == AnnotationMode.pen ? const Color(0xFFA78BFA) : Colors.white60,
+                  color: _activeMode == AnnotationMode.pen
+                      ? const Color(0xFFA78BFA)
+                      : Colors.white60,
                   tooltip: 'Caneta Livre',
-                  onPressed: () => setState(() => _activeMode = AnnotationMode.pen),
+                  onPressed: () =>
+                      setState(() => _activeMode = AnnotationMode.pen),
                 ),
                 const SizedBox(width: 8),
                 // Seletor de Cores
@@ -357,7 +395,9 @@ class _ScreenshotViewerPageState extends State<ScreenshotViewerPage> {
                         color: color,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: _selectedColor == color ? Colors.white : Colors.transparent,
+                          color: _selectedColor == color
+                              ? Colors.white
+                              : Colors.transparent,
                           width: 2,
                         ),
                       ),

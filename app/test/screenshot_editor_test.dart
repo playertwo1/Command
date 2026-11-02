@@ -32,13 +32,12 @@ void main() {
     image.dispose();
   });
 
-  testWidgets('Renders ScreenshotViewerPage with annotation tools', (tester) async {
+  testWidgets('Renders ScreenshotViewerPage with annotation tools', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: ScreenshotViewerPage(
-          info: testInfo,
-          imageBytes: testPngBytes,
-        ),
+        home: ScreenshotViewerPage(info: testInfo, imageBytes: testPngBytes),
       ),
     );
     await tester.pumpAndSettle();
@@ -53,42 +52,47 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Draws rectangle highlight annotation and supports undo and clear', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ScreenshotViewerPage(
-          info: testInfo,
-          imageBytes: testPngBytes,
+  testWidgets(
+    'Draws rectangle highlight annotation and supports undo and clear',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ScreenshotViewerPage(info: testInfo, imageBytes: testPngBytes),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    // Seleciona ferramenta de retângulo
-    await tester.tap(find.byIcon(Icons.crop_square));
-    await tester.pumpAndSettle();
+      // Seleciona ferramenta de retângulo
+      await tester.tap(find.byIcon(Icons.crop_square));
+      await tester.pumpAndSettle();
 
-    // Arrasta o dedo sobre a imagem para criar um retângulo de destaque.
-    // Um único moveBy não dispara onPanUpdate no recognizer (o primeiro
-    // trecho vira só o slop). drag() quebra o movimento em dois eventos.
-    final gestureTarget = find.byKey(const Key('annotation_canvas_gesture'));
-    expect(gestureTarget, findsOneWidget);
+      // drag() parte o movimento em dois eventos. Um moveBy só vira o slop
+      // e o retângulo fica menor que o mínimo de 5 px.
+      final gestureTarget = find.byKey(const Key('annotation_canvas_gesture'));
+      expect(gestureTarget, findsOneWidget);
+      expect(tester.getSize(gestureTarget).shortestSide, greaterThan(20));
 
-    await tester.drag(gestureTarget, const Offset(80, 60));
-    await tester.pumpAndSettle();
+      await tester.drag(gestureTarget, const Offset(80, 60));
+      await tester.pumpAndSettle();
 
-    // Ações de Undo e Clear devem aparecer na AppBar
-    expect(find.byIcon(Icons.undo), findsOneWidget);
-    expect(find.byIcon(Icons.clear_all), findsOneWidget);
+      // Ações de Undo e Clear devem aparecer na AppBar
+      expect(find.byIcon(Icons.undo), findsOneWidget);
+      expect(find.byIcon(Icons.clear_all), findsOneWidget);
 
-    // Toca em Desfazer
-    await tester.tap(find.byIcon(Icons.undo));
-    await tester.pumpAndSettle();
+      // Toca em Desfazer
+      await tester.tap(find.byIcon(Icons.undo));
+      await tester.pumpAndSettle();
 
-    // Após desfazer a única anotação, ações desaparecem
-    expect(find.byIcon(Icons.undo), findsNothing);
-    expect(find.byIcon(Icons.clear_all), findsNothing);
+      // Após desfazer a única anotação, ações desaparecem
+      expect(find.byIcon(Icons.undo), findsNothing);
+      expect(find.byIcon(Icons.clear_all), findsNothing);
 
-    await tester.pumpWidget(const SizedBox());
-  });
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 }
