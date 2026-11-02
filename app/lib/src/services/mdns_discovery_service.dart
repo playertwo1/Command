@@ -215,7 +215,7 @@ class MdnsDiscoveryService {
 
     final allRecordsCount = anCount + nsCount + arCount;
     for (int i = 0; i < allRecordsCount && !reader.isEof; i++) {
-      final name = reader.readDnsName();
+      reader.readDnsName();
       if (reader.remaining < 10) break;
 
       final type = reader.readUint16();
