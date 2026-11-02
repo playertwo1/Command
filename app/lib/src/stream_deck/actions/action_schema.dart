@@ -139,6 +139,16 @@ IconData actionIcon(String name) => buttonIconData(name);
 /// Espelha o que esses servidores aceitam.
 const fallbackActionCatalog = <ActionSchema>[
   ActionSchema(
+    type: 'catalog_app',
+    title: 'Abrir app autorizado',
+    icon: 'launch',
+    category: 'Sistema',
+    description: 'Abre um aplicativo da lista autorizada do PC.',
+    fields: [
+      ActionField(key: 'appId', label: 'Aplicativo', kind: 'select', optionsSource: '/api/apps', required: true),
+    ],
+  ),
+  ActionSchema(
     type: 'hotkey',
     title: 'Atalho de teclado',
     icon: 'keyboard',

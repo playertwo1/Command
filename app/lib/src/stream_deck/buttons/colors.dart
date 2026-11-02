@@ -13,6 +13,12 @@ Color? parseHexColor(String? hex) {
   }
 }
 
-/// "#RRGGBB" de uma cor, no formato que os perfis guardam.
-String colorToHex(Color color) =>
-    '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+/// "#RRGGBB", ou "#AARRGGBB" quando a cor não é opaca.
+String colorToHex(Color color) {
+  final argb = color.toARGB32();
+  final rgb = (argb & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase();
+  final alpha = (argb >> 24) & 0xFF;
+  if (alpha == 0xFF) return '#$rgb';
+  final aa = alpha.toRadixString(16).padLeft(2, '0').toUpperCase();
+  return '#$aa$rgb';
+}

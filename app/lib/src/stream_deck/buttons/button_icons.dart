@@ -59,6 +59,29 @@ const Map<String, IconData> buttonIcons = {
   'extension': Icons.extension,
   'sensors': Icons.sensors,
   'smart_display': Icons.smart_display,
+  'thermostat': Icons.thermostat,
+  'memory': Icons.memory,
+  'schedule': Icons.schedule,
+  'mouse': Icons.mouse,
+  'screenshot': Icons.screenshot_monitor,
+  'movie': Icons.movie,
+  'graphic_eq': Icons.graphic_eq,
+  'coffee': Icons.coffee,
+  'menu_book': Icons.menu_book,
+  'calculate': Icons.calculate,
+  'mail': Icons.mail,
+  'cloud': Icons.cloud,
+  'download': Icons.download,
+  'link': Icons.link,
+  'restart': Icons.restart_alt,
+  'bedtime': Icons.bedtime,
+};
+
+const iconCategories = <String, List<String>>{
+  'Mídia': ['play', 'pause', 'music_note', 'headphones', 'speaker', 'volume_up', 'volume_off', 'mic', 'mic_off', 'movie', 'graphic_eq', 'smart_display'],
+  'Sistema': ['power', 'power_off', 'lock', 'lock_open', 'restart', 'bedtime', 'computer', 'settings', 'screenshot', 'timer', 'schedule'],
+  'Trabalho': ['code', 'keyboard', 'folder', 'save', 'launch', 'mail', 'calculate', 'menu_book', 'coffee', 'link'],
+  'Status': ['wifi', 'wifi_off', 'notifications', 'notifications_off', 'thermostat', 'memory', 'sensors', 'cloud', 'download', 'bolt'],
 };
 
 IconData buttonIconData(String name) =>

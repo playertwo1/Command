@@ -111,6 +111,46 @@ class GridLayout {
   }
 }
 
+/// Encaixe da grade. Sem colunas e linhas informadas, calcula pelo tamanho da tela.
+class DeckGridFit {
+  final int columns;
+  final int rows;
+  final double cell;
+  final double spacing;
+
+  const DeckGridFit({
+    required this.columns,
+    required this.rows,
+    required this.cell,
+    required this.spacing,
+  });
+}
+
+DeckGridFit fitDeckGrid({
+  required double width,
+  required double height,
+  int? customColumns,
+  int? customRows,
+  double spacing = 8,
+}) {
+  final gap = spacing.clamp(4.0, 24.0).toDouble();
+  const target = 96.0;
+  final int cols;
+  final int rows;
+  if (customColumns != null && customRows != null) {
+    cols = customColumns.clamp(2, 8).toInt();
+    rows = customRows.clamp(2, 6).toInt();
+  } else {
+    cols = ((width + gap) / (target + gap)).floor().clamp(1, 20).toInt();
+    rows = ((height + gap) / (target + gap)).floor().clamp(1, 20).toInt();
+  }
+  final cellW = cols <= 1 ? width : (width - gap * (cols - 1)) / cols;
+  final cellH = rows <= 1 ? height : (height - gap * (rows - 1)) / rows;
+  var cell = cellW < cellH ? cellW : cellH;
+  if (cell < 1) cell = 1;
+  return DeckGridFit(columns: cols, rows: rows, cell: cell, spacing: gap);
+}
+
 /// Reorganiza somente a representação visual em ordem de leitura.
 /// Os botões persistidos e suas posições originais não são alterados.
 List<DeckButton> reflowButtons(List<DeckButton> buttons, int columns) {

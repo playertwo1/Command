@@ -64,6 +64,10 @@ class DynamicDeckButton extends StatelessWidget {
       color: parseHexColor(button.backgroundColor),
       onTap: onTap,
       onLongPress: onLongPress,
+      radius: button.cornerRadius?.toDouble(),
+      borderWidth: button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(button.borderColor),
+      haptic: button.haptic,
       child: _buildDynamicContent(context, stats, button.dynamicType!),
     );
   }
@@ -82,6 +86,8 @@ class DynamicDeckButton extends StatelessWidget {
         return _buildGpuMonitor(stats);
       case 'network_monitor':
         return _buildNetworkMonitor(stats);
+      case 'temp_monitor':
+        return _buildTempMonitor(stats);
       default:
         return Center(child: Text(tr('Desconhecido: {type}', {'type': type})));
     }
@@ -154,12 +160,35 @@ class DynamicDeckButton extends StatelessWidget {
     );
   }
 
+  Widget _buildTempMonitor(SystemStats stats) {
+    final cpu = stats.cpuTempC;
+    final gpu = stats.gpuTempC;
+    final shown = cpu ?? gpu;
+    final value = shown == null ? 'N/D' : '${shown.toStringAsFixed(0)}°';
+    final label = cpu != null && gpu != null
+        ? 'CPU ${cpu.toStringAsFixed(0)} · GPU ${gpu.toStringAsFixed(0)}'
+        : (cpu != null ? 'CPU' : 'GPU');
+    return _gauge(
+      percent: shown == null ? 0 : shown.clamp(0, 100).toDouble(),
+      icon: Icons.thermostat,
+      value: value,
+      label: button.hideLabel ? '' : label,
+      heat: true,
+    );
+  }
+
   String _fmtRate(double kbps) {
     if (kbps >= 1024) return '${(kbps / 1024).toStringAsFixed(1)}M';
     return '${kbps.toStringAsFixed(0)}K';
   }
 
-  Color _usageColor(double pct) {
+  Color _usageColor(double pct, {bool heat = false}) {
+    if (heat) {
+      if (pct > 80) return const Color(0xFFF87171);
+      if (pct > 75) return const Color(0xFFF0B65F);
+      if (pct <= 60) return const Color(0xFF34D5A0);
+      return const Color(0xFFF0B65F);
+    }
     if (pct > 85) return Colors.redAccent;
     if (pct > 60) return Colors.orangeAccent;
     return Colors.greenAccent;
@@ -171,9 +200,10 @@ class DynamicDeckButton extends StatelessWidget {
     required IconData icon,
     required String value,
     required String label,
+    bool heat = false,
   }) {
     final p = (percent / 100).clamp(0.0, 1.0);
-    final color = _usageColor(percent);
+    final color = _usageColor(percent, heat: heat);
     return LayoutBuilder(
       builder: (context, c) {
         final fg = DeckTile.foregroundOf(context);

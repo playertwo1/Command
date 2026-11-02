@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 class FakeWorkspaceClient extends DroidDeckClient {
   int executeCalls = 0;
+  int deleteCalls = 0;
   String? lastExecutedId;
+  String? lastDeletedId;
   String? lastDeviceId;
   bool? lastConfirmed;
   bool failExecution = false;
@@ -16,6 +18,12 @@ class FakeWorkspaceClient extends DroidDeckClient {
   FakeWorkspaceClient({
     this.routines = const [],
   }) : super(baseUrl: 'http://localhost:4787');
+
+  @override
+  Future<void> deleteRoutine(String id) async {
+    deleteCalls++;
+    lastDeletedId = id;
+  }
 
   @override
   Future<List<RoutineDefinitionData>> getRoutines() async {
@@ -305,6 +313,38 @@ void main() {
       expect(find.textContaining('Falha de comunicação'), findsOneWidget);
       expect(find.textContaining('private network detail'), findsNothing);
       expect(find.text('Status Geral: succeeded'), findsNothing);
+    });
+
+    testWidgets('menu popup permite excluir rotina com confirmação', (tester) async {
+      final routine = _routine();
+      final client = FakeWorkspaceClient(routines: [routine]);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorkspaceRoutinesCard(client: client),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rotina pareada'), findsOneWidget);
+      final moreBtn = find.byIcon(Icons.more_vert);
+      expect(moreBtn, findsOneWidget);
+
+      await tester.tap(moreBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Excluir'), findsOneWidget);
+      await tester.tap(find.text('Excluir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Excluir Rotina'), findsOneWidget);
+      final confirmDeleteBtn = find.widgetWithText(ElevatedButton, 'Excluir');
+      await tester.tap(confirmDeleteBtn);
+      await tester.pumpAndSettle();
+
+      expect(client.deleteCalls, 1);
+      expect(client.lastDeletedId, 'routine-1');
     });
   });
 }

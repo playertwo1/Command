@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:droiddeck/src/desktop_stream/desktop_stream_controller.dart';
 import 'package:droiddeck/src/remote_input/remote_input_card.dart';
 import 'package:droiddeck/src/remote_input/trackpad_page.dart';
 import 'package:flutter/material.dart';
@@ -286,6 +288,137 @@ void main() {
 
       expect(find.text('ViewerOnly (403)'), findsOneWidget);
       expect(find.text('Permissão insuficiente (ViewerOnly).'), findsOneWidget);
+    });
+
+    testWidgets('mode toggle switches between trackpad and direct touch', (tester) async {
+      final client = MockRemoteInputClient();
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          TrackpadPage(
+            client: client,
+            initialPc: pcA,
+            availablePcs: const [pcA],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Inicialmente em modo Trackpad
+      expect(find.text('Trackpad'), findsOneWidget);
+
+      // Alterna via botão do AppBar
+      await tester.tap(find.byKey(const Key('toggle-input-mode-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Toque Direto'), findsOneWidget);
+
+      // Alterna de volta via pílula flutuante no canto da área
+      await tester.tap(find.byKey(const Key('mode-pill-toggle')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Trackpad'), findsOneWidget);
+    });
+
+    testWidgets('direct touch mode sends mouse click with normalized coordinates', (tester) async {
+      final client = MockRemoteInputClient();
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          TrackpadPage(
+            client: client,
+            initialPc: pcA,
+            availablePcs: const [pcA],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Muda para toque direto
+      await tester.tap(find.byKey(const Key('toggle-input-mode-button')));
+      await tester.pumpAndSettle();
+
+      // Toca no centro da área de toque
+      await tester.tap(find.byKey(const Key('trackpad-gesture-area')));
+      await tester.pumpAndSettle();
+
+      expect(client.clickCalls, isNotEmpty);
+      final lastClick = client.clickCalls.last;
+      expect(lastClick['button'], 'left');
+      expect(lastClick['normalizedX'], isNotNull);
+      expect(lastClick['normalizedY'], isNotNull);
+      expect((lastClick['normalizedX'] as double) >= 0.0 && (lastClick['normalizedX'] as double) <= 1.0, isTrue);
+      expect((lastClick['normalizedY'] as double) >= 0.0 && (lastClick['normalizedY'] as double) <= 1.0, isTrue);
+    });
+
+    testWidgets('toggle-stream-button pauses and resumes screen video stream', (tester) async {
+      final client = MockRemoteInputClient();
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          TrackpadPage(
+            client: client,
+            initialPc: pcA,
+            availablePcs: const [pcA],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Stream inicialmente ativado (ícone videocam)
+      expect(find.byIcon(Icons.videocam), findsOneWidget);
+
+      // Pausa stream
+      await tester.tap(find.byKey(const Key('toggle-stream-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.videocam_off), findsOneWidget);
+
+      // Retoma stream
+      await tester.tap(find.byKey(const Key('toggle-stream-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.videocam), findsOneWidget);
+    });
+
+    testWidgets('live desktop stream frame displays in trackpad background', (tester) async {
+      final client = MockRemoteInputClient();
+      final streamCtrl = DesktopStreamController();
+
+      final dummyImageBytes = Uint8List.fromList([
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+        0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
+        0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
+        0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
+        0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+        0x42, 0x60, 0x82
+      ]);
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          TrackpadPage(
+            client: client,
+            initialPc: pcA,
+            availablePcs: const [pcA],
+            streamController: streamCtrl,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      streamCtrl.setStreamStateForTesting(
+        isPlaying: true,
+        frame: dummyImageBytes,
+        fps: 12,
+        aspectRatio: 16.0 / 9.0,
+      );
+      await tester.pump();
+
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('12 FPS'), findsOneWidget);
     });
   });
 

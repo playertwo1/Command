@@ -137,7 +137,7 @@ void main() {
     expect(job.completedAtUtc, isNotNull);
   });
 
-  testWidgets('StatusPage exibe Ações Autorizadas e Atividade Recente com fake client',
+  testWidgets('StatusPage mostra Atividade Recente sem o card de Ações Autorizadas',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     PcStore.currentId = null;
@@ -165,16 +165,10 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Valida títulos das seções F4
-    expect(find.text('Ações Autorizadas'), findsOneWidget);
-
-    // Valida apps cadastrados
-    expect(find.text('Obsidian'), findsOneWidget);
-    expect(find.text('Orbit PJ'), findsOneWidget);
-    expect(find.text('Bloco de Notas (Teste)'), findsOneWidget);
-
-    // Valida botão Encerrar exibido apenas para o app que tem canKill == true
-    expect(find.text('Encerrar'), findsOneWidget);
+    expect(find.text('Ações Autorizadas'), findsNothing);
+    expect(find.text('Obsidian'), findsNothing);
+    expect(find.text('Orbit PJ'), findsNothing);
+    expect(find.text('Bloco de Notas (Teste)'), findsNothing);
 
     // Rola para exibir o card de Atividade Recente (ListView)
     await tester.scrollUntilVisible(
@@ -277,7 +271,7 @@ void main() {
     expect(firstPcClient.clearJobsCalled, false);
   });
 
-  testWidgets('StatusPage: confirmação de encerramento protegida por diálogo',
+  testWidgets('StatusPage: encerrar pelo comando rápido ainda pede confirmação',
       (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.0;
@@ -302,36 +296,27 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Clica no botão Encerrar
-    await tester.drag(find.byType(ListView).first, const Offset(0, -1200));
-    await tester.pumpAndSettle();
-    final killButton = find.widgetWithText(OutlinedButton, 'Encerrar');
-    await tester.ensureVisible(killButton);
-    await tester.pumpAndSettle();
-    await tester.tap(killButton);
+    expect(find.widgetWithText(OutlinedButton, 'Encerrar'), findsNothing);
+
+    final field = find.byType(TextField);
+    await tester.ensureVisible(field);
+    await tester.enterText(field, 'encerrar bloco de notas');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
-    // Diálogo deve abrir
-    expect(find.text('Encerrar Aplicativo'), findsOneWidget);
-
-    // Clica em Cancelar
-    await tester.tap(find.text('Cancelar'));
-    await tester.pumpAndSettle();
-
-    // Não deve ter chamado killApp
+    expect(find.text('Confirmar Ação Rápida'), findsOneWidget);
     expect(fakeClient.killCalled, false);
 
-    // Abre novamente e confirma
-    await tester.ensureVisible(killButton);
+    await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
-    await tester.tap(killButton);
+    expect(fakeClient.killCalled, false);
+
+    await tester.enterText(field, 'encerrar bloco de notas');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Executar Agora'));
     await tester.pumpAndSettle();
 
-    final confirmButton = find.widgetWithText(FilledButton, 'Encerrar');
-    await tester.tap(confirmButton);
-    await tester.pumpAndSettle();
-
-    // Deve ter chamado killApp com sucesso
     expect(fakeClient.killCalled, true);
   });
 }

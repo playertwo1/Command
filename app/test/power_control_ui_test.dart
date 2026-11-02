@@ -110,6 +110,8 @@ void main() {
       expect(find.text('Controle de Energia & Sessão'), findsOneWidget);
       expect(find.text('Bloquear PC'), findsOneWidget);
       expect(find.text('Suspender PC'), findsOneWidget);
+      expect(find.text('Desligar PC'), findsWidgets);
+      expect(find.text('Reiniciar PC'), findsWidgets);
       expect(find.text('Wake-on-LAN (Ligar PC)'), findsOneWidget);
       expect(find.text('Modo Dock (Mesa)'), findsOneWidget);
 
@@ -175,6 +177,54 @@ void main() {
 
       expect(client.executeCalls, 1);
       expect(client.lastAction, 'sleep');
+      expect(client.lastConfirmed, isTrue);
+    });
+
+    testWidgets('desligar e reiniciar exigem confirmação e nomeiam o PC', (tester) async {
+      final client = FakePowerClient();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: PowerControlCard(
+              client: client,
+              targetPcName: 'PC Sala',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Desligar PC'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('PC-alvo: PC Sala'), findsOneWidget);
+      expect(find.textContaining('A sessão será encerrada'), findsOneWidget);
+      expect(find.text('Desligar agora'), findsOneWidget);
+      expect(client.executeCalls, 0);
+
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      expect(client.executeCalls, 0);
+
+      await tester.tap(find.text('Desligar PC'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Desligar agora'));
+      await tester.pumpAndSettle();
+
+      expect(client.executeCalls, 1);
+      expect(client.lastAction, 'shutdown');
+      expect(client.lastConfirmed, isTrue);
+      expect(find.textContaining('executada com sucesso'), findsOneWidget);
+
+      await tester.tap(find.text('Reiniciar PC'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('A sessão será encerrada'), findsOneWidget);
+      await tester.tap(find.text('Reiniciar agora'));
+      await tester.pumpAndSettle();
+
+      expect(client.executeCalls, 2);
+      expect(client.lastAction, 'restart');
       expect(client.lastConfirmed, isTrue);
     });
   });

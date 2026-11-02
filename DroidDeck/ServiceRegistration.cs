@@ -35,7 +35,14 @@ namespace DroidDeck
             services.AddSingleton<ITopProcessesService, TopProcessesService>();
             services.AddSingleton<IWebhookNotificationService, WebhookNotificationService>();
             services.AddSingleton<IRoutineService, RoutineService>();
-            services.AddSingleton<IPowerControlService, PowerControlService>();
+            services.AddSingleton<IPowerControlService>(sp =>
+            {
+                var power = ActivatorUtilities.CreateInstance<PowerControlService>(sp);
+                // Testes constroem o serviço direto e deixam o padrão falso.
+                // No processo da Bridge, lock/sleep/shutdown/restart são nativos.
+                power.AllowNativeExecution = true;
+                return power;
+            });
             services.AddSingleton<ISecurityPolicyService, SecurityPolicyService>();
             services.AddSingleton<IEncryptedBackupService, EncryptedBackupService>();
             services.AddSingleton<IUpdateVerificationService, UpdateVerificationService>();

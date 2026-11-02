@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_connections.dart';
+import 'core.dart';
+import '../src/connection/pc_connections.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

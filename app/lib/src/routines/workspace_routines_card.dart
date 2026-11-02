@@ -240,6 +240,69 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
     _loadDualRoutines();
   }
 
+  Future<void> _confirmAndDeleteRoutine(RoutineDefinitionData routine) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1829),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Excluir Rotina',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Tem certeza que deseja excluir a rotina "${routine.name}"? Esta ação não pode ser desfeita.',
+          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Excluir', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        if (widget.client != null) {
+          await widget.client!.deleteRoutine(routine.id);
+        }
+        setState(() {
+          _routines.removeWhere((r) => r.id == routine.id);
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Rotina "${routine.name}" excluída com sucesso.'),
+              backgroundColor: const Color(0xFF1E1B2E),
+            ),
+          );
+        }
+        _loadRoutines();
+        _loadDualRoutines();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Falha ao excluir rotina: $e'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _confirmAndExecuteRoutine(RoutineDefinitionData routine) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -763,6 +826,61 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
                                       ),
                                     )
                                   : const Text('Executar'),
+                            ),
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, color: Colors.white70, size: 20),
+                              color: const Color(0xFF1E1B2E),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                              ),
+                              onSelected: (val) {
+                                if (val == 'edit') {
+                                  _openBuilder(routine);
+                                } else if (val == 'duplicate') {
+                                  _openBuilder(
+                                    routine.copyWith(
+                                      id: 'routine_${DateTime.now().millisecondsSinceEpoch}',
+                                      name: '${routine.name} (Cópia)',
+                                      isPreset: false,
+                                    ),
+                                  );
+                                } else if (val == 'delete') {
+                                  _confirmAndDeleteRoutine(routine);
+                                }
+                              },
+                              itemBuilder: (ctx) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit_outlined, color: amethystAccent, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Editar', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'duplicate',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.copy_outlined, color: amethystAccent, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Duplicar', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete_outline, color: Colors.redAccent, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Excluir', style: TextStyle(color: Colors.redAccent, fontSize: 13)),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

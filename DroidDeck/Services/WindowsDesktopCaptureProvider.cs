@@ -31,6 +31,11 @@ namespace DroidDeck.Services
         private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
         [DllImport("gdi32.dll", SetLastError = true)]
+        private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+        private const int DESKTOPHORZRES = 118;
+        private const int DESKTOPVERTRES = 117;
+
+        [DllImport("gdi32.dll", SetLastError = true)]
         private static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
         [DllImport("gdi32.dll", SetLastError = true)]
@@ -88,8 +93,8 @@ namespace DroidDeck.Services
             }
 
             var bounds = primary.Bounds;
-            width = bounds.Width;
-            height = bounds.Height;
+            int capturedWidth = bounds.Width;
+            int capturedHeight = bounds.Height;
 
             // Abre o desktop de entrada com permissão de leitura
             IntPtr hDesktop = OpenInputDesktop(0, false, 0x01FF);
@@ -124,6 +129,15 @@ namespace DroidDeck.Services
 
                     try
                     {
+                        // DPI-aware: Obter resolução física nativa do monitor para evitar corte de tela em escalas > 100%
+                        int physWidth = GetDeviceCaps(sDC, DESKTOPHORZRES);
+                        int physHeight = GetDeviceCaps(sDC, DESKTOPVERTRES);
+                        if (physWidth > 0 && physHeight > 0)
+                        {
+                            capturedWidth = physWidth;
+                            capturedHeight = physHeight;
+                        }
+
                         IntPtr mDC = CreateCompatibleDC(sDC);
                         if (mDC == IntPtr.Zero)
                         {
@@ -132,7 +146,7 @@ namespace DroidDeck.Services
 
                         try
                         {
-                            IntPtr hBmp = CreateCompatibleBitmap(sDC, bounds.Width, bounds.Height);
+                            IntPtr hBmp = CreateCompatibleBitmap(sDC, capturedWidth, capturedHeight);
                             if (hBmp == IntPtr.Zero)
                             {
                                 throw new Win32Exception(Marshal.GetLastWin32Error(), "Falha ao alocar bitmap GDI compatível.");
@@ -141,7 +155,7 @@ namespace DroidDeck.Services
                             try
                             {
                                 IntPtr old = SelectObject(mDC, hBmp);
-                                bool ok = BitBlt(mDC, 0, 0, bounds.Width, bounds.Height, sDC, bounds.Left, bounds.Top, SRCCOPY);
+                                bool ok = BitBlt(mDC, 0, 0, capturedWidth, capturedHeight, sDC, 0, 0, SRCCOPY);
                                 int bitBltErr = Marshal.GetLastWin32Error();
                                 SelectObject(mDC, old);
 
@@ -193,6 +207,8 @@ namespace DroidDeck.Services
                 throw new InvalidOperationException("Falha ao codificar buffer de imagem capturado.");
             }
 
+            width = capturedWidth;
+            height = capturedHeight;
             return result;
         }
     }

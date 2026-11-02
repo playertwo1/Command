@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../actions/action_catalog.dart';
 import 'button_icons.dart';
@@ -96,32 +97,56 @@ class ButtonLook {
     } else if (on && (button.activeIconName?.isNotEmpty ?? false)) {
       icon = Icon(buttonIconData(button.activeIconName!), size: 32);
     }
-    final text = on && (button.activeLabel?.isNotEmpty ?? false) ? button.activeLabel : label;
+    final text = button.hideLabel
+        ? null
+        : (on && (button.activeLabel?.isNotEmpty ?? false) ? button.activeLabel : label);
+    final vertical = switch (button.labelVAlign) {
+      'top' => MainAxisAlignment.start,
+      'bottom' => MainAxisAlignment.end,
+      _ => MainAxisAlignment.center,
+    };
+    final horizontal = switch (button.labelAlign) {
+      'left' => CrossAxisAlignment.start,
+      'right' => CrossAxisAlignment.end,
+      _ => CrossAxisAlignment.center,
+    };
+    final textAlign = switch (button.labelAlign) {
+      'left' => TextAlign.left,
+      'right' => TextAlign.right,
+      _ => TextAlign.center,
+    };
     return DeckTile(
       color: color,
       active: on,
       activeColor: activeColor ?? this.activeColor,
       onTap: onTap,
       onLongPress: onLongPress,
+      radius: button.cornerRadius?.toDouble(),
+      borderWidth: button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(button.borderColor),
+      haptic: button.haptic,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: vertical,
+        crossAxisAlignment: horizontal,
         children: [
           icon,
           if (text != null && text.isNotEmpty) ...[
             const SizedBox(height: 4),
             LayoutBuilder(
               builder: (context, constraints) {
-                final preferred =
+                final chosen = button.labelFontSize?.toDouble();
+                final preferred = chosen ??
                     (constraints.maxWidth * 0.15).clamp(12.0, 16.0).toDouble();
-                final fontSize = fitWordsFontSize(
-                  text,
-                  preferred,
-                  constraints.maxWidth,
-                  MediaQuery.textScalerOf(context),
-                );
+                final fontSize = chosen ??
+                    fitWordsFontSize(
+                      text,
+                      preferred,
+                      constraints.maxWidth,
+                      MediaQuery.textScalerOf(context),
+                    );
                 return Text(
                   text,
-                  textAlign: TextAlign.center,
+                  textAlign: textAlign,
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.w600,
@@ -159,12 +184,22 @@ class ButtonLook {
     );
   }
 
-  static Widget base64Icon(String data) {
+  static Widget base64Icon(String data, {double size = 32}) {
     try {
+      final bytes = base64Decode(stripDataUri(data));
+      if (buttonImageKind(bytes) == ButtonImageKind.svg) {
+        return SvgPicture.memory(
+          bytes,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        );
+      }
       return Image.memory(
-        base64Decode(stripDataUri(data)),
-        width: 32,
-        height: 32,
+        bytes,
+        width: size,
+        height: size,
+        gaplessPlayback: true,
         errorBuilder: (_, __, ___) => const Icon(Icons.error, color: Colors.red),
       );
     } catch (_) {
@@ -215,4 +250,27 @@ class ButtonLook {
     }
     return low;
   }
+}
+
+enum ButtonImageKind { gif, svg, raster }
+
+/// GIF animado, SVG ou imagem comum. O Image.memory do Flutter anima o GIF.
+ButtonImageKind buttonImageKind(List<int> bytes) {
+  if (bytes.length >= 6 &&
+      bytes[0] == 0x47 &&
+      bytes[1] == 0x49 &&
+      bytes[2] == 0x46 &&
+      bytes[3] == 0x38) {
+    return ButtonImageKind.gif;
+  }
+  final head = utf8
+      .decode(bytes.take(180).toList(), allowMalformed: true)
+      .trimLeft()
+      .toLowerCase();
+  if (head.startsWith('<svg') ||
+      head.startsWith('<?xml') ||
+      head.startsWith('<!doctype svg')) {
+    return ButtonImageKind.svg;
+  }
+  return ButtonImageKind.raster;
 }

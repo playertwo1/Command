@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Tipos de botão de informação (dynamicType) desenhados por [InfoDeckButton].
@@ -57,6 +58,10 @@ class _InfoDeckButtonState extends State<InfoDeckButton> {
       color: widget.color,
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
+      radius: widget.button.cornerRadius?.toDouble(),
+      borderWidth: widget.button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(widget.button.borderColor),
+      haptic: widget.button.haptic,
       child: switch (_type) {
         'clock' => _buildClock(),
         'now_playing' => Watch((_) => _buildNowPlaying(Injector.get<SignalRService>()
@@ -240,7 +245,39 @@ class _InfoDeckButtonState extends State<InfoDeckButton> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
           if (artist != null && artist.isNotEmpty) _small(artist),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _mediaButton(Icons.skip_previous, 'previous'),
+              _mediaButton(
+                np['playing'] == true ? Icons.pause : Icons.play_arrow,
+                'playpause',
+              ),
+              _mediaButton(Icons.skip_next, 'next'),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _mediaButton(IconData icon, String command) {
+    return SizedBox(
+      width: 28,
+      height: 22,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        iconSize: 16,
+        onPressed: () async {
+          try {
+            await Injector.get<DroidDeckClient>().executeDeckAction(
+              'media',
+              {'command': command},
+            );
+          } catch (_) {}
+        },
+        icon: Icon(icon),
       ),
     );
   }

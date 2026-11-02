@@ -37,6 +37,14 @@ DeckButton _$DeckButtonFromJson(Map<String, dynamic> json) => DeckButton(
   ),
   columnSpan: (json['columnSpan'] as num?)?.toInt() ?? 1,
   rowSpan: (json['rowSpan'] as num?)?.toInt() ?? 1,
+  labelFontSize: (json['labelFontSize'] as num?)?.toInt(),
+  labelAlign: json['labelAlign'] as String?,
+  labelVAlign: json['labelVAlign'] as String?,
+  hideLabel: json['hideLabel'] as bool? ?? false,
+  cornerRadius: (json['cornerRadius'] as num?)?.toInt(),
+  borderWidth: (json['borderWidth'] as num?)?.toInt(),
+  borderColor: json['borderColor'] as String?,
+  haptic: json['haptic'] as String?,
 );
 
 Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
@@ -61,4 +69,12 @@ Map<String, dynamic> _$DeckButtonToJson(DeckButton instance) =>
       'dynamicParameters': instance.dynamicParameters,
       'columnSpan': instance.columnSpan,
       'rowSpan': instance.rowSpan,
+      'labelFontSize': instance.labelFontSize,
+      'labelAlign': instance.labelAlign,
+      'labelVAlign': instance.labelVAlign,
+      'hideLabel': instance.hideLabel,
+      'cornerRadius': instance.cornerRadius,
+      'borderWidth': instance.borderWidth,
+      'borderColor': instance.borderColor,
+      'haptic': instance.haptic,
     };

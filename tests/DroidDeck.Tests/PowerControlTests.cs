@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DroidDeck.Controllers;
 using DroidDeck.Models;
 using DroidDeck.Services;
@@ -75,6 +76,18 @@ namespace DroidDeck.Tests
             Assert.False(sleepResult.Success);
             Assert.Equal("aborted", sleepResult.Status);
             Assert.Equal("CONFIRMATION_REQUIRED", sleepResult.ErrorCode);
+
+            foreach (var action in new[] { "shutdown", "restart" })
+            {
+                var result = service.ExecutePowerAction(new PowerActionRequest
+                {
+                    Action = action,
+                    Confirmed = false
+                });
+                Assert.False(result.Success);
+                Assert.Equal("aborted", result.Status);
+                Assert.Equal("CONFIRMATION_REQUIRED", result.ErrorCode);
+            }
         }
 
         [Fact]
@@ -82,27 +95,85 @@ namespace DroidDeck.Tests
         {
             var service = new PowerControlService();
 
-            // Ação proibida: shutdown
-            var shutdownResult = service.ExecutePowerAction(new PowerActionRequest
+            foreach (var action in new[] { "cmd", "hibernate", "shutdown.exe", " ", "" })
+            {
+                var result = service.ExecutePowerAction(new PowerActionRequest
+                {
+                    Action = action,
+                    Confirmed = true
+                });
+
+                Assert.False(result.Success);
+                Assert.Equal("failed", result.Status);
+                Assert.Equal("ACTION_NOT_ALLOWED", result.ErrorCode);
+            }
+        }
+
+        [Fact]
+        public void ExecutePowerAction_ShutdownAndRestart_UseInvokerAndAudit()
+        {
+            var calls = new List<bool>();
+            var jobHistory = new JobHistoryService(NullLogger<JobHistoryService>.Instance);
+            var service = new PowerControlService(
+                jobHistory: jobHistory,
+                exitWindowsInvoker: restart =>
+                {
+                    calls.Add(restart);
+                    return true;
+                });
+
+            var shutdown = service.ExecutePowerAction(new PowerActionRequest
             {
                 Action = "shutdown",
-                Confirmed = true
-            });
+                Confirmed = true,
+                RequestId = "req_shutdown_1"
+            }, deviceId: "device_a");
 
-            Assert.False(shutdownResult.Success);
-            Assert.Equal("failed", shutdownResult.Status);
-            Assert.Equal("ACTION_NOT_ALLOWED", shutdownResult.ErrorCode);
+            Assert.True(shutdown.Success);
+            Assert.Equal("shutdown", shutdown.Action);
+            Assert.Equal("succeeded", shutdown.Status);
+            Assert.Equal(new[] { false }, calls);
+            var shutdownJob = jobHistory.GetJob(shutdown.JobId!);
+            Assert.NotNull(shutdownJob);
+            Assert.Equal("system.shutdown", shutdownJob.ActionType);
+            Assert.Equal("succeeded", shutdownJob.Status);
+            Assert.DoesNotContain("shutdown.exe", shutdownJob.ActionType, StringComparison.OrdinalIgnoreCase);
 
-            // Ação arbitrária: cmd
-            var cmdResult = service.ExecutePowerAction(new PowerActionRequest
+            var restart = service.ExecutePowerAction(new PowerActionRequest
             {
-                Action = "cmd",
-                Confirmed = true
+                Action = " RESTART ",
+                Confirmed = true,
+                RequestId = "req_restart_1"
+            }, deviceId: "device_b");
+
+            Assert.True(restart.Success);
+            Assert.Equal("restart", restart.Action);
+            Assert.Equal(new[] { false, true }, calls);
+            var restartJob = jobHistory.GetJob(restart.JobId!);
+            Assert.NotNull(restartJob);
+            Assert.Equal("system.restart", restartJob.ActionType);
+        }
+
+        [Fact]
+        public void ExecutePowerAction_ShutdownFailure_RecordsFailedJob()
+        {
+            var jobHistory = new JobHistoryService(NullLogger<JobHistoryService>.Instance);
+            var service = new PowerControlService(
+                jobHistory: jobHistory,
+                exitWindowsInvoker: _ => false);
+
+            var result = service.ExecutePowerAction(new PowerActionRequest
+            {
+                Action = "shutdown",
+                Confirmed = true,
+                RequestId = "req_shutdown_fail"
             });
 
-            Assert.False(cmdResult.Success);
-            Assert.Equal("failed", cmdResult.Status);
-            Assert.Equal("ACTION_NOT_ALLOWED", cmdResult.ErrorCode);
+            Assert.False(result.Success);
+            Assert.Equal("EXECUTION_FAILED", result.ErrorCode);
+            var job = jobHistory.GetJob(result.JobId!);
+            Assert.NotNull(job);
+            Assert.Equal("failed", job.Status);
         }
 
         [Fact]
@@ -194,6 +265,33 @@ namespace DroidDeck.Tests
             var sleepDto = Assert.IsType<PowerActionResultDto>(okSleep.Value);
             Assert.True(sleepDto.Success);
             Assert.Equal("sleep", sleepDto.Action);
+
+            var nativeCalls = new List<bool>();
+            var nativeService = new PowerControlService(exitWindowsInvoker: restart =>
+            {
+                nativeCalls.Add(restart);
+                return true;
+            });
+            var nativeController = new PowerController(nativeService);
+
+            var deniedShutdown = nativeController.Shutdown(confirmed: false);
+            var badShutdown = Assert.IsType<BadRequestObjectResult>(deniedShutdown.Result);
+            var deniedDto = Assert.IsType<PowerActionResultDto>(badShutdown.Value);
+            Assert.Equal("CONFIRMATION_REQUIRED", deniedDto.ErrorCode);
+            Assert.Empty(nativeCalls);
+
+            var okShutdown = nativeController.Shutdown(confirmed: true);
+            var shutdownResult = Assert.IsType<OkObjectResult>(okShutdown.Result);
+            var shutdownDto = Assert.IsType<PowerActionResultDto>(shutdownResult.Value);
+            Assert.True(shutdownDto.Success);
+            Assert.Equal("shutdown", shutdownDto.Action);
+
+            var okRestart = nativeController.Restart(confirmed: true);
+            var restartResult = Assert.IsType<OkObjectResult>(okRestart.Result);
+            var restartDto = Assert.IsType<PowerActionResultDto>(restartResult.Value);
+            Assert.True(restartDto.Success);
+            Assert.Equal("restart", restartDto.Action);
+            Assert.Equal(new[] { false, true }, nativeCalls);
         }
     }
 }

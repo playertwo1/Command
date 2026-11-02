@@ -74,6 +74,35 @@ class DeckButton {
   @JsonKey(name: 'rowSpan', defaultValue: 1)
   final int rowSpan;
 
+  /// 8–18. Nulo mantém o tamanho automático.
+  @JsonKey(name: 'labelFontSize')
+  final int? labelFontSize;
+
+  /// left, center ou right.
+  @JsonKey(name: 'labelAlign')
+  final String? labelAlign;
+
+  /// top, center ou bottom.
+  @JsonKey(name: 'labelVAlign')
+  final String? labelVAlign;
+
+  @JsonKey(name: 'hideLabel', defaultValue: false)
+  final bool hideLabel;
+
+  /// 0 = quadrado, valores altos = pílula. Nulo = cantos do tema.
+  @JsonKey(name: 'cornerRadius')
+  final int? cornerRadius;
+
+  @JsonKey(name: 'borderWidth')
+  final int? borderWidth;
+
+  @JsonKey(name: 'borderColor')
+  final String? borderColor;
+
+  /// off, light, medium ou heavy. Nulo = vibração do app.
+  @JsonKey(name: 'haptic')
+  final String? haptic;
+
   DeckButton({
     required this.id,
     required this.row,
@@ -95,8 +124,19 @@ class DeckButton {
     this.dynamicParameters,
     int columnSpan = 1,
     int rowSpan = 1,
+    int? labelFontSize,
+    this.labelAlign,
+    this.labelVAlign,
+    this.hideLabel = false,
+    int? cornerRadius,
+    int? borderWidth,
+    this.borderColor,
+    this.haptic,
   })  : columnSpan = columnSpan.clamp(1, 4).toInt(),
-        rowSpan = rowSpan.clamp(1, 4).toInt();
+        rowSpan = rowSpan.clamp(1, 4).toInt(),
+        labelFontSize = labelFontSize?.clamp(8, 18).toInt(),
+        cornerRadius = cornerRadius?.clamp(0, 48).toInt(),
+        borderWidth = borderWidth?.clamp(0, 6).toInt();
 
   bool get hasActiveLook =>
       (activeLabel?.isNotEmpty ?? false) ||
@@ -135,6 +175,14 @@ class DeckButton {
         dynamicParameters: dynamicParameters,
         columnSpan: columnSpan ?? this.columnSpan,
         rowSpan: rowSpan ?? this.rowSpan,
+        labelFontSize: labelFontSize,
+        labelAlign: labelAlign,
+        labelVAlign: labelVAlign,
+        hideLabel: hideLabel,
+        cornerRadius: cornerRadius,
+        borderWidth: borderWidth,
+        borderColor: borderColor,
+        haptic: haptic,
       );
 
   /// Ação de um gesto: 'tap', 'longPress' ou 'doubleTap'.

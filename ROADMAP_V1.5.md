@@ -1,11 +1,11 @@
 # ROADMAP v1.5 — Command: Multi-PC, Controle Remoto e Conectividade
 
-**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24/25 a pedido do proprietário. **M1 e U0.4b/U0.4c/U0.4d concluídos em 2026-10-25**, com os aceites registrados abaixo. Por decisão do proprietário em 2026-10-25, U0.2a permanece pendente para validação posterior e não bloqueia R0/R1. **R0 (Backend de Entrada Remota com 364 testes C#) e R1 (Mobile Trackpad + Teclado com 218 testes Flutter) concluídos tecnicamente**. Próxima fase ativa: **R2 — Prévia ao Vivo (`ScreenStreamController`) com toque-para-clicar**. O piloto I0.3a/b ainda tem gates pendentes. Migração segura dos dados legados foi solicitada e fica registrada em I0.3c, sem mudar sua ordem interna. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; a distribuição pública continua dependente de I0.1, I0.2 e I0.7.
+**Status:** base aprovada pelo proprietário em 2026-10-19; planejamento revisado em 2026-10-20/21 e reordenado em 2026-10-24/25 a pedido do proprietário. **M1 e U0.4b/U0.4c/U0.4d concluídos em 2026-10-25**, com os aceites registrados abaixo. Por decisão do proprietário em 2026-10-25, U0.2a permanece pendente para validação posterior e não bloqueia R0/R1. **R0 (Backend de Entrada Remota com 364 testes C#) e R1 (Mobile Trackpad + Teclado com 218 testes Flutter) concluídos tecnicamente**. Na data deste parágrafo a próxima fase era R2; R2, R3, R4, W2, C0, K0 e T1 já fecharam no código. Próxima etapa: **H0 — homologação física**. O piloto I0.3a/b ainda tem gates pendentes. Migração segura dos dados legados foi solicitada e fica registrada em I0.3c, sem mudar sua ordem interna. Itens `AVALIAR` não autorizam implementação. Repositório continua privado; a distribuição pública continua dependente de I0.1, I0.2 e I0.7.
 **Pré-requisito:** Release v1.1.0 (`command-v1.1.0` — 461 testes PASS)
 **Checkpoint 2026-10-25:** proprietário confirmou instalação, funcionamento de todas as funções e alternância nos dois PCs; aceite visual aprovado. A correção publicada na prerelease privada `command-v1.1.2` (`7449fde`) restaura os dois perfis em paralelo, unifica a seleção e torna o painel reativo. 32 testes direcionados e build release PASS; assinatura/alinhamento verificados. M1 está concluído por confirmação humana funcional e visual; não foram fornecidos logs separados de cada fluxo físico.
 **Meta Principal:** Manter **2 PCs conectados ao mesmo tempo** no app, adicionar **trackpad/teclado remoto com prévia ao vivo**, **descoberta automática por mDNS** e **transferências retomáveis**.
 
-**Ordem de entrega:** U0.4a (priorizado a pedido do proprietário em 2026-10-21; porte técnico concluído) → **I0.3a/b — instalador Command piloto, antecipado em 2026-10-24 para colocar a Bridge nos PCs de validação** → checkpoint M1 + aceite U0.1 → U0.4b/c/d → R0/R1/R2 → D0 (USB somente se U0.3 for viável) → T0 → concluir I0 → H0. **U0.2a (volume) continua pendente e foi adiado pelo proprietário; sua validação será retomada depois e não bloqueia R0.** A prerelease piloto foi publicada somente no repositório privado por pedido do proprietário; não ativa atualizações remotas e não substitui os gates I0.1/I0.2/I0.5/I0.6/I0.7 para distribuição pública. U0 é uma frente transversal, não um merge nem uma fase executada inteira de uma vez. U0.2b/U0.5 e backlog v2 não bloqueiam a entrega principal.
+**Ordem de entrega:** U0.4a (priorizado a pedido do proprietário em 2026-10-21; porte técnico concluído) → **I0.3a/b — instalador Command piloto, antecipado em 2026-10-24 para colocar a Bridge nos PCs de validação** → checkpoint M1 + aceite U0.1 → U0.4b/c/d → R0/R1/R2 → D0 (USB somente se U0.3 for viável) → T0 → concluir I0 → H0. **U0.2a (volume) continua pendente e foi adiado pelo proprietário; sua validação será retomada depois e não bloqueia R0.** A prerelease piloto foi publicada somente no repositório privado por pedido do proprietário; não ativa atualizações remotas e não substitui os gates I0.1/I0.2/I0.5/I0.6/I0.7 para distribuição pública. U0 é uma frente transversal, não um merge nem uma fase executada inteira de uma vez. U0.2b/U0.5 e backlog v2 não bloqueiam a entrega principal. **Próxima fase ativa da onda v1.6:** homologação física H0, nas duas máquinas. T1, K0 e C0 estão concluídas no código. O desligamento em PC real continua `NOT_RUN`.
 
 **Fontes da revisão:** [matriz completa e respostas](docs/UPSTREAM_IDEIAS_2026-10-20.md#4-revisao-consolidada-2026-10-20), [registro de proveniência](research/UPSTREAM.md). A revisão documental não atualiza resultados de testes nem fecha aceite visual.
 
@@ -36,6 +36,12 @@
 | D-v1.5-09 | O teclado remoto aceita **texto livre com limite** (~500 caracteres por envio, sem registrar o conteúdo em log). |
 | D-v1.5-10 | mDNS (D0) e transferências retomáveis (T0) **continuam** na v1.5. |
 | D-v1.5-11 | Chat assistivo, conexão a agentes externos e brokers associados ficam fora do produto e do escopo v1.5. |
+| D-v1.5-12 | Unificação do Controle Remoto (R3): correção de DPI no backend para captura física 100% da tela e embutimento da tela ao vivo dentro do trackpad/teclado remoto. |
+| D-v1.5-13 | Ambientes & Rotinas Customizáveis (R4): permitir exclusão/ocultação de qualquer rotina (incluindo os 3 presets padrão) e expandir massivamente os tipos de ação para novas rotinas (apps do catálogo, mídia, volume, atalhos de teclado, janelas e energia). |
+| D-v1.5-14 | Controle de Energia Expandido (W2): inclusão de Desligar PC e Reiniciar PC no card "Controle de Energia & Sessão" da StatusPage e no PowerControlService do backend com diálogo explícito de confirmação. |
+| D-v1.5-15 | Simplificação do Dashboard (C0): remoção do card "Ações Autorizadas" da StatusPage do app móvel para despoluir a interface principal, mantendo a execução de aplicativos via Stream Deck e rotinas. |
+| D-v1.5-16 | Stream Deck Ultra-Customizável (K0): expansão visual (paleta HEX livre, biblioteca de ícones/GIFs, tipografia e bordas), grades personalizáveis por perfil (2×2 a 8×6, gap ajustável, fundo customizado) e widgets vivos de telemetria/mídia. |
+| D-v1.5-17 | Sensores de Temperatura Resilientes & Exibição Ampliada (T1): implementação de fallback sem admin (WMI/NVAPI/ADL) no backend para evitar "N/D" e exibição destacada de temperaturas no card Meus 2 PCs, StatusPage e botões do Stream Deck. |
 
 ---
 
@@ -48,6 +54,12 @@
 | **R0** | Backend | API de entrada remota (mouse/teclado) | — | `DONE` (364 C# tests PASS) |
 | **R1** | Mobile | Trackpad + teclado virtual | R0, M0 | `DONE` (218 Flutter tests PASS) |
 | **R2** | Full | Prévia ao vivo (`ScreenStreamController`) com toque-para-clicar | R0 | `DONE` |
+| **R3** | Full | Desktop Remoto Integrado (Live Screen Full-DPI + Trackpad & Teclado Sobrepostos) | R1, R2 | `CONCLUÍDO` |
+| **R4** | Full | Ambientes & Rotinas Customizáveis (Exclusão de Presets + Ações de Sistema/Mídia/Apps) | M1, R0 | `DONE` |
+| **W2** | Full | Controle de Energia Expandido (Desligar e Reiniciar no Card de Energia) | — | `DONE` |
+| **C0** | Mobile | Simplificação do Dashboard (Remoção do Card "Ações Autorizadas") | — | `DONE` |
+| **K0** | Full | Stream Deck Ultra-Customizável (Grades Livres, Cores HEX, Ícones/GIFs e Widgets Vivos) | — | `DONE` |
+| **T1** | Full | Sensores de Temperatura Resilientes (Fallback sem Admin + Destaque no App e no Deck) | — | `DONE` |
 | **D0** | Full | Descoberta mDNS + reconexão LAN ↔ Tailscale | M0 | `DONE` |
 | **T0** | Full | Transferência retomável em blocos | — | `DONE` |
 | **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; I0.3a/b piloto antecipado antes do checkpoint M1 | `DONE` (I0.2/I0.3a/b/c/d/I0.5 concluídos; pacotes v1.5.0 gerados) |
@@ -100,6 +112,96 @@
 - [x] **R2.1:** Usar o `ScreenStreamController` existente com FPS e qualidade baixos e ajustáveis; encerramento automático do stream ao sair da tela (`dispose`/`stop`) liberando o lock no PC.
 - [x] **R2.2:** Toque na prévia = clique na coordenada correspondente (mapeamento de escala com `ScreenCoordinateMapper`; proporção extraída do frame JPEG; monitor principal). Modo alternável entre Toque-para-Clicar e Zoom/Navegação, com feedback visual na coordenada do toque e toque longo para clique direito.
 - [x] **R2.3:** Mesmas regras de sessão bloqueada e consentimento do R0 (captura de 423/UAC com banner de aviso, 403 Forbidden, 409 conflito e encerramento limpo da sessão no dispose). Suíte Flutter 230/230 PASS e .NET 368/368 PASS. Próxima fase ativa: D0 (Descoberta e Reconexão mDNS).
+
+### 🖥️🕹️ R3 — Desktop Remoto Integrado (Live Screen Full-DPI + Trackpad & Teclado Sobrepostos)
+- [x] **R3.1: Correção de Escala DPI e Captura Física Completa (Backend .NET):**
+  - **Causa raiz:** O `WindowsDesktopCaptureProvider.cs` utilizava `Screen.PrimaryScreen.Bounds`, que sob escala de exibição do Windows (>100%, como 125%, 150%, 200%) retorna dimensões lógicas reduzidas, enquanto `GetDC(IntPtr.Zero)` opera na resolução física completa. Como consequência, o `BitBlt` capturava somente uma janela parcial (quadrante superior esquerdo) do monitor.
+  - **Entrega técnica:** Leitura das dimensões físicas reais brutas via Win32 `GetDeviceCaps(sDC, DESKTOPHORZRES)` (118) e `GetDeviceCaps(sDC, DESKTOPVERTRES)` (117) garantindo que 100% da área do monitor principal seja capturada sem cortes. Validado em monitor de alta resolução (2880×1800 nativos detectados).
+  - **Alinhamento de Coordenadas:** Validação do `ScreenCoordinateMapper` no Flutter sincronizado com precisão com a resolução física.
+- [x] **R3.2: Integração de Vídeo ao Vivo no Trackpad e Teclado (Mobile Flutter):**
+  - **Entrega técnica:** Streaming ao vivo MJPEG (`desktop_stream_controller`) embutido como plano de fundo interativo da tela de controle remoto (`TrackpadPage`).
+  - **Modos de Operação Híbridos no mesmo fluxo:**
+    1. *Modo Trackpad sobre Vídeo:* a tela do PC é exibida ao vivo ao fundo, e a superfície funciona como trackpad relativo (arrasto = move ponteiro relativo, toque = clique esquerdo, 2 toques = clique direito, 2 dedos = rolagem) enquanto o usuário acompanha a posição real do cursor na imagem.
+    2. *Modo Toque Direto:* toque no elemento da tela aciona o clique nas coordenadas exatas mapeadas (`normalizedX`/`normalizedY`) com animação de feedback (ripple).
+    3. *Alternância Rápida:* botão no AppBar (`toggle-input-mode-button`) e pílula tátil flutuante no canto superior do trackpad (`mode-pill-toggle`).
+  - **Teclado Virtual e Atalhos Embutidos:** Barra retrátil de atalhos rápidos (`Esc`, `Tab`, `Alt+Tab`, `Win`, `Ctrl+C`, `Ctrl+V`, etc.) e campo de envio de texto livre integrados sem sair da visualização da tela.
+  - **Economia de Recursos:** Botão no AppBar (`toggle-stream-button`) para pausar/retomar o streaming de vídeo mantendo o trackpad/teclado ativos para economia de bateria e largura de banda.
+  - **Evidência:** Suíte Flutter 251/251 PASS (12/12 no `trackpad_page_test.dart`), análise Flutter 0 erros/warnings. Suíte .NET 399/399 PASS. Próxima fase: R4 (Ambientes & Rotinas Customizáveis).
+
+### ⚡📋 R4 — Ambientes & Rotinas Customizáveis (Gestão de Presets + Ações Expandidas)
+- [x] **R4.1: Exclusão e Ocultação de Rotinas (incluindo Presets Padrão):**
+  - **Problema:** As 3 rotinas embutidas padrão (`preset_study_vault`, `preset_dev_orbit`, `preset_focus_cleanup`) vinham fixadas como `isPreset: true` no backend (`RoutineService.cs`), bloqueando exclusão, e no frontend (`WorkspaceRoutinesCard`) não havia botão de exclusão ou edição.
+  - **Entrega técnica:**
+    - Remoção do bloqueio rígido de exclusão no backend: qualquer rotina (mesmo preset) pode ser excluída pelo usuário.
+    - Persistência das rotinas ativas em `%AppData%\Command\routines.json` (`AppPaths.RoamingDir`) garantindo que rotinas deletadas permaneçam deletadas após reinício da Bridge.
+    - Menu de opções em cada card de rotina no Flutter (ícone de 3 pontos): "Editar", "Duplicar" e "Excluir" (com diálogo modal de confirmação antes de remover e recarregar a lista).
+- [x] **R4.2: Expansão do Catálogo de Ações para Criação de Rotinas Customizadas:**
+  - **Problema:** O construtor de rotinas só aceitava 4 ações primitivas e limitava os alvos a apenas 4 itens estáticos (`obsidian`, `orbit`, `test_notepad`, `primary`).
+  - **Entrega técnica (Novos Tipos de Ação e Parâmetros Tipados):**
+    - `app.launch` e `app.kill`: catálogo dinâmico de aplicativos autorizados carregado via `getApps()` do PC conectado, com fallback seguro para apps conhecidos.
+    - `system.shortcut`: injeção de atalhos e teclas normatizadas via `KeyAllowlist` (`Win+D`, `Alt+Tab`, `Ctrl+C`, `Ctrl+V`, `Ctrl+Z`, `Ctrl+S`, `Win`, `Esc`, `Enter`, `Space`, `F5`, `F11`, `PRTSC` ou combinação customizada segura).
+    - `media.control`: comandos multimídia tipados (`play_pause`, `next`, `prev`, `stop`, `volume_up`, `volume_down`, `mute`).
+    - `power.action`: ações de energia autorizadas com confirmação (`lock`, `sleep`).
+    - `delay`: intervalo configurável com slider de 0 a 5000ms.
+    - `screenshot.capture`: captura do monitor principal para auditoria visual.
+  - **Evidência:** 400/400 testes .NET PASS (`RoutineServiceTests`), 8/8 testes widget Flutter PASS (`workspace_routines_test.dart`), `flutter analyze` 0 erros/warnings, `check.py . --strict` PASS. Próxima fase: W2 (Controle de Energia Expandido).
+
+### ⚡🔌 W2 — Controle de Energia Expandido (Desligar e Reiniciar no Card de Energia)
+- [x] **W2.1: Expansão da Allowlist e Ações Nativas no Backend (`PowerControlService.cs`):**
+  - **Problema:** O `PowerControlService.cs` rejeita ativamente qualquer ação diferente de `"lock"` e `"sleep"` (`ACTION_NOT_ALLOWED`). Embora `shutdown` e `restart` tenham sido implementados no `WindowsProvider.cs` para os botões do Deck, o endpoint geral `/api/power/action` não os aceita.
+  - **Entrega técnica:**
+    - Adicionar `"shutdown"` e `"restart"` à allowlist estrita do `PowerControlService`.
+    - Acionamento via Win32 `ExitWindowsEx` com `SeShutdownPrivilege` (reutilizando a lógica nativa validada em `WindowsProvider.cs`), sem uso de shell ou processos arbitrários (Regra 3).
+    - Exigência estrita de confirmação (`confirmed: true`) e registro sanitizado de auditoria no `JobHistoryService`.
+    - Endpoints de conveniência em `PowerController.cs`: `POST /api/power/shutdown` e `POST /api/power/restart`.
+- [x] **W2.2: Botões "Desligar PC" e "Reiniciar PC" no Card de Energia (`power_control_card.dart`):**
+  - **Problema:** O card de energia na `StatusPage` exibe apenas Bloquear, Suspender, Wake-on-LAN e Modo Dock.
+  - **Entrega técnica:**
+    - Inclusão dos botões de ação `Desligar PC` e `Reiniciar PC` com layout integrado ao grid de energia.
+    - Diálogo explícito de confirmação informando o nome do PC-alvo e alertando que a conexão será finalizada.
+    - Atualização do estado do card e notificação de envio com sucesso.
+  - **Evidência (2026-11-02):** `dotnet test` 402/402 PASS; `flutter test` 253/253 PASS; análise dos arquivos Dart desta fase sem issues; `scripts/check.py . --strict` PASS. A Bridge habilita `AllowNativeExecution`. O disparo real de desligar/reiniciar em máquina física permanece `NOT_RUN`. Rotinas não ganharam essas duas ações. Próxima fase: C0.
+
+### 🧹📱 C0 — Simplificação do Dashboard (Remoção do Card "Ações Autorizadas")
+- [x] **C0.1: Remoção do Card "Ações Autorizadas" na StatusPage:**
+  - **Motivação:** O card visual de Ações Autorizadas ocupa espaço nobre na tela inicial e duplica funções já atendidas com muito mais flexibilidade pelos botões do Stream Deck e pelas rotinas encadeadas.
+  - **Entrega técnica:**
+    - Remoção do widget `Card` de Ações Autorizadas em [status_page.dart](file:///c:/Users/notefael/projetos/Command/app/lib/src/home/status_page.dart#L2658).
+    - Desacoplamento da busca de aplicativos no ciclo inicial da `StatusPage` para economizar requisições de rede ao conectar.
+    - Preservação integral do serviço `AppCatalogService.cs` e dos endpoints no backend, permitindo que botões do Stream Deck (`catalog_app`) e rotinas encadeadas (`R4`) continuem funcionando normalmente.
+    - Ajuste dos testes de widget da `StatusPage` para refletir o layout limpo e despoluído.
+  - **Evidência (2026-11-02):** card e busca inicial de apps removidos. Testes de `StatusPage` e de falha visual PASS. O comando rápido "encerrar bloco de notas" continua exigindo confirmação.
+
+### 🎛️🎨 K0 — Stream Deck Ultra-Customizável (Grades Livres, Cores HEX, Ícones/GIFs e Widgets Vivos)
+- [x] **K0.1: Customização Visual e Estética dos Botões:**
+  - **Paleta Livre:** Seletor de cores completo (Color Picker HEX/RGB com opacidade) substituindo a paleta fixa limitada.
+  - **Ícones e Mídias:** Biblioteca expandida de ícones categorizados, upload de PNG/SVG e suporte a GIFs animados como ícones de botões.
+  - **Tipografia e Rótulos:** Ajuste do tamanho da fonte (8px a 18px), alinhamento vertical/horizontal do texto e opção de ocultar o rótulo para botões minimalistas (apenas ícone).
+  - **Bordas e Feedback:** Ajuste de raio dos cantos (arredondado, quadrado, circular/pílula), espessura/cor de borda e intensidade do feedback tátil (haptic feedback ao tocar).
+- [x] **K0.2: Grades e Layouts Dinâmicos por Perfil:**
+  - **Dimensões Livres da Grade:** Configuração do número de colunas (2 a 8) e linhas (2 a 6) por perfil (ex: 2×2 para dock/veicular, 3×4, 4×4, 5×3, 6×4), com redimensionamento fluido em retrato e paisagem.
+  - **Personalização de Fundo:** Imagem de fundo ou gradiente personalizado para o painel de cada perfil.
+  - **Espaçamento Configurável:** Controle de espaçamento entre botões (gap de 4px a 24px) e margens da tela.
+- [x] **K0.3: Widgets Dinâmicos e Criação Direta no Celular:**
+  - **Widgets Vivos de Telemetria:** Botões dinâmicos com medidores em tempo real de CPU%, RAM%, GPU%, temperatura ou relógio digital direto na grade do Deck.
+  - **Mídia em Tempo Real:** Botão com exibição da faixa e artista em reprodução no Windows (Spotify / Windows Media) com botões de controle integrados.
+  - **Atalhos Criados pelo Celular:** Desbloqueio da criação de teclas de atalho (`hotkeys`) e apps do catálogo autorizados diretamente no celular sem exigir o configurador web do PC.
+  - **Evidência (2026-11-02):** `dotnet test` 403/403 PASS e `flutter test` 258/258 PASS. Atalho remoto só é gravado se a tecla passa em `KeyAllowlist`. Sequência SendKeys livre, abrir programa por caminho, ativar janela e HTTP continuam restritos ao configurador do PC. Aceite visual no aparelho: `NOT_RUN`.
+
+### 🌡️💻 T1 — Sensores de Temperatura Resilientes & Exibição Ampliada
+- [x] **T1.1: Fallback de Sensores sem Privilégios de Administrador (Backend .NET):**
+  - **Problema:** A leitura atual via `HardwareSensorProvider.cs` depende de `LibreHardwareMonitor`. Em sessões padrão de usuário sem elevação UAC (instalação não-admin), a leitura de sensores de CPU (MSRs) pode ser bloqueada pelo driver do Windows, retornando `null` ("N/D") no app móvel.
+  - **Entrega técnica:**
+    - Implementar cadeia de fallbacks resilientes: (1) LibreHardwareMonitor; (2) WMI ACPI (`root\wmi:MSAcpi_ThermalZoneTemperature`); (3) NVAPI nativa para GPUs NVIDIA e AMD ADL para GPUs Radeon sem exigir elevação UAC.
+    - Amostragem otimizada a cada 3s para evitar consumo de CPU no host.
+- [x] **T1.2: Visibilidade Aprimorada e Destaque da Temperatura no App (Flutter):**
+  - **Problema:** As temperaturas ficam restritas a um badge reduzido nos cards individuais de CPU/GPU da `StatusPage` e no Modo Dock, não aparecendo no painel resumo "Meus 2 PCs" nem em botões configuráveis da grade do Stream Deck.
+  - **Entrega técnica:**
+    - Exibir temperaturas de CPU e GPU no card de visão geral "Meus 2 PCs" ao lado do uso de CPU e RAM.
+    - Indicador térmico com gradiente visual (verde <=60°C, âmbar <=75°C, vermelho crítico >80°C).
+    - Widget de temperatura configurável diretamente nos botões do Stream Deck (integrado à fase `K0`).
+    - Notificação/banner preventivo caso a temperatura atinja níveis críticos (>85°C).
+  - **Evidência (2026-11-02):** `dotnet test` 405/405 PASS e `flutter test` 259/259 PASS. A zona ACPI é a temperatura da placa, não o núcleo. NVAPI e ADL só respondem se o driver NVIDIA ou AMD estiver instalado. Confirmação do número numa máquina física: `NOT_RUN`.
 
 ### 📡 D0 — Descoberta e Reconexão
 - [x] **D0.1:** O Bridge anuncia `_command._tcp` via mDNS (nome amigável + porta), desativável na configuração (`appsettings.json` / `EnableMdns`), incluindo registros PTR, SRV, TXT (sanitizado com `name`, `id`, `port`, `controlPort`, `certPin`, sem tokens/segredos) e A; pacote goodbye TTL=0 no encerramento. Testes unitários com 373/373 PASS.

@@ -60,6 +60,14 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
   late TwoStateValue _twoState = TwoStateValue.of(widget.button);
   late int _columnSpan = widget.button.columnSpan;
   late int _rowSpan = widget.button.rowSpan;
+  late int? _fontSize = widget.button.labelFontSize;
+  late String _align = widget.button.labelAlign ?? 'center';
+  late String _valign = widget.button.labelVAlign ?? 'center';
+  late bool _hideLabel = widget.button.hideLabel;
+  late int _radius = widget.button.cornerRadius ?? -1;
+  late double _border = (widget.button.borderWidth ?? 0).toDouble();
+  late Color _borderColor = parseHexColor(widget.button.borderColor) ?? const Color(0xFFA78BFA);
+  late String _haptic = widget.button.haptic ?? '';
 
   /// Ações que refletem um estado ligado/desligado (e portanto têm "cor de ativo").
   bool get _isStatefulAction => _catalog.find(_tap?.type)?.stateful ?? false;
@@ -108,6 +116,14 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       activeIconBase64: _showsActive ? _twoState.activeIconBase64 : null,
       columnSpan: _columnSpan,
       rowSpan: _rowSpan,
+      labelFontSize: _fontSize,
+      labelAlign: _align,
+      labelVAlign: _valign,
+      hideLabel: _hideLabel,
+      cornerRadius: _radius < 0 ? null : _radius,
+      borderWidth: _border.round() == 0 ? null : _border.round(),
+      borderColor: _border.round() == 0 ? null : colorToHex(_borderColor),
+      haptic: _haptic.isEmpty ? null : _haptic,
     );
   }
 
@@ -316,6 +332,86 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
       Text(tr('Cor de fundo'), style: bold),
       const SizedBox(height: 8),
       ColorRow(selected: _color, onSelect: (c) => setState(() => _color = c)),
+      const SizedBox(height: 8),
+      HexColorField(color: _color, onChanged: (c) => setState(() => _color = c)),
+      const SizedBox(height: 16),
+      Text(tr('Rótulo'), style: bold),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(tr('Ocultar rótulo')),
+        value: _hideLabel,
+        onChanged: (value) => setState(() => _hideLabel = value),
+      ),
+      if (!_hideLabel) ...[
+        Text(tr('Tamanho: ${_fontSize ?? tr('automático')}')),
+        Slider(
+          min: 8,
+          max: 18,
+          divisions: 10,
+          value: (_fontSize ?? 12).toDouble(),
+          label: '${_fontSize ?? 12}',
+          onChanged: (value) => setState(() => _fontSize = value.round()),
+        ),
+        TextButton(
+          onPressed: () => setState(() => _fontSize = null),
+          child: Text(tr('Tamanho automático')),
+        ),
+        DropdownButtonFormField<String>(
+          initialValue: _align,
+          decoration: InputDecoration(labelText: tr('Alinhamento horizontal'), border: const OutlineInputBorder()),
+          items: [
+            DropdownMenuItem(value: 'left', child: Text(tr('Esquerda'))),
+            DropdownMenuItem(value: 'center', child: Text(tr('Centro'))),
+            DropdownMenuItem(value: 'right', child: Text(tr('Direita'))),
+          ],
+          onChanged: (value) => setState(() => _align = value ?? 'center'),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: _valign,
+          decoration: InputDecoration(labelText: tr('Alinhamento vertical'), border: const OutlineInputBorder()),
+          items: [
+            DropdownMenuItem(value: 'top', child: Text(tr('Topo'))),
+            DropdownMenuItem(value: 'center', child: Text(tr('Centro'))),
+            DropdownMenuItem(value: 'bottom', child: Text(tr('Base'))),
+          ],
+          onChanged: (value) => setState(() => _valign = value ?? 'center'),
+        ),
+      ],
+      const SizedBox(height: 16),
+      Text(tr('Cantos e borda'), style: bold),
+      const SizedBox(height: 8),
+      Wrap(
+        spacing: 8,
+        children: [
+          ChoiceChip(label: Text(tr('Tema')), selected: _radius < 0, onSelected: (_) => setState(() => _radius = -1)),
+          ChoiceChip(label: Text(tr('Quadrado')), selected: _radius == 0, onSelected: (_) => setState(() => _radius = 0)),
+          ChoiceChip(label: Text(tr('Arredondado')), selected: _radius == 16, onSelected: (_) => setState(() => _radius = 16)),
+          ChoiceChip(label: Text(tr('Pílula')), selected: _radius == 40, onSelected: (_) => setState(() => _radius = 40)),
+        ],
+      ),
+      Text(tr('Espessura da borda: ${_border.round()}')),
+      Slider(
+        min: 0,
+        max: 6,
+        divisions: 6,
+        value: _border,
+        onChanged: (value) => setState(() => _border = value),
+      ),
+      if (_border > 0) HexColorField(color: _borderColor, onChanged: (c) => setState(() => _borderColor = c)),
+      const SizedBox(height: 8),
+      DropdownButtonFormField<String>(
+        initialValue: _haptic,
+        decoration: InputDecoration(labelText: tr('Vibração ao tocar'), border: const OutlineInputBorder()),
+        items: [
+          DropdownMenuItem(value: '', child: Text(tr('Padrão do app'))),
+          DropdownMenuItem(value: 'off', child: Text(tr('Desligada'))),
+          DropdownMenuItem(value: 'light', child: Text(tr('Leve'))),
+          DropdownMenuItem(value: 'medium', child: Text(tr('Média'))),
+          DropdownMenuItem(value: 'heavy', child: Text(tr('Forte'))),
+        ],
+        onChanged: (value) => setState(() => _haptic = value ?? ''),
+      ),
       // Cor de "ativo": ações que refletem estado e botões de dois estados.
       if (_showsActive) ...[
         const SizedBox(height: 20),
@@ -330,6 +426,8 @@ class ButtonPropertyPanelState extends State<ButtonPropertyPanel> {
         ),
         const SizedBox(height: 8),
         ColorRow(selected: _activeColor, onSelect: (c) => setState(() => _activeColor = c)),
+        const SizedBox(height: 8),
+        HexColorField(color: _activeColor, onChanged: (c) => setState(() => _activeColor = c)),
         const SizedBox(height: 12),
         ActivePreview(
           color: _color,

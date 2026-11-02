@@ -42,6 +42,18 @@ namespace DroidDeck.Lib.Input
             ["APPS"] = "{APPS}",
             ["PRTSC"] = "{PRTSC}",
             ["PRINTSCREEN"] = "{PRTSC}",
+            ["VOLUME_MUTE"] = "{VOLUME_MUTE}",
+            ["MUTE"] = "{VOLUME_MUTE}",
+            ["VOLUME_DOWN"] = "{VOLUME_DOWN}",
+            ["VOLUME_UP"] = "{VOLUME_UP}",
+            ["MEDIA_NEXT"] = "{MEDIA_NEXT}",
+            ["NEXT"] = "{MEDIA_NEXT}",
+            ["MEDIA_PREV"] = "{MEDIA_PREV}",
+            ["PREV"] = "{MEDIA_PREV}",
+            ["MEDIA_STOP"] = "{MEDIA_STOP}",
+            ["STOP"] = "{MEDIA_STOP}",
+            ["MEDIA_PLAY_PAUSE"] = "{MEDIA_PLAY_PAUSE}",
+            ["PLAY_PAUSE"] = "{MEDIA_PLAY_PAUSE}",
         };
 
         static KeyAllowlist()

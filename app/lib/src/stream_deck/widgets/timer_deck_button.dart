@@ -4,6 +4,7 @@ import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import '../buttons/button_look.dart';
+import '../buttons/colors.dart';
 
 /// Botão de timer/cronômetro/pomodoro/contador. O PC manda o estado só quando algo
 /// muda; aqui o tempo anda sozinho a partir do instante em que o estado chegou.
@@ -167,6 +168,10 @@ class _TimerDeckButtonState extends State<TimerDeckButton> {
       activeColor: widget.activeColor,
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
+      radius: widget.button.cornerRadius?.toDouble(),
+      borderWidth: widget.button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(widget.button.borderColor),
+      haptic: widget.button.haptic,
       child: LayoutBuilder(
         builder: (context, c) {
           final fg = DeckTile.foregroundOf(context);

@@ -74,7 +74,6 @@ void main() {
       signalR.connectionStatus.value = 'Disconnected';
       final client = MockDroidDeckClient();
 
-      when(() => client.getApps()).thenAnswer((_) async => []);
       when(() => client.getJobs(deviceId: any(named: 'deviceId'))).thenAnswer((_) async => []);
       when(() => client.listOutboundTransfers(deviceId: any(named: 'deviceId'))).thenAnswer((_) async => []);
 
@@ -107,7 +106,6 @@ void main() {
       signalR.connectionStatus.value = 'Connected';
       final client = MockDroidDeckClient();
 
-      when(() => client.getApps()).thenAnswer((_) async => []);
       when(() => client.getJobs(deviceId: any(named: 'deviceId'))).thenAnswer(
         (_) async => [
           CommandJob(

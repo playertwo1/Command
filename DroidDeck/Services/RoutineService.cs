@@ -2,9 +2,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using DroidDeck.Lib;
+using DroidDeck.Lib.Input;
 using DroidDeck.Models;
 using Microsoft.Extensions.Logging;
 
@@ -15,15 +19,22 @@ namespace DroidDeck.Services
         private readonly IAppCatalogService _appCatalog;
         private readonly IScreenshotService? _screenshotService;
         private readonly IWebhookNotificationService? _webhookService;
+        private readonly IRemoteInputInjector? _inputInjector;
+        private readonly IPowerControlService? _powerService;
         private readonly ILogger<RoutineService>? _logger;
 
         private readonly ConcurrentDictionary<string, RoutineDefinitionDto> _routines = new(StringComparer.OrdinalIgnoreCase);
+        private readonly string _storagePath;
+        private readonly object _diskLock = new();
 
         private static readonly HashSet<string> AllowedActionTypes = new(StringComparer.OrdinalIgnoreCase)
         {
             "app.launch",
             "app.kill",
             "screenshot.capture",
+            "system.shortcut",
+            "media.control",
+            "power.action",
             "delay"
         };
 
@@ -31,14 +42,84 @@ namespace DroidDeck.Services
             IAppCatalogService appCatalog,
             IScreenshotService? screenshotService = null,
             IWebhookNotificationService? webhookService = null,
-            ILogger<RoutineService>? logger = null)
+            IRemoteInputInjector? inputInjector = null,
+            IPowerControlService? powerService = null,
+            ILogger<RoutineService>? logger = null,
+            string? storagePath = null)
         {
             _appCatalog = appCatalog ?? throw new ArgumentNullException(nameof(appCatalog));
             _screenshotService = screenshotService;
             _webhookService = webhookService;
+            _inputInjector = inputInjector;
+            _powerService = powerService;
             _logger = logger;
+            _storagePath = storagePath ?? (AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase) ? ":memory:" : Path.Combine(AppPaths.RoamingDir, "routines.json"));
+
+            LoadRoutinesFromDisk();
+        }
+
+        private void LoadRoutinesFromDisk()
+        {
+            if (_storagePath != ":memory:")
+            {
+                try
+                {
+                    if (File.Exists(_storagePath))
+                    {
+                        var json = File.ReadAllText(_storagePath);
+                        var loaded = JsonSerializer.Deserialize<List<RoutineDefinitionDto>>(json, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                        if (loaded != null && loaded.Count > 0)
+                        {
+                            _routines.Clear();
+                            foreach (var r in loaded)
+                            {
+                                _routines[r.Id] = r;
+                            }
+                            _logger?.LogInformation("Carregadas {Count} rotinas de {Path}", loaded.Count, _storagePath);
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Falha ao carregar rotinas de {Path}. Inicializando presets padrão.", _storagePath);
+                }
+            }
 
             InitializeDefaultPresets();
+            if (_storagePath != ":memory:")
+            {
+                SaveRoutinesToDisk();
+            }
+        }
+
+        private void SaveRoutinesToDisk()
+        {
+            if (_storagePath == ":memory:") return;
+            try
+            {
+                lock (_diskLock)
+                {
+                    var dir = Path.GetDirectoryName(_storagePath);
+                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                    var json = JsonSerializer.Serialize(_routines.Values.ToList(), new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+                    File.WriteAllText(_storagePath, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Falha ao salvar rotinas em {Path}", _storagePath);
+            }
         }
 
         private void InitializeDefaultPresets()
@@ -163,15 +244,9 @@ namespace DroidDeck.Services
                 routine.Id = "routine_" + Guid.NewGuid().ToString("N")[..8];
             }
 
-            if (_routines.TryGetValue(routine.Id, out var existing) && existing.IsPreset)
-            {
-                throw new InvalidOperationException("Não é permitido sobrescrever rotinas predefinidas (presets).");
-            }
-
             // Validação estrita de cada passo (Regra 3 - Allowlist e Ações Tipadas)
             ValidateRoutineSteps(routine.Steps);
 
-            routine.IsPreset = false;
             routine.RequiresConfirmation = true; // Confirmação obrigatória
             foreach (var step in routine.Steps)
             {
@@ -179,7 +254,8 @@ namespace DroidDeck.Services
             }
 
             _routines[routine.Id] = routine;
-            _logger?.LogInformation("Rotina customizada '{Id}' ('{Name}') salva com {Count} passos", routine.Id, routine.Name, routine.Steps.Count);
+            _logger?.LogInformation("Rotina '{Id}' ('{Name}') salva com {Count} passos", routine.Id, routine.Name, routine.Steps.Count);
+            SaveRoutinesToDisk();
             return routine;
         }
 
@@ -189,13 +265,13 @@ namespace DroidDeck.Services
 
             if (_routines.TryGetValue(id, out var routine))
             {
-                if (routine.IsPreset)
+                bool removed = _routines.TryRemove(id, out _);
+                if (removed)
                 {
-                    _logger?.LogWarning("Tentativa de excluir preset bloqueada para '{Id}'", id);
-                    return false;
+                    _logger?.LogInformation("Rotina '{Id}' excluída com sucesso", id);
+                    SaveRoutinesToDisk();
                 }
-
-                return _routines.TryRemove(id, out _);
+                return removed;
             }
 
             return false;
@@ -449,6 +525,89 @@ namespace DroidDeck.Services
                     result.Status = "succeeded";
                 }
             }
+            else if (string.Equals(step.ActionType, "system.shortcut", StringComparison.OrdinalIgnoreCase))
+            {
+                if (_inputInjector != null && KeyAllowlist.TryNormalizeAndValidate(step.TargetId, out var seq, out _))
+                {
+                    _inputInjector.SendKey(seq);
+                    result.Status = "succeeded";
+                }
+                else if (_inputInjector == null)
+                {
+                    result.Status = "succeeded";
+                }
+                else
+                {
+                    result.Status = "failed";
+                    result.ErrorMessage = $"Atalho de teclado inválido ou fora da allowlist: '{step.TargetId}'";
+                }
+            }
+            else if (string.Equals(step.ActionType, "media.control", StringComparison.OrdinalIgnoreCase))
+            {
+                if (_inputInjector != null)
+                {
+                    string target = step.TargetId?.Trim().ToLowerInvariant() ?? "";
+                    string seq = target switch
+                    {
+                        "play_pause" or "play" or "pause" => "{MEDIA_PLAY_PAUSE}",
+                        "next" or "next_track" => "{MEDIA_NEXT}",
+                        "prev" or "previous" or "prev_track" => "{MEDIA_PREV}",
+                        "stop" => "{MEDIA_STOP}",
+                        "mute" or "volume_mute" => "{VOLUME_MUTE}",
+                        "volume_up" => "{VOLUME_UP}",
+                        "volume_down" => "{VOLUME_DOWN}",
+                        _ => ""
+                    };
+                    if (!string.IsNullOrEmpty(seq))
+                    {
+                        _inputInjector.SendKey(seq);
+                        result.Status = "succeeded";
+                    }
+                    else
+                    {
+                        result.Status = "failed";
+                        result.ErrorMessage = $"Comando de mídia não suportado: '{step.TargetId}'";
+                    }
+                }
+                else
+                {
+                    result.Status = "succeeded";
+                }
+            }
+            else if (string.Equals(step.ActionType, "power.action", StringComparison.OrdinalIgnoreCase))
+            {
+                // Rotina confirma sozinha. Desligar e reiniciar ficam só no card, com diálogo.
+                var routinePower = step.TargetId?.Trim().ToLowerInvariant() ?? "";
+                if (routinePower != "lock" && routinePower != "sleep")
+                {
+                    result.Status = "failed";
+                    result.ErrorMessage = $"Ação de energia '{step.TargetId}' não é permitida pela allowlist estrita.";
+                }
+                else if (_powerService != null)
+                {
+                    var pReq = new PowerActionRequest
+                    {
+                        Action = routinePower,
+                        Confirmed = true,
+                        RequestId = Guid.NewGuid().ToString("N")
+                    };
+                    var pRes = _powerService.ExecutePowerAction(pReq, deviceId);
+                    if (pRes.Success)
+                    {
+                        result.Status = "succeeded";
+                        result.JobId = pRes.JobId;
+                    }
+                    else
+                    {
+                        result.Status = "failed";
+                        result.ErrorMessage = pRes.ErrorMessage ?? "Falha ao executar ação de energia.";
+                    }
+                }
+                else
+                {
+                    result.Status = "succeeded";
+                }
+            }
             else
             {
                 result.Status = "failed";
@@ -504,6 +663,35 @@ namespace DroidDeck.Services
                     if (!canKill)
                     {
                         throw new InvalidOperationException($"O aplicativo '{step.TargetId}' não está autorizado para encerramento (CanKill=false ou fora da allowlist).");
+                    }
+                }
+                else if (string.Equals(step.ActionType, "system.shortcut", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!KeyAllowlist.TryNormalizeAndValidate(step.TargetId, out _, out var reason))
+                    {
+                        throw new InvalidOperationException($"Atalho de teclado '{step.TargetId}' é inválido ou não autorizado: {reason}");
+                    }
+                }
+                else if (string.Equals(step.ActionType, "media.control", StringComparison.OrdinalIgnoreCase))
+                {
+                    var validMedia = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "play_pause", "play", "pause", "next", "prev", "stop", "mute", "volume_up", "volume_down"
+                    };
+                    if (!validMedia.Contains(step.TargetId))
+                    {
+                        throw new InvalidOperationException($"Comando de mídia '{step.TargetId}' não é suportado.");
+                    }
+                }
+                else if (string.Equals(step.ActionType, "power.action", StringComparison.OrdinalIgnoreCase))
+                {
+                    var validPower = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "lock", "sleep"
+                    };
+                    if (!validPower.Contains(step.TargetId))
+                    {
+                        throw new InvalidOperationException($"Ação de energia '{step.TargetId}' não é permitida pela allowlist estrita.");
                     }
                 }
             }

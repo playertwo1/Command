@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using DroidDeck.Lib.Input;
 using DroidDeck.Models;
 
 namespace DroidDeck.Services
@@ -39,9 +40,22 @@ namespace DroidDeck.Services
         }
 
         /// <summary>A acao executa codigo no PC? Multi-acao herda dos passos.</summary>
+        /// <summary>
+        /// Atalho no formato da allowlist (Ctrl+C, Win+D, F5). Sequência SendKeys livre
+        /// continua privilegiada e só nasce no configurador do PC.
+        /// </summary>
+        public static bool IsAllowlistedHotkey(DeckAction? action)
+        {
+            if (action == null || !string.Equals(action.Type, "hotkey", StringComparison.OrdinalIgnoreCase))
+                return false;
+            action.Parameters.TryGetValue("keys", out var keys);
+            return KeyAllowlist.TryNormalizeAndValidate(keys, out _, out _);
+        }
+
         public static bool IsPrivileged(DeckAction? action)
         {
             if (action == null) return false;
+            if (IsAllowlistedHotkey(action)) return false;
             if (PrivilegedTypes.Contains(action.Type ?? "")) return true;
             if (!string.Equals(action.Type, "multi", StringComparison.OrdinalIgnoreCase)) return false;
 
@@ -50,7 +64,11 @@ namespace DroidDeck.Services
             try
             {
                 var steps = JsonSerializer.Deserialize<List<MultiStep>>(stepsJson, JsonOpts);
-                return steps != null && steps.Any(s => PrivilegedTypes.Contains(s.Type ?? ""));
+                return steps != null && steps.Any(s => IsPrivileged(new DeckAction
+                {
+                    Type = s.Type ?? "",
+                    Parameters = s.Parameters ?? new Dictionary<string, string>(),
+                }));
             }
             catch (JsonException)
             {

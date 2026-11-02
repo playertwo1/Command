@@ -189,6 +189,10 @@ class _MixerSliderDeckButtonState extends State<MixerSliderDeckButton> {
       color: parseHexColor(widget.button.backgroundColor),
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
+      radius: widget.button.cornerRadius?.toDouble(),
+      borderWidth: widget.button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(widget.button.borderColor),
+      haptic: widget.button.haptic,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Column(

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using DroidDeck.Actions.Providers;
 using DroidDeck.Models;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +15,13 @@ namespace DroidDeck.Services
         private readonly IJobHistoryService? _jobHistory;
         private readonly Func<bool>? _lockWorkstationInvoker;
         private readonly Func<bool>? _suspendStateInvoker;
+        private readonly Func<bool, bool>? _exitWindowsInvoker;
         private readonly ILogger<PowerControlService>? _logger;
+
+        private static readonly HashSet<string> AllowedActions = new(StringComparer.Ordinal)
+        {
+            "lock", "sleep", "shutdown", "restart"
+        };
 
         /// <summary>
         /// Quando falso (padrão em dev/testes), ações nativas são simuladas com sucesso seguro
@@ -25,12 +33,14 @@ namespace DroidDeck.Services
             IJobHistoryService? jobHistory = null,
             Func<bool>? lockWorkstationInvoker = null,
             Func<bool>? suspendStateInvoker = null,
-            ILogger<PowerControlService>? logger = null)
+            ILogger<PowerControlService>? logger = null,
+            Func<bool, bool>? exitWindowsInvoker = null)
         {
             _jobHistory = jobHistory;
             _lockWorkstationInvoker = lockWorkstationInvoker;
             _suspendStateInvoker = suspendStateInvoker;
             _logger = logger;
+            _exitWindowsInvoker = exitWindowsInvoker;
         }
 
         public string FormatMacAddress(byte[]? physicalBytes)
@@ -134,24 +144,30 @@ namespace DroidDeck.Services
 
             string action = request.Action?.Trim().ToLowerInvariant() ?? string.Empty;
 
-            // Regra de Segurança: Allowlist Estrita de Ações ("lock" e "sleep")
-            if (action != "lock" && action != "sleep")
+            // Allowlist fechada. Nada de shell, hibernação ou nome de processo.
+            if (!AllowedActions.Contains(action))
             {
-                _logger?.LogWarning("Ação de energia '{Action}' rejeitada por violar a allowlist estrita.", request.Action);
+                _logger?.LogWarning("Ação de energia rejeitada por violar a allowlist estrita.");
                 return new PowerActionResultDto
                 {
                     Success = false,
                     Action = request.Action ?? string.Empty,
                     Status = "failed",
                     ErrorCode = "ACTION_NOT_ALLOWED",
-                    ErrorMessage = $"Ação '{request.Action}' não é permitida pela política de segurança (apenas 'lock' e 'sleep').",
+                    ErrorMessage = "Ação não permitida. Use lock, sleep, shutdown ou restart.",
                     TimestampUtc = now
                 };
             }
 
-            // Registro e auditoria via JobHistoryService
+            // Registro e auditoria via JobHistoryService. Só o tipo da ação, nunca um comando.
             string reqId = string.IsNullOrWhiteSpace(request.RequestId) ? Guid.NewGuid().ToString("N") : request.RequestId;
-            string actionType = action == "lock" ? "system.lock_workstation" : "system.sleep";
+            string actionType = action switch
+            {
+                "lock" => "system.lock_workstation",
+                "sleep" => "system.sleep",
+                "shutdown" => "system.shutdown",
+                _ => "system.restart"
+            };
             CommandJob? job = null;
 
             if (_jobHistory != null)
@@ -175,6 +191,10 @@ namespace DroidDeck.Services
                 else if (action == "sleep")
                 {
                     executionResult = PerformSuspendState();
+                }
+                else
+                {
+                    executionResult = PerformExitWindows(action == "restart");
                 }
             }
             catch (Exception ex)
@@ -253,6 +273,25 @@ namespace DroidDeck.Services
 
             // Simulação segura quando AllowNativeExecution for falso
             _logger?.LogInformation("[Simulação Segura] SetSuspendState invocado com sucesso (AllowNativeExecution=false)");
+            return true;
+        }
+
+        private bool PerformExitWindows(bool restart)
+        {
+            if (_exitWindowsInvoker != null)
+            {
+                return _exitWindowsInvoker(restart);
+            }
+
+            if (AllowNativeExecution && OperatingSystem.IsWindows())
+            {
+                return WindowsProvider.TryExitWindows(restart);
+            }
+
+            // Simulação segura quando AllowNativeExecution for falso. Não chama ExitWindowsEx.
+            _logger?.LogInformation(
+                "[Simulação Segura] ExitWindowsEx {Mode} (AllowNativeExecution=false)",
+                restart ? "restart" : "shutdown");
             return true;
         }
 

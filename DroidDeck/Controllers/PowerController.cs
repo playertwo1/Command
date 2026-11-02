@@ -79,5 +79,43 @@ namespace DroidDeck.Controllers
             };
             return ExecuteAction(request, deviceId);
         }
+
+        /// <summary>
+        /// Atalho para desligar o PC (ExitWindowsEx). Exige confirmed=true.
+        /// </summary>
+        [HttpPost("shutdown")]
+        public ActionResult<PowerActionResultDto> Shutdown(
+            [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] PowerActionRequest? body = null,
+            [FromQuery] bool? confirmed = null,
+            [FromQuery] string? requestId = null,
+            [FromHeader(Name = "X-Device-Id")] string? deviceId = null)
+        {
+            var request = new PowerActionRequest
+            {
+                Action = "shutdown",
+                Confirmed = body?.Confirmed ?? confirmed ?? false,
+                RequestId = body?.RequestId ?? requestId
+            };
+            return ExecuteAction(request, deviceId);
+        }
+
+        /// <summary>
+        /// Atalho para reiniciar o PC (ExitWindowsEx). Exige confirmed=true.
+        /// </summary>
+        [HttpPost("restart")]
+        public ActionResult<PowerActionResultDto> Restart(
+            [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] PowerActionRequest? body = null,
+            [FromQuery] bool? confirmed = null,
+            [FromQuery] string? requestId = null,
+            [FromHeader(Name = "X-Device-Id")] string? deviceId = null)
+        {
+            var request = new PowerActionRequest
+            {
+                Action = "restart",
+                Confirmed = body?.Confirmed ?? confirmed ?? false,
+                RequestId = body?.RequestId ?? requestId
+            };
+            return ExecuteAction(request, deviceId);
+        }
     }
 }

@@ -295,6 +295,11 @@ namespace DroidDeck.Actions.Providers
         [DllImport("powrprof.dll", SetLastError = true)]
         private static extern uint PowerSetActiveOverlayScheme(ref Guid overlay);
 
+        /// <summary>
+        /// Desliga ou reinicia pela API nativa. O chamador precisa ter confirmado a ação.
+        /// </summary>
+        internal static bool TryExitWindows(bool restart) => ExitWindows(restart);
+
         private static bool ExitWindows(bool restart)
         {
             if (!EnableShutdownPrivilege()) return false;

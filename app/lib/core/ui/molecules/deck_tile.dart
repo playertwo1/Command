@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme/deck_theme.dart';
 import '../../theme/theme_controller.dart';
@@ -17,6 +18,10 @@ class DeckTile extends StatelessWidget {
     this.activeColor,
     this.onTap,
     this.onLongPress,
+    this.radius,
+    this.borderWidth,
+    this.borderColor,
+    this.haptic,
   });
 
   final Widget child;
@@ -32,6 +37,14 @@ class DeckTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
+  /// Nulo usa o canto do tema. 0 é quadrado.
+  final double? radius;
+  final double? borderWidth;
+  final Color? borderColor;
+
+  /// off, light, medium, heavy. Nulo usa a vibração do app.
+  final String? haptic;
+
   static Color foregroundOf(BuildContext context) =>
       IconTheme.of(context).color ?? Colors.white;
 
@@ -46,9 +59,24 @@ class DeckTile extends StatelessWidget {
         ? color
         : null;
 
+    final customChrome = radius != null || (borderWidth != null && borderWidth! > 0);
     final Widget tile;
     final Color fg;
-    switch (deck.tileStyle) {
+    if (customChrome) {
+      final fill = active ? on : (color ?? deck.tileColor);
+      fg = fill.computeLuminance() > 0.55 ? Colors.black87 : Colors.white;
+      tile = Container(
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: BorderRadius.circular(radius ?? 8),
+          border: borderWidth != null && borderWidth! > 0
+              ? Border.all(color: borderColor ?? fg, width: borderWidth!)
+              : null,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: _content(fg, const EdgeInsets.all(4)),
+      );
+    } else switch (deck.tileStyle) {
       case DeckTileStyle.solid:
         final fill = active ? on : (color ?? deck.tileColor);
         fg = fill.computeLuminance() > 0.55 ? Colors.black87 : Colors.white;
@@ -119,9 +147,7 @@ class DeckTile extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       // Vibra ao encostar, não ao soltar: é o que dá a sensação de botão físico.
-      onTapDown: onTap == null
-          ? null
-          : (_) => ThemeController.instance.tapFeedback(),
+      onTapDown: onTap == null ? null : (_) => playButtonHaptic(haptic),
       onTap: onTap,
       onLongPress: onLongPress,
       child: tile,
@@ -149,6 +175,22 @@ class DeckTile extends StatelessWidget {
       return hsl.lightness < 0.62 ? hsl.withLightness(0.62).toColor() : c;
     }
     return hsl.lightness > 0.42 ? hsl.withLightness(0.42).toColor() : c;
+  }
+}
+
+/// Vibração do toque. Nulo segue o ajuste global do app.
+void playButtonHaptic(String? level) {
+  switch (level) {
+    case 'off':
+      return;
+    case 'light':
+      HapticFeedback.lightImpact();
+    case 'medium':
+      HapticFeedback.mediumImpact();
+    case 'heavy':
+      HapticFeedback.heavyImpact();
+    default:
+      ThemeController.instance.tapFeedback();
   }
 }
 

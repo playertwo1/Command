@@ -23,6 +23,7 @@ import '../security/security_center_card.dart';
 import '../remote_input/remote_input_card.dart';
 import '../remote_input/trackpad_page.dart';
 import '../dock/dock_dashboard_page.dart';
+import 'thermal_color.dart';
 
 class _ActivityEntry {
   const _ActivityEntry({required this.pc, required this.job});
@@ -84,16 +85,12 @@ class _StatusPageState extends State<StatusPage> {
   bool _switchingPc = false;
   final Map<String, DroidDeckClient> _targetClients = {};
   int _targetGeneration = 0;
-  int _appsGeneration = -1;
   int _jobsGeneration = -1;
   int _transfersGeneration = -1;
-  List<AllowedApp> _apps = [];
   List<_ActivityEntry> _jobs = [];
   Set<String> _unavailableActivityPcIds = {};
   String _activityPcFilter = 'all';
-  bool _loadingApps = false;
   bool _loadingJobs = false;
-  final Set<String> _pendingActions = {};
 
   ScreenshotInfo? _lastScreenshot;
   Uint8List? _lastScreenshotBytes;
@@ -280,33 +277,12 @@ class _StatusPageState extends State<StatusPage> {
 
   Future<void> _loadAppsAndJobs() async {
     await Future.wait([
-      _fetchApps(),
       _fetchJobs(),
       _fetchTransfers(),
       _fetchServices(),
       _fetchTopProcesses(),
       _measureLatency(),
     ]);
-  }
-
-  Future<void> _fetchApps() async {
-    final client = _targetClient;
-    if (client == null) return;
-    final generation = _targetGeneration;
-    if (_loadingApps && _appsGeneration == generation) return;
-    _appsGeneration = generation;
-    if (mounted) setState(() => _loadingApps = true);
-    try {
-      final apps = await client.getApps();
-      if (mounted && generation == _targetGeneration) {
-        setState(() => _apps = apps);
-      }
-    } catch (_) {
-      // Ignora erro de rede quando offline
-    } finally {
-      if (mounted && generation == _targetGeneration)
-        setState(() => _loadingApps = false);
-    }
   }
 
   Future<void> _fetchJobs() async {
@@ -436,151 +412,6 @@ class _StatusPageState extends State<StatusPage> {
     } finally {
       if (mounted) {
         setState(() => _capturingScreenshot = false);
-      }
-    }
-  }
-
-  Future<void> _launchApp(AllowedApp app) async {
-    final client = _targetClient;
-    if (client == null || _pendingActions.contains(app.id)) return;
-    setState(() => _pendingActions.add(app.id));
-
-    final reqId = '${DateTime.now().microsecondsSinceEpoch}_${app.id}';
-    try {
-      final job = await client.launchApp(app.id, requestId: reqId);
-      if (mounted) {
-        if (job.status == 'succeeded') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                tr('"{name}" iniciado com sucesso.', {'name': app.name}),
-              ),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                tr('Falha ao iniciar "{name}": {err}', {
-                  'name': app.name,
-                  'err': job.errorMessage ?? tr('Erro desconhecido'),
-                }),
-              ),
-              backgroundColor: Colors.redAccent,
-            ),
-          );
-        }
-      }
-      await _fetchApps();
-      await _fetchJobs();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              tr(
-                'Erro ao executar ação (sem retry automático): {e}. Verifique a lista de Atividade.',
-                {'e': e.toString()},
-              ),
-            ),
-            backgroundColor: const Color(0xFFF87171),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _pendingActions.remove(app.id));
-      }
-    }
-  }
-
-  Future<void> _confirmAndKillApp(AllowedApp app) async {
-    if (_pendingActions.contains(app.id)) return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(tr('Encerrar Aplicativo')),
-        content: Text(
-          tr(
-            'PC: {pc}\nDeseja realmente encerrar a instância de "{name}"? Esta ação interrompe o processo imediatamente.',
-            {'pc': _targetPc?.name ?? 'PC selecionado', 'name': app.name},
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(tr('Cancelar')),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFF87171),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(tr('Encerrar')),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    final client = _targetClient;
-    if (client == null) return;
-
-    setState(() => _pendingActions.add(app.id));
-    final reqId = '${DateTime.now().microsecondsSinceEpoch}_kill_${app.id}';
-
-    try {
-      final job = await client.killApp(
-        app.id,
-        requestId: reqId,
-        confirmed: true,
-        processId: app.processId,
-        startTimeUtc: app.startTimeUtc,
-      );
-      if (mounted) {
-        if (job.status == 'succeeded') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                tr('Processo de "{name}" encerrado.', {'name': app.name}),
-              ),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                tr('Falha ao encerrar "{name}": {err}', {
-                  'name': app.name,
-                  'err': job.errorMessage ?? tr('Erro desconhecido'),
-                }),
-              ),
-              backgroundColor: Colors.redAccent,
-            ),
-          );
-        }
-      }
-      await _fetchApps();
-      await _fetchJobs();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              tr(
-                'Erro ao encerrar processo (sem retry automático): {e}. Verifique a lista de Atividade.',
-                {'e': e.toString()},
-              ),
-            ),
-            backgroundColor: const Color(0xFFF87171),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _pendingActions.remove(app.id));
       }
     }
   }
@@ -1819,28 +1650,11 @@ class _StatusPageState extends State<StatusPage> {
     );
   }
 
-  IconData _iconForApp(String iconName) {
-    switch (iconName.toLowerCase()) {
-      case 'description':
-      case 'note':
-        return Icons.description_outlined;
-      case 'terminal':
-      case 'code':
-        return Icons.code_rounded;
-      case 'edit_note':
-      case 'edit':
-        return Icons.edit_note_rounded;
-      default:
-        return Icons.apps_rounded;
-    }
-  }
-
   Future<void> _handleSwitchPc(SavedPc pc) async {
     if (_switchingPc || pc.id == _currentPc?.id) return;
     setState(() {
       _switchingPc = true;
       _targetGeneration++;
-      _apps = [];
       _outboundFiles = [];
     });
     try {
@@ -2655,193 +2469,6 @@ class _StatusPageState extends State<StatusPage> {
 
               const SizedBox(height: 12),
 
-              // Card de Ações Autorizadas (Allowlist F4)
-              Card(
-                elevation: 0,
-                color: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.3,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: theme.colorScheme.outlineVariant.withValues(
-                      alpha: 0.35,
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.verified_user_outlined,
-                                size: 20,
-                                color: Color(0xFFA78BFA),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                tr('Ações Autorizadas'),
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.refresh, size: 18),
-                            tooltip: tr('Atualizar lista'),
-                            onPressed: _loadingApps ? null : _fetchApps,
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 28, bottom: 4),
-                        child: Text(
-                          'PC-alvo: ${_targetPc?.name ?? "Selecione um PC"}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFA78BFA),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (_loadingApps && _apps.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      else if (_apps.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Text(
-                            tr(
-                              'Nenhum aplicativo retornado pelo PC. Conecte ao Bridge para carregar.',
-                            ),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _apps.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 12, thickness: 0.5),
-                          itemBuilder: (context, index) {
-                            final app = _apps[index];
-                            final isPending = _pendingActions.contains(app.id);
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: CircleAvatar(
-                                radius: 18,
-                                backgroundColor: const Color(
-                                  0xFFA78BFA,
-                                ).withValues(alpha: 0.15),
-                                child: Icon(
-                                  _iconForApp(app.icon),
-                                  color: const Color(0xFFA78BFA),
-                                  size: 20,
-                                ),
-                              ),
-                              title: Text(
-                                app.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              subtitle: Text(
-                                app.description,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (app.canKill) ...[
-                                    OutlinedButton(
-                                      style: OutlinedButton.styleFrom(
-                                        foregroundColor: const Color(
-                                          0xFFF87171,
-                                        ),
-                                        side: const BorderSide(
-                                          color: Color(0xFFF87171),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                      onPressed: isPending
-                                          ? null
-                                          : () => _confirmAndKillApp(app),
-                                      child: isPending
-                                          ? const SizedBox(
-                                              width: 14,
-                                              height: 14,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                          : Text(
-                                              tr('Encerrar'),
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  FilledButton(
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: const Color(0xFFA78BFA),
-                                      foregroundColor: Colors.black,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                    onPressed: isPending
-                                        ? null
-                                        : () => _launchApp(app),
-                                    child: isPending
-                                        ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.black,
-                                            ),
-                                          )
-                                        : Text(
-                                            tr('Abrir'),
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
               // Card de Streaming de Tela ao Vivo (Onda v0.3 - T2)
               _buildLiveStreamCard(theme),
 
@@ -2879,10 +2506,7 @@ class _StatusPageState extends State<StatusPage> {
                 targetPcName: _targetPc?.name,
                 deviceId: _targetPc?.id,
                 dualTargets: _routineExecutionTargets,
-                onRoutineExecuted: () {
-                  _fetchApps();
-                  _fetchJobs();
-                },
+                onRoutineExecuted: _fetchJobs,
               ),
 
               const SizedBox(height: 12),
@@ -3198,7 +2822,6 @@ class _StatusPageState extends State<StatusPage> {
     final reqId = 'quick_${DateTime.now().microsecondsSinceEpoch}';
     if (action.actionType == 'app.launch') {
       final job = await client.launchApp(action.targetId, requestId: reqId);
-      await _fetchApps();
       await _fetchJobs();
       if (job.status != 'succeeded') {
         throw StateError(job.errorMessage ?? 'O Bridge não confirmou a abertura do aplicativo.');
@@ -3209,7 +2832,6 @@ class _StatusPageState extends State<StatusPage> {
         requestId: reqId,
         confirmed: true,
       );
-      await _fetchApps();
       await _fetchJobs();
       if (job.status != 'succeeded') {
         throw StateError(job.errorMessage ?? 'O Bridge não confirmou o encerramento do aplicativo.');
@@ -3773,16 +3395,7 @@ class _MetricCard extends StatelessWidget {
 
   Widget _buildTempBadge(double? temp) {
     final String text = temp != null ? '${temp.toStringAsFixed(0)}°C' : 'N/D';
-    final Color color;
-    if (temp == null) {
-      color = const Color(0xFF9CA3AF);
-    } else if (temp <= 65) {
-      color = const Color(0xFF10B981);
-    } else if (temp <= 80) {
-      color = const Color(0xFFF59E0B);
-    } else {
-      color = const Color(0xFFEF4444);
-    }
+    final Color color = thermalColor(temp);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),

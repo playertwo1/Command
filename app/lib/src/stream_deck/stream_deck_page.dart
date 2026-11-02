@@ -7,8 +7,13 @@ import 'package:droiddeck/src/stream_deck/stream_deck_controller.dart';
 import 'package:droiddeck/src/stream_deck/widgets/dynamic_deck_button.dart';
 import 'package:droiddeck/src/stream_deck/widgets/button_editor_dialog.dart';
 import 'package:droiddeck/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'dart:convert';
+
 import 'package:droiddeck/core/core.dart';
+import 'package:droiddeck/src/stream_deck/buttons/button_look.dart';
+import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
@@ -311,20 +316,15 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
 
   /// Calcula quantos botões (cols×rows) cabem INTEIROS no espaço disponível
   /// (já dentro da SafeArea) e o tamanho de cada botão pra preencher sem rolagem.
-  _GridFit _computeGrid(double w, double h) {
-    const spacing = 8.0;
-    const target = 96.0; // tamanho-alvo do botão (confortável pra tocar)
-    int cols = ((w + spacing) / (target + spacing)).floor();
-    int rows = ((h + spacing) / (target + spacing)).floor();
-    if (cols < 1) cols = 1;
-    if (cols > 20) cols = 20;
-    if (rows < 1) rows = 1;
-    if (rows > 20) rows = 20;
-    final double cellW = (w - spacing * (cols - 1)) / cols;
-    final double cellH = (h - spacing * (rows - 1)) / rows;
-    double cell = cellW < cellH ? cellW : cellH;
-    if (cell < 1) cell = 1;
-    return _GridFit(cols: cols, rows: rows, cell: cell, spacing: spacing);
+  _GridFit _computeGrid(double w, double h, {int? customColumns, int? customRows, double spacing = 8}) {
+    final fit = fitDeckGrid(
+      width: w,
+      height: h,
+      customColumns: customColumns,
+      customRows: customRows,
+      spacing: spacing,
+    );
+    return _GridFit(cols: fit.columns, rows: fit.rows, cell: fit.cell, spacing: fit.spacing);
   }
 
   /// O celular é a fonte da verdade da grade: reporta ao PC quando ela muda
@@ -646,12 +646,23 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               // A grade é o que cabe na tela (dentro da SafeArea: sem câmera/barra).
+              final margin = (currentProfile?.margin ?? 0).clamp(0, 32).toDouble();
+              final gap = (currentProfile?.gap ?? 8).clamp(4, 24).toDouble();
+              final customGrid = currentProfile?.useCustomGrid == true;
               final g = _computeGrid(
-                constraints.maxWidth,
-                constraints.maxHeight,
+                (constraints.maxWidth - margin * 2).clamp(1, double.infinity).toDouble(),
+                (constraints.maxHeight - margin * 2).clamp(1, double.infinity).toDouble(),
+                customColumns: customGrid ? currentProfile!.columns : null,
+                customRows: customGrid ? currentProfile!.rows : null,
+                spacing: gap,
               );
               _maybeReportLayout(g);
               return Stack(
+                children: [
+                  Positioned.fill(child: _profileBackdrop(currentProfile)),
+                  Padding(
+                    padding: EdgeInsets.all(margin),
+                    child: Stack(
                 children: [
                   PageView.builder(
                     controller: _pageController,
@@ -764,11 +775,51 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                       ),
                     ),
                 ],
+              ),
+                  ),
+                ],
               );
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _backdropImage(String image) {
+    try {
+      final bytes = base64Decode(ButtonLook.stripDataUri(image));
+      if (buttonImageKind(bytes) == ButtonImageKind.svg) {
+        return SvgPicture.memory(bytes, fit: BoxFit.cover);
+      }
+      return Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      );
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _profileBackdrop(DeckProfile? profile) {
+    if (profile == null) return const SizedBox.expand();
+    final start = parseHexColor(profile.backgroundColor);
+    final end = parseHexColor(profile.backgroundColorEnd);
+    final decoration = start == null
+        ? null
+        : (end != null && end.toARGB32() != start.toARGB32()
+            ? BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [start, end]))
+            : BoxDecoration(color: start));
+    final image = profile.backgroundImageBase64;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (decoration != null) DecoratedBox(decoration: decoration),
+        if (image != null && image.isNotEmpty)
+          _backdropImage(image),
+      ],
     );
   }
 }

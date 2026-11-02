@@ -29,6 +29,7 @@ class InfoSection extends StatelessWidget {
     'cpu_monitor': 'Uso da CPU',
     'memory_monitor': 'Uso da memória',
     'gpu_monitor': 'Uso da GPU',
+    'temp_monitor': 'Temperatura',
     'network_monitor': 'Rede',
     'clock': 'Relógio',
     'weather': 'Clima',

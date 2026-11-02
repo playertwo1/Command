@@ -9,6 +9,25 @@ namespace DroidDeck.Models
         public string Name { get; set; } = "New Profile";
         public int Rows { get; set; } = 3;
         public int Columns { get; set; } = 4;
+
+        /// Quando verdadeiro, o celular usa Rows (2–6) e Columns (2–8) em vez da grade automática.
+        public bool UseCustomGrid { get; set; }
+
+        /// <summary>Cor sólida ou início do gradiente do painel.</summary>
+        public string? BackgroundColor { get; set; }
+
+        /// <summary>Segunda cor do gradiente. Vazio = cor sólida.</summary>
+        public string? BackgroundColorEnd { get; set; }
+
+        /// <summary>Imagem de fundo em base64 (PNG, JPG ou GIF).</summary>
+        public string? BackgroundImageBase64 { get; set; }
+
+        /// <summary>Espaço entre botões, em px lógicos. 4–24.</summary>
+        public int Gap { get; set; } = 8;
+
+        /// <summary>Margem da grade na tela, em px lógicos.</summary>
+        public int Margin { get; set; }
+
         public bool IsDefault { get; set; } = false;
         public List<DeckButton> Buttons { get; set; } = new List<DeckButton>();
 
@@ -53,6 +72,17 @@ namespace DroidDeck.Models
         public string? ActiveLabel { get; set; }
         public string? ActiveIconName { get; set; }
         public string? ActiveIconBase64 { get; set; }
+
+        /// <summary>Tamanho do rótulo, 8–18. Nulo = automático.</summary>
+        public int? LabelFontSize { get; set; }
+        public string? LabelAlign { get; set; }
+        public string? LabelVAlign { get; set; }
+        public bool HideLabel { get; set; }
+        public int? CornerRadius { get; set; }
+        public int? BorderWidth { get; set; }
+        public string? BorderColor { get; set; }
+        /// <summary>off, light, medium ou heavy. Nulo = ajuste do app.</summary>
+        public string? Haptic { get; set; }
 
         /// <summary>Parametros do botao de informacao (cidade do clima, comando, URL...).</summary>
         public Dictionary<string, string>? DynamicParameters { get; set; }

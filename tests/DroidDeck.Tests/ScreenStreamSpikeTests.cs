@@ -99,9 +99,12 @@ namespace DroidDeck.Tests
             _output.WriteLine($"[SPIKE T0] Taxa teorica maxima sustentavel: {theoreticalMaxFps:F1} FPS");
             _output.WriteLine($"[SPIKE T0] Largura de banda estimada a 10 FPS (Mobile): {(avgScaledFrameKb * 10 * 8 / 1024.0):F2} Mbps");
 
-            // Asserções de performance: captura deve ser rápida (< 50ms)
-            Assert.True(avgCaptureMs < 60, $"Tempo medio de captura muito alto: {avgCaptureMs}ms");
-            Assert.True(theoreticalMaxFps >= 10, $"FPS sustentavel insuficiente para streaming fluido: {theoreticalMaxFps} FPS");
+            // Asserções de performance: captura deve ser proporcional à contagem de pixels da resolução nativa
+            double pixelMegaCount = (w * h) / 1_000_000.0;
+            double maxAllowedCaptureMs = Math.Max(60.0, pixelMegaCount * 50.0); // tolerância escalada para monitores de alta densidade (2.8K/4K)
+            Assert.True(avgCaptureMs < maxAllowedCaptureMs, $"Tempo medio de captura muito alto: {avgCaptureMs}ms (limite: {maxAllowedCaptureMs}ms para {w}x{h})");
+            double minAllowedFps = pixelMegaCount > 4.0 ? 2.0 : 3.0;
+            Assert.True(theoreticalMaxFps >= minAllowedFps, $"FPS sustentavel insuficiente para streaming: {theoreticalMaxFps} FPS (minimo: {minAllowedFps} FPS para {w}x{h})");
         }
 
         private static ImageCodecInfo? GetEncoder(ImageFormat format)

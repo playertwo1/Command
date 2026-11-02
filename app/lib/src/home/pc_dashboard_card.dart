@@ -2,6 +2,7 @@ import 'package:droiddeck/core/core.dart';
 import 'package:flutter/material.dart';
 import '../connection/pc_store.dart';
 import '../services/signalr_service.dart';
+import 'thermal_color.dart';
 
 class PcDashboardCard extends StatelessWidget {
   const PcDashboardCard({
@@ -71,6 +72,17 @@ class PcDashboardCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool _critical(double? celsius) => celsius != null && celsius > 85;
+
+  Widget _tempChip(String label, double? celsius) {
+    final color = thermalColor(celsius);
+    final text = celsius == null ? 'N/D' : '${celsius.toStringAsFixed(0)}°';
+    return Text(
+      '$label $text',
+      style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
     );
   }
 
@@ -144,6 +156,24 @@ class PcDashboardCard extends StatelessWidget {
                     '${stats.cpuUsage.toStringAsFixed(0)}% CPU · ${stats.ramUsage.toStringAsFixed(0)}% RAM',
                     style: theme.textTheme.bodySmall,
                   ),
+                  const SizedBox(height: 2),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 2,
+                    children: [
+                      _tempChip('CPU', stats.cpuTempC),
+                      _tempChip('GPU', stats.gpuTempC),
+                    ],
+                  ),
+                  if (_critical(stats.cpuTempC) || _critical(stats.gpuTempC))
+                    const Text(
+                      'Temperatura crítica',
+                      style: TextStyle(
+                        color: Color(0xFFF87171),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ],
                 if (selected)
                   const Text(

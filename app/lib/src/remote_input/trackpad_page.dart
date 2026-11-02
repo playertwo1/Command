@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:droiddeck/core/core.dart';
 import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:droiddeck/src/desktop_stream/desktop_stream_controller.dart';
+import 'package:droiddeck/src/desktop_stream/screen_coordinate_mapper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum RemoteInputStatus {
   connecting,
@@ -13,12 +16,13 @@ enum RemoteInputStatus {
   error,
 }
 
-/// Tela de Controle Remoto via Trackpad e Teclado Virtual (Fase R1).
+/// Tela de Controle Remoto via Trackpad e Teclado Virtual (Fase R1 + R3 Live Screen).
 class TrackpadPage extends StatefulWidget {
   final DroidDeckClient? client;
   final SavedPc? initialPc;
   final List<SavedPc>? availablePcs;
   final DroidDeckClient Function(SavedPc pc)? clientForPc;
+  final DesktopStreamController? streamController;
 
   const TrackpadPage({
     super.key,
@@ -26,6 +30,7 @@ class TrackpadPage extends StatefulWidget {
     this.initialPc,
     this.availablePcs,
     this.clientForPc,
+    this.streamController,
   });
 
   @override
@@ -43,6 +48,13 @@ class _TrackpadPageState extends State<TrackpadPage> {
   DroidDeckClient? _client;
   SavedPc? _activePc;
   List<SavedPc> _availablePcs = [];
+
+  late final DesktopStreamController _streamController;
+  bool _createdLocalController = false;
+  bool _directTouchMode = false;
+  bool _streamEnabled = true;
+  Offset? _tapRipplePosition;
+  Timer? _rippleTimer;
 
   RemoteInputStatus _status = RemoteInputStatus.connecting;
   String? _statusMessage;
@@ -72,11 +84,23 @@ class _TrackpadPageState extends State<TrackpadPage> {
     _availablePcs = widget.availablePcs != null ? List.from(widget.availablePcs!) : [];
     _client = widget.client;
 
+    if (widget.streamController != null) {
+      _streamController = widget.streamController!;
+    } else {
+      _streamController = DesktopStreamController();
+      _createdLocalController = true;
+    }
+
     _bootstrapAndStartSession();
   }
 
   @override
   void dispose() {
+    _rippleTimer?.cancel();
+    _streamController.stop();
+    if (_createdLocalController) {
+      _streamController.dispose();
+    }
     _textController.dispose();
     _textFocusNode.dispose();
     _endSession();
@@ -109,6 +133,16 @@ class _TrackpadPageState extends State<TrackpadPage> {
     await _startSession();
   }
 
+  void _startStream() {
+    if (!_streamEnabled || _activePc == null) return;
+    final url = _activePc!.baseUrl;
+    if (url.isEmpty) return;
+    _streamController.start(
+      baseUrl: url,
+      apiKey: _activePc!.apiKey,
+    );
+  }
+
   Future<void> _startSession() async {
     if (_client == null) {
       setState(() {
@@ -130,6 +164,7 @@ class _TrackpadPageState extends State<TrackpadPage> {
           _status = RemoteInputStatus.connected;
           _statusMessage = null;
         });
+        _startStream();
       }
     } on RemoteInputLockedException catch (e) {
       if (mounted) {
@@ -171,6 +206,7 @@ class _TrackpadPageState extends State<TrackpadPage> {
   Future<void> _switchPc(SavedPc pc) async {
     if (pc.id == _activePc?.id) return;
     await _endSession();
+    _streamController.stop();
 
     setState(() {
       _activePc = pc;
@@ -235,6 +271,45 @@ class _TrackpadPageState extends State<TrackpadPage> {
     }
     try {
       await _client!.sendMouseClick(button, action: action, deviceId: _activePc?.id);
+    } catch (e) {
+      _handleException(e);
+    }
+  }
+
+  Future<void> _handleDirectTapAt(Offset localPosition, Size containerSize, {String button = 'left'}) async {
+    if (_client == null || _status == RemoteInputStatus.locked || _status == RemoteInputStatus.forbidden) {
+      return;
+    }
+
+    final norm = ScreenCoordinateMapper.mapContainerToNormalized(
+      localPosition: localPosition,
+      containerSize: containerSize,
+      imageAspectRatio: _streamController.aspectRatio,
+    );
+
+    if (norm == null) {
+      return;
+    }
+
+    setState(() {
+      _tapRipplePosition = localPosition;
+    });
+    _rippleTimer?.cancel();
+    _rippleTimer = Timer(const Duration(milliseconds: 350), () {
+      if (mounted) {
+        setState(() {
+          _tapRipplePosition = null;
+        });
+      }
+    });
+
+    try {
+      await _client!.sendMouseClick(
+        button,
+        normalizedX: norm.dx,
+        normalizedY: norm.dy,
+        deviceId: _activePc?.id,
+      );
     } catch (e) {
       _handleException(e);
     }
@@ -498,71 +573,218 @@ class _TrackpadPageState extends State<TrackpadPage> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Listener(
-          onPointerDown: (_) => setState(() => _pointerCount++),
-          onPointerUp: (_) => setState(() => _pointerCount = (_pointerCount - 1).clamp(0, 10)),
-          onPointerCancel: (_) => setState(() => _pointerCount = (_pointerCount - 1).clamp(0, 10)),
-          onPointerSignal: (signal) {
-            if (signal is PointerScrollEvent) {
-              _sendMouseScroll(signal.scrollDelta.dx.round(), signal.scrollDelta.dy.round());
-            }
-          },
-          child: GestureDetector(
-            key: const Key('trackpad-gesture-area'),
-            behavior: HitTestBehavior.opaque,
-            onPanUpdate: (details) {
-              if (_pointerCount >= 2) {
-                _sendMouseScroll(details.delta.dx.round(), details.delta.dy.round());
-              } else {
-                _sendMouseMove(details.delta.dx, details.delta.dy);
-              }
-            },
-            onTap: () => _sendMouseClick('left'),
-            onSecondaryTap: () => _sendMouseClick('right'),
-            onDoubleTap: () => _sendMouseClick('right'),
-            onLongPress: () => _sendMouseClick('right'),
-            child: Container(
-              decoration: BoxDecoration(
-                color: trackpadColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor),
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.touch_app,
-                          size: 40,
-                          color: amethystAccent.withValues(alpha: 0.35),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Trackpad Tátil',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+        child: ListenableBuilder(
+          listenable: _streamController,
+          builder: (context, _) {
+            final hasFrame = _streamEnabled && _streamController.latestFrame != null;
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final containerSize = Size(constraints.maxWidth, constraints.maxHeight);
+
+                return Listener(
+                  onPointerDown: (_) => setState(() => _pointerCount++),
+                  onPointerUp: (_) => setState(() => _pointerCount = (_pointerCount - 1).clamp(0, 10)),
+                  onPointerCancel: (_) => setState(() => _pointerCount = (_pointerCount - 1).clamp(0, 10)),
+                  onPointerSignal: (signal) {
+                    if (signal is PointerScrollEvent) {
+                      _sendMouseScroll(signal.scrollDelta.dx.round(), signal.scrollDelta.dy.round());
+                    }
+                  },
+                  child: GestureDetector(
+                    key: const Key('trackpad-gesture-area'),
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: _directTouchMode
+                        ? null
+                        : (details) {
+                            if (_pointerCount >= 2) {
+                              _sendMouseScroll(details.delta.dx.round(), details.delta.dy.round());
+                            } else {
+                              _sendMouseMove(details.delta.dx, details.delta.dy);
+                            }
+                          },
+                    onTapUp: _directTouchMode
+                        ? (details) => _handleDirectTapAt(details.localPosition, containerSize, button: 'left')
+                        : null,
+                    onSecondaryTapUp: _directTouchMode
+                        ? (details) => _handleDirectTapAt(details.localPosition, containerSize, button: 'right')
+                        : null,
+                    onLongPressStart: _directTouchMode
+                        ? (details) {
+                            HapticFeedback.mediumImpact();
+                            _handleDirectTapAt(details.localPosition, containerSize, button: 'right');
+                          }
+                        : null,
+                    onTap: _directTouchMode ? null : () => _sendMouseClick('left'),
+                    onSecondaryTap: _directTouchMode ? null : () => _sendMouseClick('right'),
+                    onDoubleTap: _directTouchMode ? null : () => _sendMouseClick('right'),
+                    onLongPress: _directTouchMode ? null : () => _sendMouseClick('right'),
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: trackpadColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (hasFrame) ...[
+                            Image.memory(
+                              _streamController.latestFrame!,
+                              fit: BoxFit.contain,
+                              gaplessPlayback: true,
+                            ),
+                            if (_tapRipplePosition != null)
+                              Positioned(
+                                left: _tapRipplePosition!.dx - 18,
+                                top: _tapRipplePosition!.dy - 18,
+                                child: IgnorePointer(
+                                  child: Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: amethystAccent.withValues(alpha: 0.4),
+                                      border: Border.all(color: amethystAccent, width: 2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: amethystAccent.withValues(alpha: 0.6),
+                                          blurRadius: 10,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ] else ...[
+                            Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_streamEnabled && _streamController.isPlaying) ...[
+                                    const SizedBox(
+                                      width: 28,
+                                      height: 28,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: amethystAccent,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Aguardando transmissão da tela...',
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.6),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ] else ...[
+                                    Icon(
+                                      Icons.touch_app,
+                                      size: 40,
+                                      color: amethystAccent.withValues(alpha: 0.35),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Trackpad Tátil',
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.6),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Arraste para mover · Toque para clique esquerdo\n2 dedos ou duplo toque para clique direito',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.3),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          // Indicador de modo e FPS no canto superior direito
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (hasFrame && _streamController.fps > 0)
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.6),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0xFF34D5A0).withValues(alpha: 0.4)),
+                                    ),
+                                    child: Text(
+                                      '${_streamController.fps} FPS',
+                                      style: const TextStyle(
+                                        color: Color(0xFF34D5A0),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                GestureDetector(
+                                  key: const Key('mode-pill-toggle'),
+                                  onTap: () {
+                                    setState(() {
+                                      _directTouchMode = !_directTouchMode;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.7),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: _directTouchMode
+                                            ? const Color(0xFF34D5A0).withValues(alpha: 0.6)
+                                            : amethystAccent.withValues(alpha: 0.6),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          _directTouchMode ? Icons.touch_app : Icons.mouse,
+                                          size: 13,
+                                          color: _directTouchMode ? const Color(0xFF34D5A0) : amethystAccent,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _directTouchMode ? 'Toque Direto' : 'Trackpad',
+                                          style: TextStyle(
+                                            color: _directTouchMode ? const Color(0xFF34D5A0) : amethystAccent,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Arraste para mover · Toque para clique esquerdo\n2 dedos ou duplo toque para clique direito',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -751,12 +973,45 @@ class _TrackpadPageState extends State<TrackpadPage> {
           ),
         ),
         actions: [
+          IconButton(
+            key: const Key('toggle-stream-button'),
+            tooltip: _streamEnabled ? 'Pausar vídeo' : 'Transmitir vídeo',
+            icon: Icon(
+              _streamEnabled ? Icons.videocam : Icons.videocam_off,
+              color: _streamEnabled ? const Color(0xFF34D5A0) : Colors.white60,
+              size: 20,
+            ),
+            onPressed: () {
+              setState(() {
+                _streamEnabled = !_streamEnabled;
+                if (_streamEnabled) {
+                  _startStream();
+                } else {
+                  _streamController.stop();
+                }
+              });
+            },
+          ),
+          IconButton(
+            key: const Key('toggle-input-mode-button'),
+            tooltip: _directTouchMode ? 'Mudar para Trackpad' : 'Mudar para Toque Direto',
+            icon: Icon(
+              _directTouchMode ? Icons.touch_app : Icons.mouse,
+              color: _directTouchMode ? const Color(0xFF34D5A0) : amethystAccent,
+              size: 20,
+            ),
+            onPressed: () {
+              setState(() {
+                _directTouchMode = !_directTouchMode;
+              });
+            },
+          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: _buildPcSelector(),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 12.0),
+            padding: const EdgeInsets.only(right: 8.0),
             child: Center(child: _buildStatusBadge()),
           ),
         ],

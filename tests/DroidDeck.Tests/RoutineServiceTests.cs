@@ -130,14 +130,14 @@ namespace DroidDeck.Tests
         }
 
         [Fact]
-        public void RoutineService_DeleteCustomRoutine_ProtectsPresets()
+        public void RoutineService_DeleteCustomRoutine_AllowsDeletingPresetsAndCustomRoutines()
         {
             var service = new RoutineService(_appCatalog);
 
-            // Preset não pode ser deletado
+            // Preset agora pode ser excluído conforme solicitado pelo usuário (v1.6 Fase R4)
             bool deletedPreset = service.DeleteCustomRoutine("preset_study_vault");
-            Assert.False(deletedPreset);
-            Assert.NotNull(service.GetRoutine("preset_study_vault"));
+            Assert.True(deletedPreset);
+            Assert.Null(service.GetRoutine("preset_study_vault"));
 
             // Rotina customizada pode ser deletada
             var custom = new RoutineDefinitionDto
@@ -155,6 +155,52 @@ namespace DroidDeck.Tests
             bool deletedCustom = service.DeleteCustomRoutine("temp_routine");
             Assert.True(deletedCustom);
             Assert.Null(service.GetRoutine("temp_routine"));
+        }
+
+        [Fact]
+        public void RoutineService_ExpandedActions_ValidatesShortcutsMediaAndPower()
+        {
+            var service = new RoutineService(_appCatalog);
+
+            var validRoutine = new RoutineDefinitionDto
+            {
+                Id = "expanded_routine",
+                Name = "Rotina Expandida",
+                Steps = new List<RoutineStepDto>
+                {
+                    new() { ActionType = "system.shortcut", TargetId = "Win+D", DelayMs = 100 },
+                    new() { ActionType = "media.control", TargetId = "play_pause", DelayMs = 100 },
+                    new() { ActionType = "power.action", TargetId = "lock", DelayMs = 0 }
+                }
+            };
+
+            var saved = service.SaveCustomRoutine(validRoutine);
+            Assert.NotNull(saved);
+            Assert.Equal(3, saved.Steps.Count);
+
+            // Rejeita atalho inválido / shell injection
+            var invalidShortcut = new RoutineDefinitionDto
+            {
+                Id = "invalid_shortcut",
+                Name = "Atalho Inválido",
+                Steps = new List<RoutineStepDto>
+                {
+                    new() { ActionType = "system.shortcut", TargetId = "rm -rf /" }
+                }
+            };
+            Assert.Throws<InvalidOperationException>(() => service.SaveCustomRoutine(invalidShortcut));
+
+            // Rejeita ação de energia fora da allowlist
+            var invalidPower = new RoutineDefinitionDto
+            {
+                Id = "invalid_power",
+                Name = "Ação de Energia Inválida",
+                Steps = new List<RoutineStepDto>
+                {
+                    new() { ActionType = "power.action", TargetId = "explode" }
+                }
+            };
+            Assert.Throws<InvalidOperationException>(() => service.SaveCustomRoutine(invalidPower));
         }
 
         [Fact]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DroidDeck.Lib.Input;
 using DroidDeck.Services;
 
 namespace DroidDeck.Actions.Providers
@@ -86,7 +87,12 @@ namespace DroidDeck.Actions.Providers
         public Task ExecuteAsync(ActionContext c)
         {
             var keys = c.Get("keys");
-            if (keys.Length > 0) _activator.SendKeys(keys);
+            if (keys.Length == 0) return Task.CompletedTask;
+            // Ctrl+C vindo do celular vira ^c. Atalho antigo do configurador segue na sintaxe SendKeys.
+            if (KeyAllowlist.TryNormalizeAndValidate(keys, out var sequence, out _))
+                _activator.SendKeys(sequence);
+            else
+                _activator.SendKeys(keys);
             return Task.CompletedTask;
         }
     }

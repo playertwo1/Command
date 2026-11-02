@@ -55,6 +55,24 @@ namespace DroidDeck.Tests
             Assert.True(ActionPolicy.IsPrivileged(Act("multi", ("steps", "nao e json"))));
 
         [Fact]
+        public void Remoto_PodeCriarAtalhoDaAllowlist_ENaoSequenciaLivre()
+        {
+            Assert.True(ActionPolicy.IsAllowlistedHotkey(Act("hotkey", ("keys", "Ctrl+C"))));
+            Assert.False(ActionPolicy.IsPrivileged(Act("hotkey", ("keys", "Win+D"))));
+            Assert.True(ActionPolicy.IsPrivileged(Act("hotkey", ("keys", "^c"))));
+            Assert.True(ActionPolicy.IsPrivileged(Act("hotkey", ("keys", "powershell"))));
+
+            var saved = Profile();
+            var allowed = Profile(new DeckButton { Id = "b1", Action = Act("hotkey", ("keys", "Alt+Tab")) });
+            Assert.Null(ActionPolicy.FindRemoteViolation(allowed, saved));
+
+            var shell = Profile(new DeckButton { Id = "b2", Action = Act("hotkey", ("keys", "cmd.exe")) });
+            Assert.NotNull(ActionPolicy.FindRemoteViolation(shell, saved));
+
+            Assert.False(ActionPolicy.IsPrivileged(Act("catalog_app", ("appId", "obsidian"))));
+        }
+
+        [Fact]
         public void Remoto_NaoPodeCriarBotaoPrivilegiado()
         {
             var saved = Profile();

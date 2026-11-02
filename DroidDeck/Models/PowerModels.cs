@@ -24,7 +24,7 @@ namespace DroidDeck.Models
     public class PowerActionRequest
     {
         [JsonPropertyName("action")]
-        public string Action { get; set; } = string.Empty; // "lock" ou "sleep"
+        public string Action { get; set; } = string.Empty; // lock, sleep, shutdown ou restart
 
         [JsonPropertyName("confirmed")]
         public bool Confirmed { get; set; }

@@ -67,6 +67,31 @@ namespace DroidDeck.Tests
         }
 
         [Fact]
+        public void ThermalScale_ConvertsKelvinTenthsAndRejectsGarbage()
+        {
+            Assert.Equal(50.1f, ThermalScale.FromTenthsOfKelvin(3232));
+            Assert.Null(ThermalScale.FromTenthsOfKelvin(0));
+            Assert.Null(ThermalScale.FromTenthsOfKelvin(100));
+            Assert.Equal(62.5f, ThermalScale.FromMilliCelsius(62500));
+            Assert.Null(ThermalScale.FromMilliCelsius(200000));
+        }
+
+        [Fact]
+        public void ThermalScale_PrefersLibreThenAcpiAndNvidiaThenAmd()
+        {
+            var both = ThermalScale.Choose(40f, 50f, 70f, 80f, 90f);
+            Assert.Equal(40f, both.Cpu);
+            Assert.Equal(50f, both.Gpu);
+
+            var fallback = ThermalScale.Choose(null, null, 61.2f, null, 72f);
+            Assert.Equal(61.2f, fallback.Cpu);
+            Assert.Equal(72f, fallback.Gpu);
+
+            var nvidia = ThermalScale.Choose(null, null, null, 66f, 72f);
+            Assert.Equal(66f, nvidia.Gpu);
+        }
+
+        [Fact]
         public void MockHardwareSensorProvider_ReturnsConfiguredValues()
         {
             var mock = new FakeHardwareSensorProvider(

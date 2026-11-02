@@ -29,27 +29,31 @@ class _PowerControlCardState extends State<PowerControlCard> {
   static const Color buttonBg = Color(0xFF1E1B2E);
 
   Future<void> _handlePowerAction(String action, String actionName) async {
+    final endsSession = action == 'shutdown' || action == 'restart';
+    final pcName = widget.targetPcName ?? 'PC selecionado';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1829),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Confirmar Controle de Sessão',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          endsSession ? actionName : 'Confirmar Controle de Sessão',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'PC-alvo: ${widget.targetPcName ?? "PC selecionado"}\nDeseja realmente executar "$actionName"?',
+              'PC-alvo: $pcName\nDeseja realmente executar "$actionName"?',
               style: const TextStyle(color: amethystAccent, fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Atenção: Ao bloquear ou suspender o PC, a captura de tela ficará indisponível até o desbloqueio local.',
-              style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
+            Text(
+              endsSession
+                  ? 'A sessão será encerrada. A conexão com este PC cai e o trabalho não salvo pode ser perdido.'
+                  : 'Atenção: Ao bloquear ou suspender o PC, a captura de tela ficará indisponível até o desbloqueio local.',
+              style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
             ),
           ],
         ),
@@ -65,7 +69,12 @@ class _PowerControlCardState extends State<PowerControlCard> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Confirmar Agora', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              endsSession
+                  ? (action == 'restart' ? 'Reiniciar agora' : 'Desligar agora')
+                  : 'Confirmar Agora',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -205,7 +214,7 @@ class _PowerControlCardState extends State<PowerControlCard> {
                         ),
                       ),
                       Text(
-                        'Ações seguras de energia com confirmação (W0/W1)',
+                        'Bloquear, suspender, desligar e reiniciar com confirmação',
                         style: TextStyle(color: Colors.white60, fontSize: 11),
                       ),
                     ],
@@ -249,6 +258,45 @@ class _PowerControlCardState extends State<PowerControlCard> {
                       ),
                     ),
                     onPressed: _isProcessing ? null : () => _handlePowerAction('sleep', 'Suspender PC'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.power_settings_new, size: 18, color: amethystAccent),
+                    label: const Text('Desligar PC'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonBg,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: amethystAccent.withValues(alpha: 0.45)),
+                      ),
+                    ),
+                    onPressed: _isProcessing ? null : () => _handlePowerAction('shutdown', 'Desligar PC'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.restart_alt, size: 18, color: amethystAccent),
+                    label: const Text('Reiniciar PC'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonBg,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: amethystAccent.withValues(alpha: 0.45)),
+                      ),
+                    ),
+                    onPressed: _isProcessing ? null : () => _handlePowerAction('restart', 'Reiniciar PC'),
                   ),
                 ),
               ],

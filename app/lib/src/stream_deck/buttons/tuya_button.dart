@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../tuya_display.dart';
 import 'button_look.dart';
+import 'colors.dart';
 
 /// Casa inteligente (Tuya): estado, nível e cor reais do aparelho.
 class TuyaButtonRenderer extends ButtonRenderer {
@@ -47,6 +48,10 @@ class TuyaButtonRenderer extends ButtonRenderer {
       activeColor: rgb ?? look.activeColor,
       onTap: look.onTap,
       onLongPress: look.onLongPress,
+      radius: look.button.cornerRadius?.toDouble(),
+      borderWidth: look.button.borderWidth?.toDouble(),
+      borderColor: parseHexColor(look.button.borderColor),
+      haptic: look.button.haptic,
       child: Builder(builder: (context) {
         final fg = DeckTile.foregroundOf(context);
         return Stack(

@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Management;
 using LibreHardwareMonitor.Hardware;
 using Microsoft.Extensions.Logging;
 
@@ -34,6 +35,8 @@ namespace DroidDeck.Services
         private float? _cachedGpuTemp;
         private DateTime _lastUpdateUtc = DateTime.MinValue;
         private readonly TimeSpan _minUpdateInterval = TimeSpan.FromSeconds(3);
+        private bool _loggedAcpi;
+        private bool _loggedGpu;
 
         public HardwareSensorProvider(ILogger<HardwareSensorProvider>? logger = null)
         {
@@ -107,7 +110,7 @@ namespace DroidDeck.Services
 
         public void UpdateSensors()
         {
-            if (_computer == null || !OperatingSystem.IsWindows())
+            if (!OperatingSystem.IsWindows())
                 return;
 
             lock (_lock)
@@ -117,38 +120,91 @@ namespace DroidDeck.Services
 
                 _lastUpdateUtc = DateTime.UtcNow;
 
+                float? libreCpu = null;
+                float? libreGpu = null;
                 try
                 {
-                    float? cpuTemp = null;
-                    float? gpuTemp = null;
-
-                    foreach (var hardware in _computer.Hardware)
-                    {
-                        try
-                        {
-                            hardware.Update();
-
-                            ExtractTemperatures(hardware, ref cpuTemp, ref gpuTemp);
-
-                            foreach (var sub in hardware.SubHardware)
-                            {
-                                sub.Update();
-                                ExtractTemperatures(sub, ref cpuTemp, ref gpuTemp);
-                            }
-                        }
-                        catch
-                        {
-                            // Ignora falhas em componentes individuais
-                        }
-                    }
-
-                    _cachedCpuTemp = cpuTemp;
-                    _cachedGpuTemp = gpuTemp;
+                    ReadLibreHardwareMonitor(ref libreCpu, ref libreGpu);
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogDebug(ex, "[HardwareSensors] Erro ao atualizar sensores de hardware.");
+                    _logger?.LogDebug(ex, "[HardwareSensors] Erro ao atualizar o LibreHardwareMonitor.");
                 }
+
+                float? acpi = null;
+                float? nvidia = null;
+                float? amd = null;
+                if (libreCpu == null)
+                {
+                    acpi = ReadAcpiThermalZone();
+                    if (acpi != null && !_loggedAcpi)
+                    {
+                        _loggedAcpi = true;
+                        _logger?.LogInformation("[HardwareSensors] CPU lida pela zona térmica ACPI.");
+                    }
+                }
+                if (libreGpu == null)
+                {
+                    nvidia = GpuThermalReader.ReadNvidia();
+                    amd = nvidia == null ? GpuThermalReader.ReadAmd() : null;
+                    if ((nvidia != null || amd != null) && !_loggedGpu)
+                    {
+                        _loggedGpu = true;
+                        _logger?.LogInformation("[HardwareSensors] GPU lida pelo driver, sem elevação.");
+                    }
+                }
+
+                var chosen = ThermalScale.Choose(libreCpu, libreGpu, acpi, nvidia, amd);
+                _cachedCpuTemp = chosen.Cpu;
+                _cachedGpuTemp = chosen.Gpu;
+            }
+        }
+
+        private void ReadLibreHardwareMonitor(ref float? cpuTemp, ref float? gpuTemp)
+        {
+            if (_computer == null) return;
+            foreach (var hardware in _computer.Hardware)
+            {
+                try
+                {
+                    hardware.Update();
+                    ExtractTemperatures(hardware, ref cpuTemp, ref gpuTemp);
+                    foreach (var sub in hardware.SubHardware)
+                    {
+                        sub.Update();
+                        ExtractTemperatures(sub, ref cpuTemp, ref gpuTemp);
+                    }
+                }
+                catch
+                {
+                    // Um componente quebrado não impede os outros.
+                }
+            }
+        }
+
+        private float? ReadAcpiThermalZone()
+        {
+            try
+            {
+                using var searcher = new ManagementObjectSearcher(
+                    @"root\wmi",
+                    "SELECT CurrentTemperature FROM MSAcpi_ThermalZoneTemperature");
+                float? hottest = null;
+                foreach (var entry in searcher.Get())
+                {
+                    using var zone = (ManagementObject)entry;
+                    if (zone["CurrentTemperature"] == null) continue;
+                    var raw = Convert.ToUInt32(zone["CurrentTemperature"]);
+                    var celsius = ThermalScale.FromTenthsOfKelvin(raw);
+                    if (celsius == null) continue;
+                    if (hottest == null || celsius > hottest) hottest = celsius;
+                }
+                return hottest;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogDebug(ex, "[HardwareSensors] Zona ACPI indisponível.");
+                return null;
             }
         }
 

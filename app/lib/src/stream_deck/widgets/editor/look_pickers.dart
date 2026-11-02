@@ -1,20 +1,26 @@
 import 'dart:convert';
 
 import 'package:droiddeck/core/core.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../buttons/button_icons.dart';
+import '../../buttons/button_look.dart';
+import '../../buttons/colors.dart';
 
-/// Abre a galeria e devolve a imagem escolhida em base64 (até 512×512), ou null.
+/// PNG, JPG, GIF animado ou SVG. Acima de 512 KiB devolve null.
 Future<String?> pickButtonImage() async {
-  final image = await ImagePicker().pickImage(
-    source: ImageSource.gallery,
-    maxWidth: 512,
-    maxHeight: 512,
+  const group = XTypeGroup(
+    label: 'Imagem',
+    extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'],
   );
-  if (image == null) return null;
-  return base64Encode(await image.readAsBytes());
+  final file = await openFile(acceptedTypeGroups: [group]);
+  if (file == null) return null;
+  final bytes = await file.readAsBytes();
+  if (bytes.isEmpty || bytes.length > 512 * 1024) return null;
+  final kind = buttonImageKind(bytes);
+  if (kind == ButtonImageKind.raster && bytes.length > 256 * 1024) return null;
+  return base64Encode(bytes);
 }
 
 /// Grade com os ícones embutidos; o primeiro quadrado é "sem ícone".
@@ -55,10 +61,21 @@ class IconGrid extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: spacing,
-      runSpacing: spacing,
-      children: [option(null), ...buttonIcons.keys.map(option)],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(spacing: spacing, runSpacing: spacing, children: [option(null)]),
+        for (final entry in iconCategories.entries) ...[
+          const SizedBox(height: 8),
+          Text(tr(entry.key), style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: entry.value.map(option).toList(),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -105,6 +122,74 @@ class ImagePreview extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Campo livre de cor. A paleta continua ao lado; aqui entra qualquer HEX.
+class HexColorField extends StatefulWidget {
+  final Color color;
+  final ValueChanged<Color> onChanged;
+
+  const HexColorField({super.key, required this.color, required this.onChanged});
+
+  @override
+  State<HexColorField> createState() => _HexColorFieldState();
+}
+
+class _HexColorFieldState extends State<HexColorField> {
+  late final TextEditingController _hex = TextEditingController(text: colorToHex(widget.color));
+
+  @override
+  void didUpdateWidget(HexColorField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final shown = parseHexColor(_hex.text);
+    if (shown?.toARGB32() != widget.color.toARGB32()) {
+      _hex.text = colorToHex(widget.color);
+    }
+  }
+
+  @override
+  void dispose() {
+    _hex.dispose();
+    super.dispose();
+  }
+
+  void _apply(String raw) {
+    final parsed = parseHexColor(raw.trim());
+    if (parsed != null) widget.onChanged(parsed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final alpha = widget.color.a.clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _hex,
+          decoration: InputDecoration(
+            labelText: tr('Cor HEX'),
+            hintText: '#A78BFA',
+            isDense: true,
+            border: const OutlineInputBorder(),
+          ),
+          onSubmitted: _apply,
+          onChanged: _apply,
+        ),
+        Row(
+          children: [
+            Text(tr('Opacidade'), style: const TextStyle(fontSize: 12)),
+            Expanded(
+              child: Slider(
+                value: alpha,
+                onChanged: (value) => widget.onChanged(widget.color.withValues(alpha: value)),
+              ),
+            ),
+            Text('${(alpha * 100).round()}%'),
+          ],
+        ),
+      ],
     );
   }
 }

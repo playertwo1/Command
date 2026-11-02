@@ -107,9 +107,14 @@ class _ActionPickerState extends State<ActionPicker> {
   }
 
   List<ActionSchema> get _available => _catalog.schemas.value
-      .where((s) => !widget.remote || _locked || !s.privileged)
+      .where((s) => !widget.remote || _locked || _phoneCanCreate(s))
       .where((s) => s.type != 'multi') // F7-01: Excluir macros não entregues no MVP
       .toList();
+
+  /// No celular: atalho só entra se a tecla passar na allowlist do PC.
+  /// App do catálogo já não é privilegiado. Caminho livre, janela e HTTP continuam no PC.
+  bool _phoneCanCreate(ActionSchema schema) =>
+      !schema.privileged || schema.type == 'hotkey' || schema.type == 'catalog_app';
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +212,14 @@ class _ActionPickerState extends State<ActionPicker> {
         : null;
     if (custom != null) return KeyedSubtree(key: key, child: custom);
 
+    if (widget.remote && schema.type == 'hotkey') {
+      return AllowlistedHotkeyField(
+        key: key,
+        value: _params['keys'] ?? '',
+        onChanged: (keys) => _setParams(keys.isEmpty ? {} : {'keys': keys}),
+      );
+    }
+
     if (schema.fields.isEmpty) {
       return schema.description != null
           ? EditorHint(schema.description!)
@@ -266,6 +279,68 @@ class _ActionPickerState extends State<ActionPicker> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Atalhos que o celular pode gravar. O PC recusa o que sair desta forma.
+const allowlistedHotkeyPresets = <(String, String)>[
+  ('Win+D', 'Área de trabalho'),
+  ('Alt+Tab', 'Alternar janela'),
+  ('Ctrl+C', 'Copiar'),
+  ('Ctrl+V', 'Colar'),
+  ('Ctrl+Z', 'Desfazer'),
+  ('Ctrl+S', 'Salvar'),
+  ('Win', 'Menu Iniciar'),
+  ('Esc', 'Esc'),
+  ('Enter', 'Enter'),
+  ('Space', 'Espaço'),
+  ('F5', 'Atualizar'),
+  ('F11', 'Tela cheia'),
+  ('PRTSC', 'Print'),
+];
+
+class AllowlistedHotkeyField extends StatelessWidget {
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  const AllowlistedHotkeyField({super.key, required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final known = allowlistedHotkeyPresets.any((p) => p.$1.toLowerCase() == value.toLowerCase());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DropdownButtonFormField<String>(
+          initialValue: known ? allowlistedHotkeyPresets
+              .firstWhere((p) => p.$1.toLowerCase() == value.toLowerCase())
+              .$1 : null,
+          decoration: InputDecoration(
+            labelText: tr('Atalho permitido'),
+            border: const OutlineInputBorder(),
+          ),
+          items: [
+            for (final preset in allowlistedHotkeyPresets)
+              DropdownMenuItem(value: preset.$1, child: Text('${preset.$2} (${preset.$1})')),
+          ],
+          onChanged: (next) {
+            if (next != null) onChanged(next);
+          },
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: value,
+          decoration: InputDecoration(
+            labelText: tr('Ou combinação'),
+            hintText: 'Ctrl+Shift+Esc',
+            helperText: tr('Só teclas da lista fechada. Caminho de programa continua no PC.'),
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }

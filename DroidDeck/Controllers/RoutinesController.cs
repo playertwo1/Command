@@ -70,7 +70,7 @@ namespace DroidDeck.Controllers
         }
 
         /// <summary>
-        /// Remove uma rotina personalizada. Rotinas predefinidas (presets) não podem ser removidas.
+        /// Remove uma rotina personalizada ou predefinida (preset).
         /// </summary>
         [HttpDelete("{id}")]
         public IActionResult DeleteCustomRoutine(string id)
@@ -79,11 +79,6 @@ namespace DroidDeck.Controllers
             if (routine == null)
             {
                 return NotFound(new { error = $"Rotina com ID '{id}' não encontrada." });
-            }
-
-            if (routine.IsPreset)
-            {
-                return BadRequest(new { error = "Rotinas predefinidas do sistema são protegidas e não podem ser excluídas." });
             }
 
             bool deleted = _routineService.DeleteCustomRoutine(id);

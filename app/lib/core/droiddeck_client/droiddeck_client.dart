@@ -348,6 +348,14 @@ class DroidDeckClient {
 
   /// Aperta um botão salvo: o PC lê a ação do perfil. É o caminho do deck — o
   /// /execute com ação avulsa recusa (403), de fora do PC, ações que rodam código.
+  /// Dispara uma ação tipada que não executa código arbitrário (mídia, volume, app do catálogo).
+  Future<void> executeDeckAction(String type, Map<String, String> parameters) async {
+    await _dio.post('/api/StreamDeck/execute', data: {
+      'type': type,
+      'parameters': parameters,
+    });
+  }
+
   Future<void> pressButton(String profileId, String buttonId,
       {String gesture = 'tap', bool confirmed = false}) async {
     await _dio.post(
@@ -934,7 +942,7 @@ class DroidDeckClient {
     return NetworkWakeInfo.fromJson(response.data as Map<String, dynamic>);
   }
 
-  /// Executa ações seguras de sessão e energia (lock, sleep) com confirmação explícita (Onda v0.6 - W1).
+  /// Executa lock, sleep, shutdown ou restart. O servidor recusa sem confirmed=true.
   Future<PowerActionResult> executePowerAction({
     required String action,
     required bool confirmed,
