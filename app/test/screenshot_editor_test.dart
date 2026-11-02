@@ -68,13 +68,13 @@ void main() {
     await tester.tap(find.byIcon(Icons.crop_square));
     await tester.pumpAndSettle();
 
-    // Arrasta o dedo sobre a imagem para criar um retângulo de destaque
+    // Arrasta o dedo sobre a imagem para criar um retângulo de destaque.
+    // Um único moveBy não dispara onPanUpdate no recognizer (o primeiro
+    // trecho vira só o slop). drag() quebra o movimento em dois eventos.
     final gestureTarget = find.byKey(const Key('annotation_canvas_gesture'));
     expect(gestureTarget, findsOneWidget);
 
-    final gesture = await tester.startGesture(tester.getCenter(gestureTarget));
-    await gesture.moveBy(const Offset(80, 60));
-    await gesture.up();
+    await tester.drag(gestureTarget, const Offset(80, 60));
     await tester.pumpAndSettle();
 
     // Ações de Undo e Clear devem aparecer na AppBar

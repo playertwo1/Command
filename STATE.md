@@ -3,7 +3,7 @@
 **Atualizado:** 2026-11-02 · **Marco ativo:** Onda v1.6 (release 1.6.1) · **Estado:** IN_PROGRESS
 
 ## CI
-- O push `feat(release): Command v1.6.1` (run 41522483742) falhou no `flutter analyze --no-fatal-infos` por um warning: variável `name` não usada em `mdns_discovery_service.dart:218`. Os `info` (`prefer_const_constructors` e demais) não derrubam esse comando. A leitura do nome DNS continua; o valor descartado só avançava o cursor. Correção local ainda sem commit.
+- O push da 1.6.1 (run 41522483742) falhou no analyzer por `unused_local_variable` em `mdns_discovery_service.dart`. Corrigido em `223e2e1`. O run seguinte (41529818749) passou no analyzer e falhou em `screenshot_editor_test.dart`: um `moveBy` único não gera `onPanUpdate`. O teste passou a usar `tester.drag`.
 
 ## O que funciona hoje (confirmado no código)
 - **Ambientes & Rotinas Customizáveis (Fase R4):** Exclusão e customização desbloqueadas para qualquer rotina (incluindo os 3 presets de fábrica); persistência automática das rotinas no PC em `%AppData%\Command\routines.json`; construtor de rotinas expandido com catálogo dinâmico de aplicativos autorizados, atalhos do teclado (`system.shortcut`), controle multimídia (`media.control`), energia (`power.action`) e pausas configuráveis (`delay`); menu de contexto no app móvel com opções de Editar, Duplicar e Excluir (com confirmação explícita).
