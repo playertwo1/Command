@@ -40,7 +40,7 @@
 
 ## Próxima ação
 - **H0 concluída** por confirmação humana do proprietário (2026-11-03), sem logs detalhados anexados. Próximo: I0.1 (varredura de segredos no histórico) e, só depois, decisão sobre I0.7 (repo público).
-- Itens `AVALIAR` e a onda v2.0 continuam fora de implementação até uma decisão explícita.
+- Itens `AVALIAR` continuam fora de implementação até uma decisão explícita. A onda v2.0 e o backlog de ideias foram removidos do roadmap a pedido do proprietário (2026-11-03).
 
 ## Bloqueios e aprovações humanas
 - Nenhum bloqueio técnico. Homologação física dos dois PCs reais: confirmada pelo proprietário em 2026-11-03.

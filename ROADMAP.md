@@ -13,7 +13,6 @@
 | **v1.0 — Hardening & Segurança** | Permissões granulares, Backup AES-256-GCM, Velopack, Auto-diagnóstico | `DONE` | Release v1.0.0 e v1.1.0 no GitHub |
 | **v1.5 — Mobilidade & Multi-PC** | 2 PCs simultâneos, Entrada remota, mDNS, Transferências retomáveis | `DONE` | Release v1.5.0 no GitHub (`c985086`) |
 | **v1.6 — Desktop Remoto & Customização** | Live Screen Full-DPI no Trackpad, Rotinas Livres, Energia, Deck Customizável, Temperaturas | `IN_PROGRESS` | Código das fases fechado. Suítes .NET (405) e Flutter (259) PASS. Homologação física H0 pendente |
-| **v2.0 — Ecossistema Aberto** | Sincronização P2P encriptada, widgets customizados de terceiros | `BACKLOG` | Planejado após v1.6 |
 
 ---
 
@@ -33,11 +32,3 @@
 
 *Detalhamento de tarefas e critérios por fase: consulte [`ROADMAP_V1.5.md`](ROADMAP_V1.5.md).*
 
----
-
-## Ideias Futuras (Backlog não autorizado para v1.6)
-| Ideia | Impacto Esperado | Quando Reavaliar |
-|---|---|---|
-| Suporte a múltiplos monitores no streaming | Alternar monitor secundário no mobile | Após conclusão da Onda v1.6 |
-| Sincronização direta via Bluetooth Low Energy | Operação em salas sem roteador Wi-Fi | Na Onda v2.0 |
-| Modo Controle de Jogos / Gamepad virtual | Emular controle XInput para jogos no PC | Avaliação pós-v2.0 |
