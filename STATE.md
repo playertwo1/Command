@@ -1,6 +1,6 @@
 # STATE — ponto de retomada
 
-**Atualizado:** 2026-11-03 · **Marco ativo:** Onda v1.6 (release 1.6.1) · **Estado:** IN_PROGRESS
+**Atualizado:** 2026-11-03 · **Marco ativo:** Onda v1.6 (release 1.6.2) · **Estado:** IN_PROGRESS
 
 ## CI
 - O push da 1.6.1 falhou no analyzer (`223e2e1`). O CI seguinte passou no analyzer e falhou em `screenshot_editor_test`: o arrasto no centro do canvas não acertava o detector. O canvas de anotação agora preenche a área e recebe o gesto.
