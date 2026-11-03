@@ -1,6 +1,6 @@
 # STATE — ponto de retomada
 
-**Atualizado:** 2026-11-02 · **Marco ativo:** Onda v1.6 (release 1.6.1) · **Estado:** IN_PROGRESS
+**Atualizado:** 2026-11-03 · **Marco ativo:** Onda v1.6 (release 1.6.1) · **Estado:** IN_PROGRESS
 
 ## CI
 - O push da 1.6.1 falhou no analyzer (`223e2e1`). O CI seguinte passou no analyzer e falhou em `screenshot_editor_test`: o arrasto no centro do canvas não acertava o detector. O canvas de anotação agora preenche a área e recebe o gesto.
@@ -39,11 +39,11 @@
   - Testes: Suíte C# atualizada com 400/400 testes PASS (`RoutineServiceTests` e `ScreenStreamSpikeTests`), testes Flutter com 8/8 PASS em `workspace_routines_test.dart`, `flutter analyze` 0 erros/avisos, e governança `python scripts/check.py . --strict` com 0 falhas e 0 avisos.
 
 ## Próxima ação
-- A onda v1.6 está fechada no código. A próxima etapa que depende do proprietário é a homologação física **H0** nas duas máquinas: pareamento, deck, energia, temperatura e o aviso acima de 85°C.
+- **H0 concluída** por confirmação humana do proprietário (2026-11-03), sem logs detalhados anexados. Próximo: I0.1 (varredura de segredos no histórico) e, só depois, decisão sobre I0.7 (repo público).
 - Itens `AVALIAR` e a onda v2.0 continuam fora de implementação até uma decisão explícita.
 
 ## Bloqueios e aprovações humanas
-- Nenhum bloqueio técnico. Homologação física dos dois PCs reais (`docs/HOMOLOGACAO_V1.5.md`) permanece como validação de bancada pelo proprietário (`PENDING_HUMAN`).
+- Nenhum bloqueio técnico. Homologação física dos dois PCs reais: confirmada pelo proprietário em 2026-11-03.
 
 ## Divergências entre roadmap e implementação
 - Nenhuma divergência ativa no escopo v1.6.

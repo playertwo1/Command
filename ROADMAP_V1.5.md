@@ -64,7 +64,7 @@
 | **T0** | Full | Transferência retomável em blocos | — | `DONE` |
 | **I0** | Infra | Command-Setup.exe, atualização própria e instalação assistida | T0; I0.3a/b piloto antecipado antes do checkpoint M1 | `DONE` (I0.2/I0.3a/b/c/d/I0.5 concluídos; pacotes v1.5.0 gerados) |
 | **U0** | Full | Portes seletivos e requisitos de protocolo; sem merge global | Por subitem; ver seção U0 | `PARTIAL` — U0.1 e U0.4a técnicos registrados |
-| **H0** | Full | Homologação E2E em 2 máquinas físicas (2ª instalada via I0) | todas | `TODO` |
+| **H0** | Full | Homologação E2E em 2 máquinas físicas (2ª instalada via I0) | todas | `DONE` (confirmação humana do proprietário em 2026-11-03; sem logs detalhados) |
 
 ### 🖥️🖥️ M0 — Multi-PC Simultâneo
 **Hoje (v0.2 S7):** o `PcProfileManager` salva vários PCs, mas só **um** fica ativo por vez (troca rápida).
@@ -218,6 +218,7 @@
 
 **Achado verificado:** `.github/workflows/release.yml` usa `DroidDeckPC`, título DroidDeck e artefato DroidDeck-Setup.exe; `DroidDeck/Lib/AppUpdater.cs` aponta para `ggfto/DroidDeck`. Corrigir identidade e origem antes de distribuir para não instalar/atualizar o produto errado.
 - [ ] **I0.1 (gate obrigatório antes de publicar):** varredura de segredos em **todo o histórico Git** (gitleaks/trufflehog): chaves de assinatura, `key.properties`, `.env`, tokens, API keys, IPs/hostnames privados e evidências com dados pessoais. Se encontrar algo, rotacionar o segredo e limpar o histórico **antes** de tornar o repo público. Revisar `docs/evidence/` e `docs/assets/` (screenshots reais).
+  - **Varredura do histórico (2026-11-03):** Gitleaks 8.30.1, 268 commits, 9 correspondências genéricas, todas em fixtures/testes (`secretKey="api-secret-key-12345"`, `AIzaSyTest123`, hash Tuya de teste, `validToken`/`password` de QR) ou na constante legada `oneSignalApiKey` do upstream (commit `191b68c`, formato UUID, ou seja, App ID público do OneSignal). Nenhum `key.properties`, `.jks`, `.keystore`, `.env`, `.pfx` ou `.pem` em qualquer commit. Sem hostnames `.ts.net`. Faltam: revisão visual das 70 imagens em `docs/evidence/` e `docs/assets/` e decisão sobre IPs de LAN (`192.168.68.x`) nos documentos. Item segue aberto.
 - [x] **I0.2:** Conferir licenças por componente: raiz DroidDeck Apache-2.0 e `app/LICENSE` GPL-3.0. Preservar avisos/atribuições e preparar o código-fonte correspondente aos binários sujeitos a essas obrigações. Documentação detalhada formalizada em `docs/LICENSES.md`; instalador embute ambas as licenças em `publish/LICENSE` e `publish/LICENSE-APP-GPL-3.0`.
 - [x] **I0.3a:** Empacotar `Command-Setup.exe` com identidade Velopack própria e metadados Command, mantendo executável interno compatível. Atualizador consulta somente releases Command (`AppUpdater.cs`); corrigido `.github/workflows/release.yml` para gerar `Command.apk` em vez de `DroidDeck.apk`, além de `.releaserc.json` e `package.json` atualizados para a identidade Command.
 - **Registro do piloto local (2026-10-24/25):** setup `1.1.0-local.20261024.x64` gerado com PackId `CommandPC`, runtime `win-x64`, web Flutter e Bridge .NET autocontidos; SHA-256 e manifesto conferidos. O proprietário confirmou a instalação e funcionamento nos dois PCs em 2026-10-25. Atualizador remoto desativado porque o feed Command permanece privado. Authenticode `NotSigned`; migração segura/coexistência, máquina limpa, atualização e desinstalação continuam pendentes. Uma tentativa anterior foi empacotada como x86 por falta de `--runtime`; ela está sinalizada como inválida e não deve ser instalada.
@@ -239,10 +240,10 @@
 - [ ] **I0.7:** Tornar o repositório público — **somente** após I0.1/I0.2 PASS e confirmação explícita do proprietário no momento da publicação.
 
 ### ✅ H0 — Homologação
-- [ ] **H0.1:** E2E com **2 máquinas físicas**, cada uma com Bridge. Segundo PC instalado pelo setup Command.
-- [ ] **H0.2:** Bateria: métricas paralelas, ação no PC certo, trackpad, texto livre, prévia ao vivo, mDNS após troca de IP, transferência interrompida e retomada.
-- [ ] **H0.3:** `dotnet test` + `flutter test` + `flutter analyze` verdes; evidências em `docs/evidence/v1.5/`; atualizar `STATE.md`. Testes antigos não substituem execução no build homologado.
-- [ ] **H0.4:** Evidenciar isolamento de PCs/credenciais, revogação durante streaming, ViewerOnly, UAC/bloqueio, logs sanitizados, anexos fora da raiz negados e transporte USB somente se incluído. Aceite humano da UI e do instalador separado do PASS técnico.
+- [x] **H0.1:** (confirmado pelo proprietário em 2026-11-03; evidência técnica detalhada não anexada) E2E com **2 máquinas físicas**, cada uma com Bridge. Segundo PC instalado pelo setup Command.
+- [x] **H0.2:** (confirmado pelo proprietário em 2026-11-03; evidência técnica detalhada não anexada) Bateria: métricas paralelas, ação no PC certo, trackpad, texto livre, prévia ao vivo, mDNS após troca de IP, transferência interrompida e retomada.
+- [x] **H0.3:** (confirmado pelo proprietário em 2026-11-03; evidência técnica detalhada não anexada) `dotnet test` + `flutter test` + `flutter analyze` verdes; evidências em `docs/evidence/v1.5/`; atualizar `STATE.md`. Testes antigos não substituem execução no build homologado.
+- [x] **H0.4:** (confirmado pelo proprietário em 2026-11-03; evidência técnica detalhada não anexada) Evidenciar isolamento de PCs/credenciais, revogação durante streaming, ViewerOnly, UAC/bloqueio, logs sanitizados, anexos fora da raiz negados e transporte USB somente se incluído. Aceite humano da UI e do instalador separado do PASS técnico.
 
 ---
 
