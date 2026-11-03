@@ -149,7 +149,7 @@ namespace DroidDeck.Tests
             Directory.CreateDirectory(subDir);
             File.WriteAllText(Path.Combine(subDir, "balanco.txt"), "balanco ok");
 
-            var controller = new TransfersController(_service);
+            var controller = new TransfersController(_service, new DestinationFolderStore(":memory:"));
             controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
             var actionResult = controller.BrowseDirectory("outbound", "financas");

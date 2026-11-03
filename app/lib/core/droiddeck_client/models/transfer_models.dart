@@ -53,6 +53,21 @@ class UploadTransferResult {
   });
 }
 
+/// Pasta de destino nomeada cadastrada no PC. O caminho real nunca chega ao celular.
+class DestinationFolder {
+  final String id;
+  final String name;
+  final String icon;
+
+  const DestinationFolder({required this.id, required this.name, required this.icon});
+
+  factory DestinationFolder.fromJson(Map<String, dynamic> json) => DestinationFolder(
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        icon: json['icon'] as String? ?? 'folder',
+      );
+}
+
 class FileDownloadData {
   final String fileName;
   final Uint8List bytes;

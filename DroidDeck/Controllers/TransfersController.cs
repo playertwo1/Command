@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using DroidDeck.Models;
 using DroidDeck.Services;
@@ -14,11 +15,18 @@ namespace DroidDeck.Controllers
     public class TransfersController : ControllerBase
     {
         private readonly ITransferService _transferService;
+        private readonly IDestinationFolderStore _destinations;
 
-        public TransfersController(ITransferService transferService)
+        public TransfersController(ITransferService transferService, IDestinationFolderStore destinations)
         {
             _transferService = transferService;
+            _destinations = destinations;
         }
+
+        /// <summary>Pastas de destino nomeadas para upload. Expõe só id, nome e ícone — nunca o caminho.</summary>
+        [HttpGet("destinations")]
+        public IActionResult ListDestinations() =>
+            Ok(_destinations.List().Select(d => new { d.Id, d.Name, d.Icon }));
 
         private string GetRequestingDeviceId()
         {
@@ -151,7 +159,8 @@ namespace DroidDeck.Controllers
             [FromForm] IFormFile? chunk,
             [FromForm] string? rootId,
             [FromForm] string? expectedSha256,
-            [FromForm] string? requestId)
+            [FromForm] string? requestId,
+            [FromForm] string? conflictPolicy)
         {
             if (chunk == null || chunk.Length == 0)
             {
@@ -171,7 +180,8 @@ namespace DroidDeck.Controllers
                 stream,
                 expectedSha256,
                 GetRequestingDeviceId(),
-                requestId);
+                requestId,
+                conflictPolicy);
 
             if (!result.Success)
             {
@@ -217,7 +227,8 @@ namespace DroidDeck.Controllers
             [FromForm] IFormFile? file,
             [FromForm] string? rootId,
             [FromForm] string? expectedSha256,
-            [FromForm] string? requestId)
+            [FromForm] string? requestId,
+            [FromForm] string? conflictPolicy)
         {
             if (file == null || file.Length == 0)
             {
@@ -234,7 +245,8 @@ namespace DroidDeck.Controllers
                 stream,
                 expectedSha256,
                 GetRequestingDeviceId(),
-                requestId);
+                requestId,
+                conflictPolicy);
 
             if (!result.Success)
             {

@@ -19,7 +19,8 @@ namespace DroidDeck.Services
             Stream contentStream,
             string? expectedSha256,
             string requestingDeviceId,
-            string? requestId = null);
+            string? requestId = null,
+            string? conflictPolicy = null);
 
         Task<ChunkUploadResult> UploadChunkAsync(
             string uploadId,
@@ -31,7 +32,8 @@ namespace DroidDeck.Services
             Stream chunkStream,
             string? expectedSha256,
             string requestingDeviceId,
-            string? requestId = null);
+            string? requestId = null,
+            string? conflictPolicy = null);
 
         ResumableUploadStatusResult GetUploadStatus(string uploadId, string rootId, string fileName);
 

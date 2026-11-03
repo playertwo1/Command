@@ -54,6 +54,8 @@ class FakeTransferClient extends DroidDeckClient {
     String? expectedSha256,
     String? requestId,
     String? deviceId,
+    String rootId = 'inbound',
+    String? conflictPolicy,
   }) async {
     uploadCalls++;
     if (shouldThrowConflictOnUpload) {

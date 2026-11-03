@@ -29,6 +29,7 @@ namespace DroidDeck.Services
 
         private readonly string _inboundRoot;
         private readonly string _outboundRoot;
+        private readonly IDestinationFolderStore? _destinations;
         private readonly IJobHistoryService _jobHistoryService;
         private readonly ILogger<TransferService> _logger;
 
@@ -36,8 +37,10 @@ namespace DroidDeck.Services
             IJobHistoryService jobHistoryService,
             ILogger<TransferService> logger,
             string? customInboundRoot = null,
-            string? customOutboundRoot = null)
+            string? customOutboundRoot = null,
+            IDestinationFolderStore? destinations = null)
         {
+            _destinations = destinations;
             _jobHistoryService = jobHistoryService;
             _logger = logger;
 
@@ -92,15 +95,17 @@ namespace DroidDeck.Services
             Stream contentStream,
             string? expectedSha256,
             string requestingDeviceId,
-            string? requestId = null)
+            string? requestId = null,
+            string? conflictPolicy = null)
         {
-            if (!string.Equals(rootId, "inbound", StringComparison.OrdinalIgnoreCase))
+            var root = ResolveUploadRoot(rootId);
+            if (root == null)
             {
                 return new UploadTransferResult
                 {
                     Success = false,
                     ErrorCode = "INVALID_ROOT",
-                    ErrorMessage = "Upload permitido exclusivamente para a raiz 'inbound'."
+                    ErrorMessage = "Destino de upload inválido ou inexistente."
                 };
             }
 
@@ -116,10 +121,10 @@ namespace DroidDeck.Services
             }
 
             string cleanName = validation.CleanFileName;
-            string targetPath = Path.Combine(_inboundRoot, cleanName);
+            string targetPath = Path.Combine(root, cleanName);
 
             // Revalida confinamento do caminho canônico
-            if (!IsPathWithinDirectory(targetPath, _inboundRoot))
+            if (!IsPathWithinDirectory(targetPath, root))
             {
                 return new UploadTransferResult
                 {
@@ -130,7 +135,7 @@ namespace DroidDeck.Services
             }
 
             // Colisão de nome: rejeita e não sobrescreve
-            if (File.Exists(targetPath))
+            if (File.Exists(targetPath) && !IsConflictPolicy(conflictPolicy))
             {
                 return new UploadTransferResult
                 {
@@ -140,7 +145,7 @@ namespace DroidDeck.Services
                 };
             }
 
-            string tmpPath = Path.Combine(_inboundRoot, $"{cleanName}.{Guid.NewGuid():N}.tmp");
+            string tmpPath = Path.Combine(root, $"{cleanName}.{Guid.NewGuid():N}.tmp");
             long totalBytes = 0;
             string computedSha256 = string.Empty;
 
@@ -192,7 +197,9 @@ namespace DroidDeck.Services
                 }
 
                 // Promoção atômica
-                File.Move(tmpPath, targetPath);
+                targetPath = ResolveConflict(targetPath, conflictPolicy);
+                File.Move(tmpPath, targetPath, conflictPolicy == "replace");
+                cleanName = Path.GetFileName(targetPath);
 
                 var dto = new TransferItemDto
                 {
@@ -602,6 +609,29 @@ namespace DroidDeck.Services
             return (true, normalized, string.Empty, string.Empty);
         }
 
+        private string? ResolveUploadRoot(string rootId)
+        {
+            if (string.Equals(rootId, "inbound", StringComparison.OrdinalIgnoreCase)) return _inboundRoot;
+            var path = _destinations?.TryGetPath(rootId);
+            return path != null && Directory.Exists(path) ? path : null;
+        }
+
+        private static bool IsConflictPolicy(string? policy) => policy is "replace" or "keepBoth";
+
+        // keepBoth grava "nome (1).ext"; sem política o chamador já rejeitou a colisão antes.
+        private static string ResolveConflict(string targetPath, string? policy)
+        {
+            if (policy != "keepBoth" || !File.Exists(targetPath)) return targetPath;
+            var dir = Path.GetDirectoryName(targetPath)!;
+            var name = Path.GetFileNameWithoutExtension(targetPath);
+            var ext = Path.GetExtension(targetPath);
+            for (int i = 1; ; i++)
+            {
+                var candidate = Path.Combine(dir, $"{name} ({i}){ext}");
+                if (!File.Exists(candidate)) return candidate;
+            }
+        }
+
         private static void EnsureDirectoryExists(string dir)
         {
             if (!Directory.Exists(dir))
@@ -620,15 +650,17 @@ namespace DroidDeck.Services
             Stream chunkStream,
             string? expectedSha256,
             string requestingDeviceId,
-            string? requestId = null)
+            string? requestId = null,
+            string? conflictPolicy = null)
         {
-            if (!string.Equals(rootId, "inbound", StringComparison.OrdinalIgnoreCase))
+            var root = ResolveUploadRoot(rootId);
+            if (root == null)
             {
                 return new ChunkUploadResult
                 {
                     Success = false,
                     ErrorCode = "INVALID_ROOT",
-                    ErrorMessage = "Upload permitido exclusivamente para a raiz 'inbound'."
+                    ErrorMessage = "Destino de upload inválido ou inexistente."
                 };
             }
 
@@ -654,9 +686,9 @@ namespace DroidDeck.Services
             }
 
             string cleanName = validation.CleanFileName;
-            string targetPath = Path.Combine(_inboundRoot, cleanName);
+            string targetPath = Path.Combine(root, cleanName);
 
-            if (!IsPathWithinDirectory(targetPath, _inboundRoot))
+            if (!IsPathWithinDirectory(targetPath, root))
             {
                 return new ChunkUploadResult
                 {
@@ -667,7 +699,7 @@ namespace DroidDeck.Services
             }
 
             // Se o arquivo final completo já existe, rejeita sobrescrita
-            if (File.Exists(targetPath))
+            if (File.Exists(targetPath) && !IsConflictPolicy(conflictPolicy))
             {
                 return new ChunkUploadResult
                 {
@@ -697,8 +729,8 @@ namespace DroidDeck.Services
                 };
             }
 
-            string partPath = Path.Combine(_inboundRoot, $"{cleanName}.{uploadId}.part");
-            if (!IsPathWithinDirectory(partPath, _inboundRoot))
+            string partPath = Path.Combine(root, $"{cleanName}.{uploadId}.part");
+            if (!IsPathWithinDirectory(partPath, root))
             {
                 return new ChunkUploadResult
                 {
@@ -796,7 +828,9 @@ namespace DroidDeck.Services
                     }
 
                     // Promove atômico
-                    File.Move(partPath, targetPath);
+                    targetPath = ResolveConflict(targetPath, conflictPolicy);
+                    File.Move(partPath, targetPath, conflictPolicy == "replace");
+                    cleanName = Path.GetFileName(targetPath);
 
                     var dto = new TransferItemDto
                     {
@@ -846,6 +880,12 @@ namespace DroidDeck.Services
 
         public ResumableUploadStatusResult GetUploadStatus(string uploadId, string rootId, string fileName)
         {
+            var root = ResolveUploadRoot(rootId);
+            if (root == null)
+            {
+                return new ResumableUploadStatusResult { Exists = false, UploadId = uploadId, FileName = fileName };
+            }
+
             var validation = ValidateFileName(fileName);
             if (!validation.IsValid)
             {
@@ -853,7 +893,7 @@ namespace DroidDeck.Services
             }
 
             string cleanName = validation.CleanFileName;
-            string targetPath = Path.Combine(_inboundRoot, cleanName);
+            string targetPath = Path.Combine(root, cleanName);
             if (File.Exists(targetPath))
             {
                 var fi = new FileInfo(targetPath);
@@ -868,7 +908,7 @@ namespace DroidDeck.Services
                 };
             }
 
-            string partPath = Path.Combine(_inboundRoot, $"{cleanName}.{uploadId}.part");
+            string partPath = Path.Combine(root, $"{cleanName}.{uploadId}.part");
             if (File.Exists(partPath))
             {
                 var fi = new FileInfo(partPath);
@@ -897,17 +937,22 @@ namespace DroidDeck.Services
             var cutoff = DateTime.UtcNow - threshold;
             int count = 0;
 
-            try
-            {
-                var dir = new DirectoryInfo(_inboundRoot);
-                if (!dir.Exists) return 0;
+            // Nas pastas do usuário só removemos .part nossos; .tmp alheio nunca é tocado.
+            var roots = new List<(string Path, bool OwnTmp)> { (_inboundRoot, true) };
+            if (_destinations != null) roots.AddRange(_destinations.List().Select(d => (d.Path, false)));
 
-                foreach (var file in dir.EnumerateFiles())
+            foreach (var (rootPath, ownTmp) in roots)
+            {
+                try
                 {
-                    if (file.Extension.Equals(".part", StringComparison.OrdinalIgnoreCase) ||
-                        file.Extension.Equals(".tmp", StringComparison.OrdinalIgnoreCase))
+                    var dir = new DirectoryInfo(rootPath);
+                    if (!dir.Exists) continue;
+
+                    foreach (var file in dir.EnumerateFiles())
                     {
-                        if (file.LastWriteTimeUtc < cutoff)
+                        bool isPart = file.Extension.Equals(".part", StringComparison.OrdinalIgnoreCase);
+                        bool isTmp = ownTmp && file.Extension.Equals(".tmp", StringComparison.OrdinalIgnoreCase);
+                        if ((isPart || isTmp) && file.LastWriteTimeUtc < cutoff)
                         {
                             TryDeleteFile(file.FullName);
                             count++;
@@ -915,10 +960,10 @@ namespace DroidDeck.Services
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Erro ao limpar arquivos de partes órfãos");
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Erro ao limpar arquivos de partes órfãos");
+                }
             }
 
             return count;

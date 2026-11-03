@@ -207,6 +207,13 @@ namespace DroidDeck
                 f.ShowDialog();
             };
 
+            var foldersItem = new ToolStripMenuItem(L.Ui("Pastas de destino…"));
+            foldersItem.Click += (_, _) =>
+            {
+                using var f = new frmDestinations(Services.DestinationFolderStore.Shared);
+                f.ShowDialog();
+            };
+
             _endRemoteControlItem = new ToolStripMenuItem(L.Ui("Encerrar controle remoto"))
             {
                 Visible = false,
@@ -255,6 +262,7 @@ namespace DroidDeck
 
             menu.Items.Add(openItem);
             menu.Items.Add(pairItem);
+            menu.Items.Add(foldersItem);
             menu.Items.Add(_endRemoteControlItem);
             menu.Items.Add(_autoStartItem);
             menu.Items.Add(_firewallItem);

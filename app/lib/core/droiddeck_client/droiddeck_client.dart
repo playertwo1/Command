@@ -713,17 +713,29 @@ class DroidDeckClient {
     );
   }
 
-  /// Faz upload de um arquivo para a pasta 'inbound' do PC com SHA-256 esperado e RequestId.
+  /// Pastas de destino nomeadas que o PC autorizou para receber arquivos.
+  Future<List<DestinationFolder>> listDestinations() async {
+    final response = await _dio.get('/api/transfers/destinations');
+    return (response.data as List<dynamic>)
+        .map((e) => DestinationFolder.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Faz upload de um arquivo para o PC (pasta 'inbound' ou uma pasta de destino) com SHA-256 esperado e RequestId.
+  /// [conflictPolicy]: 'replace' ou 'keepBoth' quando o nome já existe; sem ele o PC responde 409.
   Future<UploadTransferResult> uploadInboundFile({
     required String fileName,
     required Uint8List bytes,
     String? expectedSha256,
     String? requestId,
     String? deviceId,
+    String rootId = 'inbound',
+    String? conflictPolicy,
   }) async {
     final formData = FormData.fromMap({
       'file': MultipartFile.fromBytes(bytes, filename: fileName),
-      'rootId': 'inbound',
+      'rootId': rootId,
+      if (conflictPolicy != null) 'conflictPolicy': conflictPolicy,
       if (expectedSha256 != null) 'expectedSha256': expectedSha256,
       if (requestId != null) 'requestId': requestId,
     });
