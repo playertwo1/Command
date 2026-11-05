@@ -67,6 +67,14 @@ namespace DroidDeck.Services
             RegisterStoreApp("codex", "Codex", "App Codex", "code",
                 @"shell:AppsFolder\OpenAI.Codex_2p2nqsd0c76g0!App", "ChatGPT");
 
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            RegisterExeApp("grokbot", "Grok Bot", "terminal",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Grok Bot\Grok Bot.exe"), "Grok Bot");
+            RegisterExeApp("orca", "Orca", "code",
+                Path.Combine(local, @"Programs\orca\Orca.exe"), "Orca");
+            RegisterExeApp("hermes", "Hermes Agent", "launch",
+                Path.Combine(local, "hermes", "hermes-agent", "apps", "desktop", "release", "win-unpacked", "Hermes.exe"), "Hermes");
+
             var antigravity = ResolveAntigravityPath();
             if (antigravity != null)
             {
@@ -81,6 +89,22 @@ namespace DroidDeck.Services
                     ProcessName = "Antigravity"
                 };
             }
+        }
+
+        // Só entra no catálogo se o executável existir neste PC.
+        private void RegisterExeApp(string id, string name, string icon, string exePath, string processName)
+        {
+            if (!File.Exists(exePath)) return;
+            _allowedApps[id] = new AppCatalogItem
+            {
+                Id = id,
+                Name = name,
+                Description = name,
+                Icon = icon,
+                CanKill = false,
+                Executable = exePath,
+                ProcessName = processName
+            };
         }
 
         private void RegisterStoreApp(string id, string name, string description, string icon, string appsFolder, string processName)

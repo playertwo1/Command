@@ -10,8 +10,8 @@ namespace DroidDeck.Lib
     /// Atualizacao automatica pelas Releases do GitHub (Velopack), quando um feed Command
     /// estiver explicitamente habilitado.
     ///
-    /// O piloto local deixa as consultas desativadas: o repositorio Command e privado e nao
-    /// deve haver fallback para releases do DroidDeck. A atualizacao e baixada em segundo plano
+    /// Enquanto o repositorio Command for privado a consulta nao encontra feed e nao
+    /// ha fallback para releases do DroidDeck. A atualizacao e baixada em segundo plano
     /// e aplicada na proxima vez que o Command abrir, ou na hora, se o
     /// usuario aceitar reiniciar.
     /// </summary>
@@ -19,8 +19,8 @@ namespace DroidDeck.Lib
     {
         public const string RepoUrl = "https://github.com/playertwo1/Command";
 
-        // Habilitar somente quando o feed Command tiver sido publicado e aprovado.
-        private const bool UpdateChecksEnabled = false;
+        // Precisa do repo público e das releases com releases.win.json (.releaserc.json anexa); em repo privado a checagem falha sem erro.
+        private const bool UpdateChecksEnabled = true;
 
         private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(6);
 

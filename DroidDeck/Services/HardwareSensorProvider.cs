@@ -155,8 +155,9 @@ namespace DroidDeck.Services
                 }
 
                 var chosen = ThermalScale.Choose(libreCpu, libreGpu, acpi, nvidia, amd);
-                _cachedCpuTemp = chosen.Cpu;
-                _cachedGpuTemp = chosen.Gpu;
+                var hw = chosen.Cpu == null || chosen.Gpu == null ? HwInfoReader.Read() : (null, null);
+                _cachedCpuTemp = chosen.Cpu ?? hw.Item1;
+                _cachedGpuTemp = chosen.Gpu ?? hw.Item2;
             }
         }
 
@@ -184,6 +185,27 @@ namespace DroidDeck.Services
 
         private float? ReadAcpiThermalZone()
         {
+            // MSAcpi_* exige admin; o contador de desempenho da zona térmica não.
+            try
+            {
+                using var perf = new ManagementObjectSearcher(
+                    @"root\cimv2",
+                    "SELECT HighPrecisionTemperature FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation");
+                float? hottest = null;
+                foreach (var entry in perf.Get())
+                {
+                    using var zone = (ManagementObject)entry;
+                    if (zone["HighPrecisionTemperature"] == null) continue;
+                    var celsius = ThermalScale.FromTenthsOfKelvin(Convert.ToUInt32(zone["HighPrecisionTemperature"]));
+                    if (celsius != null && (hottest == null || celsius > hottest)) hottest = celsius;
+                }
+                if (hottest != null) return hottest;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogDebug(ex, "[HardwareSensors] Contador de zona térmica indisponível.");
+            }
+
             try
             {
                 using var searcher = new ManagementObjectSearcher(

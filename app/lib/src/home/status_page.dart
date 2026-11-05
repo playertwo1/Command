@@ -1363,6 +1363,102 @@ class _StatusPageState extends State<StatusPage> {
     );
   }
 
+  Widget _buildTempHistoryCard(SystemStats stats, ThemeData theme) {
+    List<double> series(double? Function(MetricSample s) pick) =>
+        stats.history.map(pick).whereType<double>().toList();
+
+    Widget metric(String label, double? now, List<double> values) {
+      final color = thermalColor(now);
+      return Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.thermostat, size: 14, color: color),
+                    const SizedBox(width: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  now == null ? 'N/D' : '${now.toStringAsFixed(0)}°C',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            values.length < 2
+                ? const SizedBox(height: 38)
+                : MetricSparkline(
+                    values: values,
+                    lineColor: color,
+                    minY: 20,
+                    maxY: 100,
+                    height: 38,
+                  ),
+          ],
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.device_thermostat,
+                  size: 20,
+                  color: Color(0xFFA78BFA),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  tr('Histórico de Temperatura (60s)'),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                metric('CPU', stats.cpuTempC, series((s) => s.cpuTempC)),
+                const SizedBox(width: 16),
+                metric('GPU', stats.gpuTempC, series((s) => s.gpuTempC)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildWindowsServicesCard(ThemeData theme) {
     return Card(
       elevation: 0,
@@ -2233,6 +2329,8 @@ class _StatusPageState extends State<StatusPage> {
               if (stats.history.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _buildHistorySparklineCard(stats, theme),
+                const SizedBox(height: 12),
+                _buildTempHistoryCard(stats, theme),
               ],
 
               // Múltiplos Volumes de Disco (Command v0.2 - S4)
