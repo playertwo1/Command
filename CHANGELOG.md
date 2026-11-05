@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/playertwo1/Command/compare/command-v1.6.2...command-v1.7.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **app:** tira o caminho do JDK local do gradle.properties ([dc30d64](https://github.com/playertwo1/Command/commit/dc30d64e3912bab017fb0a8f7ababd6690c57f80))
+* **release:** tags do semantic-release no formato command-v<versão> ([826839e](https://github.com/playertwo1/Command/commit/826839e597816fd78e5f70a8bcad1a139b914feb))
+
+
+### Features
+
+* **pc:** temperaturas sem admin, histórico de temperatura, atalhos e atualização do exe ([06d5a48](https://github.com/playertwo1/Command/commit/06d5a484702096d592e2bd809f5f77cfb8c71e82))
+
 # Changelog
 
 ## [1.6.0] — 2026-11-02 (Identidade Visual Oficial Android, Ícones Adaptativos e Ações Expandidas)
