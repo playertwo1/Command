@@ -30,14 +30,12 @@ namespace DroidDeck
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
             this.ntiTray = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
             // ntiTray
             // 
             this.ntiTray.BalloonTipTitle = "Command";
-            this.ntiTray.Icon = ((System.Drawing.Icon)(resources.GetObject("ntiTray.Icon")));
             this.ntiTray.Text = "Command";
             // 
             // frmPrincipal
@@ -45,7 +43,6 @@ namespace DroidDeck
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(545, 254);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "frmPrincipal";
             this.Text = "Command";

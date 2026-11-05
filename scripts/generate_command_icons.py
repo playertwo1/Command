@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gera os ícones oficiais do Command para Android (legado e adaptativo), Flutter assets e Web.
+Gera os ícones oficiais do Command para Windows, Android, Flutter assets e Web.
 Cores e estilo: Amethyst Command (DESIGN.md)
 - Background / Shell: #13101B
 - Surface: #1E1829
@@ -9,121 +9,117 @@ Cores e estilo: Amethyst Command (DESIGN.md)
 """
 
 import os
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
+
+
+def _gradient_layer(size, mask, top, bottom):
+    ramp = Image.linear_gradient('L').resize(size, Image.Resampling.BICUBIC)
+    layer = ImageOps.colorize(ramp, top, bottom).convert('RGBA')
+    layer.putalpha(mask)
+    return layer
+
+
+def _masked_color(mask, color):
+    layer = Image.new('RGBA', mask.size, color)
+    layer.putalpha(mask)
+    return layer
+
 
 def create_command_logo(size=1024):
-    """
-    Ícone completo com moldura squircle para modo legado Android, assets Flutter e Web.
-    """
+    """Premium Command icon with a raised amethyst shell and glyph."""
     scale = 2
     canvas_size = size * scale
     img = Image.new('RGBA', (canvas_size, canvas_size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    
-    pad = int(72 * scale)
-    radius = int(210 * scale)
-    
-    # Outer subtle glow / elevation
-    draw.rounded_rectangle(
-        [pad - int(4*scale), pad - int(4*scale), canvas_size - pad + int(4*scale), canvas_size - pad + int(4*scale)],
-        radius=radius + int(4*scale),
-        fill=(124, 58, 237, 70)
-    )
-    
-    # Outer border (Amethyst)
-    draw.rounded_rectangle(
-        [pad, pad, canvas_size - pad, canvas_size - pad],
+    pad = 72 * scale
+    radius = 210 * scale
+    outer_box = [pad, pad, canvas_size - pad, canvas_size - pad]
+
+    shadow_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(shadow_mask).rounded_rectangle(
+        [pad, pad + 12 * scale, canvas_size - pad, canvas_size - pad + 12 * scale],
         radius=radius,
-        fill=(26, 21, 36, 255),
-        outline=(167, 139, 250, 235),
-        width=int(14 * scale)
+        fill=190,
     )
-    
-    # Inner surface (#13101B)
-    inner_pad = pad + int(14 * scale)
+    shadow_mask = shadow_mask.filter(ImageFilter.GaussianBlur(20 * scale))
+    img.alpha_composite(_masked_color(shadow_mask, (5, 3, 13, 0)))
+
+    glow_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(glow_mask).rounded_rectangle(outer_box, radius=radius, fill=75)
+    glow_mask = glow_mask.filter(ImageFilter.GaussianBlur(16 * scale))
+    img.alpha_composite(_masked_color(glow_mask, (124, 58, 237, 0)))
+
+    shell_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(shell_mask).rounded_rectangle(outer_box, radius=radius, fill=255)
+    img.alpha_composite(_gradient_layer((canvas_size, canvas_size), shell_mask, '#E0D2FF', '#7138D5'))
+
+    inner_pad = pad + 20 * scale
+    inner_box = [inner_pad, inner_pad, canvas_size - inner_pad, canvas_size - inner_pad]
+    inner_radius = radius - 18 * scale
+    inner_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(inner_mask).rounded_rectangle(inner_box, radius=inner_radius, fill=255)
+    img.alpha_composite(_gradient_layer((canvas_size, canvas_size), inner_mask, '#211A30', '#110E19'))
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle(inner_box, radius=inner_radius, outline=(74, 57, 101, 230), width=3 * scale)
     draw.rounded_rectangle(
-        [inner_pad, inner_pad, canvas_size - inner_pad, canvas_size - inner_pad],
-        radius=radius - int(10 * scale),
-        fill=(19, 16, 27, 255)
+        [inner_pad + 6 * scale, inner_pad + 6 * scale, canvas_size - inner_pad - 6 * scale, canvas_size - inner_pad - 6 * scale],
+        radius=radius - 24 * scale,
+        outline=(210, 196, 245, 48),
+        width=2 * scale,
     )
-    
-    # Title bar divider
-    bar_y = pad + int(145 * scale)
-    draw.line(
-        [(inner_pad + int(24 * scale), bar_y), (canvas_size - inner_pad - int(24 * scale), bar_y)],
-        fill=(53, 43, 69, 255),
-        width=int(6 * scale)
+
+    bar_y = pad + 145 * scale
+    bar_start = inner_pad + 24 * scale
+    bar_end = canvas_size - inner_pad - 24 * scale
+    draw.line([(bar_start, bar_y + 5 * scale), (bar_end, bar_y + 5 * scale)], fill=(7, 5, 13, 180), width=9 * scale)
+    draw.line([(bar_start, bar_y), (bar_end, bar_y)], fill=(53, 43, 69, 255), width=5 * scale)
+    draw.line([(bar_start, bar_y - 2 * scale), (bar_end, bar_y - 2 * scale)], fill=(196, 181, 253, 75), width=2 * scale)
+
+    dot_y = pad + 85 * scale
+    dot_r = 14 * scale
+    dot_colors = ((124, 58, 237, 255), (167, 139, 250, 255), (196, 181, 253, 255))
+    for index, color in enumerate(dot_colors):
+        dot_x = inner_pad + (48 + 48 * index) * scale
+        dot_box = [dot_x, dot_y - dot_r, dot_x + dot_r * 2, dot_y + dot_r]
+        draw.ellipse([dot_x + 2 * scale, dot_y - dot_r + 5 * scale, dot_x + dot_r * 2 + 2 * scale, dot_y + dot_r + 5 * scale], fill=(7, 5, 13, 150))
+        draw.ellipse(dot_box, fill=color)
+        draw.ellipse([dot_x + 4 * scale, dot_y - dot_r + 4 * scale, dot_x + 12 * scale, dot_y - dot_r + 12 * scale], fill=(255, 250, 255, 175))
+
+    chevron_pts = [(310 * scale, 400 * scale), (475 * scale, 565 * scale), (310 * scale, 730 * scale)]
+    chevron_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(chevron_mask).line(chevron_pts, fill=255, width=64 * scale, joint='curve')
+    chevron_shadow = ImageChops.offset(chevron_mask, 14 * scale, 17 * scale).filter(ImageFilter.GaussianBlur(10 * scale))
+    img.alpha_composite(_masked_color(chevron_shadow, (5, 3, 13, 0)))
+    img.alpha_composite(_masked_color(ImageChops.offset(chevron_mask, 6 * scale, 8 * scale), (91, 51, 158, 255)))
+    img.alpha_composite(_gradient_layer((canvas_size, canvas_size), chevron_mask, '#E0D2FF', '#8B63E5'))
+    chevron_highlight = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(chevron_highlight).line(chevron_pts, fill=255, width=5 * scale, joint='curve')
+    img.alpha_composite(_masked_color(ImageChops.offset(chevron_highlight, -4 * scale, -5 * scale), (255, 250, 255, 155)))
+
+    cursor_y = 730 * scale
+    cursor_box = [545 * scale, cursor_y - 29 * scale, 745 * scale, cursor_y + 29 * scale]
+    cursor_mask = Image.new('L', (canvas_size, canvas_size), 0)
+    ImageDraw.Draw(cursor_mask).rounded_rectangle(cursor_box, radius=12 * scale, fill=255)
+    cursor_shadow = ImageChops.offset(cursor_mask, 13 * scale, 16 * scale).filter(ImageFilter.GaussianBlur(9 * scale))
+    img.alpha_composite(_masked_color(cursor_shadow, (5, 3, 13, 0)))
+    img.alpha_composite(_masked_color(ImageChops.offset(cursor_mask, 6 * scale, 8 * scale), (91, 51, 158, 255)))
+    img.alpha_composite(_gradient_layer((canvas_size, canvas_size), cursor_mask, '#F0E9FF', '#B8A0F2'))
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle(
+        [cursor_box[0] + 8 * scale, cursor_box[1] + 5 * scale, cursor_box[2] - 8 * scale, cursor_box[1] + 13 * scale],
+        radius=4 * scale,
+        fill=(255, 252, 255, 155),
     )
-    
-    # Title bar window controls (3 dots)
-    dot_y = pad + int(85 * scale)
-    dot_r = int(14 * scale)
-    draw.ellipse([inner_pad + int(48 * scale), dot_y - dot_r, inner_pad + int(48 * scale) + dot_r*2, dot_y + dot_r], fill=(124, 58, 237, 230))
-    draw.ellipse([inner_pad + int(96 * scale), dot_y - dot_r, inner_pad + int(96 * scale) + dot_r*2, dot_y + dot_r], fill=(167, 139, 250, 230))
-    draw.ellipse([inner_pad + int(144 * scale), dot_y - dot_r, inner_pad + int(144 * scale) + dot_r*2, dot_y + dot_r], fill=(196, 181, 253, 230))
-    
-    # Command prompt chevron: >
-    chevron_pts = [
-        (int(310 * scale), int(400 * scale)),
-        (int(475 * scale), int(565 * scale)),
-        (int(310 * scale), int(730 * scale))
-    ]
-    draw.line(chevron_pts, fill=(167, 139, 250, 255), width=int(64 * scale), joint='curve')
-    
-    # Command prompt cursor: _
-    cursor_y = int(730 * scale)
-    draw.line(
-        [(int(545 * scale), cursor_y), (int(745 * scale), cursor_y)],
-        fill=(196, 181, 253, 255),
-        width=int(58 * scale)
-    )
-    
+
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
+
 def create_adaptive_foreground(size=1024):
-    """
-    Foreground para ícone adaptativo Android 8+ (API 26+).
-    O canvas completo é 108dp. A zona segura (safe zone) é o círculo central de 72dp (66.6%).
-    O fundo oficial da adaptive icon é #13101B via ic_launcher_background.xml.
-    Aqui desenhamos a janela de comando estilizada (barra, 3 pontos e o glifo > _) centralizados na safe zone.
-    """
-    scale = 2
-    canvas_size = size * scale
-    
-    safe_d = int(canvas_size * 72 / 108)
-    cx = canvas_size // 2
-    cy = canvas_size // 2
-    
-    fg_img = Image.new('RGBA', (canvas_size, canvas_size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(fg_img)
-    
-    # Divisor da barra de título na safe zone
-    bar_y = cy - int(safe_d * 0.28)
-    bar_w = int(safe_d * 0.72)
-    draw.line([(cx - bar_w//2, bar_y), (cx + bar_w//2, bar_y)], fill=(53, 43, 69, 255), width=int(6 * scale))
-    
-    # 3 dots de controle de janela
-    dot_y = bar_y - int(32 * scale)
-    dot_r = int(11 * scale)
-    dot_start_x = cx - bar_w//2 + int(10 * scale)
-    draw.ellipse([dot_start_x, dot_y - dot_r, dot_start_x + dot_r*2, dot_y + dot_r], fill=(124, 58, 237, 240))
-    draw.ellipse([dot_start_x + int(36 * scale), dot_y - dot_r, dot_start_x + int(36 * scale) + dot_r*2, dot_y + dot_r], fill=(167, 139, 250, 240))
-    draw.ellipse([dot_start_x + int(72 * scale), dot_y - dot_r, dot_start_x + int(72 * scale) + dot_r*2, dot_y + dot_r], fill=(196, 181, 253, 240))
-    
-    # Glifo Command: chevron >
-    ch_x0 = cx - int(190 * scale)
-    ch_mid_x = cx - int(20 * scale)
-    ch_y0 = cy - int(80 * scale)
-    ch_mid_y = cy + int(70 * scale)
-    ch_y1 = cy + int(220 * scale)
-    draw.line([(ch_x0, ch_y0), (ch_mid_x, ch_mid_y), (ch_x0, ch_y1)], fill=(167, 139, 250, 255), width=int(56 * scale), joint='curve')
-    
-    # Cursor do console: _
-    cur_x0 = cx + int(50 * scale)
-    cur_x1 = cx + int(210 * scale)
-    draw.line([(cur_x0, ch_y1), (cur_x1, ch_y1)], fill=(196, 181, 253, 255), width=int(50 * scale))
-    
-    return fg_img.resize((size, size), Image.Resampling.LANCZOS)
+    """Scale the same raised mark to fit the Android adaptive-icon safe zone."""
+    foreground_size = round(size * 0.74)
+    mark = create_command_logo(size).resize((foreground_size, foreground_size), Image.Resampling.LANCZOS)
+    foreground = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    foreground.alpha_composite(mark, ((size - foreground_size) // 2, (size - foreground_size) // 2))
+    return foreground
 
 def main():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -135,6 +131,17 @@ def main():
     # 1. Gerar master images
     master_logo = create_command_logo(1024)
     master_fg = create_adaptive_foreground(1024)
+    assert master_logo.size == (1024, 1024) and master_logo.getchannel('A').getbbox()
+    assert master_fg.size == (1024, 1024) and master_fg.getchannel('A').getbbox()
+
+    # Ícone do executável Windows e do tray, com a mesma arte do launcher Android.
+    windows_icon_path = os.path.join(repo_root, 'DroidDeck', 'volume-_2_.ico')
+    master_logo.save(
+        windows_icon_path,
+        format='ICO',
+        sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
+    )
+    print(f"Salvo: {windows_icon_path}")
     
     # 2. Ícones legados Android (ic_launcher.png)
     densities_legacy = {
@@ -172,7 +179,7 @@ def main():
     # 4. XMLs de ícone adaptativo e cor de fundo
     anydpi_dir = os.path.join(res_root, 'mipmap-anydpi-v26')
     os.makedirs(anydpi_dir, exist_ok=True)
-    with open(os.path.join(anydpi_dir, 'ic_launcher.xml'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(anydpi_dir, 'ic_launcher.xml'), 'w', encoding='utf-8', newline='\n') as f:
         f.write('''<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background"/>
@@ -183,7 +190,7 @@ def main():
 
     values_dir = os.path.join(res_root, 'values')
     os.makedirs(values_dir, exist_ok=True)
-    with open(os.path.join(values_dir, 'ic_launcher_background.xml'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(values_dir, 'ic_launcher_background.xml'), 'w', encoding='utf-8', newline='\n') as f:
         f.write('''<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#13101B</color>

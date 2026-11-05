@@ -26,6 +26,11 @@ namespace DroidDeck
         {
             InitializeComponent();
 
+            var appIcon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath)
+                ?? System.Drawing.SystemIcons.Application;
+            Icon = appIcon;
+            ntiTray.Icon = appIcon;
+
             // Nunca aparece na barra de tarefas nem como janela; só o ícone de bandeja.
             ShowInTaskbar = false;
             BuildTrayMenu();

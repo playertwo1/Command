@@ -1,6 +1,6 @@
 # STATE — ponto de retomada
 
-**Atualizado:** 2026-11-03 · **Marco ativo:** Onda v1.6 (release 1.6.2) · **Estado:** IN_PROGRESS
+**Atualizado:** 2026-11-05 · **Marco ativo:** Onda v1.6 (release 1.6.2) · **Estado:** IN_PROGRESS
 
 ## CI
 - O push da 1.6.1 falhou no analyzer (`223e2e1`). O CI seguinte passou no analyzer e falhou em `screenshot_editor_test`: o arrasto no centro do canvas não acertava o detector. O canvas de anotação agora preenche a área e recebe o gesto.
@@ -18,6 +18,8 @@
 - **Transferência Segura de Arquivos:** Envio e recebimento restritos a pastas autorizadas, validação de integridade por hash SHA-256 e suporte a transferências retomáveis.
 
 ## Última atividade
+- **Release 1.7.0 e repo público (2026-11-05):** repo `playertwo1/Command` público após remover 3 capturas de tela do histórico (reescrito, SHAs novos; backup em `_local_only/`). Release `command-v1.7.0` com feed Velopack: o exe passa a atualizar sozinho a partir dela (`AppUpdater.UpdateChecksEnabled = true`; a 1.6.2 instalada precisa de uma instalação manual). Temperatura da CPU sem admin (contador de zona térmica) com HWiNFO Shared Memory como último recurso; card "Histórico de Temperatura (60s)"; atalhos Grok Bot, Orca e Hermes no catálogo. `dotnet test` 416/416 PASS. Atualização do exe numa instalação real e leitura de temperatura em máquina física: `NOT_RUN`. Pendente: pedir ao suporte do GitHub a remoção dos commits antigos em cache (refs ocultas do PR #1); e-mails de autores e IP de LAN seguem no histórico.
+- **Ícone Command com volume 3D (2026-11-05):** [`generate_command_icons.py`](scripts/generate_command_icons.py) aplica camadas, luz e sombra à arte usada pelo launcher Android e gera o mesmo `.ico` para o executável e o tray. O ícone adaptativo deriva dessa arte dentro da zona segura. `dotnet build DroidDeck/DroidDeck.csproj -c Release --no-restore` PASS (0 avisos/erros); `flutter build apk --debug` PASS (avisos de compatibilidade futura do Gradle/AGP/Kotlin). Prévia da arte revisada; tray em execução real e launcher instalado em celular: `NOT_RUN`.
 - **Fase T1 concluída:**
   - [`HardwareSensorProvider.cs`](file:///c:/Users/notefael/projetos/Command/DroidDeck/Services/HardwareSensorProvider.cs) completa a leitura com ACPI, NVAPI e ADL. [`pc_dashboard_card.dart`](file:///c:/Users/notefael/projetos/Command/app/lib/src/home/pc_dashboard_card.dart) mostra as duas temperaturas.
   - Testes: `dotnet test` 405/405 PASS; `flutter test` 259/259 PASS. Leitura confirmada numa máquina física: `NOT_RUN`.
