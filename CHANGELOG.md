@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/playertwo1/Command/compare/command-v1.7.0...command-v1.7.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* **release:** apply semantic version to Android APK ([8f2d032](https://github.com/playertwo1/Command/commit/8f2d0320d439217bcf48841e7c2e2bcc6b28fdb8))
+
 # [1.7.0](https://github.com/playertwo1/Command/compare/command-v1.6.2...command-v1.7.0) (2026-11-05)
 
 
