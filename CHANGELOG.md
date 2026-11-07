@@ -1,9 +1,11 @@
 ## [1.7.1](https://github.com/playertwo1/Command/compare/command-v1.7.0...command-v1.7.1) (2026-11-07)
 
 
-### Bug Fixes
+### Correções e mudanças
 
-* **release:** apply semantic version to Android APK ([8f2d032](https://github.com/playertwo1/Command/commit/8f2d0320d439217bcf48841e7c2e2bcc6b28fdb8))
+* **app:** mantém a lista vazia após excluir a última rotina e preserva a lista já exibida quando falha a atualização ([47523d2](https://github.com/playertwo1/Command/commit/47523d2e03c69b90e394ba659a0638ce8c3cc3f1))
+* **pc:** atualiza o executável e a identidade do Windows para Command, com ícone do tray alinhado ao app e migrações legadas preservadas ([47523d2](https://github.com/playertwo1/Command/commit/47523d2e03c69b90e394ba659a0638ce8c3cc3f1))
+* **release:** aplica a versão semântica ao APK Android ([8f2d032](https://github.com/playertwo1/Command/commit/8f2d0320d439217bcf48841e7c2e2bcc6b28fdb8))
 
 # [1.7.0](https://github.com/playertwo1/Command/compare/command-v1.6.2...command-v1.7.0) (2026-11-05)
 
