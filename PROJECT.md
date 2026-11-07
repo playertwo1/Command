@@ -32,5 +32,5 @@ Piloto pessoal de sete dias e pelo menos 30 ações diretas; meta recomendada de
 ## Autoridade de produto
 O proprietário do projeto aprova decisões de base e o gate final do MVP. Revisão técnica independente registra as evidências.
 
-## Alternativas em avaliação
-DroidDeck e LibreHardwareMonitor; referências históricas e licenças constam dos arquivos de pesquisa. Nenhum outro fork foi aprovado.
+## Referências técnicas
+As bases upstream, licenças e decisões históricas estão registradas em `research/UPSTREAM.md` e `docs/LICENSES.md`. O escopo ativo continua definido pelo roadmap; nenhuma alternativa fora dele está aprovada.

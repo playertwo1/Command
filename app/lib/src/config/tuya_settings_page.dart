@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -30,7 +30,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
   @override
   void initState() {
     super.initState();
-    Injector.get<DroidDeckClient>().getTuyaState().then((s) {
+    Injector.get<CommandClient>().getTuyaState().then((s) {
       if (s != null && mounted) {
         Injector.get<SignalRService>().tuyaState.value =
             Map<String, dynamic>.from(s);
@@ -61,7 +61,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
 
     setState(() => _busy = true);
     try {
-      final r = await Injector.get<DroidDeckClient>().startTuyaPairing(code);
+      final r = await Injector.get<CommandClient>().startTuyaPairing(code);
       setState(() {
         _qrBase64 = r['qrPng'] as String?;
         _secondsLeft = (r['expiresInSeconds'] as num?)?.toInt() ?? 120;
@@ -86,11 +86,11 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
       setState(() => _secondsLeft = (_secondsLeft - 3).clamp(0, 999));
 
       try {
-        final scanned = await Injector.get<DroidDeckClient>().pollTuyaPairing();
+        final scanned = await Injector.get<CommandClient>().pollTuyaPairing();
         if (!scanned) return;
 
         timer.cancel();
-        final state = await Injector.get<DroidDeckClient>().getTuyaState();
+        final state = await Injector.get<CommandClient>().getTuyaState();
         if (state != null && mounted) {
           Injector.get<SignalRService>().tuyaState.value =
               Map<String, dynamic>.from(state);
@@ -109,7 +109,7 @@ class _TuyaSettingsPageState extends State<TuyaSettingsPage> {
   Future<void> _refreshDevices() async {
     setState(() => _busy = true);
     try {
-      final state = await Injector.get<DroidDeckClient>().refreshTuyaDevices();
+      final state = await Injector.get<CommandClient>().refreshTuyaDevices();
       Injector.get<SignalRService>().tuyaState.value =
           Map<String, dynamic>.from(state);
       _snack(tr('Dispositivos atualizados.'));

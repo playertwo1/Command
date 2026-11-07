@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/security/security_center_card.dart';
-import 'package:droiddeck/src/services/biometric_guard_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/security/security_center_card.dart';
+import 'package:command/src/services/biometric_guard_service.dart';
 
-class FakeSecurityClient extends DroidDeckClient {
+class FakeSecurityClient extends CommandClient {
   int updateStatusCalls = 0;
   int systemStabilityCalls = 0;
   int exportBackupCalls = 0;

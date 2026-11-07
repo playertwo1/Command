@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/i18n/en/en.dart';
-import 'package:droiddeck/core/i18n/i18n.dart';
+import 'package:command/core/i18n/en/en.dart';
+import 'package:command/core/i18n/i18n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

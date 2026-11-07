@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/security/encrypted_backup_sheet.dart';
-import 'package:droiddeck/src/services/biometric_guard_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/security/encrypted_backup_sheet.dart';
+import 'package:command/src/services/biometric_guard_service.dart';
 
 /// Card Amethyst para o Centro de Segurança, RBAC, Backups e Integridade do Sistema (Ondas P0, P1 e P2).
 class SecurityCenterCard extends StatefulWidget {
-  final DroidDeckClient? client;
+  final CommandClient? client;
   final BiometricGuardService? guardService;
 
   const SecurityCenterCard({

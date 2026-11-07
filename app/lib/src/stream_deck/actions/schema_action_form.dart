@@ -1,7 +1,7 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_schema.dart';
-import 'package:droiddeck/src/config/integrations_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/actions/action_schema.dart';
+import 'package:command/src/config/integrations_page.dart';
 import 'package:flutter/material.dart';
 
 /// Formulário montado a partir do [ActionSchema]. Avisa o painel a cada mudança com
@@ -71,7 +71,7 @@ class _SchemaActionFormState extends State<SchemaActionForm> {
       _errors.remove(url);
     });
     try {
-      final data = await Injector.get<DroidDeckClient>().getJson(url);
+      final data = await Injector.get<CommandClient>().getJson(url);
       final list = (data is List ? data : const [])
           .map(FieldOption.fromJson)
           .where((o) => o.value.isNotEmpty)

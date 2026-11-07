@@ -1,11 +1,11 @@
-# DroidDeck
+# Command
 
-**DroidDeck turns an Android phone into a Stream Deck for your Windows PC.** Set up a grid of buttons
+**Command turns an Android phone into a Stream Deck for your Windows PC.** Set up a grid of buttons
 on your phone that fire shortcuts, open apps, control audio and media, drive Discord and OBS, play
 sounds, and switch your smart lights. The PC side is a small tray app; the phone talks to it over your
 local network.
 
-[Download the latest release :material-download:](https://github.com/ggfto/DroidDeck/releases/latest){ .md-button .md-button--primary }
+[Download the latest release :material-download:](https://github.com/playertwo1/Command/releases/latest){ .md-button .md-button--primary }
 [Get started](getting-started/installation.md){ .md-button }
 
 ## What you can do
@@ -32,13 +32,13 @@ local network.
 
 ```mermaid
 flowchart LR
-  phone["Android phone<br/>(button grid)"] -- "REST + SignalR<br/>port 4787" --> pc["DroidDeck on Windows<br/>(tray app)"]
+  phone["Android phone<br/>(button grid)"] -- "REST + SignalR<br/>port 4787" --> pc["Command on Windows<br/>(tray app)"]
   browser["Browser on the PC<br/>(configurator)"] -- "http://localhost:4787" --> pc
   pc --> win["Windows: keys, apps,<br/>audio, media"]
   pc --> ext["Discord · OBS · Tuya<br/>MyInstants"]
 ```
 
-1. **DroidDeck for Windows** runs in the system tray and serves an API and the web configurator on port `4787`.
+1. **Command for Windows** runs in the system tray and serves an API and the web configurator on port `4787`.
 2. **The Android app** pairs once by scanning a QR code, then shows your buttons full screen.
 3. **The configurator** runs in the PC's browser: drag buttons around, pick actions, colours and icons.
    Changes appear on the phone immediately.

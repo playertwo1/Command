@@ -1,7 +1,7 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/stream_deck/widgets/editor/info_section.dart';
-import 'package:droiddeck/src/stream_deck/widgets/mixer_slider_deck_button.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/stream_deck/widgets/editor/info_section.dart';
+import 'package:command/src/stream_deck/widgets/mixer_slider_deck_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -14,17 +14,17 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({'pc_current': 'pc-1'});
     PcStore.currentId = null;
-    if (getIt.isRegistered<DroidDeckClient>()) {
-      await getIt.unregister<DroidDeckClient>();
+    if (getIt.isRegistered<CommandClient>()) {
+      await getIt.unregister<CommandClient>();
     }
     client = _MixerClient();
-    getIt.registerSingleton<DroidDeckClient>(client);
+    getIt.registerSingleton<CommandClient>(client);
   });
 
   tearDown(() async {
     PcStore.currentId = null;
-    if (getIt.isRegistered<DroidDeckClient>()) {
-      await getIt.unregister<DroidDeckClient>();
+    if (getIt.isRegistered<CommandClient>()) {
+      await getIt.unregister<CommandClient>();
     }
   });
 
@@ -146,7 +146,7 @@ Widget _sliderApp({required String kind, required String deviceId}) =>
       ),
     );
 
-class _MixerClient extends DroidDeckClient {
+class _MixerClient extends CommandClient {
   _MixerClient() : super(baseUrl: 'http://127.0.0.1');
 
   int listOutputsCalls = 0;

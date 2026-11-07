@@ -5,19 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/transfers/share_receiver_sheet.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/transfers/share_receiver_sheet.dart';
+import 'package:command/src/connection/pc_store.dart';
 
-class MockDroidDeckClient extends Mock implements DroidDeckClient {}
+class MockCommandClient extends Mock implements CommandClient {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockDroidDeckClient mockClient;
+  late MockCommandClient mockClient;
 
   setUp(() {
-    mockClient = MockDroidDeckClient();
+    mockClient = MockCommandClient();
   });
 
   final testBytes = Uint8List.fromList(utf8.encode('arquivo de teste enviado do celular'));

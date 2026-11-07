@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:droiddeck/src/connection/pc_connections.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/connection/constants.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/src/connection/pc_connections.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/connection/constants.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +25,7 @@ class SplashPageState extends State<SplashPage> {
   Future<void> _checkConfig() async {
     if (kIsWeb) {
       // O web é servido pelo próprio PC: pega a chave via loopback (sem QR).
-      final client = Injector.get<DroidDeckClient>();
+      final client = Injector.get<CommandClient>();
       final signalR = Injector.get<SignalRService>();
       final origin = Uri.base.origin;
       client.setBaseUrl(origin);
@@ -51,7 +51,7 @@ class SplashPageState extends State<SplashPage> {
     if (ip != null && ip.isNotEmpty && mounted) {
       final baseUrl = 'http://$ip:$port';
 
-      final client = Injector.get<DroidDeckClient>();
+      final client = Injector.get<CommandClient>();
       client.setBaseUrl(baseUrl);
       client.setApiKey(apiKey);
 
@@ -63,7 +63,7 @@ class SplashPageState extends State<SplashPage> {
       if (!mounted) return; // o widget pode ter sido descartado durante o await
       Navigator.of(context).pushReplacementNamed('/home');
     } else if (mounted) {
-      // Ainda não pareou: explica que precisa do DroidDeck no PC antes de pedir o IP.
+      // Ainda não pareou: explica que precisa do Command no PC antes de pedir o IP.
       Navigator.of(context).pushReplacementNamed('/welcome');
     }
   }

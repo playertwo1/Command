@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 
 class HomeController {
-  final DroidDeckClient _client = Injector.get<DroidDeckClient>();
+  final CommandClient _client = Injector.get<CommandClient>();
   final SignalRService _signalR = Injector.get<SignalRService>();
 
   late final outputs = signal<List<MixerEntity>>([]);

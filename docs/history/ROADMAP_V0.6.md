@@ -37,7 +37,7 @@
   - `POST /api/system/lock` (`/api/v1/system/lock`)
   - `POST /api/system/sleep` (`/api/v1/system/sleep`)
 - [x] **W1.3:** Adicionar botões **"Bloquear PC"** e **"Suspender PC"** na `StatusPage` (`PowerControlCard`) com diálogo de confirmação dupla (*"Atenção: Ao bloquear ou suspender o PC, a captura de tela ficará indisponível até o desbloqueio local"*).
-- [x] **W1.4:** Criar testes unitários em `tests/DroidDeck.Tests/PowerControlTests.cs` (`7/7` PASS) e `app/test/power_control_ui_test.dart` (`4/4` PASS).
+- [x] **W1.4:** Criar testes unitários em `tests/Command.Tests/PowerControlTests.cs` (`7/7` PASS) e `app/test/power_control_ui_test.dart` (`4/4` PASS).
 
 ---
 

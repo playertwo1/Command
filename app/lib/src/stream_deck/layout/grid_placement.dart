@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/droiddeck_client/models/deck_button.dart';
+import 'package:command/core/command_client/models/deck_button.dart';
 
 /// Um botão e seu espaço visual efetivo dentro da grade.
 class GridPlacement {

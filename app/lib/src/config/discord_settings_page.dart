@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,7 +29,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
   void initState() {
     super.initState();
     // Puxa o estado atual uma vez (o signal também reflete updates ao vivo).
-    Injector.get<DroidDeckClient>().getDiscordState().then((s) {
+    Injector.get<CommandClient>().getDiscordState().then((s) {
       if (s != null && mounted) {
         Injector.get<SignalRService>().discordState.value =
             Map<String, dynamic>.from(s);
@@ -64,7 +64,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
     }
     setState(() => _busy = true);
     try {
-      await Injector.get<DroidDeckClient>().setDiscordConfig(id, secret);
+      await Injector.get<CommandClient>().setDiscordConfig(id, secret);
       // Não limpa o campo: antes o secret sumia ao salvar e parecia que não
       // tinha salvo. Ele fica visível (mascarado) confirmando que foi enviado.
       _snack(tr('Credenciais salvas. Agora toque em "Conectar".'));
@@ -78,7 +78,7 @@ class _DiscordSettingsPageState extends State<DiscordSettingsPage> {
   Future<void> _connect() async {
     setState(() => _busy = true);
     try {
-      final state = await Injector.get<DroidDeckClient>().connectDiscord();
+      final state = await Injector.get<CommandClient>().connectDiscord();
       Injector.get<SignalRService>().discordState.value =
           Map<String, dynamic>.from(state);
       _snack(tr('Discord conectado!'));

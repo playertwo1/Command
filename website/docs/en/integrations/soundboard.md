@@ -20,11 +20,11 @@ The **Stop** operation stops whatever is playing. A new sound interrupts the pre
 
 ## Getting the sound into your microphone
 
-DroidDeck plays MyInstants sounds on an audio device of your choice. To make them reach Discord,
+Command plays MyInstants sounds on an audio device of your choice. To make them reach Discord,
 games or OBS, use a virtual audio cable:
 
 1. Install [VB-Cable](https://vb-audio.com/Cable/) (free).
-2. In DroidDeck's **Soundboard** settings, set **"Cable" output (goes to Discord/OBS)** to **CABLE Input**.
+2. In Command's **Soundboard** settings, set **"Cable" output (goes to Discord/OBS)** to **CABLE Input**.
 3. Turn on **Also play on monitor** and pick your headphones, so you
    hear the sounds too.
 4. In Discord (or OBS), use **CABLE Output** as the microphone / an audio input capture.

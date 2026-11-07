@@ -1,13 +1,13 @@
 import 'dart:typed_data';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/desktop_stream/desktop_stream_controller.dart';
-import 'package:droiddeck/src/remote_input/remote_input_card.dart';
-import 'package:droiddeck/src/remote_input/trackpad_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/desktop_stream/desktop_stream_controller.dart';
+import 'package:command/src/remote_input/remote_input_card.dart';
+import 'package:command/src/remote_input/trackpad_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockRemoteInputClient extends DroidDeckClient {
+class MockRemoteInputClient extends CommandClient {
   MockRemoteInputClient({super.baseUrl = 'https://test.deck'});
 
   final List<String> calls = [];

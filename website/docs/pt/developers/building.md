@@ -9,11 +9,10 @@
 
 ```powershell
 # run (tray app + server at http://localhost:4787)
-cd DroidDeck
-dotnet run
+dotnet run --project CommandPC/CommandPC.csproj
 
 # build the solution
-dotnet build DroidDeck.sln -c Debug
+dotnet build Command.sln -c Debug
 ```
 
 !!! warning "Atenção"
@@ -27,7 +26,7 @@ Defina `ASPNETCORE_ENVIRONMENT=Development` para ativar o Swagger em `/swagger`.
 ```powershell
 cd app
 
-# web configurator -> builds and copies to DroidDeck/wwwroot
+# web configurator -> builds and copies to CommandPC/wwwroot
 ..\scripts\deploy-web.ps1
 
 # Android APK
@@ -38,12 +37,12 @@ adb install -r build\app\outputs\flutter-apk\app-debug.apk
 ## Testes e CI
 
 ```powershell
-dotnet test DroidDeck.sln              # backend (tests/DroidDeck.Tests)
+dotnet test Command.sln              # backend (tests/Command.Tests)
 cd app; flutter analyze; flutter test  # app
 ```
 
 Os testes do backend nunca tocam nos seus dados reais: um module initializer aponta as pastas de
-dados do servidor para um diretório temporário via `DROIDDECK_DATA_DIR`. Os testes da categoria
+dados do servidor para um diretório temporário via `COMMAND_DATA_DIR`. Os testes da categoria
 `RequiresDesktop` enviam teclas de verdade (engolidas por um hook de teclado) e precisam de uma
 sessão interativa do Windows.
 
@@ -63,11 +62,11 @@ vem dos commits ([Conventional Commits](https://www.conventionalcommits.org)):
 | `fix:`, `perf:` | patch |
 | `feat!:` ou `BREAKING CHANGE` | major |
 
-Ele atualiza o `CHANGELOG.md`, cria a tag e a GitHub Release, e anexa o `DroidDeck-Setup.exe`
-(instalador), o `DroidDeck-win-x64.zip` (o mesmo backend autocontido com o configurador web embutido,
-sem instalador) e o `DroidDeck.apk`. Um primeiro job roda o semantic-release em dry-run para saber a
+Ele atualiza o `CHANGELOG.md`, cria a tag e a GitHub Release, e anexa o `Command-Setup.exe`
+(instalador), o `Command-win-x64.zip` (o mesmo backend autocontido com o configurador web embutido,
+sem instalador) e o `Command.apk`. Um primeiro job roda o semantic-release em dry-run para saber a
 próxima versão, porque o instalador é empacotado com ela ([Velopack](https://velopack.io),
-`--packId DroidDeckPC`). O feed do Velopack (`releases.win.json`, o `.nupkg` e afins) também vai
+`--packId CommandPC`). O feed do Velopack (`releases.win.json`, o `.nupkg` e afins) também vai
 anexado: as cópias instaladas procuram por ele na última release para se atualizar, então **não apague
 esses arquivos**. Se não houver nenhum
 commit que gere release desde a última versão, nada é publicado.
@@ -81,7 +80,7 @@ que mexa em `website/`.
 ```powershell
 pip install -r website/requirements.txt
 cd website
-mkdocs serve        # http://127.0.0.1:8000/DroidDeck/docs/
+mkdocs serve        # http://127.0.0.1:8000/Command/docs/
 ```
 
 As páginas ficam em `website/docs/en/` e `website/docs/pt/`, com os mesmos nomes de arquivo. Ao

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Casa inteligente Tuya/Smart Life: o campo de valor se adapta ao tipo de cada
@@ -57,7 +57,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
   // Num botão novo o snapshot pode não ter chegado ainda (só vem em broadcast raro):
   // sem isto os campos abririam dizendo "conta não vinculada" com a conta pareada.
   void _loadState() {
-    Injector.get<DroidDeckClient>().getTuyaState().then((s) {
+    Injector.get<CommandClient>().getTuyaState().then((s) {
       if (s != null && mounted) {
         setState(() => _signalR.tuyaState.value = Map<String, dynamic>.from(s));
         _emit();
@@ -304,7 +304,7 @@ class _TuyaActionEditorState extends State<TuyaActionEditor> {
     }
 
     try {
-      await Injector.get<DroidDeckClient>()
+      await Injector.get<CommandClient>()
           .sendTuyaCommand(_deviceId!, _code!, value);
       if (mounted) {
         ScaffoldMessenger.of(context)

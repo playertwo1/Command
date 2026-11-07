@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/services/mdns_discovery_service.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/services/mdns_discovery_service.dart';
 import 'package:http/http.dart' as http;
 
 /// Serviço de resolução e ordem de fallback de conexão (D0.3).

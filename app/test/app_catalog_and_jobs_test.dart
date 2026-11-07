@@ -1,13 +1,13 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/home/status_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/home/status_page.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FakeDroidDeckClient extends DroidDeckClient {
-  FakeDroidDeckClient() : super(baseUrl: 'http://localhost:4787');
+class FakeCommandClient extends CommandClient {
+  FakeCommandClient() : super(baseUrl: 'http://localhost:4787');
 
   List<AllowedApp> mockApps = [
     const AllowedApp(
@@ -148,7 +148,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    final fakeClient = FakeDroidDeckClient();
+    final fakeClient = FakeCommandClient();
     final signalR = SignalRService();
     signalR.connectionStatus.value = 'Connected';
 
@@ -200,7 +200,7 @@ void main() {
       apiKey: 'key-two',
       name: 'PC Sala',
     );
-    final firstPcClient = FakeDroidDeckClient()
+    final firstPcClient = FakeCommandClient()
       ..mockJobs = [
         CommandJob(
           id: 'job-one',
@@ -211,7 +211,7 @@ void main() {
           createdAtUtc: DateTime.utc(2026, 10, 20, 10),
         ),
       ];
-    final secondPcClient = FakeDroidDeckClient()
+    final secondPcClient = FakeCommandClient()
       ..mockJobs = [
         CommandJob(
           id: 'job-two',
@@ -280,7 +280,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    final fakeClient = FakeDroidDeckClient();
+    final fakeClient = FakeCommandClient();
     final signalR = SignalRService();
 
     await tester.pumpWidget(

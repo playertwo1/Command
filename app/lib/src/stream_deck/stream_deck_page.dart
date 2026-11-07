@@ -1,17 +1,17 @@
-import 'package:droiddeck/src/config/pc_switcher.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/layout/desktop_layout.dart';
-import 'package:droiddeck/src/stream_deck/layout/grid_placement.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
-import 'package:droiddeck/src/stream_deck/stream_deck_controller.dart';
-import 'package:droiddeck/src/stream_deck/widgets/dynamic_deck_button.dart';
-import 'package:droiddeck/src/stream_deck/widgets/button_editor_dialog.dart';
-import 'package:droiddeck/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'package:command/src/config/pc_switcher.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/layout/desktop_layout.dart';
+import 'package:command/src/stream_deck/layout/grid_placement.dart';
+import 'package:command/src/stream_deck/actions/action_catalog.dart';
+import 'package:command/src/stream_deck/stream_deck_controller.dart';
+import 'package:command/src/stream_deck/widgets/dynamic_deck_button.dart';
+import 'package:command/src/stream_deck/widgets/button_editor_dialog.dart';
+import 'package:command/src/stream_deck/widgets/profile_settings_dialog.dart';
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/buttons/button_look.dart';
-import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/buttons/button_look.dart';
+import 'package:command/src/stream_deck/buttons/colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
@@ -267,7 +267,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
       ..showSnackBar(
         SnackBar(
           content: Text(
-            tr('O PC não respondeu. Confira se o DroidDeck está aberto nele.'),
+            tr('O PC não respondeu. Confira se o Command está aberto nele.'),
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -336,7 +336,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
     _reportedRows = g.rows;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
-        Injector.get<DroidDeckClient>().saveLayout(g.rows, g.cols);
+        Injector.get<CommandClient>().saveLayout(g.rows, g.cols);
       } catch (_) {}
     });
   }
@@ -712,7 +712,7 @@ class _StreamDeckPageState extends State<StreamDeckPage> {
                                   controller.offline.value
                                       ? tr('PC desconectado. Mostrando o último deck salvo neste aparelho.')
                                       : tr('O PC não respondeu e este aparelho ainda não tem um deck dele salvo. '
-                                          'Confira se o DroidDeck está aberto nele e na mesma rede.'),
+                                          'Confira se o Command está aberto nele e na mesma rede.'),
                                   style: const TextStyle(color: Colors.white),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

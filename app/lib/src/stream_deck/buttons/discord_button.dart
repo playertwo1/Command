@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 
 import 'button_look.dart';
@@ -12,7 +12,7 @@ class DiscordButtonRenderer extends ButtonRenderer {
   void init(ButtonLook look) {
     try {
       final sr = Injector.get<SignalRService>();
-      Injector.get<DroidDeckClient>().getDiscordState().then((s) {
+      Injector.get<CommandClient>().getDiscordState().then((s) {
         if (s != null) sr.discordState.value = Map<String, dynamic>.from(s);
       }).catchError((_) {});
     } catch (_) {}

@@ -4,9 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/services/mdns_discovery_service.dart';
-import 'package:droiddeck/src/connection/reconnection_fallback_service.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/services/mdns_discovery_service.dart';
+import 'package:command/src/connection/reconnection_fallback_service.dart';
 
 class MockProbeHttpClient extends http.BaseClient {
   final Map<String, int> responses;

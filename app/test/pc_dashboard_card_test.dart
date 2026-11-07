@@ -1,7 +1,7 @@
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/home/pc_dashboard_card.dart';
-import 'package:droiddeck/src/home/thermal_color.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/home/pc_dashboard_card.dart';
+import 'package:command/src/home/thermal_color.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

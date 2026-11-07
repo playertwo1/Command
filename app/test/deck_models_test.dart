@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/droiddeck_client/models/deck_action.dart';
-import 'package:droiddeck/core/droiddeck_client/models/deck_button.dart';
-import 'package:droiddeck/core/droiddeck_client/models/deck_profile.dart';
-import 'package:droiddeck/src/stream_deck/buttons/button_look.dart';
-import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
-import 'package:droiddeck/src/stream_deck/layout/grid_placement.dart';
-import 'package:droiddeck/src/stream_deck/widgets/editor/look_pickers.dart';
+import 'package:command/core/command_client/models/deck_action.dart';
+import 'package:command/core/command_client/models/deck_button.dart';
+import 'package:command/core/command_client/models/deck_profile.dart';
+import 'package:command/src/stream_deck/buttons/button_look.dart';
+import 'package:command/src/stream_deck/buttons/colors.dart';
+import 'package:command/src/stream_deck/layout/grid_placement.dart';
+import 'package:command/src/stream_deck/widgets/editor/look_pickers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

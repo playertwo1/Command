@@ -1,10 +1,10 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/wake_on_lan_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/wake_on_lan_service.dart';
 import 'package:flutter/material.dart';
 
 /// Card interativo para controle seguro de energia, sessão e Wake-on-LAN (Onda v0.6 - W0/W1).
 class PowerControlCard extends StatefulWidget {
-  final DroidDeckClient? client;
+  final CommandClient? client;
   final String? targetPcName;
   final String? savedMacAddress;
   final VoidCallback? onOpenDockMode;

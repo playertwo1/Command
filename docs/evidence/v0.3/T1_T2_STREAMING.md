@@ -7,7 +7,7 @@
   - Cancelamento cooperativo via `CancellationToken` quando a conexão HTTP é encerrada.
   - Detecção de tela bloqueada via `OpenInputDesktop` emitindo frame informativo sem contornar segurança do Windows.
   - Endpoints autenticados `GET /api/stream/desktop` e alias `GET /api/v1/stream/desktop`.
-  - Suíte de 5 testes unitários e de concorrência em `tests/DroidDeck.Tests/ScreenStreamTests.cs`.
+  - Suíte de 5 testes unitários e de concorrência em `tests/Command.Tests/ScreenStreamTests.cs`.
 - **T2 (Frontend Mobile):**
   - `DesktopStreamController` para consumir o stream multipart MJPEG, calcular taxa de FPS em tempo real, aplicar presets de qualidade (`eco`, `standard`, `performance`) e descarte limpo de memória.
   - `DesktopLiveStreamViewer` integrado à `StatusPage` com botões Play/Pause, badge dinâmico de FPS, dropdown de qualidade e modo tela cheia interativo com zoom/pan (`InteractiveViewer`).

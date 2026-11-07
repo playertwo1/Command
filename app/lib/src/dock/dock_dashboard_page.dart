@@ -1,4 +1,4 @@
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 
 /// Painel horizontal compacto de alto contraste para uso do celular em dock/mesa (Onda v0.6 - W3).

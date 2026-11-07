@@ -1,8 +1,8 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/backup/backup_file.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/backup/backup_file.dart';
 import 'package:flutter/material.dart';
 
-/// Exportar e importar os perfis num arquivo .droiddeck.
+/// Exporta arquivos .command e importa também backups de versões anteriores.
 class BackupButtons extends StatefulWidget {
   /// Chamado depois de importar, para a tela recarregar os perfis.
   final VoidCallback? onImported;
@@ -19,7 +19,7 @@ class BackupButtons extends StatefulWidget {
 class _BackupButtonsState extends State<BackupButtons> {
   bool _busy = false;
 
-  DroidDeckClient get _client => Injector.get<DroidDeckClient>();
+  CommandClient get _client => Injector.get<CommandClient>();
 
   Future<void> _run(Future<String> Function() job) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -52,7 +52,7 @@ class _BackupButtonsState extends State<BackupButtons> {
     String two(int v) => v.toString().padLeft(2, '0');
     await saveBackupFile(
       bytes,
-      'DroidDeck-${now.year}-${two(now.month)}-${two(now.day)}.droiddeck',
+      'Command-${now.year}-${two(now.month)}-${two(now.day)}.command',
     );
     return '';
   }
@@ -126,7 +126,7 @@ class _BackupButtonsState extends State<BackupButtons> {
           title: Text(tr('Exportar backup do deck')),
           subtitle: Text(
             tr(
-              'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.',
+              'Salva todos os perfis num arquivo .command. Backups antigos também podem ser importados no configurador do PC.',
             ),
           ),
           trailing: _busy

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_schema.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
-import 'package:droiddeck/src/stream_deck/actions/schema_action_form.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/action_catalog.dart';
+import 'package:command/src/stream_deck/actions/action_schema.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/src/stream_deck/actions/schema_action_form.dart';
 import 'package:flutter/material.dart';
 
 /// Escolha de uma ação: o tipo (agrupado por categoria) e os campos dele. Um botão tem

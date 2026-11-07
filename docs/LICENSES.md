@@ -10,7 +10,7 @@ O repositório do Command é composto por múltiplos subsistemas que possuem lic
 
 | Componente | Diretório | Licença | Arquivo | Descrição / Restrições |
 |---|---|---|---|---|
-| **Windows Bridge & Servidor Web** | `DroidDeck/`, `tests/`, raiz | **Apache-2.0** | [`LICENSE`](file:///c:/Users/notefael/projetos/Command/LICENSE) | Código .NET 8 (C#) e Win32. Permissiva, com proteção de patente e exigência de preservação de avisos de copyright. |
+| **Windows Bridge & Servidor Web** | `CommandPC/`, `tests/`, raiz | **Apache-2.0** | [`LICENSE`](file:///c:/Users/notefael/projetos/Command/LICENSE) | Código .NET 8 (C#) e Win32. Permissiva, com proteção de patente e exigência de preservação de avisos de copyright. |
 | **Aplicativo Mobile & Web Configurator** | `app/` | **GPL-3.0** | [`app/LICENSE`](file:///c:/Users/notefael/projetos/Command/app/LICENSE) | Código Flutter / Dart. Copyleft forte: modificações distribuídas exigem disponibilização do código-fonte correspondente sob GPL-3.0. |
 | **Ferramentas de Pesquisa e Upstream** | `research/` | Misto / Referência | [`research/UPSTREAM.md`](file:///c:/Users/notefael/projetos/Command/research/UPSTREAM.md) | Documentação de proveniência de commits, SHAs e licenças originais auditadas. |
 

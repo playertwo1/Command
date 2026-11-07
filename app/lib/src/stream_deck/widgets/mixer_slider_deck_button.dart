@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/core/droiddeck_client/models/mixer_data.dart';
-import 'package:droiddeck/core/ui/molecules/deck_tile.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
+import 'package:command/core/core.dart';
+import 'package:command/core/command_client/models/mixer_data.dart';
+import 'package:command/core/ui/molecules/deck_tile.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/stream_deck/buttons/colors.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -27,7 +27,7 @@ class MixerSliderDeckButton extends StatefulWidget {
 }
 
 class _MixerSliderDeckButtonState extends State<MixerSliderDeckButton> {
-  DroidDeckClient? _client;
+  CommandClient? _client;
   String? _ownerPcId;
   int? _volume;
   bool _muted = false;
@@ -83,17 +83,17 @@ class _MixerSliderDeckButtonState extends State<MixerSliderDeckButton> {
     }
 
     try {
-      DroidDeckClient client;
+      CommandClient client;
       if (kIsWeb) {
-        client = Injector.get<DroidDeckClient>();
+        client = Injector.get<CommandClient>();
         _ownerPcId = PcStore.currentId;
       } else {
         final pc = await PcStore.current();
         if (pc == null) {
-          client = Injector.get<DroidDeckClient>();
+          client = Injector.get<CommandClient>();
           _ownerPcId = PcStore.currentId;
         } else {
-          client = DroidDeckClient(baseUrl: pc.baseUrl)..setApiKey(pc.apiKey);
+          client = CommandClient(baseUrl: pc.baseUrl)..setApiKey(pc.apiKey);
           _ownerPcId = pc.id;
         }
       }

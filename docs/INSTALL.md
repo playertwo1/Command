@@ -57,7 +57,7 @@ Ou especificando versão / arquivo direto:
 
 ### Opção C: Pacote Portátil (`.zip`, sem instalar)
 1. Descompacte `Command-win-x64.zip` em um diretório do usuário (ex: `C:\CommandBridge`).
-2. Execute `DroidDeck.exe` diretamente ou via linha de comando (`.\DroidDeck.exe --headless` para modo sem bandeja).
+2. Execute `Command.exe` diretamente ou via linha de comando (`.\Command.exe --headless` para modo sem bandeja).
 
 ### Passo Adicional: Firewall do Windows (Apenas Rede Privada)
 Caso a rede local bloqueie conexões de outros dispositivos, o Command oferece a liberação na primeira execução ou pelo menu da bandeja. Para configurar manualmente:
@@ -92,7 +92,7 @@ adb install -r dist/Command.apk
    ```
    http://localhost:4787
    ```
-2. Na aba **Pareamento** do configurator, será gerado um QR Code contendo o payload seguro `droiddeck://pair` com endereço, porta e API Key gerada protegida por **DPAPI** (Data Protection API do Windows).
+2. Na aba **Pareamento** do configurator, será gerado um QR Code com `command://pair`, endereço, porta e API Key gerada protegida por **DPAPI** (Data Protection API do Windows). QR codes de versões antigas continuam aceitos pelo app.
 3. No celular Android, abra o aplicativo **Command**.
 4. Toque no ícone de pareamento / configurações e escaneie o QR Code exibido na tela do PC (ou digite manualmente o endereço IP e a chave de API fornecida).
 5. O aplicativo móvel salvará as credenciais no armazenamento seguro local e estabelecerá a conexão de telemetria SignalR e HTTP.
@@ -105,7 +105,7 @@ adb install -r dist/Command.apk
 - **Pela Bandeja do Windows:** Clique com o botão direito no ícone do Command Bridge no System Tray e selecione **Sair** (Exit).
 - **Por Linha de Comando:** Se estiver rodando no terminal, pressione `Ctrl + C` ou utilize:
   ```powershell
-  Stop-Process -Name DroidDeck -Force
+  Stop-Process -Name Command -Force
   ```
 - O encerramento fecha imediatamente os ouvintes de rede na porta 4787 e encerra conexões SignalR.
 
@@ -116,7 +116,7 @@ adb install -r dist/Command.apk
 Se o aparelho for perdido, substituído ou o acesso precisar ser revogado:
 1. **Revogação pelo PC (Autoritativa):**
    - Acesse o configurator web em `http://localhost:4787` e toque em **Revogar Dispositivos** / **Gerar Nova Chave**.
-   - Ou encerre o Bridge e remova o arquivo de credenciais salvas em `%LocalAppData%\DroidDeck\settings.json` e `%LocalAppData%\DroidDeck\devices.json`.
+   - Ou encerre o Bridge e remova `%LocalAppData%\Command\apikey` para revogar os celulares pareados. Os dados de instalações anteriores são migrados automaticamente quando necessário.
    - Ao iniciar novamente, o Bridge gerará novas credenciais DPAPI e rejeitará qualquer conexão antiga com código `401 Unauthorized`.
 2. **Revogação pelo Celular:**
    - No app Command, abra a aba **Configurações** e toque em **Desconectar / Limpar Pareamento**.
@@ -152,8 +152,11 @@ Para também apagar permanentemente todas as pastas de dados e configurações d
 - **Como prosseguir:** Clique em **Mais informações** ➔ **Executar assim mesmo**. O SmartScreen não é contornado pelo instalador; a decisão de confiança permanece estritamente nas mãos do usuário.
 - A integridade criptográfica deve sempre ser validada pelo checksum SHA-256 oficial do release antes de prosseguir.
 
-### Atualização e Recuperação (Rollback)
+### Atualização automática e recuperação (rollback)
 - O Command Bridge utiliza o gerenciador Velopack com estratégia de isolamento por versão em `%LocalAppData%\CommandPC\current`.
+- A partir da versão 1.7.0, o app consulta a release estável do GitHub 30 segundos após iniciar e depois a cada 6 horas.
+- Se houver uma versão nova, ela é baixada em segundo plano e aplicada na próxima inicialização. O menu da bandeja também permite reiniciar para aplicar logo após o download.
+- Instalações anteriores à 1.7.0 precisam receber essa versão manualmente uma vez; depois, passam a receber as releases futuras pelo feed.
 - Caso uma nova versão apresente instabilidade:
   1. Encerre o Command na bandeja.
   2. Execute o instalador `Command-Setup.exe` da versão anterior compatível desejada.

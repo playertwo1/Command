@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="website/landing/logo.svg" alt="DroidDeck" width="96" height="96">
+<img src="website/landing/logo.svg" alt="Command" width="96" height="96">
 
-# DroidDeck
+# Command
 
 **Transforme um celular Android em um Stream Deck para o seu PC com Windows.**
 
 [English](README.md) · **Português**
 
-[![Estrelas no GitHub](https://img.shields.io/github/stars/ggfto/DroidDeck?style=for-the-badge&logo=github&label=Estrelas&color=f5b301)](https://github.com/ggfto/DroidDeck/stargazers)
-[![Última versão](https://img.shields.io/github/v/release/ggfto/DroidDeck?style=for-the-badge&label=Vers%C3%A3o)](https://github.com/ggfto/DroidDeck/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/ggfto/DroidDeck/total?style=for-the-badge&label=Downloads)](https://github.com/ggfto/DroidDeck/releases)
-[![CI](https://img.shields.io/github/actions/workflow/status/ggfto/DroidDeck/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/ggfto/DroidDeck/actions/workflows/ci.yml)
-[![Licença](https://img.shields.io/github/license/ggfto/DroidDeck?style=for-the-badge&label=Licen%C3%A7a)](LICENSE)
+[![Estrelas no GitHub](https://img.shields.io/github/stars/playertwo1/Command?style=for-the-badge&logo=github&label=Estrelas&color=f5b301)](https://github.com/playertwo1/Command/stargazers)
+[![Última versão](https://img.shields.io/github/v/release/playertwo1/Command?style=for-the-badge&label=Vers%C3%A3o)](https://github.com/playertwo1/Command/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/playertwo1/Command/total?style=for-the-badge&label=Downloads)](https://github.com/playertwo1/Command/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/playertwo1/Command/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/playertwo1/Command/actions/workflows/ci.yml)
+[![Licença](https://img.shields.io/github/license/playertwo1/Command?style=for-the-badge&label=Licen%C3%A7a)](LICENSE)
 
-[**Baixar**](https://github.com/ggfto/DroidDeck/releases/latest) ·
-[**Site**](https://me.gf2.in/DroidDeck/) ·
-[**Documentação**](https://me.gf2.in/DroidDeck/docs/pt/)
+[**Baixar**](https://github.com/playertwo1/Command/releases/latest) ·
+[**Site**](https://me.gf2.in/Command/) ·
+[**Documentação**](https://me.gf2.in/Command/docs/pt/)
 
 </div>
 
@@ -34,7 +34,7 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 | 🪟 **Windows** | Troque o dispositivo de áudio padrão (fone ↔ caixa de som), trave, suspenda ou desligue a tela. |
 | ⏱️ **Timers** | Timer, cronômetro, pomodoro e contadores com o relógio ao vivo no botão. |
 | 🎮 **Steam** | Escolha um jogo instalado e o botão ganha a capa dele; um toque abre o jogo. |
-| 🗂️ **Perfis** | Pastas, ações de toque longo e toque duplo, troca automática pelo app em foco, backup `.droiddeck` e uma cópia offline do deck no celular. |
+| 🗂️ **Perfis** | Pastas, ações de toque longo e toque duplo, troca automática pelo app em foco, backup `.command`, importação de backups antigos e uma cópia offline do deck no celular. |
 | 🔊 **Mixer de áudio** | Silencie apps, ajuste o volume de dispositivos, ligue e desligue o microfone. O celular também tem um mixer completo por app. |
 | ⏯️ **Mídia** | Tocar/pausar, próxima e anterior para o que estiver tocando no Windows (Spotify, navegador, players). |
 | 📊 **Monitores ao vivo** | Medidores de CPU, GPU, RAM e rede atualizados a cada segundo. |
@@ -63,36 +63,36 @@ app na bandeja do sistema; o celular conversa com ele pela rede local.
 
 **Requisitos:** Windows 10 1809+ (64 bits) · Android 7.0+ · celular e PC na mesma rede local.
 
-1. **Windows** — baixe e rode o `DroidDeck-Setup.exe` da [versão mais recente](https://github.com/ggfto/DroidDeck/releases/latest).
-   Ele fica na bandeja do sistema e se atualiza sozinho. (Prefere sem instalar? Use o `DroidDeck-win-x64.zip`,
-   descompacte e rode o `DroidDeck.exe`.) Não precisa instalar o .NET.
-2. **Android** — instale o `DroidDeck.apk` da mesma release.
+1. **Windows** — baixe e rode o `Command-Setup.exe` da [versão mais recente](https://github.com/playertwo1/Command/releases/latest).
+   Ele fica na bandeja do sistema e se atualiza sozinho. (Prefere sem instalar? Use o `Command-win-x64.zip`,
+   descompacte e rode o `Command.exe`.) Não precisa instalar o .NET.
+2. **Android** — instale o `Command.apk` da mesma release.
 3. **Parear** — clique com o botão direito no ícone da bandeja → **Parear dispositivo (QR)…** e escaneie o código com o app.
 4. **Configurar** — abra `http://localhost:4787/` no PC para editar seus botões. As mudanças aparecem no celular na hora.
 
 Algum problema (SmartScreen, firewall, celular não encontra o PC)? Veja
-[Instalação](https://me.gf2.in/DroidDeck/docs/pt/getting-started/installation/) e
-[Solução de problemas](https://me.gf2.in/DroidDeck/docs/pt/troubleshooting/).
+[Instalação](https://me.gf2.in/Command/docs/pt/getting-started/installation/) e
+[Solução de problemas](https://me.gf2.in/Command/docs/pt/troubleshooting/).
 
 ## 🔌 Integrações
 
 | Integração | Guia |
 |---|---|
-| Discord (usa o seu próprio app do Discord — setup de ~2 min) | [Discord](https://me.gf2.in/DroidDeck/docs/pt/integrations/discord/) |
-| OBS Studio (obs-websocket) | [OBS Studio](https://me.gf2.in/DroidDeck/docs/pt/integrations/obs/) |
-| Soundboard (MyInstants + VB-Cable) | [Soundboard](https://me.gf2.in/DroidDeck/docs/pt/integrations/soundboard/) |
-| Tuya / Smart Life (Nova Digital, Positivo, RSmart, Elgin…) | [Casa inteligente](https://me.gf2.in/DroidDeck/docs/pt/integrations/tuya/) |
-| Home Assistant (token de longa duração) | [Home Assistant](https://me.gf2.in/DroidDeck/docs/pt/integrations/homeassistant/) |
-| Spotify (seu próprio app do Spotify, Premium) | [Spotify](https://me.gf2.in/DroidDeck/docs/pt/integrations/spotify/) |
-| Twitch (seu próprio app da Twitch) | [Twitch](https://me.gf2.in/DroidDeck/docs/pt/integrations/twitch/) |
-| YouTube (seu próprio cliente OAuth do Google) | [YouTube](https://me.gf2.in/DroidDeck/docs/pt/integrations/youtube/) |
-| Mixer por app e mídia | [Mixer e mídia](https://me.gf2.in/DroidDeck/docs/pt/integrations/mixer-media/) |
+| Discord (usa o seu próprio app do Discord — setup de ~2 min) | [Discord](https://me.gf2.in/Command/docs/pt/integrations/discord/) |
+| OBS Studio (obs-websocket) | [OBS Studio](https://me.gf2.in/Command/docs/pt/integrations/obs/) |
+| Soundboard (MyInstants + VB-Cable) | [Soundboard](https://me.gf2.in/Command/docs/pt/integrations/soundboard/) |
+| Tuya / Smart Life (Nova Digital, Positivo, RSmart, Elgin…) | [Casa inteligente](https://me.gf2.in/Command/docs/pt/integrations/tuya/) |
+| Home Assistant (token de longa duração) | [Home Assistant](https://me.gf2.in/Command/docs/pt/integrations/homeassistant/) |
+| Spotify (seu próprio app do Spotify, Premium) | [Spotify](https://me.gf2.in/Command/docs/pt/integrations/spotify/) |
+| Twitch (seu próprio app da Twitch) | [Twitch](https://me.gf2.in/Command/docs/pt/integrations/twitch/) |
+| YouTube (seu próprio cliente OAuth do Google) | [YouTube](https://me.gf2.in/Command/docs/pt/integrations/youtube/) |
+| Mixer por app e mídia | [Mixer e mídia](https://me.gf2.in/Command/docs/pt/integrations/mixer-media/) |
 
 ## 🧩 Como funciona
 
 ```mermaid
 flowchart LR
-  phone["Celular Android<br/>(grade de botões)"] -- "REST + SignalR<br/>porta 4787" --> pc["DroidDeck no Windows<br/>(app de bandeja)"]
+  phone["Celular Android<br/>(grade de botões)"] -- "REST + SignalR<br/>porta 4787" --> pc["Command no Windows<br/>(app de bandeja)"]
   browser["Navegador no PC<br/>(configurador)"] -- "http://localhost:4787" --> pc
   pc --> win["Windows: teclas, apps,<br/>áudio, mídia"]
   pc --> ext["Discord · OBS · Tuya<br/>MyInstants"]
@@ -101,12 +101,12 @@ flowchart LR
 Monorepo com as duas metades do projeto, que evoluem juntas:
 
 ```
-DroidDeck/
-  DroidDeck/  Backend C# (.NET 8 / WinForms tray + ASP.NET Core + SignalR). Serve a API e o configurador web.
-  app/        App Flutter: runtime no celular + configurador web (mesmo código).
-  tests/      Testes do backend.
-  scripts/    Utilitários (deploy do web para o wwwroot).
-  website/    Landing page + documentação (MkDocs, EN/PT) publicadas no GitHub Pages.
+Command/
+  CommandPC/    Backend C# (.NET 8 / WinForms tray + ASP.NET Core + SignalR). Serve a API e o configurador web.
+  app/          App Flutter: runtime no celular + configurador web (mesmo código).
+  tests/        Testes do backend.
+  scripts/      Utilitários (deploy do web para o wwwroot).
+  website/      Landing page + documentação (MkDocs, EN/PT) publicadas no GitHub Pages.
 ```
 
 O app e o backend compartilham um contrato: **REST** (`/api/...`), **SignalR** (`/deckHub`) e
@@ -116,9 +116,9 @@ O app e o backend compartilham um contrato: **REST** (`/api/...`), **SignalR** (
 
 ```powershell
 # Backend: app de bandeja + servidor web em http://localhost:4787
-dotnet run --project DroidDeck
+dotnet run --project CommandPC/CommandPC.csproj
 
-# Configurador web: flutter build web + copia para DroidDeck/wwwroot
+# Configurador web: flutter build web + copia para CommandPC/wwwroot
 .\scripts\deploy-web.ps1
 
 # APK Android
@@ -129,22 +129,22 @@ flutter build apk --debug --target-platform android-arm64
 Modos do backend: padrão (bandeja), `--headless` (só servidor), `--print-pairing` (imprime a URI/QR de pareamento e sai).
 
 Detalhes completos — arquitetura, testes, releases com semantic-release — em
-[Arquitetura](https://me.gf2.in/DroidDeck/docs/pt/developers/architecture/) e
-[Compilando do código-fonte](https://me.gf2.in/DroidDeck/docs/pt/developers/building/).
+[Arquitetura](https://me.gf2.in/Command/docs/pt/developers/architecture/) e
+[Compilando do código-fonte](https://me.gf2.in/Command/docs/pt/developers/building/).
 
 ## 🤝 Contribuindo
 
 Issues e pull requests são bem-vindos. Os commits seguem [Conventional Commits](https://www.conventionalcommits.org/pt-br/)
 (`feat:`, `fix:`, …), porque as releases e o changelog são gerados a partir deles.
 
-Se o DroidDeck te ajuda, deixe uma ⭐ — isso ajuda o projeto a chegar em mais gente.
+Se o Command te ajuda, deixe uma ⭐ — isso ajuda o projeto a chegar em mais gente.
 
 ## ⭐ Histórico de estrelas
 
-<a href="https://star-history.com/#ggfto/DroidDeck&Date">
+<a href="https://star-history.com/#playertwo1/Command&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ggfto%2Fdroiddeck&type=Date&theme=dark">
-    <img alt="Gráfico do histórico de estrelas" src="https://api.star-history.com/svg?repos=ggfto%2Fdroiddeck&type=Date">
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=playertwo1%2FCommand&type=Date&theme=dark">
+    <img alt="Gráfico do histórico de estrelas" src="https://api.star-history.com/svg?repos=playertwo1%2FCommand&type=Date">
   </picture>
 </a>
 

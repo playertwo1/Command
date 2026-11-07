@@ -13,7 +13,7 @@ are watching, through the YouTube Data API, with an OAuth client you create in G
 4. Copy the **Client ID** and **Client Secret** to **Settings → Integrations → YouTube** and tap
    **Sign in with Google**. Sign-in opens in the PC's browser.
 
-In a desktop app the Client Secret isn't truly secret (Google knows this); DroidDeck still stores it
+In a desktop app the Client Secret isn't truly secret (Google knows this); Command still stores it
 encrypted on the PC.
 
 ## What you can do

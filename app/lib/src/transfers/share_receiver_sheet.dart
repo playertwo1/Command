@@ -1,14 +1,14 @@
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../connection/pc_store.dart';
 
 class ShareReceiverSheet extends StatefulWidget {
   final String fileName;
   final Uint8List fileBytes;
-  final DroidDeckClient client;
+  final CommandClient client;
   final SavedPc? targetPc;
   final VoidCallback? onCompleted;
 

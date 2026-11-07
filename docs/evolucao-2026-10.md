@@ -62,7 +62,7 @@ Análise feita sobre o código da v1.5.0. As referências são caminhos relativo
 ### 6. Testes e CI
 
 - **O CI não roda testes.** Só existe o workflow manual de release.
-- **Dois projetos de teste:** `RaspDeck/DroidDeck.Tests` cobre só os modelos. `tests/DroidDeck.Tests` tem testes de integração, mas **está fora da `.sln`**.
+- **Dois projetos de teste:** `RaspDeck/DroidDeck.Tests` cobre só os modelos. `tests/Command.Tests` tem testes de integração, mas **está fora da `.sln`**.
 - **Sem cobertura:** `ActionExecutorService`, autenticação (401/403), CORS, `StreamDeckConfigService`.
 - **Proposta:** `ci.yml` em PR/push com `dotnet test`, `flutter analyze` e `flutter test`.
 

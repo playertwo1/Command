@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:droiddeck/src/stream_deck/widgets/deck_grid_button.dart';
-import 'package:droiddeck/src/stream_deck/widgets/mixer_slider_deck_button.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/src/stream_deck/widgets/deck_grid_button.dart';
+import 'package:command/src/stream_deck/widgets/mixer_slider_deck_button.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 import '../buttons/colors.dart';

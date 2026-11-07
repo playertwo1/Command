@@ -25,7 +25,7 @@ Write-Host ""
 
 # 1. Encerra processos ativos do Command
 Write-Host "Verificando processos ativos do Command..." -ForegroundColor Yellow
-$procs = @(Get-Process -Name "DroidDeck" -ErrorAction SilentlyContinue)
+$procs = @(Get-Process -Name "Command", "DroidDeck" -ErrorAction SilentlyContinue)
 if ($procs.Count -gt 0) {
     Write-Host "Encerrando $($procs.Count) processo(s) do Command em execucao..." -ForegroundColor Gray
     foreach ($p in $procs) {

@@ -39,7 +39,7 @@ Pergunta central: **cada linha adicionada ou alterada tem uma razão clara e jus
 - Nenhuma dependência externa de serviços de IA para operação do PC.
 
 ## 6. Validação por Comandos Reais
-- **.NET 8:** `dotnet test tests/DroidDeck.Tests/DroidDeck.Tests.csproj` (sem falhas);
+- **.NET 8:** `dotnet test tests/Command.Tests/Command.Tests.csproj` (sem falhas);
 - **Flutter:** `flutter test` e `flutter analyze` (sem erros ou avisos);
 - `NOT_RUN` nunca é aceito como `PASS`; afirmação em texto de agente não substitui saída do terminal.
 

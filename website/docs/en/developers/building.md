@@ -9,11 +9,10 @@
 
 ```powershell
 # run (tray app + server at http://localhost:4787)
-cd DroidDeck
-dotnet run
+dotnet run --project CommandPC/CommandPC.csproj
 
 # build the solution
-dotnet build DroidDeck.sln -c Debug
+dotnet build Command.sln -c Debug
 ```
 
 !!! warning
@@ -27,7 +26,7 @@ Set `ASPNETCORE_ENVIRONMENT=Development` to enable Swagger at `/swagger`.
 ```powershell
 cd app
 
-# web configurator -> builds and copies to DroidDeck/wwwroot
+# web configurator -> builds and copies to CommandPC/wwwroot
 ..\scripts\deploy-web.ps1
 
 # Android APK
@@ -38,12 +37,12 @@ adb install -r build\app\outputs\flutter-apk\app-debug.apk
 ## Tests and CI
 
 ```powershell
-dotnet test DroidDeck.sln              # backend (tests/DroidDeck.Tests)
+dotnet test Command.sln              # backend (tests/Command.Tests)
 cd app; flutter analyze; flutter test  # app
 ```
 
 Backend tests never touch your real data: a module initializer points the server's data folders
-to a temporary directory through `DROIDDECK_DATA_DIR`. Tests in the `RequiresDesktop` category send
+to a temporary directory through `COMMAND_DATA_DIR`. Tests in the `RequiresDesktop` category send
 real keystrokes (swallowed by a keyboard hook) and need an interactive Windows session.
 
 The **CI** workflow (`.github/workflows/ci.yml`) runs on every push to `main` and on every pull
@@ -64,10 +63,10 @@ the commits ([Conventional Commits](https://www.conventionalcommits.org)):
 | `feat!:` or `BREAKING CHANGE` | major |
 
 It updates `CHANGELOG.md`, creates the tag and the GitHub Release, and attaches
-`DroidDeck-Setup.exe` (installer), `DroidDeck-win-x64.zip` (the same self-contained backend with the web
-configurator embedded, without installer) and `DroidDeck.apk`. A first job runs semantic-release in
+`Command-Setup.exe` (installer), `Command-win-x64.zip` (the same self-contained backend with the web
+configurator embedded, without installer) and `Command.apk`. A first job runs semantic-release in
 dry-run to learn the next version, because the installer is packed with it
-([Velopack](https://velopack.io), `--packId DroidDeckPC`). The Velopack feed (`releases.win.json`,
+([Velopack](https://velopack.io), `--packId CommandPC`). The Velopack feed (`releases.win.json`,
 the `.nupkg` and friends) is attached too: installed copies look for it in the latest release to update
 themselves, so **don't delete those assets**.
 If there is no releasable commit since the last version, nothing is published.
@@ -81,7 +80,7 @@ that touches `website/`.
 ```powershell
 pip install -r website/requirements.txt
 cd website
-mkdocs serve        # http://127.0.0.1:8000/DroidDeck/docs/
+mkdocs serve        # http://127.0.0.1:8000/Command/docs/
 ```
 
 Pages live in `website/docs/en/` and `website/docs/pt/` with the same file names. When you add a

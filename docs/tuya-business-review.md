@@ -1,6 +1,6 @@
 # Pedido de registro próprio de app à Tuya (business review)
 
-Rascunho pronto para enviar. Objetivo: obter um `client_id` + `schema` próprios do DroidDeck
+Rascunho pronto para enviar. Objetivo: obter um `client_id` + `schema` próprios do Command
 para o login por QR, substituindo o registro público do Home Assistant que usamos hoje.
 
 ## Por que isso importa
@@ -9,9 +9,9 @@ Hoje o pareamento usa `client_id=HA_3y9q4ak7g4ephrvke` / `schema=haauthorize`, o
 público do Home Assistant. Consequências:
 
 1. **O usuário vê "Home Assistant"** na tela de autorização do Smart Life ao parear o
-   DroidDeck. É confuso e parece erro.
+   Command. É confuso e parece erro.
 2. **Dependemos de terceiro.** Se a Tuya ou o projeto Home Assistant revogarem ou rotacionarem
-   esse registro, o pareamento do DroidDeck para de funcionar sem que a gente tenha feito nada.
+   esse registro, o pareamento do Command para de funcionar sem que a gente tenha feito nada.
 3. **Apps de marca recusam.** Nova Digital, Positivo, RSmart e afins respondem
    _"please use the designated app to scan the code to login"_ — só Smart Life e Tuya Smart
    aceitam esse schema. Hoje a saída é o usuário reparear o aparelho no Smart Life.
@@ -20,8 +20,8 @@ público do Home Assistant. Consequências:
 
 ## O que muda quando aprovarem
 
-Só configuração. `clientId` e `schema` moram em `%LocalAppData%\DroidDeck\tuya.json`
-(campos de `TuyaConfig`, em `RaspDeck/Services/Tuya/TuyaModels.cs`), com o registro do HA
+Só configuração. `clientId` e `schema` moram em `%LocalAppData%\Command\tuya.json`
+(campos de `TuyaConfig`, em `CommandPC/Integrations/Tuya/TuyaModels.cs`), com o registro do HA
 apenas como valor padrão. Trocar não exige recompilar nem publicar release — basta editar
 o arquivo, ou mudar o default e soltar uma versão nova.
 
@@ -50,9 +50,9 @@ qual o **cenário de uso**. O texto abaixo já responde as duas coisas.
 >
 > Hello,
 >
-> I am an **individual developer** working on **DroidDeck**, a free and open-source project
+> I am an **individual developer** working on **Command**, a free and open-source project
 > that turns an Android phone into a Stream Deck-style control surface for a Windows PC
-> (https://github.com/ggfto/DroidDeck). It is not a commercial product and is not sold.
+> (https://github.com/playertwo1/Command). It is not a commercial product and is not sold.
 >
 > I recently added smart home support so users can toggle lights, plugs and switches from the
 > deck. The integration uses your official `tuya-device-sharing-sdk` with the QR-code login
@@ -71,8 +71,8 @@ qual o **cenário de uso**. O texto abaixo já responde as duas coisas.
 >
 > I would much rather use credentials that correctly identify my application.
 >
-> **Usage scenario:** the user opens DroidDeck's settings, enters the User Code from their
-> Smart Life app, and scans a QR code to link their account. DroidDeck then lists the user's
+> **Usage scenario:** the user opens Command's settings, enters the User Code from their
+> Smart Life app, and scans a QR code to link their account. Command then lists the user's
 > devices, sends commands when a deck button is pressed, and subscribes to the MQTT push
 > channel to keep the button state in sync. No polling — device state comes exclusively from
 > push messages. Expected scale is small: individual hobbyist users, each with their own

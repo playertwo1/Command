@@ -59,7 +59,7 @@ Keys are sent with their hardware scan codes and held for a moment, so most game
 keyboard directly also receive them.
 
 !!! warning "Limitations"
-    - Windows blocks input to apps running **as administrator** unless DroidDeck also runs as administrator.
+    - Windows blocks input to apps running **as administrator** unless Command also runs as administrator.
     - Games with anti-cheat may ignore simulated keys.
     - Some combinations are reserved by Windows and can't be simulated, such as Ctrl+Alt+Del and Win+L.
 
@@ -150,7 +150,7 @@ survive a PC restart.
 
 Calls a URL from the PC: n8n, Home Assistant or IFTTT webhooks, or any API. Pick the **method**, the
 **URL**, the **headers** (one per line, `Name: value`) and, for POST/PUT/PATCH, the **body** and its
-format (JSON, form or text). The request has 10 seconds to answer; the result goes to DroidDeck's log.
+format (JSON, form or text). The request has 10 seconds to answer; the result goes to Command's log.
 
 ## Steam game { #steam }
 

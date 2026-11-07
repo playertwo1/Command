@@ -13,12 +13,12 @@ Changes made on the PC (Windows volume mixer, keyboard keys) are pushed to the p
 
 ## How media control works
 
-DroidDeck uses Windows' **media session** system — the same one behind the media overlay that
+Command uses Windows' **media session** system — the same one behind the media overlay that
 appears when you press a media key. Any app that shows up there can be controlled: Spotify, browsers
 (YouTube, etc.), Windows Media Player, VLC and others.
 
 If nothing is playing, the command goes to the most recent session. If Windows' media service stops
-responding, DroidDeck pauses its background checks for a minute (you will see a warning in the log),
+responding, Command pauses its background checks for a minute (you will see a warning in the log),
 while button presses keep working.
 
 ## Tips

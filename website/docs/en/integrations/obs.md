@@ -1,6 +1,6 @@
 # OBS Studio
 
-DroidDeck connects to **OBS Studio 28 or later** through its built-in WebSocket server (obs-websocket v5).
+Command connects to **OBS Studio 28 or later** through its built-in WebSocket server (obs-websocket v5).
 
 ## What you can do
 
@@ -25,13 +25,13 @@ State comes straight from OBS events, so changes made in OBS itself are reflecte
 
 1. In OBS: **Tools → WebSocket Server Settings**. Tick **Enable WebSocket server**. Note the port
    (default `4455`) and the password (or untick authentication).
-2. In DroidDeck, open the OBS settings (phone: **Settings → Integrations → OBS**; configurator: **Integrations** in the sidebar).
+2. In Command, open the OBS settings (phone: **Settings → Integrations → OBS**; configurator: **Integrations** in the sidebar).
 3. Fill in **Host** (`localhost`), **Port** and **Password**, click **Save**, then **Connect**.
 
 On the phone you can also tap **Scan OBS QR code** and scan the QR from **Show Connect Info** in OBS.
-The host is always set to `localhost`, because OBS runs on the same PC as DroidDeck.
+The host is always set to `localhost`, because OBS runs on the same PC as Command.
 
-Once configured, DroidDeck reconnects automatically every 10 seconds when OBS is closed and reopened.
+Once configured, Command reconnects automatically every 10 seconds when OBS is closed and reopened.
 
 ## Troubleshooting
 

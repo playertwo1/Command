@@ -1,6 +1,6 @@
 # API
 
-O servidor do DroidDeck expõe uma API REST e um hub SignalR na porta `4787`. O app do celular e o
+O servidor do Command expõe uma API REST e um hub SignalR na porta `4787`. O app do celular e o
 configurador usam os dois, e você pode usá-los para criar seus próprios clientes ou automações.
 
 ## Autenticação
@@ -110,8 +110,8 @@ Botões de dois estados acrescentam `toggle` (bool), `activeAction` (roda no toq
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| GET | `/api/backup` | Baixa todos os perfis num `.droiddeck` (zip). |
-| POST | `/api/backup` | Restaura um `.droiddeck` (corpo = o arquivo). Perfis com o mesmo id são substituídos. De fora do PC, recusa com `403` se for criar botões privilegiados. |
+| GET | `/api/backup` | Baixa todos os perfis num `.command` (zip). |
+| POST | `/api/backup` | Restaura um backup `.command` ou `.droiddeck` legado (corpo = o arquivo). Perfis com o mesmo id são substituídos. De fora do PC, recusa com `403` se for criar botões privilegiados. |
 | GET | `/api/steam/games` | Jogos instalados na Steam (`{value: appId, label: nome}`). |
 | GET | `/api/steam/icon/{appId}` | `{iconBase64}`: PNG quadrado recortado da capa do jogo. |
 | GET | `/api/system/apps` | Programas com janela visível (para a troca automática de perfil). |
@@ -178,4 +178,4 @@ com `{"ip": "...", "name": "<machine name>"}`. A descoberta nunca retorna a chav
 
 ## URI de pareamento
 
-`droiddeck://pair?ip=<ip>&port=4787&key=<key>`
+`command://pair?ip=<ip>&port=4787&key=<key>` (QR codes antigos `droiddeck://` também são aceitos)

@@ -135,7 +135,7 @@ def main():
     assert master_fg.size == (1024, 1024) and master_fg.getchannel('A').getbbox()
 
     # Ícone do executável Windows e do tray, com a mesma arte do launcher Android.
-    windows_icon_path = os.path.join(repo_root, 'DroidDeck', 'volume-_2_.ico')
+    windows_icon_path = os.path.join(repo_root, 'CommandPC', 'volume-_2_.ico')
     master_logo.save(
         windows_icon_path,
         format='ICO',

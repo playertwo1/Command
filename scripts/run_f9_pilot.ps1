@@ -17,7 +17,7 @@ if (-not (Test-Path $CapturesDir)) {
     New-Item -ItemType Directory -Force -Path $CapturesDir | Out-Null
 }
 
-$JobsHistoryPath = "$env:LOCALAPPDATA\DroidDeck\jobs_history.json"
+$JobsHistoryPath = "$env:LOCALAPPDATA\Command\jobs_history.json"
 
 function Get-LatestJob {
     if (-not (Test-Path $JobsHistoryPath)) { return $null }

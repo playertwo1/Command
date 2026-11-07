@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/home/status_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/home/status_page.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeScreenshotClient extends DroidDeckClient {
+class FakeScreenshotClient extends CommandClient {
   bool shouldThrowLocked = false;
   int captureCalls = 0;
   int getBytesCalls = 0;

@@ -4,10 +4,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/desktop_stream/desktop_stream_controller.dart';
-import 'package:droiddeck/src/desktop_stream/desktop_live_stream_viewer.dart';
-import 'package:droiddeck/src/desktop_stream/screen_coordinate_mapper.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/desktop_stream/desktop_stream_controller.dart';
+import 'package:command/src/desktop_stream/desktop_live_stream_viewer.dart';
+import 'package:command/src/desktop_stream/screen_coordinate_mapper.dart';
 
 class MockStreamHttpClient extends http.BaseClient {
   final int statusCode;
@@ -28,7 +28,7 @@ class MockStreamHttpClient extends http.BaseClient {
   }
 }
 
-class MockRemoteInputClient extends DroidDeckClient {
+class MockRemoteInputClient extends CommandClient {
   MockRemoteInputClient({super.baseUrl = 'https://test.deck'});
 
   final List<String> calls = [];

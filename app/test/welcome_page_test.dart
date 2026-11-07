@@ -1,5 +1,5 @@
-import 'package:droiddeck/src/connection/constants.dart';
-import 'package:droiddeck/src/welcome/welcome_page.dart';
+import 'package:command/src/connection/constants.dart';
+import 'package:command/src/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

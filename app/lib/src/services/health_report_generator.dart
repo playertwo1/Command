@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import '../connection/pc_store.dart';
 import 'signalr_service.dart';
 

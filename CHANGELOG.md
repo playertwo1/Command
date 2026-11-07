@@ -65,7 +65,7 @@
 
 
 - Realizado fork in-tree completo do repositório upstream [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck) (`5cd2ddc`).
-- Mantida 100% da árvore funcional upstream: backend .NET 8 WinForms/ASP.NET Core/SignalR (`DroidDeck/`), app móvel e configurador web Flutter (`app/`), suíte de testes xUnit (`tests/DroidDeck.Tests/`), documentação e scripts.
+- Mantida 100% da árvore funcional upstream: backend .NET 8 WinForms/ASP.NET Core/SignalR (`DroidDeck/`), app móvel e configurador web Flutter (`app/`), suíte de testes xUnit (`tests/Command.Tests/`), documentação e scripts.
 - Restaurados todos os módulos nativos do DroidDeck: OBS Studio WebSocket, Discord RPC, Tuya / Smart Life, Soundboard (MyInstants), Audio Mixer por aplicativo, controles de mídia WinRT, Steam game launcher, profiles e multi-actions.
 - Modelo de pareamento e segurança mantido estritamente no padrão do DroidDeck (API Key local protegida por DPAPI, loopback key endpoint `/api/pairing/local-key`, protocolo URI `droiddeck://pair`, portas 4787 e 7573).
 - Preparação para expansão com módulos de telemetria Command e tema visual Amethyst Dark.

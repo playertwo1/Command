@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -71,7 +71,7 @@ const homeAssistantSpec = AccountIntegrationSpec(
   ],
   steps: [
     'No Home Assistant, abra o seu perfil (canto inferior esquerdo) → aba Segurança.',
-    'Em "Tokens de acesso de longa duração", crie um token com o nome DroidDeck.',
+    'Em "Tokens de acesso de longa duração", crie um token com o nome Command.',
     'Copie o token (ele só aparece uma vez) e cole aqui, com o endereço do Home Assistant.',
   ],
 );
@@ -146,7 +146,7 @@ class _AccountIntegrationPageState extends State<AccountIntegrationPage> {
   Timer? _poll;
 
   AccountIntegrationSpec get spec => widget.spec;
-  DroidDeckClient get _client => Injector.get<DroidDeckClient>();
+  CommandClient get _client => Injector.get<CommandClient>();
   String get _path => '/api/integrations/${spec.name}';
 
   @override

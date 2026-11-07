@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -130,7 +130,7 @@ class HomePageState extends State<HomePage> {
                   MaterialBanner(
                     leading: const Icon(Icons.wifi_off),
                     content: Text(tr(
-                        'O PC não respondeu. Confira se o DroidDeck está aberto nele.')),
+                        'O PC não respondeu. Confira se o Command está aberto nele.')),
                     actions: [
                       TextButton(
                         onPressed: controller.fetchOutputs,

@@ -1,7 +1,7 @@
 # Configurador
 
 O configurador é o editor dos seus decks. Ele roda no navegador do PC e é servido pelo próprio
-DroidDeck — abra-o pela bandeja (**Abrir no navegador**) ou acesse **`http://localhost:4787/`**.
+Command — abra-o pela bandeja (**Abrir no navegador**) ou acesse **`http://localhost:4787/`**.
 
 !!! note "Use no próprio PC"
     O configurador só entra automaticamente a partir da mesma máquina (`localhost`). Aberto de outro
@@ -62,5 +62,5 @@ Você também pode editar no próprio celular:
 
 ## Backup
 
-Os perfis são arquivos JSON em `%AppData%\DroidDeck\Profiles\`. Para fazer backup dos seus decks, ou
+Os perfis são arquivos JSON em `%AppData%\Command\Profiles\`. Para fazer backup dos seus decks, ou
 levá-los para outro PC, copie essa pasta. Veja [Arquivos e configurações](../reference/files.md).

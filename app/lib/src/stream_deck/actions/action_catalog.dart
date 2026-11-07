@@ -1,6 +1,6 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_schema.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/actions/action_schema.dart';
 
 /// Tipos de ação que o PC conectado aceita. Carregado uma vez por sessão do PC;
 /// enquanto não chega (ou se o PC é antigo), vale o catálogo embutido.
@@ -25,14 +25,14 @@ class ActionCatalog {
 
   Future<void> _fetch() async {
     try {
-      final raw = await Injector.get<DroidDeckClient>().getActionSchema();
+      final raw = await Injector.get<CommandClient>().getActionSchema();
       final list = raw.map(ActionSchema.fromJson).where((s) => s.type.isNotEmpty).toList();
       if (list.isEmpty) return;
       schemas.value = list;
 
       // Estados ao vivo dos provedores (timers etc.) passam a ser ouvidos.
       final signalR = Injector.get<SignalRService>();
-      final client = Injector.get<DroidDeckClient>();
+      final client = Injector.get<CommandClient>();
       for (final s in list) {
         if (s.stateEvent == null) continue;
         signalR.listenState(s.stateEvent!);

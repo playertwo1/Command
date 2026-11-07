@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -6,7 +6,7 @@ void main() {
     'executeRoutine envia X-Device-Id no header, sem query de identidade',
     () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://bridge.test', dio: dio);
+      final client = CommandClient(baseUrl: 'https://bridge.test', dio: dio);
       RequestOptions? request;
       dio.interceptors.add(
         InterceptorsWrapper(

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 

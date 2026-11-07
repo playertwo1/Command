@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 
 import 'button_look.dart';
@@ -83,7 +83,7 @@ class MixerButtonRenderer extends ButtonRenderer {
     try {
       final sr = Injector.get<SignalRService>();
       if (sr.muteStates.value.containsKey(process)) return;
-      Injector.get<DroidDeckClient>().getMuteState(process).then((muted) {
+      Injector.get<CommandClient>().getMuteState(process).then((muted) {
         if (muted == null) return;
         sr.muteStates.value = {...sr.muteStates.value, process: muted};
       }).catchError((_) {});

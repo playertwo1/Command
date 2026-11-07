@@ -28,8 +28,8 @@ const Map<String, String> enConfig = {
   'Token de acesso de longa duração': 'Long-lived access token',
   'No Home Assistant, abra o seu perfil (canto inferior esquerdo) → aba Segurança.':
       'In Home Assistant, open your profile (bottom left) → Security tab.',
-  'Em "Tokens de acesso de longa duração", crie um token com o nome DroidDeck.':
-      'Under "Long-lived access tokens", create a token named DroidDeck.',
+  'Em "Tokens de acesso de longa duração", crie um token com o nome Command.':
+      'Under "Long-lived access tokens", create a token named Command.',
   'Copie o token (ele só aparece uma vez) e cole aqui, com o endereço do Home Assistant.':
       'Copy the token (it is shown only once) and paste it here, along with the Home Assistant address.',
   'Entrar com o Spotify': 'Sign in with Spotify',
@@ -252,25 +252,25 @@ const Map<String, String> enConfig = {
   'Usa app de marca?': 'Using a brand app?',
   'O scan só funciona nos apps Smart Life e Tuya Smart. Apps de marca (Nova Digital, Positivo, RSmart...) recusam com "please use the designated app to scan the code".\n\nSolução: remova o aparelho do app da marca e pareie de novo pelo Smart Life — é o mesmo hardware, funciona igual. Compartilhar o dispositivo não resolve.':
       'Scanning only works in the Smart Life and Tuya Smart apps. Brand apps (Nova Digital, Positivo, RSmart...) refuse with "please use the designated app to scan the code".\n\nFix: remove the device from the brand app and pair it again with Smart Life — it is the same hardware and works the same. Sharing the device does not help.',
-  'Baixe o DroidDeck para Windows: {url}':
-      'Download DroidDeck for Windows: {url}',
+  'Baixe o Command para Windows: {url}':
+      'Download Command for Windows: {url}',
   'Não foi possível abrir o navegador.': 'Could not open the browser.',
   'Link copiado.': 'Link copied.',
-  'Bem-vindo ao DroidDeck': 'Welcome to DroidDeck',
-  'Este celular vira um painel de botões para o seu PC. Para funcionar, ele precisa do programa DroidDeck rodando no computador (Windows 10 ou 11).':
-      'This phone becomes a button panel for your PC. To work, it needs the DroidDeck program running on the computer (Windows 10 or 11).',
-  'No PC, baixe o DroidDeck': 'On the PC, download DroidDeck',
+  'Bem-vindo ao Command': 'Welcome to Command',
+  'Este celular vira um painel de botões para o seu PC. Para funcionar, ele precisa do programa Command rodando no computador (Windows 10 ou 11).':
+      'This phone becomes a button panel for your PC. To work, it needs the Command program running on the computer (Windows 10 or 11).',
+  'No PC, baixe o Command': 'On the PC, download Command',
   'Abra este endereço no navegador do computador:':
       'Open this address in the computer\'s browser:',
   'Enviar link': 'Send link',
   'Dica: "Enviar link" manda pelo WhatsApp ou e-mail para você abrir no PC.':
       'Tip: "Send link" sends it via WhatsApp or email so you can open it on the PC.',
-  'Abra o DroidDeck.exe': 'Open DroidDeck.exe',
-  'Descompacte o arquivo e abra o DroidDeck.exe. Ele não abre janela: fica como um ícone na bandeja, perto do relógio.':
-      'Unzip the file and open DroidDeck.exe. It does not open a window: it stays as an icon in the tray, near the clock.',
+  'Abra o Command.exe': 'Open Command.exe',
+  'Descompacte o arquivo e abra o Command.exe. Ele não abre janela: fica como um ícone na bandeja, perto do relógio.':
+      'Unzip the file and open Command.exe. It does not open a window: it stays as an icon in the tray, near the clock.',
   'Pareie este celular': 'Pair this phone',
-  'Clique com o botão direito no ícone do DroidDeck → "Parear dispositivo (QR)" e escaneie o código aqui no app. Celular e PC precisam estar na mesma rede Wi-Fi.':
-      'Right-click the DroidDeck icon → "Pair device (QR)" and scan the code here in the app. The phone and PC must be on the same Wi-Fi network.',
+  'Clique com o botão direito no ícone do Command → "Parear dispositivo (QR)" e escaneie o código aqui no app. Celular e PC precisam estar na mesma rede Wi-Fi.':
+      'Right-click the Command icon → "Pair device (QR)" and scan the code here in the app. The phone and PC must be on the same Wi-Fi network.',
   'Já instalei no PC: parear': 'Already installed on the PC: pair',
   'Ver o site neste celular': 'Open the site on this phone',
   'Áudio': 'Audio',
@@ -283,17 +283,17 @@ const Map<String, String> enConfig = {
       'Authentication failed (invalid or expired key).\nPair again.',
   'O PC não reconheceu este aparelho (a chave mudou ou é de outro PC).\nPareie de novo pelo QR.':
       'The PC didn\'t recognize this device (the key changed or it\'s from another PC).\nPair again with the QR.',
-  'Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.':
-      'That QR isn\'t a DroidDeck pairing code. Use the one in the PC\'s "Pair device (QR)" window.',
-  'O PC não respondeu. Confira se o DroidDeck está aberto nele e se os dois estão na mesma rede.':
-      'The PC didn\'t respond. Check that DroidDeck is open on it and both are on the same network.',
+  'Esse QR não é de pareamento do Command. Use o da janela "Parear dispositivo (QR)" do PC.':
+      'That QR isn\'t a Command pairing code. Use the one in the PC\'s "Pair device (QR)" window.',
+  'O PC não respondeu. Confira se o Command está aberto nele e se os dois estão na mesma rede.':
+      'The PC didn\'t respond. Check that Command is open on it and both are on the same network.',
   'Este aparelho não tem permissão para isso neste PC.':
       'This device isn\'t allowed to do that on this PC.',
   'O PC recusou o pedido (HTTP {status}).': 'The PC refused the request (HTTP {status}).',
   'Tentar novamente': 'Try again',
   'Refazer pareamento': 'Pair again',
-  'O PC não respondeu. Confira se o DroidDeck está aberto nele.':
-      'The PC did not respond. Check that DroidDeck is open on it.',
+  'O PC não respondeu. Confira se o Command está aberto nele.':
+      'The PC did not respond. Check that Command is open on it.',
   'Desconhecido': 'Unknown',
   'Nenhum app reproduzindo áudio': 'No app playing audio',
   'Nenhum dispositivo de entrada encontrado.': 'No input devices found.',

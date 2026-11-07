@@ -59,7 +59,7 @@ As teclas saem com o scancode do teclado e ficam apertadas por um instante, ent�
 jogos que leem o teclado diretamente também as recebe.
 
 !!! warning "Limitações"
-    - O Windows bloqueia entradas para apps rodando **como administrador**, a menos que o DroidDeck também rode como administrador.
+    - O Windows bloqueia entradas para apps rodando **como administrador**, a menos que o Command também rode como administrador.
     - Jogos com anti-cheat podem ignorar teclas simuladas.
     - Algumas combinações são reservadas pelo Windows e não podem ser simuladas, como Ctrl+Alt+Del e Win+L.
 
@@ -148,7 +148,7 @@ exemplo, um botão "Zerar" ao lado do relógio. Os contadores continuam valendo 
 Chama uma URL a partir do PC: webhooks do n8n, do Home Assistant ou do IFTTT, ou qualquer API.
 Escolha o **método**, a **URL**, os **cabeçalhos** (um por linha, `Nome: valor`) e, em POST/PUT/PATCH,
 o **corpo** e o formato dele (JSON, formulário ou texto). A requisição tem 10 segundos para
-responder, e o resultado fica no log do DroidDeck.
+responder, e o resultado fica no log do Command.
 
 ## Jogo da Steam { #steam }
 

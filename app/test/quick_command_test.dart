@@ -1,4 +1,4 @@
-import 'package:droiddeck/src/home/local_quick_command_bar.dart';
+import 'package:command/src/home/local_quick_command_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

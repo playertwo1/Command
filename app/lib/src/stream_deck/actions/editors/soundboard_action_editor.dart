@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Soundboard: busca no MyInstants (toca no PC) ou som nativo do Discord.
@@ -27,7 +27,7 @@ class _SoundboardActionEditorState extends State<SoundboardActionEditor> {
   List<Map<String, String>> _dcSounds = [];
   bool _dcLoading = false;
 
-  DroidDeckClient get _client => Injector.get<DroidDeckClient>();
+  CommandClient get _client => Injector.get<CommandClient>();
 
   @override
   void initState() {

@@ -1,5 +1,5 @@
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 

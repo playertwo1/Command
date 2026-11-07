@@ -6,7 +6,7 @@
    "AP isolation" block devices from seeing each other.
 2. **Firewall**: use **Liberar no firewall (rede local)** in the tray menu, or allow TCP 4787 and UDP 7573 by hand (see [Installation](getting-started/installation.md#firewall)),
    and make sure Windows marks your network as **Private**.
-3. **DroidDeck is running**: look for the tray icon. On the PC, `http://localhost:4787/api/ping`
+3. **Command is running**: look for the tray icon. On the PC, `http://localhost:4787/api/ping`
    should return `{"ok":true,...}`.
 4. **Wrong IP**: on PCs with several network adapters, VPNs or virtual adapters (Hyper-V, WSL,
    VirtualBox), the QR may contain the wrong address. Find the right one with `ipconfig` and type it
@@ -22,12 +22,12 @@ the QR code again from the tray menu.
 ## The configurator shows 401 errors
 
 The configurator only signs in automatically on the PC itself. Open it at `http://localhost:4787/`
-on the machine where DroidDeck runs.
+on the machine where Command runs.
 
 ## A hotkey does nothing
 
 - The keys go to the **focused window** — make sure the right app is in front.
-- Apps running **as administrator** ignore input from a non-administrator DroidDeck.
+- Apps running **as administrator** ignore input from a non-administrator Command.
 - Games with anti-cheat may ignore simulated keys.
 - Check the syntax in [Hotkey](guide/actions.md#hotkey).
 
@@ -45,6 +45,6 @@ log mentions the media broker hanging, wait a minute or restart the app that is 
 
 ## Logs
 
-DroidDeck writes a log to **`%LocalAppData%\DroidDeck.log`** (next to the `DroidDeck` folder, not
-inside it). Attach it when you [open an issue](https://github.com/ggfto/DroidDeck/issues) — it never
+Command writes a log to **`%LocalAppData%\Command.log`** (next to the `Command` folder, not
+inside it). Attach it when you [open an issue](https://github.com/playertwo1/Command/issues) — it never
 contains your API key.

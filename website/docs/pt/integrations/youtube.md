@@ -14,7 +14,7 @@ YouTube Data API, com um cliente OAuth que você cria no Google Cloud.
    em **Entrar com o Google**. O login abre no navegador do PC.
 
 Num app para computador o Client Secret não é secreto de verdade (o Google sabe disso); mesmo assim, o
-DroidDeck o guarda cifrado no PC.
+Command o guarda cifrado no PC.
 
 ## O que dá para fazer
 

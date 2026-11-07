@@ -6,7 +6,7 @@
   - Implementação de `BrowseDirectory` e enriquecimento de `GetFileForDownload` em `TransferService.cs` com suporte a subdiretórios hierárquicos.
   - Proteção estrita contra Path Traversal: bloqueio de caminhos absolutos, caracteres inválidos, sequências `..` e links simbólicos / pontos de junção (reparse points).
   - Endpoints autenticados `GET /api/transfers/{rootId}/browse` e `GET /api/transfers/{rootId}/download?path=...`.
-  - Suíte de 12 testes de integração em `tests/DroidDeck.Tests/DirectoryBrowseTests.cs`.
+  - Suíte de 12 testes de integração em `tests/Command.Tests/DirectoryBrowseTests.cs`.
 - **T4 (Frontend Mobile):**
   - Modelos `DirectoryBrowseItem` e `DirectoryBrowseResult` em `transfer_models.dart`.
   - Métodos `browseDirectory` e `downloadNestedFile` em `DroidDeckClient`.

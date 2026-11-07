@@ -1,9 +1,9 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/routines/routine_builder_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/routines/routine_builder_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeRoutineClient extends DroidDeckClient {
+class FakeRoutineClient extends CommandClient {
   int saveCalls = 0;
   RoutineDefinitionData? lastSavedRoutine;
 

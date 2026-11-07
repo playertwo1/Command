@@ -1,14 +1,14 @@
 # Twitch
 
 Ações do seu canal na Twitch (API Helix), com um app que você registra no console da Twitch. O login é
-por código: o DroidDeck mostra um código e você confirma em `twitch.tv/activate`.
+por código: o Command mostra um código e você confirma em `twitch.tv/activate`.
 
 ## Configuração
 
 1. Entre em [dev.twitch.tv/console/apps](https://dev.twitch.tv/console/apps) e registre um aplicativo.
 2. Em **URLs de redirecionamento OAuth**, use `http://localhost` (não é usado no login por código).
 3. Em **Tipo de cliente**, escolha **Público**. Salve e copie o **Client ID**.
-4. No DroidDeck, **Configuração → Integrações → Twitch**: cole o Client ID e toque em **Entrar com a
+4. No Command, **Configuração → Integrações → Twitch**: cole o Client ID e toque em **Entrar com a
    Twitch**. A página de ativação abre no navegador do PC; confira o código e autorize.
 
 ## O que dá para fazer

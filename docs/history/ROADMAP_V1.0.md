@@ -29,7 +29,7 @@
   - `GET /api/security/audit` — retorna os últimos 100 registros de auditoria sanitizados.
 - [x] **P0.3:** Criar `BiometricGuardService` (`app/lib/src/services/biometric_guard_service.dart`) e `SecurityCenterCard` (`app/lib/src/security/security_center_card.dart`):
   - Suporte a bloqueio por PIN/Biometria antes de ações críticas, exibição de role do aparelho, versão/estabilidade do Bridge e acesso ao modal de Backup Criptografado.
-- [x] **P0.4:** Criar testes unitários e de widget em `tests/DroidDeck.Tests/SecurityPolicyTests.cs` e `app/test/security_center_test.dart`.
+- [x] **P0.4:** Criar testes unitários e de widget em `tests/Command.Tests/SecurityPolicyTests.cs` e `app/test/security_center_test.dart`.
 
 ---
 
@@ -43,7 +43,7 @@
   - `POST /api/backup/encrypted/export`
   - `POST /api/backup/encrypted/restore`
 - [x] **P1.3:** Criar modal `EncryptedBackupSheet` (`app/lib/src/security/encrypted_backup_sheet.dart`) com campos de senha, exportação e restauração validada.
-- [x] **P1.4:** Criar testes unitários e de widget em `tests/DroidDeck.Tests/EncryptedBackupTests.cs` e `app/test/encrypted_backup_test.dart`.
+- [x] **P1.4:** Criar testes unitários e de widget em `tests/Command.Tests/EncryptedBackupTests.cs` e `app/test/encrypted_backup_test.dart`.
 
 ---
 
@@ -54,7 +54,7 @@
   - `GET /api/system/update/status` (`/api/v1/system/update/status`) retornando `CurrentVersion` (`"1.0.0"`), `Channel` (`"stable"`), `UpdateAvailable`, `LatestVersion`, `IsVelopackReady` e `BinarySha256`.
   - `POST /api/system/update/verify` validando o hash SHA-256 de um manifesto/pacote contra o hash esperado.
 - [x] **P2.2:** Integrar consulta de versão e botão **"Verificar Atualização"** no `DroidDeckClient` e no `SecurityCenterCard`.
-- [x] **P2.3:** Criar testes unitários em `tests/DroidDeck.Tests/UpdateVerificationTests.cs`.
+- [x] **P2.3:** Criar testes unitários em `tests/Command.Tests/UpdateVerificationTests.cs`.
 
 ---
 
@@ -64,7 +64,7 @@
 - [x] **P3.1:** Implementar `DroidDeck/Services/ISystemStabilityMonitor.cs` e `DroidDeck/Services/SystemStabilityMonitor.cs`:
   - Coleta `WorkingSetMb`, `HandleCount`, `ThreadCount`, `BridgeUptimeSeconds` e `HealthStatus` (`"Healthy"` quando RAM < 350 MB e Handles < 2500, `"Warning"` caso contrário).
   - Expor em `GET /api/system/stability` (`/api/v1/system/stability`) no `UpdateController` ou `StabilityController`.
-- [x] **P3.2:** Criar testes unitários em `tests/DroidDeck.Tests/SystemStabilityTests.cs`.
+- [x] **P3.2:** Criar testes unitários em `tests/Command.Tests/SystemStabilityTests.cs`.
 
 ---
 
@@ -72,7 +72,7 @@
 **Objetivo:** Fechar o ciclo `v1.0.0` com 100% dos testes passando, pacotes assinados com SHA-256, validação no emulador via Maestro e atualização completa da documentação e NexusVault.
 
 - [x] **P4.1:** Integrar `SecurityCenterCard` na `StatusPage` (`app/lib/src/home/status_page.dart`) abaixo de `PowerControlCard` e executar suíte completa (`dotnet test` + `flutter test -j 1` + `flutter analyze --no-fatal-infos` exit 0).
-- [x] **P4.2:** Atualizar versão para `1.0.0` em `DroidDeck/DroidDeck.csproj` e `1.0.0+10` em `app/pubspec.yaml`, gerar `dist/command-bridge-v1.0.0-win-x64.zip`, `dist/command-app-v1.0.0-debug.apk` e `dist/SHA256SUMS-v1.0.0.txt`.
+- [x] **P4.2:** Atualizar versão para `1.0.0` em `CommandPC/CommandPC.csproj` e `1.0.0+10` em `app/pubspec.yaml`, gerar `dist/command-bridge-v1.0.0-win-x64.zip`, `dist/command-app-v1.0.0-debug.apk` e `dist/SHA256SUMS-v1.0.0.txt`.
 - [x] **P4.3:** Executar fluxo E2E no Maestro (`e2e_maestro/flow_command_v10.yaml`) no emulador `Pixel_9` (`emulator-5554`) e salvar screenshot em `docs/assets/emulator_v10_status.png` e `docs/evidence/v1.0/`.
 - [x] **P4.4:** Marcar `ROADMAP_V1.0.md` como `CONCLUÍDO`, atualizar `STATE.md`, `docs/RELEASE_CHECKLIST.md`, sincronizar `C:\Users\notefael\NexusVault\01_Projetos\Command.md` e executar `git commit` + `git push`.
 

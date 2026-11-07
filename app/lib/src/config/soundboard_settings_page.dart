@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 /// Configuração da soundboard (MyInstants): escolhe o dispositivo de saída "cabo"
@@ -27,7 +27,7 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
   }
 
   Future<void> _load() async {
-    final client = Injector.get<DroidDeckClient>();
+    final client = Injector.get<CommandClient>();
     try {
       final devices = await client.getSoundDevices();
       final cfg = await client.getSoundboardConfig();
@@ -60,7 +60,7 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
   Future<void> _save() async {
     setState(() => _busy = true);
     try {
-      await Injector.get<DroidDeckClient>().saveSoundboardConfig(
+      await Injector.get<CommandClient>().saveSoundboardConfig(
         cableDeviceId: _cableDeviceId,
         monitorDeviceId: _monitorDeviceId,
         monitorEnabled: _monitorEnabled,
@@ -76,7 +76,7 @@ class _SoundboardSettingsPageState extends State<SoundboardSettingsPage> {
 
   Future<void> _stopTest() async {
     try {
-      await Injector.get<DroidDeckClient>().stopSounds();
+      await Injector.get<CommandClient>().stopSounds();
     } catch (_) {}
   }
 

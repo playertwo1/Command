@@ -71,7 +71,7 @@ flowchart TD
 - [x] **T1-01:** Criar `ScreenStreamService` no .NET 8 com cancelamento cooperativo (`CancellationToken`), limite de clientes simultâneos (1 cliente ativo) e controle de taxa de quadros (FPS: 5, 10, 15).
 - [x] **T1-02:** Mapear endpoint autenticado `GET /api/stream/desktop` e alias `GET /api/v1/stream/desktop` retornando `multipart/x-mixed-replace; boundary=frame`.
 - [x] **T1-03:** Suportar query parameters opcionais: `?fps=10&quality=70&scale=0.75` para economizar banda em redes móveis ou Wi-Fi congestionado.
-- [x] **T1-04:** Criar testes unitários em `tests/DroidDeck.Tests/ScreenStreamTests.cs`.
+- [x] **T1-04:** Criar testes unitários em `tests/Command.Tests/ScreenStreamTests.cs`.
 
 ---
 
@@ -91,7 +91,7 @@ flowchart TD
 - [x] **T3-01:** Estender `TransferService` com método `BrowseDirectory(string rootId, string? subPath)`.
 - [x] **T3-02:** Aplicar proteção rigorosa anti-traversal: normalização de caminho, bloqueio de `..`, symlinks e caracteres de escape.
 - [x] **T3-03:** Mapear endpoint autenticado `GET /api/transfers/{rootId}/browse` retornando lista tipada de pastas e arquivos (`name`, `path`, `sizeBytes`, `modifiedAtUtc`, `extension`, `isDirectory`).
-- [x] **T3-04:** Criar testes de integração em `tests/DroidDeck.Tests/DirectoryBrowseTests.cs`.
+- [x] **T3-04:** Criar testes de integração em `tests/Command.Tests/DirectoryBrowseTests.cs`.
 
 ---
 

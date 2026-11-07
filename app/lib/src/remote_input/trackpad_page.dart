@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/desktop_stream/desktop_stream_controller.dart';
-import 'package:droiddeck/src/desktop_stream/screen_coordinate_mapper.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/desktop_stream/desktop_stream_controller.dart';
+import 'package:command/src/desktop_stream/screen_coordinate_mapper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +18,10 @@ enum RemoteInputStatus {
 
 /// Tela de Controle Remoto via Trackpad e Teclado Virtual (Fase R1 + R3 Live Screen).
 class TrackpadPage extends StatefulWidget {
-  final DroidDeckClient? client;
+  final CommandClient? client;
   final SavedPc? initialPc;
   final List<SavedPc>? availablePcs;
-  final DroidDeckClient Function(SavedPc pc)? clientForPc;
+  final CommandClient Function(SavedPc pc)? clientForPc;
   final DesktopStreamController? streamController;
 
   const TrackpadPage({
@@ -45,7 +45,7 @@ class _TrackpadPageState extends State<TrackpadPage> {
   static const Color buttonBg = Color(0xFF1E1B2E);
   static const Color borderColor = Color(0xFF2E2A4A);
 
-  DroidDeckClient? _client;
+  CommandClient? _client;
   SavedPc? _activePc;
   List<SavedPc> _availablePcs = [];
 
@@ -125,7 +125,7 @@ class _TrackpadPageState extends State<TrackpadPage> {
       if (widget.clientForPc != null) {
         _client = widget.clientForPc!(_activePc!);
       } else {
-        _client = DroidDeckClient(baseUrl: _activePc!.baseUrl)
+        _client = CommandClient(baseUrl: _activePc!.baseUrl)
           ..setApiKey(_activePc!.apiKey);
       }
     }
@@ -213,7 +213,7 @@ class _TrackpadPageState extends State<TrackpadPage> {
       if (widget.clientForPc != null) {
         _client = widget.clientForPc!(pc);
       } else {
-        _client = DroidDeckClient(baseUrl: pc.baseUrl)..setApiKey(pc.apiKey);
+        _client = CommandClient(baseUrl: pc.baseUrl)..setApiKey(pc.apiKey);
       }
     });
 

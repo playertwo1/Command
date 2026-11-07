@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:droiddeck/core/i18n/i18n.dart';
-import 'package:droiddeck/core/droiddeck_client/droiddeck_client.dart';
+import 'package:command/core/i18n/i18n.dart';
+import 'package:command/core/command_client/command_client.dart';
 import 'desktop_stream_controller.dart';
 import 'screen_coordinate_mapper.dart';
 
@@ -10,7 +10,7 @@ class DesktopLiveStreamViewer extends StatelessWidget {
   final DesktopStreamController controller;
   final String baseUrl;
   final String? apiKey;
-  final DroidDeckClient? client;
+  final CommandClient? client;
 
   const DesktopLiveStreamViewer({
     super.key,
@@ -297,7 +297,7 @@ class DesktopFullScreenViewerPage extends StatefulWidget {
   final DesktopStreamController controller;
   final String baseUrl;
   final String? apiKey;
-  final DroidDeckClient? client;
+  final CommandClient? client;
 
   const DesktopFullScreenViewerPage({
     super.key,

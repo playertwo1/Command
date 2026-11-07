@@ -21,7 +21,8 @@ when focus moves to another program, the deck goes back to where it was.
 
 ## Backup { #backup }
 
-A backup is a `.droiddeck` file with every profile, button images included.
+A backup is a `.command` file with every profile, button images included. The configurator can also
+import backups from earlier versions.
 
 - **In the PC configurator**: **Export backup** and **Import backup**, in the
   sidebar.

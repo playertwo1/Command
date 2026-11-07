@@ -90,7 +90,7 @@ try {
 
     Write-Host "Publicando Bridge autocontida para win-x64..."
     Invoke-Checked $dotnet @(
-        'publish', (Join-Path $repoRoot 'DroidDeck\DroidDeck.csproj'),
+        'publish', (Join-Path $repoRoot 'CommandPC\CommandPC.csproj'),
         '-c', 'Release', '-r', 'win-x64', '--self-contained', 'true',
         '-p:PublishSingleFile=false', "-p:Version=$assemblyVersion", '-o', $publishDir
     )
@@ -116,9 +116,9 @@ try {
 
     Invoke-Checked $vpk @(
         'pack', '--runtime', 'win-x64', '--packId', $packageId, '--packVersion', $Version,
-        '--packDir', $publishDir, '--mainExe', 'DroidDeck.exe',
+        '--packDir', $publishDir, '--mainExe', 'Command.exe',
         '--packTitle', 'Command', '--packAuthors', 'Command',
-        '--icon', (Join-Path $repoRoot 'DroidDeck\volume-_2_.ico'),
+        '--icon', (Join-Path $repoRoot 'CommandPC\volume-_2_.ico'),
         '--outputDir', $packageDir
     )
 
@@ -149,7 +149,7 @@ try {
         sourceWorkingTreeDirty = ($dirtyEntries.Count -gt 0)
         createdAtUtc = [DateTime]::UtcNow.ToString('o')
         dataRoots = @('%LocalAppData%\Command', '%AppData%\Command')
-        updateFeed = 'disabled for local pilot; no upstream fallback'
+        updateFeed = 'https://github.com/playertwo1/Command/releases (stable channel)'
         authenticodeStatus = $signatureStatus
         installerSha256 = $sha256
     }

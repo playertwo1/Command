@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/security/encrypted_backup_sheet.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/security/encrypted_backup_sheet.dart';
 
-class FakeBackupClient extends DroidDeckClient {
+class FakeBackupClient extends CommandClient {
   String? lastExportPassphrase;
   EncryptedBackupEnvelopeModel? lastRestoreEnvelope;
   String? lastRestorePassphrase;

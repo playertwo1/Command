@@ -1,23 +1,23 @@
 # Architecture
 
-DroidDeck is a monorepo with two halves that evolve together:
+Command is a monorepo with two halves that evolve together:
 
 ```
-DroidDeck/
-  DroidDeck/     C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
+Command/
+  CommandPC/   C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
   app/           Flutter app: the phone runtime and the web configurator (same code).
   tests/         Backend tests.
   scripts/       Utilities (deploying the web build to wwwroot).
   website/       This documentation and the project's landing page.
 ```
 
-## Backend (`DroidDeck/`)
+## Backend (`CommandPC/`)
 
 - **Host**: `Program.cs` starts ASP.NET Core on `0.0.0.0:4787` and the WinForms tray
   (`frmPrincipal.cs`), unless `--headless` is passed. Services are registered by area in
   `ServiceRegistration.cs` (`AddDeckCore`, `AddActionProviders`, `AddIntegrations`).
 - **Auth**: `Auth/` — API-key authentication handler (header, bearer or `access_token` query),
-  constant-time comparison. The key is generated in `%LocalAppData%\DroidDeck\apikey`.
+  constant-time comparison. The key is generated in `%LocalAppData%\Command\apikey`.
 - **Actions**: `Actions/` — `IActionProvider` and the schema; `Actions/Providers/` has the built-in
   types (hotkey, media, mixer, multi, timer, Windows, HTTP, Steam…).
 - **Integrations**: `Integrations/<Name>/` — one folder per integration with its service, its action
@@ -48,7 +48,7 @@ Key places:
 
 Key places:
 
-- `lib/core/droiddeck_client/` — API models (`DeckButton`, profiles…).
+- `app/lib/core/command_client/` — API models (`DeckButton`, profiles…).
 - `lib/core/i18n/` — `tr("…")` and the English dictionaries (`en/*.dart`).
 - `lib/src/stream_deck/buttons/` — how each action type draws its button (`renderers.dart` maps type
   → renderer; `button_look.dart` has the shared tile, two-state look and icons).
@@ -66,15 +66,15 @@ The app and the backend share:
 - **REST** under `/api/...` — see [API](../reference/api.md);
 - **SignalR** at `/deckHub` — server-to-client events;
 - **UDP discovery** on port 7573;
-- **Pairing URI** `droiddeck://pair?ip=&port=&key=`.
+- **Pairing URI** `command://pair?ip=&port=&key=`. The app also accepts older `droiddeck://` QR codes.
 
 ## Adding a new action type
 
-Each action type is an **`IActionProvider`** (`DroidDeck/Actions/`). It executes the action and
+Each action type is an **`IActionProvider`** (`CommandPC/Actions/`). It executes the action and
 describes its fields in an `ActionSchema`; the app's editor builds the form from
 `GET /api/actions/schema`, so a simple type needs no Flutter code at all:
 
-1. Implement `IActionProvider` in `DroidDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
+1. Implement `IActionProvider` in `CommandPC/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
    Fields are text, multiline, number, toggle or select; a select can load its options from an endpoint
    (`OptionsSource`, with `{field}` placeholders) and any field can depend on another (`When`).
 2. Register it in `ServiceRegistration.AddActionProviders` (`services.AddSingleton<IActionProvider, MyProvider>()`).

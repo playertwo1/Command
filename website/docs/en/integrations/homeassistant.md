@@ -1,15 +1,15 @@
 # Home Assistant
 
-DroidDeck connects to [Home Assistant](https://www.home-assistant.io) through its WebSocket API with an
+Command connects to [Home Assistant](https://www.home-assistant.io) through its WebSocket API with an
 access token: buttons show the real state and update right away, even when something changes in Home
 Assistant itself.
 
 ## Setup
 
 1. In Home Assistant, open your **profile** (bottom left) → **Security** tab.
-2. Under **Long-lived access tokens**, create a token (for example `DroidDeck`) and copy it — it is
+2. Under **Long-lived access tokens**, create a token (for example `Command`) and copy it — it is
    shown only once.
-3. In DroidDeck, open **Settings → Integrations → Home Assistant** (in the configurator,
+3. In Command, open **Settings → Integrations → Home Assistant** (in the configurator,
    **Integrations** in the sidebar), fill in the **Address** (`http://homeassistant.local:8123` or the
    IP) and the token, and tap **Connect**.
 

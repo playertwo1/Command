@@ -5,8 +5,8 @@ import '../src/connection/pc_connections.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class DroidDeckAppConfig extends StatelessWidget {
-  const DroidDeckAppConfig({
+class CommandAppConfig extends StatelessWidget {
+  const CommandAppConfig({
     super.key,
     this.bindings,
     this.modules,

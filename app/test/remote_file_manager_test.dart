@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:crypto/crypto.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/transfers/remote_file_manager_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/transfers/remote_file_manager_page.dart';
 
-class MockDroidDeckClient extends Mock implements DroidDeckClient {}
+class MockCommandClient extends Mock implements CommandClient {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockDroidDeckClient mockClient;
+  late MockCommandClient mockClient;
 
   setUp(() {
-    mockClient = MockDroidDeckClient();
+    mockClient = MockCommandClient();
   });
 
   final testItemsRoot = [

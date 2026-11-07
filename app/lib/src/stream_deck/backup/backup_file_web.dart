@@ -25,7 +25,7 @@ Future<List<int>?> pickBackupFile() {
   final completer = Completer<List<int>?>();
   final input = web.HTMLInputElement()
     ..type = 'file'
-    ..accept = '.droiddeck,.zip';
+    ..accept = '.command,.droiddeck,.zip';
   input.onchange = (web.Event _) {
     final file = input.files?.item(0);
     if (file == null) {

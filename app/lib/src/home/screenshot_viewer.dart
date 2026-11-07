@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:droiddeck/core/droiddeck_client/models/screenshot_models.dart';
+import 'package:command/core/command_client/models/screenshot_models.dart';
 
 enum AnnotationMode { none, pen, rectangle }
 

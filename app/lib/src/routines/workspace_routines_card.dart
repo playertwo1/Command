@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/routines/routine_builder_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/routines/routine_builder_page.dart';
 import 'package:flutter/material.dart';
 import '../services/signalr_service.dart';
 
@@ -15,13 +15,13 @@ class RoutinePcTarget {
 
   final String pcId;
   final String pcName;
-  final DroidDeckClient client;
+  final CommandClient client;
   final SignalRService connection;
 }
 
 /// Card interativo para Modos de Ambiente e Rotinas Encadeadas (Onda v0.5 - M1).
 class WorkspaceRoutinesCard extends StatefulWidget {
-  final DroidDeckClient? client;
+  final CommandClient? client;
   final VoidCallback? onRoutineExecuted;
   final String? targetPcName;
   final String? deviceId;
@@ -41,7 +41,8 @@ class WorkspaceRoutinesCard extends StatefulWidget {
 }
 
 class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
-  List<RoutineDefinitionData> _routines = List.from(_defaultPresets);
+  List<RoutineDefinitionData> _routines = [];
+  String? _routineLoadError;
   Map<String, List<RoutineDefinitionData>> _dualRoutinesByPc = {};
   bool _isLoading = false;
   bool _dualRoutinesLoading = false;
@@ -52,62 +53,6 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
   static const Color amethystAccent = Color(0xFFA78BFA);
   static const Color cardBackground = Color(0xFF161424);
   static const Color itemBackground = Color(0xFF1E1B2E);
-
-  // 3 Presets locais padrão para resiliência offline e testes
-  static final List<RoutineDefinitionData> _defaultPresets = [
-    const RoutineDefinitionData(
-      id: 'study_vault',
-      name: 'Modo Estudo & Vault',
-      description: 'Abre Obsidian e minimiza distrações no PC',
-      icon: 'auto_mode',
-      isPreset: true,
-      requiresConfirmation: true,
-      steps: [
-        RoutineStepData(
-          stepId: 's1',
-          actionType: 'app.launch',
-          targetId: 'obsidian',
-          delayMs: 1000,
-        ),
-      ],
-    ),
-    const RoutineDefinitionData(
-      id: 'dev_orbit',
-      name: 'Modo Dev Orbit',
-      description: 'Inicia ambiente de desenvolvimento e monitor',
-      icon: 'playlist_play',
-      isPreset: true,
-      requiresConfirmation: true,
-      steps: [
-        RoutineStepData(
-          stepId: 's1',
-          actionType: 'app.launch',
-          targetId: 'orbit',
-          delayMs: 500,
-        ),
-      ],
-    ),
-    const RoutineDefinitionData(
-      id: 'focus_clean',
-      name: 'Limpeza de Foco',
-      description: 'Encerra processos de teste e captura tela de auditoria',
-      icon: 'workspaces_outline',
-      isPreset: true,
-      requiresConfirmation: true,
-      steps: [
-        RoutineStepData(
-          stepId: 's1',
-          actionType: 'app.kill',
-          targetId: 'test_notepad',
-        ),
-        RoutineStepData(
-          stepId: 's2',
-          actionType: 'screenshot.capture',
-          targetId: 'primary',
-        ),
-      ],
-    ),
-  ];
 
   @override
   void initState() {
@@ -197,25 +142,32 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
     if (client == null) {
       if (mounted) {
         setState(() {
-          _routines = List.from(_defaultPresets);
+          _routines = [];
+          _routineLoadError = 'Nenhum PC conectado foi selecionado.';
           _isLoading = false;
         });
       }
       return;
     }
-    if (mounted) setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _routineLoadError = null;
+      });
+    }
     try {
       final remote = await client.getRoutines();
       if (mounted) {
         setState(() {
-          _routines = remote.isNotEmpty ? remote : List.from(_defaultPresets);
+          _routines = remote;
+          _routineLoadError = null;
         });
       }
     } catch (_) {
-      // Fallback gracioso para presets locais
       if (mounted) {
         setState(() {
-          _routines = List.from(_defaultPresets);
+          _routines = [];
+          _routineLoadError = 'Não foi possível carregar as rotinas do Bridge.';
         });
       }
     } finally {
@@ -224,7 +176,7 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
   }
 
   Future<void> _openBuilder([RoutineDefinitionData? routine]) async {
-    final effectiveClient = widget.client ?? DroidDeckClient(baseUrl: 'http://10.0.2.2:4787');
+    final effectiveClient = widget.client ?? CommandClient(baseUrl: 'http://10.0.2.2:4787');
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => RoutineBuilderPage(
@@ -274,9 +226,9 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
 
     if (confirmed == true) {
       try {
-        if (widget.client != null) {
-          await widget.client!.deleteRoutine(routine.id);
-        }
+        final client = widget.client;
+        if (client == null) throw StateError('PC não conectado.');
+        await client.deleteRoutine(routine.id);
         setState(() {
           _routines.removeWhere((r) => r.id == routine.id);
         });
@@ -290,11 +242,11 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
         }
         _loadRoutines();
         _loadDualRoutines();
-      } catch (e) {
+      } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Falha ao excluir rotina: $e'),
+            const SnackBar(
+              content: Text('Não foi possível excluir a rotina no Bridge.'),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -391,7 +343,7 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
     if (confirmed == true) {
       setState(() => _executingRoutineId = routine.id);
       try {
-        final effectiveClient = widget.client ?? DroidDeckClient(baseUrl: 'http://10.0.2.2:4787');
+        final effectiveClient = widget.client ?? CommandClient(baseUrl: 'http://10.0.2.2:4787');
         final result = await effectiveClient.executeRoutine(
           routine.id,
           confirmed: true,
@@ -715,18 +667,41 @@ class _WorkspaceRoutinesCardState extends State<WorkspaceRoutinesCard> {
                         vertical: 6,
                       ),
                     ),
-                    onPressed: () => _openBuilder(),
+                    onPressed: _routineLoadError == null ? () => _openBuilder() : null,
                   ),
                 ],
               ),
               const SizedBox(height: 14),
 
-              if (_isLoading && _routines.isEmpty)
+              if (_routineLoadError != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    children: [
+                      Text(
+                        _routineLoadError!,
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                      TextButton(
+                        onPressed: _loadRoutines,
+                        child: const Text('Tentar novamente'),
+                      ),
+                    ],
+                  ),
+                )
+              else if (_isLoading && _routines.isEmpty)
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: CircularProgressIndicator(color: amethystAccent),
                   ),
+                )
+              else if (_routines.isEmpty)
+                const Text(
+                  'Nenhuma rotina salva neste PC.',
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                  textAlign: TextAlign.center,
                 )
               else
                 ...List.generate(_routines.length, (index) {

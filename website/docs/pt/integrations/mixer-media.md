@@ -13,12 +13,12 @@ Mudanças feitas no PC (mixer de volume do Windows, teclas do teclado) são envi
 
 ## Como funciona o controle de mídia
 
-O DroidDeck usa o sistema de **sessões de mídia** do Windows — o mesmo por trás do overlay de mídia
+O Command usa o sistema de **sessões de mídia** do Windows — o mesmo por trás do overlay de mídia
 que aparece quando você aperta uma tecla de mídia. Qualquer app que aparece ali pode ser controlado:
 Spotify, navegadores (YouTube etc.), Windows Media Player, VLC e outros.
 
 Se nada estiver tocando, o comando vai para a sessão mais recente. Se o serviço de mídia do Windows
-parar de responder, o DroidDeck pausa as verificações em segundo plano por um minuto (aparece um
+parar de responder, o Command pausa as verificações em segundo plano por um minuto (aparece um
 aviso no log), mas os toques nos botões continuam funcionando.
 
 ## Dicas

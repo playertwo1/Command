@@ -14,7 +14,7 @@ class ControlPairingQr {
   static ControlPairingQr? tryParse(String value) {
     final uri = Uri.tryParse(value.trim());
     if (uri == null ||
-        uri.scheme != 'droiddeck' ||
+        (uri.scheme != 'command' && uri.scheme != 'droiddeck') ||
         uri.host != 'control-pair') {
       return null;
     }

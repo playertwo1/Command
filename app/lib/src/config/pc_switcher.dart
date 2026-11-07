@@ -1,7 +1,7 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/connection/pc_connections.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/connection/pc_connections.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 Future<void> switchToPc(BuildContext context, SavedPc pc) async {
   final previous = await PcStore.current();
   await PcStore.select(pc);
-  final client = Injector.get<DroidDeckClient>();
+  final client = Injector.get<CommandClient>();
   client.setBaseUrl(pc.baseUrl);
   client.setApiKey(pc.apiKey);
   await Injector.get<SignalRService>().updateUrl(pc.baseUrl, apiKey: pc.apiKey);

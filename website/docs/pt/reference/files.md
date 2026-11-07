@@ -2,7 +2,7 @@
 
 ## Dados no PC
 
-**`%AppData%\DroidDeck\`** (Roaming) — seus decks:
+**`%AppData%\Command\`** (Roaming) — seus decks:
 
 | Arquivo | Conteúdo |
 |---|---|
@@ -11,7 +11,7 @@
 | `counters.json` | Valores dos botões de contador, para sobreviverem a um reinício. |
 | `toggles.json` | Botões de dois estados ligados. |
 
-**`%LocalAppData%\DroidDeck\`** — chaves e integrações:
+**`%LocalAppData%\Command\`** — chaves e integrações:
 
 | Arquivo | Conteúdo |
 |---|---|
@@ -24,9 +24,9 @@
 | `homeassistant.json` | Endereço e token de acesso do Home Assistant. |
 | `spotify.json`, `twitch.json`, `youtube.json` | Client ID (e o Client Secret do YouTube) e os tokens da conta. |
 
-**`%LocalAppData%\DroidDeck.log`** — o arquivo de log.
+**`%LocalAppData%\Command.log`** — o arquivo de log.
 
-**`%LocalAppData%\DroidDeckPC\`** — o programa em si, quando instalado pelo `DroidDeck-Setup.exe`.
+**`%LocalAppData%\CommandPC\`** — o programa em si, quando instalado pelo `Command-Setup.exe`.
 As atualizações substituem esta pasta; seus dados ficam nas pastas acima e são mantidos.
 
 !!! info "Os segredos são cifrados"
@@ -34,11 +34,11 @@ As atualizações substituem esta pasta; seus dados ficam nas pastas acima e sã
     `homeassistant.json`, `spotify.json`, `twitch.json`, `youtube.json`) são cifrados com a DPAPI do Windows e só podem
     ser lidos pela sua conta do Windows neste PC. Arquivos de versões antigas, em texto puro, são
     cifrados automaticamente na primeira leitura. Para editar um deles à mão (ex.: o `ClientId` da
-    Tuya), salve-o como JSON puro; o DroidDeck cifra de novo na próxima inicialização.
+    Tuya), salve-o como JSON puro; o Command cifra de novo na próxima inicialização.
 
 ## Backup e troca de PC
 
-Copie `%AppData%\DroidDeck\Profiles\` para guardar seus decks. Os segredos ficam presos a este PC e
+Copie `%AppData%\Command\Profiles\` para guardar seus decks. Os segredos ficam presos a este PC e
 à sua conta do Windows, então num PC novo você configura as integrações e pareia os celulares de novo.
 
 ## Opções de linha de comando
@@ -47,7 +47,7 @@ Copie `%AppData%\DroidDeck\Profiles\` para guardar seus decks. Os segredos ficam
 |---|---|
 | *(nenhuma)* | App na bandeja + servidor. |
 | `--headless` / `--no-tray` | Só o servidor, sem ícone na bandeja. Pare com Ctrl+C. |
-| `--print-pairing` | Imprime a URI de pareamento, salva o QR em `%TEMP%\droiddeck-pair.png` e sai. |
+| `--print-pairing` | Imprime a URI de pareamento, salva o QR em `%TEMP%\command-pair.png` e sai. |
 
 | Variável de ambiente | Efeito |
 |---|---|
@@ -56,7 +56,7 @@ Copie `%AppData%\DroidDeck\Profiles\` para guardar seus decks. Os segredos ficam
 
 ## `appsettings.json`
 
-Fica ao lado do `DroidDeck.exe`:
+Fica ao lado do `Command.exe`:
 
 | Chave | Padrão | Significado |
 |---|---|---|

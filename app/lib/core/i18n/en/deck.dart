@@ -1,8 +1,8 @@
 /// Traduções: veja en.dart.
 const Map<String, String> enDeck = {
   // Deck (celular)
-  'O PC não respondeu. Confira se o DroidDeck está aberto nele.':
-      "The PC didn't respond. Make sure DroidDeck is open on it.",
+  'O PC não respondeu. Confira se o Command está aberto nele.':
+      "The PC didn't respond. Make sure Command is open on it.",
   'Configurações': 'Settings',
   'Integrações': 'Integrations',
   'Aparência': 'Appearance',
@@ -29,9 +29,9 @@ const Map<String, String> enDeck = {
   'PC desconectado. Mostrando o último deck salvo neste aparelho.':
       'PC disconnected. Showing the last deck saved on this device.',
   'O PC não respondeu e este aparelho ainda não tem um deck dele salvo. '
-          'Confira se o DroidDeck está aberto nele e na mesma rede.':
+          'Confira se o Command está aberto nele e na mesma rede.':
       "The PC didn't respond and this device has no saved deck from it yet. "
-          'Make sure DroidDeck is open on it and on the same network.',
+          'Make sure Command is open on it and on the same network.',
   'Modo de edição: toque num botão para editar': 'Edit mode: tap a button to edit it',
   'O PC recusou a alteração.': 'The PC refused the change.',
 
@@ -77,9 +77,9 @@ const Map<String, String> enDeck = {
   'Exportar backup': 'Export backup',
   'Importar backup': 'Import backup',
   'Exportar backup do deck': 'Export deck backup',
-  'Salva todos os perfis num arquivo .droiddeck. Para importar, use o configurador no PC.':
-      'Saves all profiles to a .droiddeck file. To import, use the configurator on the PC.',
-  'Backup do DroidDeck': 'DroidDeck backup',
+  'Salva todos os perfis num arquivo .command. Backups antigos também podem ser importados no configurador do PC.':
+      'Saves all profiles to a .command file. Backups from earlier versions can also be imported in the PC configurator.',
+  'Backup do Command': 'Command backup',
 
   // Editor de botão
   'Editar botão': 'Edit button',

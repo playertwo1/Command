@@ -1,9 +1,9 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/power/power_control_card.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/power/power_control_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakePowerClient extends DroidDeckClient {
+class FakePowerClient extends CommandClient {
   int executeCalls = 0;
   String? lastAction;
   bool? lastConfirmed;

@@ -1,24 +1,24 @@
 # Instalação
 
-O DroidDeck tem duas partes: o **app para Windows** (servidor) e o **app Android** (o seu deck). Os
-dois vêm anexados em toda [release no GitHub](https://github.com/ggfto/DroidDeck/releases/latest).
+O Command tem duas partes: o **app para Windows** (servidor) e o **app Android** (o seu deck). Os
+dois vêm anexados em toda [release no GitHub](https://github.com/playertwo1/Command/releases/latest).
 
 ## Windows
 
-1. Baixe o **`DroidDeck-Setup.exe`** da release mais recente.
+1. Baixe o **`Command-Setup.exe`** da release mais recente.
 2. Execute. A instalação é por usuário (não pede administrador) e cria atalhos na área de trabalho
    e no menu Iniciar.
-3. Na primeira execução, o DroidDeck liga o **Iniciar com o Windows** e oferece liberar o
+3. Na primeira execução, o Command liga o **Iniciar com o Windows** e oferece liberar o
    [firewall](#firewall) para a rede local.
 
-O DroidDeck instalado **se atualiza sozinho**: ele procura versões novas nas releases do GitHub,
+O Command instalado **se atualiza sozinho**: ele procura versões novas nas releases do GitHub,
 baixa em segundo plano e aplica a atualização na próxima vez que abrir. Para atualizar na hora, use
 **Procurar atualização** no menu da bandeja. Para desinstalar, use *Configurações → Aplicativos* do
 Windows.
 
 ??? note "Prefere sem instalar?"
-    A release também traz o **`DroidDeck-win-x64.zip`**. Extraia em uma pasta definitiva e execute o
-    `DroidDeck.exe`. Essa cópia não se atualiza sozinha: o item **Baixar versão mais recente…** da
+    A release também traz o **`Command-win-x64.zip`**. Extraia em uma pasta definitiva e execute o
+    `Command.exe`. Essa cópia não se atualiza sozinha: o item **Baixar versão mais recente…** da
     bandeja abre a página da release.
 
 O app não tem janela. Ele fica na **bandeja do sistema**, e uma notificação confirma que está rodando
@@ -36,10 +36,10 @@ Clique com o botão direito no ícone da bandeja:
 |---|---|
 | **Abrir no navegador** | Abre o configurador em `http://localhost:4787/` (o clique duplo no ícone faz o mesmo). |
 | **Parear dispositivo (QR)…** | Mostra o QR code de pareamento para o celular. |
-| **Iniciar com o Windows** | Inicia o DroidDeck quando você entra no Windows. |
+| **Iniciar com o Windows** | Inicia o Command quando você entra no Windows. |
 | **Liberar no firewall (rede local)** | Cria as regras do [firewall](#firewall). Marcado quando elas já existem. |
 | **Procurar atualização** | Procura uma versão nova e, quando há uma baixada, vira **Reiniciar para atualizar**. |
-| **Sair** | Fecha o DroidDeck. |
+| **Sair** | Fecha o Command. |
 
 ### Firewall { #firewall }
 
@@ -51,14 +51,14 @@ só para aparelhos da sua sub-rede local, mesmo que o Wi-Fi esteja marcado como 
 Para criar as mesmas regras à mão, use um PowerShell como administrador:
 
 ```powershell
-New-NetFirewallRule -DisplayName "DroidDeck (TCP 4787)" -Direction Inbound -Protocol TCP -LocalPort 4787 -RemoteAddress LocalSubnet -Action Allow
-New-NetFirewallRule -DisplayName "DroidDeck discovery (UDP 7573)" -Direction Inbound -Protocol UDP -LocalPort 7573 -RemoteAddress LocalSubnet -Action Allow
+New-NetFirewallRule -DisplayName "Command (TCP 4787)" -Direction Inbound -Protocol TCP -LocalPort 4787 -RemoteAddress LocalSubnet -Action Allow
+New-NetFirewallRule -DisplayName "Command discovery (UDP 7573)" -Direction Inbound -Protocol UDP -LocalPort 7573 -RemoteAddress LocalSubnet -Action Allow
 ```
 
 ## Android
 
-1. No celular, baixe o **`DroidDeck.apk`** da release mais recente.
+1. No celular, baixe o **`Command.apk`** da release mais recente.
 2. Abra o arquivo e permita a instalação de fontes desconhecidas quando o Android pedir.
-3. Abra o **DroidDeck** e siga para o [Pareamento](pairing.md).
+3. Abra o **Command** e siga para o [Pareamento](pairing.md).
 
 É preciso ter Android 7.0 ou mais recente. O app usa a câmera só para ler os QR codes de pareamento.

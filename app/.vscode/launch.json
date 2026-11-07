@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "droiddeck",
+            "name": "command",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "droiddeck (profile mode)",
+            "name": "command (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "droiddeck (release mode)",
+            "name": "command (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

@@ -1,10 +1,10 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/routines/workspace_routines_card.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/routines/workspace_routines_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeWorkspaceClient extends DroidDeckClient {
+class FakeWorkspaceClient extends CommandClient {
   int executeCalls = 0;
   int deleteCalls = 0;
   String? lastExecutedId;
@@ -12,21 +12,30 @@ class FakeWorkspaceClient extends DroidDeckClient {
   String? lastDeviceId;
   bool? lastConfirmed;
   bool failExecution = false;
+  bool failRoutineLoad = false;
+  bool failRoutinesAfterDelete = false;
+  bool _hasDeletedRoutine = false;
 
   final List<RoutineDefinitionData> routines;
 
-  FakeWorkspaceClient({
-    this.routines = const [],
-  }) : super(baseUrl: 'http://localhost:4787');
+  FakeWorkspaceClient({List<RoutineDefinitionData> routines = const []})
+    : routines = List.of(routines),
+      super(baseUrl: 'http://localhost:4787');
 
   @override
   Future<void> deleteRoutine(String id) async {
     deleteCalls++;
     lastDeletedId = id;
+    _hasDeletedRoutine = true;
+    routines.removeWhere((routine) => routine.id == id);
   }
 
   @override
   Future<List<RoutineDefinitionData>> getRoutines() async {
+    if (failRoutineLoad) throw StateError('routine load failed');
+    if (_hasDeletedRoutine && failRoutinesAfterDelete) {
+      throw StateError('routine refresh failed');
+    }
     return routines;
   }
 
@@ -72,12 +81,17 @@ class _RoutineSignalR extends SignalRService {
   }
 }
 
-RoutineDefinitionData _routine({String targetId = 'obsidian'}) => RoutineDefinitionData(
-      id: 'routine-1',
-      name: 'Rotina pareada',
+RoutineDefinitionData _routine({
+  String id = 'routine-1',
+  String name = 'Rotina pareada',
+  String targetId = 'obsidian',
+  bool isPreset = false,
+}) => RoutineDefinitionData(
+      id: id,
+      name: name,
       description: 'Abre o editor',
       icon: 'auto_mode',
-      isPreset: false,
+      isPreset: isPreset,
       requiresConfirmation: true,
       steps: [
         RoutineStepData(
@@ -89,6 +103,18 @@ RoutineDefinitionData _routine({String targetId = 'obsidian'}) => RoutineDefinit
         ),
       ],
     );
+
+const _studyVaultPreset = RoutineDefinitionData(
+  id: 'study_vault',
+  name: 'Modo Estudo & Vault',
+  description: 'Rotina de teste',
+  icon: 'auto_mode',
+  isPreset: true,
+  requiresConfirmation: true,
+  steps: [
+    RoutineStepData(stepId: 's1', actionType: 'delay', targetId: 'delay'),
+  ],
+);
 
 RoutinePcTarget _target(String id, String name, FakeWorkspaceClient client) => RoutinePcTarget(
       pcId: id,
@@ -102,7 +128,11 @@ void main() {
 
   group('WorkspaceRoutinesCard Widget Tests', () {
     testWidgets('renderiza presets padrão e permite abrir diálogo de confirmação', (tester) async {
-      final client = FakeWorkspaceClient();
+      final client = FakeWorkspaceClient(routines: [
+        _routine(id: 'study_vault', name: 'Modo Estudo & Vault', isPreset: true),
+        _routine(id: 'dev_orbit', name: 'Modo Dev Orbit', isPreset: true),
+        _routine(id: 'focus_clean', name: 'Limpeza de Foco', isPreset: true),
+      ]);
       int executedCallbackCount = 0;
 
       await tester.pumpWidget(
@@ -345,6 +375,87 @@ void main() {
 
       expect(client.deleteCalls, 1);
       expect(client.lastDeletedId, 'routine-1');
+    });
+
+    testWidgets('excluir a última rotina não restaura o preset local', (tester) async {
+      final client = FakeWorkspaceClient(routines: [_studyVaultPreset]);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorkspaceRoutinesCard(client: client),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Modo Estudo & Vault'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Excluir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Excluir'));
+      await tester.pumpAndSettle();
+
+      expect(client.deleteCalls, 1);
+      expect(find.text('Modo Estudo & Vault'), findsNothing);
+    });
+
+    testWidgets('refresh failure after delete keeps the local deletion', (tester) async {
+      final client = FakeWorkspaceClient(routines: [_studyVaultPreset])
+        ..failRoutinesAfterDelete = true;
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorkspaceRoutinesCard(client: client),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Excluir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Excluir'));
+      await tester.pumpAndSettle();
+
+      expect(client.deleteCalls, 1);
+      expect(find.text('Modo Estudo & Vault'), findsNothing);
+    });
+
+    testWidgets('não mostra presets locais quando falha a leitura do Bridge', (tester) async {
+      final client = FakeWorkspaceClient()..failRoutineLoad = true;
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorkspaceRoutinesCard(client: client),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Não foi possível carregar as rotinas do Bridge.'), findsOneWidget);
+      expect(find.text('Modo Estudo & Vault'), findsNothing);
+      expect(find.text('Modo Dev Orbit'), findsNothing);
+      expect(find.text('Limpeza de Foco'), findsNothing);
+    });
+
+    testWidgets('não mostra presets locais sem cliente Bridge', (tester) async {
+      await tester.pumpWidget(const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorkspaceRoutinesCard(),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nenhum PC conectado foi selecionado.'), findsOneWidget);
+      expect(find.text('Modo Estudo & Vault'), findsNothing);
+      expect(
+        tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Nova Rotina')).onPressed,
+        isNull,
+      );
     });
   });
 }

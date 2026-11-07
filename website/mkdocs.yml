@@ -1,10 +1,10 @@
-site_name: DroidDeck
+site_name: Command
 site_description: Turn an Android phone into a Stream Deck for your Windows PC.
-site_url: https://me.gf2.in/DroidDeck/docs/
-repo_url: https://github.com/ggfto/DroidDeck
-repo_name: ggfto/DroidDeck
+site_url: https://me.gf2.in/Command/docs/
+repo_url: https://github.com/playertwo1/Command
+repo_name: playertwo1/Command
 edit_uri: edit/main/website/docs/
-copyright: DroidDeck · <a href="https://github.com/ggfto/DroidDeck/blob/main/LICENSE">Apache License 2.0</a>
+copyright: Command · <a href="https://github.com/playertwo1/Command/blob/main/LICENSE">Apache License 2.0</a>
 docs_dir: docs
 site_dir: ../_site/docs
 
@@ -108,10 +108,10 @@ plugins:
             Smart home (Tuya): Casa inteligente (Tuya)
 
 extra:
-  homepage: https://me.gf2.in/DroidDeck/
+  homepage: https://me.gf2.in/Command/
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/ggfto/DroidDeck
+      link: https://github.com/playertwo1/Command
 
 markdown_extensions:
   - admonition

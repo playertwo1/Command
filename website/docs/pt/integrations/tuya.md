@@ -11,7 +11,7 @@ versões rebatizadas da mesma plataforma.
 A vinculação é feita no **app do celular**:
 
 1. No app **Smart Life** (ou **Tuya Smart**): **Eu → ⚙️ → Conta e segurança → Código de usuário**. Copie o código.
-2. No DroidDeck do celular: **Configuração → Integrações → Casa inteligente (Tuya)**. Cole o código e toque em **Gerar QR**.
+2. No Command do celular: **Configuração → Integrações → Casa inteligente (Tuya)**. Cole o código e toque em **Gerar QR**.
 3. Leia o QR com o app Smart Life (aba **Início** → ícone de leitura) em até 2 minutos. O app pede
    para você confirmar um login do **"Home Assistant"** — veja o motivo abaixo.
 
@@ -26,7 +26,7 @@ A sessão fica salva no PC e se reconecta automaticamente ao iniciar.
     hardware e funciona do mesmo jeito; você só perde as automações criadas no app da marca.
 
 ??? info "Por que aparece Home Assistant?"
-    O DroidDeck usa o registro público de app do Home Assistant para o login por QR, porque a Tuya
+    O Command usa o registro público de app do Home Assistant para o login por QR, porque a Tuya
     não oferece esse registro por autoatendimento. O `clientId` e o `schema` ficam no `tuya.json`,
     então trocar para um registro próprio no futuro é só uma mudança de configuração.
 
@@ -52,7 +52,7 @@ no interruptor da parede ou no app Smart Life também aparecem no deck.
 
 ## Cota da API
 
-O plano gratuito da Tuya permite cerca de 26.000 chamadas de API por mês. Por isso o DroidDeck
+O plano gratuito da Tuya permite cerca de 26.000 chamadas de API por mês. Por isso o Command
 **nunca faz polling**: o estado chega por push, e a lista de dispositivos só é recarregada quando
 você aperta atualizar (umas 4 chamadas por dispositivo). Apertar botões não é problema — cada toque
 é uma chamada.

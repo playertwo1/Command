@@ -7,19 +7,19 @@ Este documento reúne diagnósticos, resoluções de problemas comuns e limites 
 ## 1. Conectividade, Rede e Configurador Web
 
 ### Sintoma: Ao abrir `http://localhost:4787/` no navegador do PC, retorna `401 Unauthorized`
-- **Causa:** A pasta `wwwroot` (que contém os arquivos estáticos do configurador web em Flutter, incluindo `index.html`) não está presente ao lado do executável `DroidDeck.exe` (problema presente no pacote inicial `v1.0.0` ou quando os arquivos são extraídos parcialmente). Sem o `wwwroot/index.html`, o `StaticFileMiddleware` não atende a requisição `/` e ela cai na política padrão da API (`FallbackPolicy`), que exige o cabeçalho `X-API-KEY` e retorna `401 Unauthorized`.
+- **Causa:** A pasta `wwwroot` (que contém os arquivos estáticos do configurador web em Flutter, incluindo `index.html`) não está presente ao lado do executável `Command.exe` (problema presente no pacote inicial `v1.0.0` ou quando os arquivos são extraídos parcialmente). Sem o `wwwroot/index.html`, o `StaticFileMiddleware` não atende a requisição `/` e ela cai na política padrão da API (`FallbackPolicy`), que exige o cabeçalho `X-API-KEY` e retorna `401 Unauthorized`.
 - **Solução (corrigido na v1.1.0):**
   1. Utilize o pacote oficial **`command-bridge-v1.1.0-win-x64.zip`**, que já inclui a pasta `wwwroot/` completa e configura explicitamente o `WebRootPath` no `Program.cs`.
-  2. Caso esteja compilando do código-fonte, execute `.\scripts\deploy-web.ps1` antes de rodar ou publicar o backend para gerar e copiar o build web (`app/build/web`) para `DroidDeck/wwwroot`, e reinicie o `DroidDeck.exe`.
+  2. Caso esteja compilando do código-fonte, execute `.\scripts\deploy-web.ps1` antes de rodar ou publicar o backend para gerar e copiar o build web (`app/build/web`) para `CommandPC/wwwroot`, e reinicie o `Command.exe`.
 
 ### Sintoma: Aplicativo exibe badge vermelho "Offline" ou banner "Command Bridge Desconectado"
 - **Causas prováveis:**
-  1. O processo `DroidDeck.exe` no PC não está em execução ou foi encerrado.
+  1. O processo `Command.exe` no PC não está em execução ou foi encerrado.
   2. O endereço IP do PC na rede local foi alterado pelo roteador (DHCP dinâmico).
   3. O Firewall do Windows ou antivírus de terceiros está bloqueando conexões de entrada na porta TCP `4787`.
   4. O roteador Wi-Fi está com a opção "Isolamento de Ponto de Acesso" (AP Isolation / Client Isolation) ativada, impedindo a comunicação direta entre o smartphone e o computador.
 - **Passos para resolução:**
-  1. No PC, verifique se o processo está ativo na bandeja do sistema ou no Gerenciador de Tarefas (`DroidDeck.exe`). Se necessário, reinicie o executável.
+  1. No PC, verifique se o processo está ativo na bandeja do sistema ou no Gerenciador de Tarefas (`Command.exe`). Se necessário, reinicie o executável.
   2. Abra o terminal no PC e execute `ipconfig` para verificar seu endereço IPv4 local atual (ex: `192.168.1.150`).
   3. No app Command, verifique se o endereço configurado coincide com o IP atual do PC. Se o IP mudou, atualize o endereço nas configurações do app ou configure uma reserva de IP estático no roteador.
   4. Certifique-se de que a rede local do Windows está configurada como **Rede Privada** (Configurações do Windows -> Rede e Internet -> Propriedades da conexão -> Perfil de rede privada).
@@ -49,7 +49,7 @@ Este documento reúne diagnósticos, resoluções de problemas comuns e limites 
 - **Solução:** Acesse o PC fisicamente, desbloqueie a tela com sua senha/PIN e toque novamente em "Capturar Tela Agora" no aplicativo móvel.
 
 ### Erro: Código 410 Gone ("SCREENSHOT_EXPIRED")
-- **Causa:** Screenshots manuais possuem tempo de vida estrito de 10 minutos no Bridge (`%LocalAppData%\DroidDeck\screenshots`) por motivos de privacidade e segurança.
+- **Causa:** Screenshots manuais possuem tempo de vida estrito de 10 minutos no Bridge (`%LocalAppData%\Command\screenshots`) por motivos de privacidade e segurança.
 - **Solução:** Solicite uma nova captura sob demanda pelo aplicativo.
 
 ---

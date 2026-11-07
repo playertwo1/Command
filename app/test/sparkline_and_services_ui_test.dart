@@ -1,12 +1,12 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/home/metric_sparkline.dart';
-import 'package:droiddeck/src/home/status_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/home/metric_sparkline.dart';
+import 'package:command/src/home/status_page.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FakeDiagnosticsClient extends DroidDeckClient {
+class FakeDiagnosticsClient extends CommandClient {
   FakeDiagnosticsClient() : super(baseUrl: 'http://localhost:4787');
 
   List<WindowsServiceItem> mockServices = [

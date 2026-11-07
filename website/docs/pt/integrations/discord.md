@@ -1,6 +1,6 @@
 # Discord
 
-O DroidDeck controla o **app desktop do Discord** rodando no mesmo PC, pelo RPC local do Discord.
+O Command controla o **app desktop do Discord** rodando no mesmo PC, pelo RPC local do Discord.
 
 ## O que dá para fazer
 
@@ -28,13 +28,13 @@ Discord, então cada usuário cria a sua própria aplicação (gratuita):
 1. Acesse [discord.com/developers/applications](https://discord.com/developers/applications) e clique em **New Application**.
 2. Em **OAuth2**, copie o **Client ID** e o **Client Secret**.
 3. Em **OAuth2 → Redirects**, adicione `http://localhost:4787/discord` e clique em **Save Changes**.
-4. No DroidDeck, abra as configurações do Discord — no celular: **Configuração → Integrações →
+4. No Command, abra as configurações do Discord — no celular: **Configuração → Integrações →
    Discord**; no configurador: **Integrações** na barra lateral.
 5. Cole o Client ID e o Secret, clique em **Salvar credenciais** e depois em **Conectar**.
 6. O Discord mostra um popup de autorização no PC. Aprove em até 60 segundos.
 
-O token é renovado automaticamente, e o DroidDeck se reconecta sozinho toda vez que inicia, sem
-mostrar o popup de novo. Se o Discord estiver fechado, o DroidDeck tenta de novo a cada 10 segundos.
+O token é renovado automaticamente, e o Command se reconecta sozinho toda vez que inicia, sem
+mostrar o popup de novo. Se o Discord estiver fechado, o Command tenta de novo a cada 10 segundos.
 
 !!! tip "Dica"
     No editor de botões, as ações do Discord mostram um aviso com um link **Configurar** enquanto o
@@ -47,5 +47,5 @@ mostrar o popup de novo. Se o Discord estiver fechado, o DroidDeck tenta de novo
 |---|---|
 | *Pipe do Discord não encontrado — o Discord está aberto?* | O app desktop do Discord não está rodando (a versão do navegador não funciona). |
 | *Configure o Client ID e o Secret do Discord primeiro.* | Conclua a configuração acima. |
-| *Discord não respondeu ao handshake (READY).* | O Discord ainda está iniciando; o DroidDeck tenta de novo sozinho. |
+| *Discord não respondeu ao handshake (READY).* | O Discord ainda está iniciando; o Command tenta de novo sozinho. |
 | A autorização falha | Confira se o redirect `http://localhost:4787/discord` foi salvo no Developer Portal. |

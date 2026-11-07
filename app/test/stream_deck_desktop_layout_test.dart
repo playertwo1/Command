@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/widgets/button_property_panel.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/widgets/button_property_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

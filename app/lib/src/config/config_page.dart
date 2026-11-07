@@ -1,11 +1,11 @@
-import 'package:droiddeck/src/connection/constants.dart';
-import 'package:droiddeck/src/services/mdns_discovery_service.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/config/integrations_page.dart';
-import 'package:droiddeck/src/config/pc_switcher.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/connection/pc_connections.dart';
+import 'package:command/src/connection/constants.dart';
+import 'package:command/src/services/mdns_discovery_service.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/config/integrations_page.dart';
+import 'package:command/src/config/pc_switcher.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/connection/pc_connections.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -249,7 +249,7 @@ class ConfigPageState extends State<ConfigPage> {
     fetchPcName(pc);
 
     // Update Singletons immediately
-    final client = Injector.get<DroidDeckClient>();
+    final client = Injector.get<CommandClient>();
     client.setBaseUrl(baseUrl);
     client.setApiKey(apiKey);
 
@@ -282,7 +282,7 @@ class ConfigPageState extends State<ConfigPage> {
     final key = uri?.queryParameters['key'];
 
     if (uri == null ||
-        uri.scheme != 'droiddeck' ||
+        (uri.scheme != 'command' && uri.scheme != 'droiddeck') ||
         ip == null ||
         ip.isEmpty ||
         key == null ||
@@ -291,7 +291,7 @@ class ConfigPageState extends State<ConfigPage> {
         SnackBar(
           content: Text(
             tr(
-              'Esse QR não é de pareamento do DroidDeck. Use o da janela "Parear dispositivo (QR)" do PC.',
+              'Esse QR não é de pareamento do Command. Use o da janela "Parear dispositivo (QR)" do PC.',
             ),
           ),
         ),
@@ -311,7 +311,7 @@ class ConfigPageState extends State<ConfigPage> {
     final pc = await PcStore.upsert(ip: ip, port: port, apiKey: key);
     await fetchPcName(pc);
 
-    final client = Injector.get<DroidDeckClient>();
+    final client = Injector.get<CommandClient>();
     client.setBaseUrl(baseUrl);
     client.setApiKey(key);
     final signalR = Injector.get<SignalRService>();

@@ -1,11 +1,11 @@
-# DroidDeck
+# Command
 
-**O DroidDeck transforma um celular Android em um Stream Deck para o seu PC com Windows.** Monte uma
+**O Command transforma um celular Android em um Stream Deck para o seu PC com Windows.** Monte uma
 grade de botões no celular que disparam atalhos, abrem apps, controlam áudio e mídia, comandam o
 Discord e o OBS, tocam sons e acendem suas lâmpadas inteligentes. No PC roda um pequeno app na
 bandeja do sistema; o celular conversa com ele pela rede local.
 
-[Baixar a versão mais recente :material-download:](https://github.com/ggfto/DroidDeck/releases/latest){ .md-button .md-button--primary }
+[Baixar a versão mais recente :material-download:](https://github.com/playertwo1/Command/releases/latest){ .md-button .md-button--primary }
 [Começar](getting-started/installation.md){ .md-button }
 
 ## O que dá para fazer
@@ -32,13 +32,13 @@ bandeja do sistema; o celular conversa com ele pela rede local.
 
 ```mermaid
 flowchart LR
-  phone["Celular Android<br/>(grade de botões)"] -- "REST + SignalR<br/>porta 4787" --> pc["DroidDeck no Windows<br/>(app na bandeja)"]
+  phone["Celular Android<br/>(grade de botões)"] -- "REST + SignalR<br/>porta 4787" --> pc["Command no Windows<br/>(app na bandeja)"]
   browser["Navegador no PC<br/>(configurador)"] -- "http://localhost:4787" --> pc
   pc --> win["Windows: teclas, apps,<br/>áudio, mídia"]
   pc --> ext["Discord · OBS · Tuya<br/>MyInstants"]
 ```
 
-1. **O DroidDeck para Windows** roda na bandeja do sistema e serve uma API e o configurador web na porta `4787`.
+1. **O Command para Windows** roda na bandeja do sistema e serve uma API e o configurador web na porta `4787`.
 2. **O app Android** é pareado uma única vez lendo um QR code e depois mostra seus botões em tela cheia.
 3. **O configurador** roda no navegador do PC: arraste botões, escolha ações, cores e ícones.
    As alterações aparecem no celular na hora.

@@ -1,5 +1,5 @@
-import 'package:droiddeck/src/dock/dock_dashboard_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/src/dock/dock_dashboard_page.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

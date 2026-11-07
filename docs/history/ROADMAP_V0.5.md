@@ -23,7 +23,7 @@
 - [x] **M0.2:** Implementar `IRoutineService` e `RoutineService.cs` com 3 presets nativos prontos para uso (`preset_study_vault`, `preset_dev_orbit`, `preset_focus_cleanup`).
 - [x] **M0.3:** Implementar execução passo a passo com `CancellationToken`, validação estrita de allowlist e abort-on-failure (`skipped`).
 - [x] **M0.4:** Mapear endpoints em `RoutinesController.cs` (`/api/routines`, `/api/routines/{id}/execute`, `/api/routines/webhook`).
-- [x] **M0.5:** Criar testes unitários e de falha/rollback em `tests/DroidDeck.Tests/RoutineServiceTests.cs`.
+- [x] **M0.5:** Criar testes unitários e de falha/rollback em `tests/Command.Tests/RoutineServiceTests.cs`.
 
 ---
 
@@ -42,7 +42,7 @@
 
 - [x] **M2.1:** Estender `RoutineService.cs` no Backend para salvar/deletar rotinas customizadas validando cada passo contra a allowlist.
 - [x] **M2.2:** Criar tela `RoutineBuilderPage` no Flutter permitindo escolher nome, descrição, adicionar passos restritos ao catálogo (`obsidian`, `orbit`, `test_notepad`, `primary`), delay e salvar.
-- [x] **M2.3:** Criar testes em `tests/DroidDeck.Tests/RoutineServiceTests.cs` e `app/test/routine_builder_test.dart`.
+- [x] **M2.3:** Criar testes em `tests/Command.Tests/RoutineServiceTests.cs` e `app/test/routine_builder_test.dart`.
 
 ---
 
@@ -51,7 +51,7 @@
 
 - [x] **M3.1:** Integrar rotinas de limpeza e foco (`Limpeza de Foco`) na `StatusPage`.
 - [x] **M3.2:** Criar `IWebhookNotificationService` e `WebhookNotificationService.cs` com sanitização de texto sensível.
-- [x] **M3.3:** Criar testes em `tests/DroidDeck.Tests/WebhookNotificationServiceTests.cs`.
+- [x] **M3.3:** Criar testes em `tests/Command.Tests/WebhookNotificationServiceTests.cs`.
 
 ---
 

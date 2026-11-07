@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/core/droiddeck_client/models/mixer_entity.dart';
+import 'package:command/core/core.dart';
+import 'package:command/core/command_client/models/mixer_entity.dart';
 import 'package:flutter/material.dart';
 
 /// "Mostrar no botão": monitor do PC ou informação (relógio, clima, comando, URL...),
@@ -289,7 +289,7 @@ class _MixerSliderSettingsState extends State<MixerSliderSettings> {
       _loadFailed = false;
     });
     try {
-      final client = Injector.get<DroidDeckClient>();
+      final client = Injector.get<CommandClient>();
       final outputs = await client.getOutputs();
       final inputs = await client.getInputs();
       if (!mounted) return;

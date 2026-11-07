@@ -2,8 +2,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/home/screenshot_viewer.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/home/screenshot_viewer.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

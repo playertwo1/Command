@@ -1,5 +1,5 @@
-import 'package:droiddeck/src/binding/app_binding.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/src/binding/app_binding.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'src/pages/splash/splash_page.dart';
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DroidDeckAppConfig(
+    return CommandAppConfig(
       title: 'Command',
       bindings: AppBinding(),
       pageBuilders: [

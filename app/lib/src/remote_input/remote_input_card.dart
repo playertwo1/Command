@@ -1,11 +1,11 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/remote_input/trackpad_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/remote_input/trackpad_page.dart';
 import 'package:flutter/material.dart';
 
 /// Card elegante no tema Ametista para acesso rápido ao Trackpad e Teclado Remoto (Fase R1).
 class RemoteInputCard extends StatelessWidget {
-  final DroidDeckClient? client;
+  final CommandClient? client;
   final SavedPc? targetPc;
   final VoidCallback? onOpenTrackpad;
 

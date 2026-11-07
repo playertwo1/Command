@@ -27,7 +27,7 @@ Backend: build 0 warnings/erros, testes de modelo 4/4. App: `flutter analyze` se
 | Robustez (backend) | `38501ae` | discovery, mixer 500, OBS hello, remove `Startup.cs`/`SendMessage` |
 | Robustez (app) | `62900ab` | reconexão SignalR, leak de assinatura, mounted, discovery |
 
-> **Pré-existente (não corrigido aqui):** o projeto órfão `tests/DroidDeck.Tests` (fora da `.sln`) não compila — `MixerControllerTests` constrói `MixerController` sem o `hubContext`. Independente desta inspeção; vale consertar ou remover.
+> **Pré-existente (não corrigido aqui):** o projeto órfão `tests/Command.Tests` (fora da `.sln`) não compila — `MixerControllerTests` constrói `MixerController` sem o `hubContext`. Independente desta inspeção; vale consertar ou remover.
 
 ---
 

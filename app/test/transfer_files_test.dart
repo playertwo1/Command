@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/home/status_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/home/status_page.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FakeTransferClient extends DroidDeckClient {
+class FakeTransferClient extends CommandClient {
   List<TransferItem> outboundFiles = [];
   int listCalls = 0;
   int downloadCalls = 0;

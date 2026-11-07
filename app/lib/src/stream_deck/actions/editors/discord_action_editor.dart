@@ -1,7 +1,7 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/config/discord_settings_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/config/discord_settings_page.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 class DiscordActionEditor extends StatefulWidget {
@@ -63,7 +63,7 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
 
   void _loadDataFor(String op) {
     // Atualiza configured/connected (pro aviso) no signal compartilhado.
-    Injector.get<DroidDeckClient>().getDiscordState().then((s) {
+    Injector.get<CommandClient>().getDiscordState().then((s) {
       if (s != null && mounted) {
         Injector.get<SignalRService>().discordState.value =
             Map<String, dynamic>.from(s);
@@ -76,17 +76,17 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
   }
 
   Future<void> _loadGuilds() async {
-    final g = await Injector.get<DroidDeckClient>().getDiscordGuilds();
+    final g = await Injector.get<CommandClient>().getDiscordGuilds();
     if (mounted) setState(() => _guilds = g);
   }
 
   Future<void> _loadChannels(String guildId) async {
-    final c = await Injector.get<DroidDeckClient>().getDiscordChannels(guildId);
+    final c = await Injector.get<CommandClient>().getDiscordChannels(guildId);
     if (mounted) setState(() => _channels = c);
   }
 
   Future<void> _loadParticipants() async {
-    final s = await Injector.get<DroidDeckClient>().getDiscordState();
+    final s = await Injector.get<CommandClient>().getDiscordState();
     final list = (s?['participants'] as List?) ?? [];
     if (mounted) {
       setState(() => _participants =
@@ -287,7 +287,7 @@ class _DiscordActionEditorState extends State<DiscordActionEditor> {
     }
 
     fields.add(EditorHint(
-        tr('Requer o Discord conectado no PC (config do DroidDeck).')));
+        tr('Requer o Discord conectado no PC (config do Command).')));
     return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch, children: fields);
   }

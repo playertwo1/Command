@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
-import 'package:droiddeck/src/stream_deck/widgets/editor/look_pickers.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/buttons/colors.dart';
+import 'package:command/src/stream_deck/widgets/editor/look_pickers.dart';
 import 'package:flutter/material.dart';
 
 /// Nome do perfil e os apps que o trazem para a frente quando ganham o foco no PC.
@@ -61,7 +61,7 @@ class _ProfileSettingsDialogState extends State<ProfileSettingsDialog> {
 
   Future<void> _loadRunning() async {
     try {
-      final data = await Injector.get<DroidDeckClient>().getJson('/api/system/apps');
+      final data = await Injector.get<CommandClient>().getJson('/api/system/apps');
       final list = (data is List ? data : const [])
           .whereType<Map>()
           .map((m) => ('${m['value']}', '${m['label'] ?? m['value']}'))

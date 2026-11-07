@@ -1,15 +1,15 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('DroidDeckClient Remote Input Methods', () {
+  group('CommandClient Remote Input Methods', () {
     late Dio dio;
-    late DroidDeckClient client;
+    late CommandClient client;
     RequestOptions? lastRequest;
 
     setUp(() {
       dio = Dio();
-      client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       lastRequest = null;
     });
 
@@ -199,7 +199,7 @@ void main() {
     });
   });
 
-  group('DroidDeckClient Exception Mapping', () {
+  group('CommandClient Exception Mapping', () {
     void setupErrorResponse(Dio dio, int statusCode, Map<String, dynamic> body) {
       dio.interceptors.add(
         InterceptorsWrapper(
@@ -221,7 +221,7 @@ void main() {
 
     test('HTTP 423 throws RemoteInputLockedException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 423, {'error': 'SESSION_LOCKED'});
 
       expect(
@@ -232,7 +232,7 @@ void main() {
 
     test('HTTP 403 throws RemoteInputForbiddenException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 403, {'error': 'INSUFFICIENT_DEVICE_ROLE'});
 
       expect(
@@ -243,7 +243,7 @@ void main() {
 
     test('HTTP 409 throws RemoteInputConflictException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 409, {
         'error': 'SESSION_ALREADY_ACTIVE',
         'activeDeviceId': 'laptop-01',
@@ -261,7 +261,7 @@ void main() {
 
     test('HTTP 413 throws RemoteInputTextTooLargeException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 413, {'error': 'TEXT_EXCEEDS_500_CHARS_LIMIT'});
 
       expect(
@@ -272,7 +272,7 @@ void main() {
 
     test('HTTP 429 throws RemoteInputRateLimitException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 429, {'error': 'RATE_LIMIT_EXCEEDED'});
 
       expect(
@@ -283,7 +283,7 @@ void main() {
 
     test('Other HTTP errors (500) rethrow original DioException', () async {
       final dio = Dio();
-      final client = DroidDeckClient(baseUrl: 'https://test.deck', dio: dio);
+      final client = CommandClient(baseUrl: 'https://test.deck', dio: dio);
       setupErrorResponse(dio, 500, {'error': 'INTERNAL_ERROR'});
 
       expect(

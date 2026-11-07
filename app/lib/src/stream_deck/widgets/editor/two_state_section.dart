@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'look_pickers.dart';

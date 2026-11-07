@@ -1,12 +1,12 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/connection/constants.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/connection/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Primeira tela de quem ainda não pareou. O app sozinho não faz nada: precisa do
-/// DroidDeck rodando no PC. Boa parte das instalações chega pelo APK solto, sem passar
+/// Command rodando no PC. Boa parte das instalações chega pelo APK solto, sem passar
 /// pelo README, e caía direto numa tela pedindo "IP do Servidor".
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

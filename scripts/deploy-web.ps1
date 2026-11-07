@@ -2,7 +2,7 @@
 # Usage:  .\scripts\deploy-web.ps1
 $root = Split-Path -Parent $PSScriptRoot          # repo root (parent of scripts/)
 $app = Join-Path $root 'app'
-$wwwroot = Join-Path $root 'DroidDeck\wwwroot'
+$wwwroot = Join-Path $root 'CommandPC\wwwroot'
 
 $flutterCmd = "flutter"
 $localFlutter = Join-Path $root 'research\upstream\.tools\flutter\bin\flutter.bat'

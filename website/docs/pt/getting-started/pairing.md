@@ -6,15 +6,16 @@ O pareamento passa ao celular o endereço do PC e uma **chave de API** secreta. 
 
 1. No PC, clique com o botão direito no ícone da bandeja → **Parear dispositivo (QR)…**. Uma janela
    mostra um QR code e o texto `IP: <endereço>:4787  Chave: <chave>`.
-2. No celular, abra o DroidDeck. Na primeira vez, a tela de **configurações** abre sozinha; nas
+2. No celular, abra o Command. Na primeira vez, a tela de **configurações** abre sozinha; nas
    outras, toque na engrenagem da aba **Áudio**.
 3. Toque em **Parear (QR)** e leia o código.
 
 O celular salva o endereço, a porta e a chave, e se conecta. O indicador de status fica verde (*Conectado*).
 
 ??? info "O que tem dentro do QR code"
-    `droiddeck://pair?ip=<LAN IP>&port=4787&key=<api key>` — o endereço do PC na rede local, a porta
-    e a chave de API. Trate-o como uma senha: quem ler esse código consegue controlar seu PC pelo DroidDeck.
+    `command://pair?ip=<LAN IP>&port=4787&key=<api key>` — o endereço do PC na rede local, a porta
+    e a chave de API. Trate-o como uma senha: quem ler esse código consegue controlar seu PC pelo Command.
+    QR codes criados por versões antigas do app continuam aceitos.
 
 ## Encontrar o servidor automaticamente
 
@@ -31,8 +32,8 @@ A chave de API de um pareamento anterior é mantida.
 
 - Se o celular mostrar *"Falha de autenticação (chave inválida ou expirada). Refaça o pareamento."*,
   leia o QR code de novo.
-- A chave fica guardada no PC em `%LocalAppData%\DroidDeck\apikey`. Para revogar o acesso de todos os
-  celulares pareados, feche o DroidDeck, apague esse arquivo e abra-o de novo. Uma nova chave é
+- A chave fica guardada no PC em `%LocalAppData%\Command\apikey`. Para revogar o acesso de todos os
+  celulares pareados, feche o Command, apague esse arquivo e abra-o de novo. Uma nova chave é
   gerada, e todos os celulares precisam parear outra vez.
 
 ## Comportamento da conexão

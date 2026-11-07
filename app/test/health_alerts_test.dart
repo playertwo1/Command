@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:droiddeck/src/services/health_alert_service.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/config/health_alert_settings_page.dart';
+import 'package:command/src/services/health_alert_service.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/config/health_alert_settings_page.dart';
 
 void main() {
   setUp(() {

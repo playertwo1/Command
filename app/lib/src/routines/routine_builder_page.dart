@@ -1,9 +1,9 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 /// Construtor visual de rotinas seguras e macros encadeadas (v1.6 - Fase R4).
 class RoutineBuilderPage extends StatefulWidget {
-  final DroidDeckClient client;
+  final CommandClient client;
   final RoutineDefinitionData? initialRoutine;
   final ValueChanged<RoutineDefinitionData>? onSaved;
 

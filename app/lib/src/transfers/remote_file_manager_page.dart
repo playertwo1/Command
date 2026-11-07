@@ -2,10 +2,10 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 
 class RemoteFileManagerPage extends StatefulWidget {
-  final DroidDeckClient client;
+  final CommandClient client;
   final String initialRootId;
   final String? deviceId;
   final String? targetPcName;

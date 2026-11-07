@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:droiddeck/src/services/wake_on_lan_service.dart';
+import 'package:command/src/services/wake_on_lan_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

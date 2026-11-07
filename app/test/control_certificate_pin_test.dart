@@ -1,5 +1,5 @@
 import 'package:crypto/crypto.dart';
-import 'package:droiddeck/src/config/control_certificate_pin.dart';
+import 'package:command/src/config/control_certificate_pin.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

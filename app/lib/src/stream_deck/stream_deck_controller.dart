@@ -1,13 +1,13 @@
-import 'package:droiddeck/src/connection/pc_store.dart';
+import 'package:command/src/connection/pc_store.dart';
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart'; // Contains DroidDeckClient, DeckProfile, etc.
-import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
+import 'package:command/core/core.dart'; // Contains CommandClient, DeckProfile, etc.
+import 'package:command/src/stream_deck/actions/action_catalog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StreamDeckController {
-  final DroidDeckClient _client = Injector.get<DroidDeckClient>();
+  final CommandClient _client = Injector.get<CommandClient>();
 
   // Signals state
   final isLoading = signal(false);

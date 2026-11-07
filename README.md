@@ -4,10 +4,9 @@
 
 # Command
 
-**Controle de PC e telemetria de hardware para Windows via aplicativo Android/Flutter, baseado no DroidDeck.**
+**Controle o PC com Windows e acompanhe o hardware pelo aplicativo Android.**
 
-[![Upstream DroidDeck](https://img.shields.io/badge/upstream-DroidDeck%20v1.9.1-blue?style=for-the-badge)](https://github.com/ggfto/DroidDeck)
-[![License: Apache 2.0 / GPL 3.0](https://img.shields.io/badge/License-Apache%202.0%20%2F%20GPL%203.0-green.svg?style=for-the-badge)](LICENSE)
+[![Licenses: Apache 2.0 / GPL 3.0](https://img.shields.io/badge/Licenses-Apache%202.0%20%2F%20GPL%203.0-green.svg?style=for-the-badge)](docs/LICENSES.md)
 
 <br/>
 
@@ -19,10 +18,10 @@
 
 ## 🎯 Sobre o Command
 
-O **Command** é uma solução de controle e telemetria de PC pessoal para Windows através de um aplicativo móvel Android. Ele é desenvolvido como um **in-tree fork ativo do [DroidDeck v1.9.1](https://github.com/ggfto/DroidDeck)**, projeto criado por Gabriel Freitas ([@ggfto](https://github.com/ggfto)), de quem vem a ideia original (veja [Licença e atribuição](#-licença-e-atribuição)), combinando todo o ecossistema comprovado do DroidDeck com as capacidades avançadas de telemetria e o design Amethyst Dark do Command.
+O **Command** conecta o aplicativo Android ao serviço de bandeja do Windows pela rede local. Ele oferece controle de ações autorizadas, telemetria, perfis e integrações; as licenças e atribuições das bases utilizadas estão em [`docs/LICENSES.md`](docs/LICENSES.md) e [`research/UPSTREAM.md`](research/UPSTREAM.md).
 
 ### ✨ O que o projeto oferece:
-- **Base DroidDeck v1.9.1 completa:**
+- **Recursos de controle:**
   - ⌨️ Teclas de atalho e macros graváveis pelo teclado.
   - 🪟 Troca rápida de dispositivos de áudio, bloquear tela, suspender.
   - ⏱️ Timers, cronômetros, pomodoros e contadores integrados.
@@ -33,8 +32,8 @@ O **Command** é uma solução de controle e telemetria de PC pessoal para Windo
   - 💡 Casa inteligente via Home Assistant e Tuya / Smart Life.
   - 🎧 Spotify, Twitch e YouTube com status ao vivo.
   - 🖥️ Gerenciamento e troca dinâmica entre múltiplos PCs.
-  - 📱 Pareamento seguro e imediato via QR code e chave de API local (`droiddeck://pair`).
-- **Extensões Command (release 1.6.1):**
+  - 📱 Pareamento seguro por QR code e chave de API local (`command://pair`).
+- **Recursos adicionais do Command:**
   - 📊 Telemetria de CPU, RAM, disco, GPU, bateria e temperatura. Se o LibreHardwareMonitor não ler o sensor, a CPU cai para a zona ACPI e a GPU para o driver NVIDIA ou AMD, sem pedir administrador.
   - 🌡️ No card dos dois PCs, a temperatura fica verde até 60°C, âmbar até 80°C e vermelha acima. Acima de 85°C o card avisa.
   - 🖥️ Dois PCs ao mesmo tempo, com o PC-alvo escolhido no cartão.
@@ -71,20 +70,20 @@ Os hashes estão em `SHA256SUMS-v1.6.1.txt` na mesma release. Depois de instalar
 | Quais decisões de arquitetura foram tomadas? | [docs/DECISIONS.md](docs/DECISIONS.md) |
 | Como registrar evidência e critérios de aceite? | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) |
 | Quais regras os agentes e desenvolvedores seguem? | [AGENTS.md](AGENTS.md) |
-| Documentação detalhada do DroidDeck? | [website/docs/pt/](website/docs/pt/) ou [website/docs/en/](website/docs/en/) |
+| Documentação detalhada do Command? | [website/docs/pt/](website/docs/pt/) ou [website/docs/en/](website/docs/en/) |
 
 ---
 
 ## 🧩 Arquitetura do repositório
 
 ```text
-DroidDeck/             Backend C# (.NET 8 WinForms Tray + ASP.NET Core + SignalR + API REST)
-app/                   Aplicativo móvel e configurador web em Flutter (Dart)
-tests/DroidDeck.Tests/ Suíte de testes unitários e de integração do backend
-scripts/               Scripts de build, empacotamento e deploy do frontend web
-website/               Documentação MkDocs e site institucional (EN/PT)
-docs/                  Decisões de arquitetura (ADRs), roadmap, manual e checklists
-contracts/             Especificações OpenAPI e schemas da API
+CommandPC/              Backend C# (.NET 8 WinForms Tray + ASP.NET Core + SignalR + API REST)
+app/                    Aplicativo móvel e configurador web em Flutter (Dart)
+tests/Command.Tests/    Suíte de testes unitários e de integração do backend
+scripts/                Scripts de build, empacotamento e deploy do frontend web
+website/                Documentação MkDocs e site institucional (EN/PT)
+docs/                   Decisões de arquitetura (ADRs), roadmap, manual e checklists
+contracts/              Especificações OpenAPI e schemas da API
 ```
 
 ```mermaid
@@ -99,7 +98,7 @@ flowchart TD
     subgraph BridgePC["🖥️ Windows Bridge (.NET 8 Tray & Kestrel API)"]
         API["ASP.NET Core REST API<br/>(Porta 4787 / X-Api-Key)"]
         Hub["SignalR DeckHub<br/>(Eventos ao Vivo e Sync)"]
-        Pairing["Pairing Service<br/>(QR Code droiddeck://pair + DPAPI)"]
+        Pairing["Pairing Service<br/>(QR Code command://pair + DPAPI)"]
         Monitor["SystemMonitorService<br/>(Coleta Contínua a cada 1s)"]
         ActionExec["ActionExecutorService<br/>(Execução com Allowlist e Confirmação)"]
     end
@@ -142,13 +141,13 @@ O repositório possui ferramentas e SDKs homologados para execução imediata:
 ### Backend (.NET 8)
 ```powershell
 # Executar a suíte de testes do backend
-research\upstream\.tools\dotnet-8.0.426\dotnet.exe test DroidDeck.sln
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe test Command.sln
 
 # Executar o backend em modo Tray
-research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project DroidDeck
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project CommandPC\CommandPC.csproj
 
 # Executar o backend em modo headless
-research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project DroidDeck -- --headless
+research\upstream\.tools\dotnet-8.0.426\dotnet.exe run --project CommandPC\CommandPC.csproj -- --headless
 ```
 
 ### Frontend (Flutter)
@@ -166,10 +165,4 @@ cd app
 
 ## 📄 Licença e atribuição
 
-O Command é um **fork** do [DroidDeck](https://github.com/ggfto/DroidDeck), criado por **Gabriel Freitas ([@ggfto](https://github.com/ggfto))**. A ideia original e a base do projeto (Bridge Windows, app companion, pareamento por QR, integrações com OBS, Discord, Tuya, Soundboard, Mixer, Steam e outras) são trabalho dele. O histórico de commits do DroidDeck está preservado neste repositório. Obrigado, Gabriel! 💜
-
-O Command acrescenta telemetria, captura de tela, transferências, rotinas, energia, deck customizável, temperatura, segurança por dispositivo, backup criptografado e o instalador Velopack sobre essa base.
-
-- O backend .NET é distribuído sob a licença [Apache 2.0](LICENSE), a mesma do DroidDeck.
-- O aplicativo Flutter é distribuído sob a licença [GPL 3.0](app/LICENSE), a mesma do app do DroidDeck.
-- Os arquivos alterados em relação ao upstream estão identificados no histórico Git (base: DroidDeck v1.9.1, `5cd2ddc`).
+As licenças e os créditos dos componentes de origem estão documentados em [`docs/LICENSES.md`](docs/LICENSES.md) e [`research/UPSTREAM.md`](research/UPSTREAM.md). O backend segue Apache 2.0 ([`LICENSE`](LICENSE)) e o aplicativo Flutter segue GPL 3.0 ([`app/LICENSE`](app/LICENSE)).

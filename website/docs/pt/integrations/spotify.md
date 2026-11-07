@@ -7,13 +7,13 @@ Spotify (gratuito). **Controlar a reprodução exige Spotify Premium.**
 
 1. Entre em [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) e crie um app
    (**Create app**). Nome e descrição à vontade.
-2. Em **Redirect URIs**, cadastre exatamente o endereço mostrado na tela do DroidDeck:
+2. Em **Redirect URIs**, cadastre exatamente o endereço mostrado na tela do Command:
    `http://127.0.0.1:4787/api/integrations/spotify/callback`.
 3. Marque **Web API**, salve e copie o **Client ID**.
-4. No DroidDeck, **Configuração → Integrações → Spotify**: cole o Client ID e toque em **Entrar com o
+4. No Command, **Configuração → Integrações → Spotify**: cole o Client ID e toque em **Entrar com o
    Spotify**. O login abre no navegador do PC (mesmo se você tocou no celular); autorize e pronto.
 
-Não há segredo para guardar: o DroidDeck usa o fluxo PKCE. O token fica cifrado no PC.
+Não há segredo para guardar: o Command usa o fluxo PKCE. O token fica cifrado no PC.
 
 ## O que dá para fazer
 

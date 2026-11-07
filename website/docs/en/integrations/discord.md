@@ -1,6 +1,6 @@
 # Discord
 
-DroidDeck controls the **Discord desktop app** running on the same PC through Discord's local RPC.
+Command controls the **Discord desktop app** running on the same PC through Discord's local RPC.
 
 ## What you can do
 
@@ -28,13 +28,13 @@ user creates their own (free) application:
 1. Go to [discord.com/developers/applications](https://discord.com/developers/applications) and click **New Application**.
 2. Under **OAuth2**, copy the **Client ID** and the **Client Secret**.
 3. Under **OAuth2 → Redirects**, add `http://localhost:4787/discord` and click **Save Changes**.
-4. In DroidDeck, open the Discord settings — on the phone: **Settings → Integrations →
+4. In Command, open the Discord settings — on the phone: **Settings → Integrations →
    Discord**; in the configurator: **Integrations** in the sidebar.
 5. Paste the Client ID and Secret, click **Save credentials**, then **Connect**.
 6. Discord shows an authorisation popup on the PC. Approve it within 60 seconds.
 
-The token is renewed automatically and DroidDeck reconnects on its own every time it starts, without
-showing the popup again. If Discord is closed, DroidDeck keeps retrying every 10 seconds.
+The token is renewed automatically and Command reconnects on its own every time it starts, without
+showing the popup again. If Discord is closed, Command keeps retrying every 10 seconds.
 
 !!! tip
     In the button editor, Discord actions show a warning with a **Set up** link while Discord is

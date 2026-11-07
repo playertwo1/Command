@@ -1,6 +1,6 @@
 # API
 
-DroidDeck's server exposes a REST API and a SignalR hub on port `4787`. The phone app and the
+Command's server exposes a REST API and a SignalR hub on port `4787`. The phone app and the
 configurator use them, and you can use them to build your own clients or automations.
 
 ## Authentication
@@ -110,8 +110,8 @@ Two-state buttons add `toggle` (bool), `activeAction` (run on the tap that turns
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/backup` | Download every profile as a `.droiddeck` (zip). |
-| POST | `/api/backup` | Restore a `.droiddeck` (request body = the file). Same-id profiles are replaced. From outside the PC, refused with `403` if it would create privileged buttons. |
+| GET | `/api/backup` | Download every profile as a `.command` (zip). |
+| POST | `/api/backup` | Restore a `.command` or legacy `.droiddeck` backup (request body = the file). Same-id profiles are replaced. From outside the PC, refused with `403` if it would create privileged buttons. |
 | GET | `/api/steam/games` | Installed Steam games (`{value: appId, label: name}`). |
 | GET | `/api/steam/icon/{appId}` | `{iconBase64}`: a square PNG cut from the game's cover. |
 | GET | `/api/system/apps` | Programs with a visible window (for automatic profile switching). |
@@ -178,4 +178,4 @@ Send the ASCII text `DroidDeckDiscoveryRequest` as a broadcast to port 7573. The
 
 ## Pairing URI
 
-`droiddeck://pair?ip=<ip>&port=4787&key=<key>`
+`command://pair?ip=<ip>&port=4787&key=<key>` (legacy `droiddeck://` QR codes are also accepted)

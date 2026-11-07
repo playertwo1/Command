@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
   @override
   void initState() {
     super.initState();
-    Injector.get<DroidDeckClient>().getObsState().then((s) {
+    Injector.get<CommandClient>().getObsState().then((s) {
       if (s != null && mounted) {
         Injector.get<SignalRService>().obsState.value =
             Map<String, dynamic>.from(s);
@@ -51,7 +51,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
     try {
       final port = int.tryParse(_portCtrl.text.trim()) ?? 4455;
       final host = _hostCtrl.text.trim().isEmpty ? 'localhost' : _hostCtrl.text.trim();
-      await Injector.get<DroidDeckClient>()
+      await Injector.get<CommandClient>()
           .setObsConfig(host, port, _passCtrl.text.isEmpty ? null : _passCtrl.text);
       _snack(tr('Config salva. Agora toque em "Conectar".'));
     } catch (_) {
@@ -64,7 +64,7 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
   Future<void> _connect() async {
     setState(() => _busy = true);
     try {
-      final st = await Injector.get<DroidDeckClient>().connectObs();
+      final st = await Injector.get<CommandClient>().connectObs();
       Injector.get<SignalRService>().obsState.value =
           Map<String, dynamic>.from(st);
       _snack(tr('OBS conectado!'));
@@ -102,9 +102,9 @@ class _ObsSettingsPageState extends State<ObsSettingsPage> {
     // O OBS roda na mesma máquina do backend → host fica localhost; do QR
     // aproveitamos porta e senha. Salva e conecta de uma vez.
     try {
-      await Injector.get<DroidDeckClient>()
+      await Injector.get<CommandClient>()
           .setObsConfig(parsed.host, parsed.port, parsed.password);
-      final st = await Injector.get<DroidDeckClient>().connectObs();
+      final st = await Injector.get<CommandClient>().connectObs();
       Injector.get<SignalRService>().obsState.value =
           Map<String, dynamic>.from(st);
       _snack(tr('OBS conectado pelo QR!'));

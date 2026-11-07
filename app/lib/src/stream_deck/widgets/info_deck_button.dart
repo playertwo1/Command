@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/buttons/colors.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/buttons/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Tipos de botão de informação (dynamicType) desenhados por [InfoDeckButton].
@@ -271,7 +271,7 @@ class _InfoDeckButtonState extends State<InfoDeckButton> {
         iconSize: 16,
         onPressed: () async {
           try {
-            await Injector.get<DroidDeckClient>().executeDeckAction(
+            await Injector.get<CommandClient>().executeDeckAction(
               'media',
               {'command': command},
             );

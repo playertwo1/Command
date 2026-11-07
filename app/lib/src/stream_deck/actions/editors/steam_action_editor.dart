@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Jogo da Steam: lista os jogos instalados no PC e, ao escolher um, usa o nome como
@@ -20,7 +20,7 @@ class _SteamActionEditorState extends State<SteamActionEditor> {
   String? _error;
   String _filter = '';
 
-  DroidDeckClient get _client => Injector.get<DroidDeckClient>();
+  CommandClient get _client => Injector.get<CommandClient>();
 
   @override
   void initState() {

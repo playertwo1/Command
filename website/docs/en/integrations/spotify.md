@@ -7,14 +7,14 @@ dashboard (free). **Controlling playback requires Spotify Premium.**
 
 1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and create an app
    (**Create app**). Any name and description.
-2. Under **Redirect URIs**, add exactly the address shown on DroidDeck's screen:
+2. Under **Redirect URIs**, add exactly the address shown on Command's screen:
    `http://127.0.0.1:4787/api/integrations/spotify/callback`.
 3. Tick **Web API**, save and copy the **Client ID**.
-4. In DroidDeck, **Settings → Integrations → Spotify**: paste the Client ID and tap **Sign in with
+4. In Command, **Settings → Integrations → Spotify**: paste the Client ID and tap **Sign in with
    Spotify**. Sign-in opens in the PC's browser (even if you tapped on the phone); authorise and you're
    done.
 
-There's no secret to keep: DroidDeck uses the PKCE flow. The token is stored encrypted on the PC.
+There's no secret to keep: Command uses the PKCE flow. The token is stored encrypted on the PC.
 
 ## What you can do
 

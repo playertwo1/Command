@@ -43,8 +43,8 @@ const Map<String, String> enEditors = {
   'Atualizar lista': 'Refresh list',
   'Volume: {value}%': 'Volume: {value}%',
   'Passo: ': 'Step: ',
-  'Requer o Discord conectado no PC (config do DroidDeck).':
-      'Requires Discord connected on the PC (DroidDeck settings).',
+  'Requer o Discord conectado no PC (config do Command).':
+      'Requires Discord connected on the PC (Command settings).',
   'Dispositivo': 'Device',
   'Alvo': 'Target',
   'Aplicativo (processo)': 'App (process)',

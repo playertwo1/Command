@@ -1,15 +1,15 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/config/config_page.dart';
-import 'package:droiddeck/src/home/status_page.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_picker.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/config/config_page.dart';
+import 'package:command/src/home/status_page.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/stream_deck/actions/action_catalog.dart';
+import 'package:command/src/stream_deck/actions/action_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockDroidDeckClient extends Mock implements DroidDeckClient {}
+class MockCommandClient extends Mock implements CommandClient {}
 class MockSignalRService extends Mock implements SignalRService {}
 
 void main() {
@@ -72,7 +72,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(600, 1000));
       final signalR = SignalRService();
       signalR.connectionStatus.value = 'Disconnected';
-      final client = MockDroidDeckClient();
+      final client = MockCommandClient();
 
       when(() => client.getJobs(deviceId: any(named: 'deviceId'))).thenAnswer((_) async => []);
       when(() => client.listOutboundTransfers(deviceId: any(named: 'deviceId'))).thenAnswer((_) async => []);
@@ -104,7 +104,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(600, 1200));
       final signalR = SignalRService();
       signalR.connectionStatus.value = 'Connected';
-      final client = MockDroidDeckClient();
+      final client = MockCommandClient();
 
       when(() => client.getJobs(deviceId: any(named: 'deviceId'))).thenAnswer(
         (_) async => [

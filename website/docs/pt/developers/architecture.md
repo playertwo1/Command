@@ -1,23 +1,23 @@
 # Arquitetura
 
-O DroidDeck é um monorepo com duas metades que evoluem juntas:
+O Command é um monorepo com duas metades que evoluem juntas:
 
 ```
-DroidDeck/
-  DroidDeck/     C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
+Command/
+  CommandPC/   C# backend (.NET 8): WinForms tray + ASP.NET Core + SignalR. Serves the API and the web app.
   app/           Flutter app: the phone runtime and the web configurator (same code).
   tests/         Backend tests.
   scripts/       Utilities (deploying the web build to wwwroot).
   website/       This documentation and the project's landing page.
 ```
 
-## Backend (`DroidDeck/`)
+## Backend (`CommandPC/`)
 
 - **Host**: `Program.cs` sobe o ASP.NET Core em `0.0.0.0:4787` e o ícone da bandeja
   (`frmPrincipal.cs`), a menos que receba `--headless`. Os serviços são registrados por área em
   `ServiceRegistration.cs` (`AddDeckCore`, `AddActionProviders`, `AddIntegrations`).
 - **Auth**: `Auth/` — autenticação por chave de API (header, bearer ou `access_token` na query),
-  com comparação em tempo constante. A chave é gerada em `%LocalAppData%\DroidDeck\apikey`.
+  com comparação em tempo constante. A chave é gerada em `%LocalAppData%\Command\apikey`.
 - **Ações**: `Actions/` — `IActionProvider` e o schema; `Actions/Providers/` tem os tipos embutidos
   (atalho, mídia, mixer, multiação, timer, Windows, HTTP, Steam…).
 - **Integrações**: `Integrations/<Nome>/` — uma pasta por integração, com o serviço, o provedor de ação
@@ -48,7 +48,7 @@ Pontos principais:
 
 Lugares principais:
 
-- `lib/core/droiddeck_client/` — modelos da API (`DeckButton`, perfis…).
+- `app/lib/core/command_client/` — modelos da API (`DeckButton`, perfis…).
 - `lib/core/i18n/` — `tr("…")` e os dicionários de inglês (`en/*.dart`).
 - `lib/src/stream_deck/buttons/` — como cada tipo de ação desenha o botão (`renderers.dart` liga o tipo
   ao desenhista; `button_look.dart` tem o botão comum, o visual de dois estados e os ícones).
@@ -66,15 +66,15 @@ O app e o backend compartilham:
 - **REST** em `/api/...` — veja [API](../reference/api.md);
 - **SignalR** em `/deckHub` — eventos do servidor para o cliente;
 - **Descoberta UDP** na porta 7573;
-- **URI de pareamento** `droiddeck://pair?ip=&port=&key=`.
+- **URI de pareamento** `command://pair?ip=&port=&key=`. O app também aceita QR codes antigos `droiddeck://`.
 
 ## Adicionando um novo tipo de ação
 
-Cada tipo de ação é um **`IActionProvider`** (`DroidDeck/Actions/`). Ele executa a ação e descreve
+Cada tipo de ação é um **`IActionProvider`** (`CommandPC/Actions/`). Ele executa a ação e descreve
 seus campos num `ActionSchema`; o editor do app monta o formulário a partir de
 `GET /api/actions/schema`, então um tipo simples não precisa de nenhum código em Flutter:
 
-1. Implemente `IActionProvider` em `DroidDeck/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
+1. Implemente `IActionProvider` em `CommandPC/Actions/Providers/` (`Type`, `Describe()`, `ExecuteAsync()`).
    Os campos são texto, texto longo, número, liga/desliga ou seleção; uma seleção pode carregar as
    opções de um endpoint (`OptionsSource`, com `{campo}` substituído) e qualquer campo pode depender
    de outro (`When`).

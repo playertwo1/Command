@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 class OpenProfileActionEditor extends StatefulWidget {

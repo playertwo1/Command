@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 
 /// Modal BottomSheet para Exportação e Restauração de Backups Criptografados (Onda P1).
 class EncryptedBackupSheet extends StatefulWidget {
-  final DroidDeckClient client;
+  final CommandClient client;
 
   const EncryptedBackupSheet({
     super.key,
     required this.client,
   });
 
-  static Future<void> show(BuildContext context, DroidDeckClient client) {
+  static Future<void> show(BuildContext context, CommandClient client) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Multi-ação: passos em sequência, cada um com uma espera antes.
@@ -107,7 +107,7 @@ class _MultiActionEditorState extends State<MultiActionEditor> {
 
   /// Grava o que for digitado no PC e acrescenta os passos.
   Future<void> _record() async {
-    final client = Injector.get<DroidDeckClient>();
+    final client = Injector.get<CommandClient>();
     try {
       await client.postJson('/api/macro/start');
     } catch (_) {
@@ -249,7 +249,7 @@ class _RecordingDialog extends StatefulWidget {
 }
 
 class _RecordingDialogState extends State<_RecordingDialog> {
-  final _client = Injector.get<DroidDeckClient>();
+  final _client = Injector.get<CommandClient>();
   Timer? _poll;
   int _keys = 0;
   int _seconds = 0;

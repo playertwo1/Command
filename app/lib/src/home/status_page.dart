@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
@@ -32,7 +32,7 @@ class _ActivityEntry {
   final CommandJob job;
 }
 
-/// Erro de rede em texto que diz o que fazer, sem despejar a exceção do Dio (ref. DroidDeck b4647a6).
+/// Erro de rede em texto que diz o que fazer, sem despejar a exceção do Dio (ref. Command b4647a6).
 String friendlyPcError(Object e) {
   if (e is DioException) {
     final status = e.response?.statusCode;
@@ -45,7 +45,7 @@ String friendlyPcError(Object e) {
       return tr('Este aparelho não tem permissão para isso neste PC.');
     if (e.response == null) {
       return tr(
-        'O PC não respondeu. Confira se o DroidDeck está aberto nele e se os dois estão na mesma rede.',
+        'O PC não respondeu. Confira se o Command está aberto nele e se os dois estão na mesma rede.',
       );
     }
     final data = e.response?.data;
@@ -60,8 +60,8 @@ class StatusPage extends StatefulWidget {
   final bool isFullscreen;
   final VoidCallback onToggleFullscreen;
   final SignalRService? signalRService;
-  final DroidDeckClient? client;
-  final DroidDeckClient Function(SavedPc pc)? clientForPc;
+  final CommandClient? client;
+  final CommandClient Function(SavedPc pc)? clientForPc;
   final HealthAlertService? healthAlertService;
 
   const StatusPage({
@@ -83,7 +83,7 @@ class _StatusPageState extends State<StatusPage> {
   List<SavedPc> _savedPcs = [];
   String? _targetPcId;
   bool _switchingPc = false;
-  final Map<String, DroidDeckClient> _targetClients = {};
+  final Map<String, CommandClient> _targetClients = {};
   int _targetGeneration = 0;
   int _jobsGeneration = -1;
   int _transfersGeneration = -1;
@@ -120,10 +120,10 @@ class _StatusPageState extends State<StatusPage> {
   final DesktopStreamController _streamController = DesktopStreamController();
   late final HealthAlertService _healthAlertService;
 
-  DroidDeckClient? get _client {
+  CommandClient? get _client {
     if (widget.client != null) return widget.client;
     try {
-      return Injector.get<DroidDeckClient>();
+      return Injector.get<CommandClient>();
     } catch (_) {
       return null;
     }
@@ -163,13 +163,13 @@ class _StatusPageState extends State<StatusPage> {
     return '${pc.name} · $suffix';
   }
 
-  DroidDeckClient? get _targetClient {
+  CommandClient? get _targetClient {
     final pc = _targetPc;
     if (pc == null || pc.id == _currentPc?.id) return _client;
     final client =
         _targetClients.putIfAbsent(
             pc.id,
-            () => DroidDeckClient(baseUrl: pc.baseUrl),
+            () => CommandClient(baseUrl: pc.baseUrl),
           )
           ..setBaseUrl(pc.baseUrl)
           ..setApiKey(pc.apiKey);
@@ -321,13 +321,13 @@ class _StatusPageState extends State<StatusPage> {
     });
   }
 
-  DroidDeckClient? _activityClientFor(SavedPc pc) {
+  CommandClient? _activityClientFor(SavedPc pc) {
     if (pc.id == _currentPc?.id || pc.id == 'current') return _client;
     return _targetClients.putIfAbsent(
       pc.id,
       () =>
           widget.clientForPc?.call(pc) ??
-          (DroidDeckClient(baseUrl: pc.baseUrl)
+          (CommandClient(baseUrl: pc.baseUrl)
             ..setBaseUrl(pc.baseUrl)
             ..setApiKey(pc.apiKey)),
     );
@@ -3249,7 +3249,7 @@ class _StatusPageState extends State<StatusPage> {
                     final pc = _currentPc;
                     final effectiveClient =
                         _client ??
-                        DroidDeckClient(
+                        CommandClient(
                           baseUrl: pc != null
                               ? 'http://${pc.ip}:${pc.port}'
                               : 'http://10.0.2.2:4787',

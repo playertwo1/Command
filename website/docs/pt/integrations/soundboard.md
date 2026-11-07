@@ -20,11 +20,11 @@ A operação **Parar tudo** interrompe o que estiver tocando. Um som novo interr
 
 ## Levando o som para o microfone
 
-O DroidDeck toca os sons do MyInstants em um dispositivo de áudio à sua escolha. Para que eles
+O Command toca os sons do MyInstants em um dispositivo de áudio à sua escolha. Para que eles
 cheguem ao Discord, a jogos ou ao OBS, use um cabo de áudio virtual:
 
 1. Instale o [VB-Cable](https://vb-audio.com/Cable/) (gratuito).
-2. Nas configurações de **Soundboard** do DroidDeck, defina **Saída cabo** como **CABLE Input**.
+2. Nas configurações de **Soundboard** do Command, defina **Saída cabo** como **CABLE Input**.
 3. Ative **Tocar também no monitor** e escolha seu fone, para você também ouvir os sons.
 4. No Discord (ou no OBS), use **CABLE Output** como microfone / captura de entrada de áudio.
 

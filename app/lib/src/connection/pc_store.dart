@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:droiddeck/src/connection/constants.dart';
+import 'package:command/src/connection/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Um PC pareado com este celular (Perfil de PC - Command v0.2 Fase S7).

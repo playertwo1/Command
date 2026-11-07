@@ -2,7 +2,7 @@
 
 ## Data on the PC
 
-**`%AppData%\DroidDeck\`** (Roaming) — your decks:
+**`%AppData%\Command\`** (Roaming) — your decks:
 
 | File | Contents |
 |---|---|
@@ -11,7 +11,7 @@
 | `counters.json` | Values of the counter buttons, so they survive a restart. |
 | `toggles.json` | Two-state buttons that are on. |
 
-**`%LocalAppData%\DroidDeck\`** — keys and integrations:
+**`%LocalAppData%\Command\`** — keys and integrations:
 
 | File | Contents |
 |---|---|
@@ -24,9 +24,9 @@
 | `homeassistant.json` | Home Assistant address and access token. |
 | `spotify.json`, `twitch.json`, `youtube.json` | Client ID (and YouTube's Client Secret) plus the account's tokens. |
 
-**`%LocalAppData%\DroidDeck.log`** — the log file.
+**`%LocalAppData%\Command.log`** — the log file.
 
-**`%LocalAppData%\DroidDeckPC\`** — the program itself, when installed with `DroidDeck-Setup.exe`.
+**`%LocalAppData%\CommandPC\`** — the program itself, when installed with `Command-Setup.exe`.
 Updates replace this folder; your data lives in the folders above and is kept.
 
 !!! info "Secrets are encrypted"
@@ -34,11 +34,11 @@ Updates replace this folder; your data lives in the folders above and is kept.
     `spotify.json`, `twitch.json`, `youtube.json`) are encrypted with Windows DPAPI and can only
     be read by your Windows account on this PC. Files from older versions, saved in plain text, are
     encrypted automatically the first time they are read. To edit one by hand (e.g. a Tuya `ClientId`),
-    save it as plain JSON; DroidDeck encrypts it again on the next start.
+    save it as plain JSON; Command encrypts it again on the next start.
 
 ## Backup and moving to another PC
 
-Copy `%AppData%\DroidDeck\Profiles\` to keep your decks. Secrets are tied to this PC and Windows
+Copy `%AppData%\Command\Profiles\` to keep your decks. Secrets are tied to this PC and Windows
 account, so on a new PC you set up the integrations again and pair the phones again.
 
 ## Command-line options
@@ -47,7 +47,7 @@ account, so on a new PC you set up the integrations again and pair the phones ag
 |---|---|
 | *(none)* | Tray app + server. |
 | `--headless` / `--no-tray` | Server only, no tray icon. Stop with Ctrl+C. |
-| `--print-pairing` | Prints the pairing URI, saves the QR to `%TEMP%\droiddeck-pair.png` and exits. |
+| `--print-pairing` | Prints the pairing URI, saves the QR to `%TEMP%\command-pair.png` and exits. |
 
 | Environment variable | Effect |
 |---|---|
@@ -56,7 +56,7 @@ account, so on a new PC you set up the integrations again and pair the phones ag
 
 ## `appsettings.json`
 
-Next to `DroidDeck.exe`:
+Next to `Command.exe`:
 
 | Key | Default | Meaning |
 |---|---|---|

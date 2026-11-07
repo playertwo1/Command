@@ -21,7 +21,8 @@ programa, o deck volta para onde estava.
 
 ## Backup { #backup }
 
-O backup é um arquivo `.droiddeck` com todos os perfis, incluindo as imagens dos botões.
+O backup é um arquivo `.command` com todos os perfis, incluindo as imagens dos botões. O configurador
+também importa backups de versões anteriores.
 
 - **No configurador do PC**: **Exportar backup** e **Importar backup**, na barra lateral.
 - **No celular**: **Configuração → Exportar backup do deck** abre o compartilhamento do Android

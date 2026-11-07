@@ -35,7 +35,7 @@ jobs:
       # Os testes de teclado (SendInput + hook) precisam de desktop interativo, que o runner
       # pode não ter: rodam só localmente.
       - name: Testes
-        run: dotnet test DroidDeck.sln -c Release --filter "Category!=RequiresDesktop"
+        run: dotnet test Command.sln -c Release --filter "Category!=RequiresDesktop"
 
   app:
     name: App (flutter analyze + test)

@@ -6,15 +6,16 @@ Pairing gives the phone the PC's address and a secret **API key**. You only do i
 
 1. On the PC, right-click the tray icon → **Parear dispositivo (QR)…**. A window shows a QR code
    and the text `IP: <address>:4787  Chave: <key>`.
-2. On the phone, open DroidDeck. On first launch the **settings** screen opens; otherwise tap the
+2. On the phone, open Command. On first launch the **settings** screen opens; otherwise tap the
    gear on the **Audio** tab.
 3. Tap **Pair (QR)** and scan the code.
 
 The phone saves the address, port and key, and connects. The status dot turns green (*Connected*).
 
 ??? info "What is inside the QR code"
-    `droiddeck://pair?ip=<LAN IP>&port=4787&key=<api key>` — the PC's LAN address, the port and the
-    API key. Treat it like a password: anyone who scans it can control your PC through DroidDeck.
+    `command://pair?ip=<LAN IP>&port=4787&key=<api key>` — the PC's LAN address, the port and the
+    API key. Treat it like a password: anyone who scans it can control your PC through Command.
+    QR codes created by older app versions are still accepted.
 
 ## Find the server automatically
 
@@ -31,8 +32,8 @@ An API key from an earlier pairing is kept.
 
 - If the phone shows *"Authentication failed (invalid or expired key). Pair again."*,
   scan the QR code again.
-- The key is stored on the PC in `%LocalAppData%\DroidDeck\apikey`. To revoke access for every
-  paired phone, quit DroidDeck, delete that file and start it again. A new key is generated, and
+- The key is stored on the PC in `%LocalAppData%\Command\apikey`. To revoke access for every
+  paired phone, quit Command, delete that file and start it again. A new key is generated, and
   every phone must pair again.
 
 ## Connection behaviour

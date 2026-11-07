@@ -1,14 +1,14 @@
-import 'package:droiddeck/src/stream_deck/stream_deck_controller.dart';
-import 'package:droiddeck/src/stream_deck/widgets/button_property_panel.dart';
-import 'package:droiddeck/src/stream_deck/widgets/dynamic_deck_button.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/config/appearance_settings_page.dart';
-import 'package:droiddeck/src/config/integrations_page.dart';
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/widgets/profile_settings_dialog.dart';
-import 'package:droiddeck/src/stream_deck/widgets/connection_chip.dart';
-import 'package:droiddeck/src/stream_deck/backup/backup_buttons.dart';
-import 'package:droiddeck/src/stream_deck/layout/grid_placement.dart';
+import 'package:command/src/stream_deck/stream_deck_controller.dart';
+import 'package:command/src/stream_deck/widgets/button_property_panel.dart';
+import 'package:command/src/stream_deck/widgets/dynamic_deck_button.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/config/appearance_settings_page.dart';
+import 'package:command/src/config/integrations_page.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/widgets/profile_settings_dialog.dart';
+import 'package:command/src/stream_deck/widgets/connection_chip.dart';
+import 'package:command/src/stream_deck/backup/backup_buttons.dart';
+import 'package:command/src/stream_deck/layout/grid_placement.dart';
 import 'package:flutter/material.dart';
 
 class SteamDeckDesktopLayout extends StatefulWidget {

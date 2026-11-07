@@ -1,7 +1,7 @@
-import 'package:droiddeck/src/connection/pc_connections.dart';
-import 'package:droiddeck/src/connection/pc_store.dart';
-import 'package:droiddeck/src/services/signalr_service.dart';
-import 'package:droiddeck/src/home/pc_dashboard_card.dart';
+import 'package:command/src/connection/pc_connections.dart';
+import 'package:command/src/connection/pc_store.dart';
+import 'package:command/src/services/signalr_service.dart';
+import 'package:command/src/home/pc_dashboard_card.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

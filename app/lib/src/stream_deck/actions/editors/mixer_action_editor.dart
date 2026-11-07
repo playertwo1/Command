@@ -1,5 +1,5 @@
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/editors/action_editor.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/editors/action_editor.dart';
 import 'package:flutter/material.dart';
 
 /// Volume/mudo de um aplicativo (por processo) ou de um dispositivo do Windows.
@@ -73,7 +73,7 @@ class _MixerActionEditorState extends State<MixerActionEditor> {
     if (_loading) return;
     setState(() => _loading = true);
     try {
-      final client = Injector.get<DroidDeckClient>();
+      final client = Injector.get<CommandClient>();
       final outputs = await client.getOutputs();
       final inputs = await client.getInputs();
       if (!mounted) return;

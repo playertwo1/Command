@@ -1,4 +1,4 @@
-import 'package:droiddeck/src/config/control_pairing_qr.dart';
+import 'package:command/src/config/control_pairing_qr.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

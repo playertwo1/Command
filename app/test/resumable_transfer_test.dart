@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -54,7 +54,7 @@ void main() {
 
   group('T0 - Client Resumable Upload Flow', () {
     late Dio dio;
-    late DroidDeckClient client;
+    late CommandClient client;
     late List<Map<String, dynamic>> recordedRequests;
     ResumableUploadStatus currentStatus = const ResumableUploadStatus(
       exists: false,
@@ -186,7 +186,7 @@ void main() {
         },
       ));
 
-      client = DroidDeckClient(baseUrl: 'http://localhost:4787', dio: dio);
+      client = CommandClient(baseUrl: 'http://localhost:4787', dio: dio);
     });
 
     test('uploadFileResumable divides into chunks and completes successfully', () async {

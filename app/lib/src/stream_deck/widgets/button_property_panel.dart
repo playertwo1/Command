@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:droiddeck/core/core.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_catalog.dart';
-import 'package:droiddeck/src/stream_deck/actions/action_picker.dart';
+import 'package:command/core/core.dart';
+import 'package:command/src/stream_deck/actions/action_catalog.dart';
+import 'package:command/src/stream_deck/actions/action_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 

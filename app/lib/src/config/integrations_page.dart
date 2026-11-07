@@ -1,4 +1,4 @@
-import 'package:droiddeck/core/core.dart';
+import 'package:command/core/core.dart';
 import 'package:flutter/material.dart';
 
 import 'account_integration_page.dart';
@@ -58,7 +58,7 @@ class _IntegrationListState extends State<_IntegrationList> {
 
   Future<void> _load() async {
     try {
-      final list = await Injector.get<DroidDeckClient>().getJson('/api/integrations') as List;
+      final list = await Injector.get<CommandClient>().getJson('/api/integrations') as List;
       if (!mounted) return;
       setState(() => _connected = {
             for (final i in list) '${(i as Map)['name']}': i['connected'] == true,

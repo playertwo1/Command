@@ -1,4 +1,4 @@
-import 'package:droiddeck/src/services/mobile_notification_service.dart';
+import 'package:command/src/services/mobile_notification_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

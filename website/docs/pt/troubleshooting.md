@@ -6,7 +6,7 @@
    "isolamento de AP" impedem que os dispositivos se enxerguem.
 2. **Firewall**: use **Liberar no firewall (rede local)** no menu da bandeja, ou libere TCP 4787 e UDP 7573 à mão (veja [Instalação](getting-started/installation.md#firewall))
    e confira se o Windows marca sua rede como **Privada**.
-3. **O DroidDeck está rodando**: procure o ícone na bandeja. No PC, `http://localhost:4787/api/ping`
+3. **O Command está rodando**: procure o ícone na bandeja. No PC, `http://localhost:4787/api/ping`
    deve retornar `{"ok":true,...}`.
 4. **IP errado**: em PCs com vários adaptadores de rede, VPNs ou adaptadores virtuais (Hyper-V, WSL,
    VirtualBox), o QR pode trazer o endereço errado. Descubra o certo com `ipconfig` e digite-o
@@ -22,12 +22,12 @@ Leia o QR code de novo pelo menu da bandeja.
 ## O configurador mostra erros 401
 
 O configurador só entra automaticamente no próprio PC. Abra-o em `http://localhost:4787/` na máquina
-onde o DroidDeck está rodando.
+onde o Command está rodando.
 
 ## Um atalho de teclado não faz nada
 
 - As teclas vão para a **janela em foco** — confira se o app certo está na frente.
-- Apps rodando **como administrador** ignoram entradas de um DroidDeck sem privilégios de administrador.
+- Apps rodando **como administrador** ignoram entradas de um Command sem privilégios de administrador.
 - Jogos com anti-cheat podem ignorar teclas simuladas.
 - Confira a sintaxe em [Atalho de teclado](guide/actions.md#hotkey).
 
@@ -45,6 +45,6 @@ o log mencionar o media broker travado, espere um minuto ou reinicie o app que e
 
 ## Logs
 
-O DroidDeck grava um log em **`%LocalAppData%\DroidDeck.log`** (ao lado da pasta `DroidDeck`, não
-dentro dela). Anexe-o ao [abrir uma issue](https://github.com/ggfto/DroidDeck/issues) — ele nunca
+O Command grava um log em **`%LocalAppData%\Command.log`** (ao lado da pasta `Command`, não
+dentro dela). Anexe-o ao [abrir uma issue](https://github.com/playertwo1/Command/issues) — ele nunca
 contém sua chave de API.

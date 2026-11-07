@@ -65,10 +65,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Testes (uma release nunca sai com teste quebrado)
-        run: dotnet test DroidDeck.sln -c Release --filter "Category!=RequiresDesktop"
+        run: dotnet test Command.sln -c Release --filter "Category!=RequiresDesktop"
 
       - name: Publish self-contained (win-x64)
-        run: dotnet publish DroidDeck/DroidDeck.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:Version=${{ env.VERSION }} -o publish
+        run: dotnet publish CommandPC/CommandPC.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:Version=${{ env.VERSION }} -o publish
 
       - name: Embute o web no publish (wwwroot ao lado do exe)
         shell: pwsh
@@ -82,14 +82,14 @@ jobs:
         shell: pwsh
         run: Compress-Archive -Path publish/* -DestinationPath Command-win-x64.zip -Force
 
-      # Identidade Command. O updater permanece desativado enquanto o feed não estiver aprovado.
+      # Identidade Command; o .releaserc.json anexa os arquivos do feed Velopack à release.
       - name: Instalador (Velopack)
         shell: pwsh
         run: |
           dotnet tool install -g vpk --version 1.2.161
           vpk pack --runtime win-x64 --packId CommandPC --packVersion $env:VERSION --packDir publish `
-            --mainExe DroidDeck.exe --packTitle Command --packAuthors "Command" `
-            --icon DroidDeck/volume-_2_.ico --outputDir velopack
+            --mainExe Command.exe --packTitle Command --packAuthors "Command" `
+            --icon CommandPC/volume-_2_.ico --outputDir velopack
           Move-Item velopack/CommandPC-win-Setup.exe velopack/Command-Setup.exe
           Remove-Item velopack/CommandPC-win-Portable.zip
 

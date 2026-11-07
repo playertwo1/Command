@@ -26,7 +26,7 @@ Todos os pacotes estão compilados e validados na pasta `dist/`:
 1. **PC Primário (Host de Desenvolvimento):**
    - Windows 11 com Bridge Command v1.5.0 em execução (`localhost:4787` e porta de controle `4788`).
 2. **PC Secundário (Máquina Física de Validação):**
-   - Windows 10/11 limpo ou com versão anterior do Command/DroidDeck.
+   - Windows 10/11 limpo ou com uma versão anterior do Command.
    - Conectado na mesma rede local (LAN) ou via Tailscale.
 3. **Dispositivo Móvel:**
    - Celular Android com o APK `command-app-v1.5.0.apk` instalado (atualização direta sobre a v1.1.2 para comprovação de preservação de dados).
@@ -43,9 +43,9 @@ Todos os pacotes estão compilados e validados na pasta `dist/`:
    ```
 3. Verifique se a instalação conclui sem exigir privilégios de Administrador (instalado em `%LocalAppData%\Command\current`).
 4. Verifique o ícone do Command na bandeja do sistema (System Tray).
-5. Se havia dados da instalação anterior DroidDeck, execute o assistente de migração segura na bandeja ou via CLI:
+5. Se havia dados de uma instalação anterior, execute o assistente de migração segura na bandeja ou via CLI:
    ```cmd
-   DroidDeck.exe --migrate-legacy --confirm
+   Command.exe --migrate-legacy --confirm
    ```
    *Critério de Aceite:* Configurações migradas para `%AppData%\Command` e chaves DPAPI re-cifradas com a entropia do Command, sem perda dos dados originais.
 
