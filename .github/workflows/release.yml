@@ -102,6 +102,7 @@ jobs:
 
   app:
     name: App (Android APK)
+    needs: version
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -139,7 +140,7 @@ jobs:
         run: |
           flutter pub get
           flutter test
-          flutter build apk --release --build-number=${{ github.run_number }}
+          flutter build apk --release --build-name=${{ needs.version.outputs.version || '0.0.0' }} --build-number=${{ github.run_number }}
 
       - name: Renomeia o APK
         run: cp app/build/app/outputs/flutter-apk/app-release.apk Command.apk
