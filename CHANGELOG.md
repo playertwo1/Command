@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/playertwo1/Command/compare/command-v1.7.1...command-v1.8.0) (2026-11-07)
+
+
+### Features
+
+* **app:** add Android manual update checker ([ed38814](https://github.com/playertwo1/Command/commit/ed388143abe9e85b18a051398d4fde42742c8304))
+
 ## [1.7.1](https://github.com/playertwo1/Command/compare/command-v1.7.0...command-v1.7.1) (2026-11-07)
 
 
