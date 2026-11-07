@@ -1,5 +1,22 @@
 /// Traduções: veja en.dart.
 const Map<String, String> enConfig = {
+  'Atualizações do aplicativo': 'App updates',
+  'Verifique e baixe a versão mais recente do Command.':
+      'Check for and download the latest Command version.',
+  'Verificar agora': 'Check now',
+  'Você já está na versão mais recente ({version}).':
+      'You are already using the latest version ({version}).',
+  'Atualização disponível: {version}': 'Update available: {version}',
+  'Atualização disponível': 'Update available',
+  'Versão atual: {version}': 'Current version: {version}',
+  'Nova versão: {version}': 'New version: {version}',
+  'O APK será baixado no navegador. Ao terminar, abra o arquivo baixado e confirme a instalação.':
+      'The APK will download in your browser. When it finishes, open the downloaded file and confirm installation.',
+  'Baixar APK': 'Download APK',
+  'Não foi possível verificar atualizações agora.':
+      'Could not check for updates right now.',
+  'Não foi possível abrir o download do APK.':
+      'Could not open the APK download.',
   'ao vivo, {count} assistindo': 'live, {count} watching',
   'ao vivo': 'live',
   'fora do ar': 'offline',

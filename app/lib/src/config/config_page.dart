@@ -7,8 +7,11 @@ import 'package:command/src/config/pc_switcher.dart';
 import 'package:command/src/connection/pc_store.dart';
 import 'package:command/src/connection/pc_connections.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'app_update_checker.dart';
 import 'control_pairing_qr.dart';
 import 'control_pairing_transport.dart';
 import 'qr_scan_page.dart';
@@ -26,6 +29,8 @@ class ConfigPage extends StatefulWidget {
 class ConfigPageState extends State<ConfigPage> {
   final _ipController = TextEditingController();
   bool _isLoading = false;
+  bool _isCheckingAppUpdate = false;
+  String? _appUpdateStatus;
   List<DiscoveredCommandDevice> _discoveredDevices = [];
 
   @override
@@ -206,6 +211,99 @@ class ConfigPageState extends State<ConfigPage> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _checkAppUpdate() async {
+    if (_isCheckingAppUpdate) return;
+    setState(() => _isCheckingAppUpdate = true);
+    try {
+      final update = await checkForAppUpdate();
+      if (!mounted) return;
+      if (!update.isAvailable) {
+        final message = tr('Você já está na versão mais recente ({version}).', {
+          'version': update.currentVersion,
+        });
+        setState(() => _appUpdateStatus = message);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        return;
+      }
+
+      setState(() {
+        _appUpdateStatus = tr('Atualização disponível: {version}', {
+          'version': update.latestVersion,
+        });
+      });
+      final shouldDownload = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(tr('Atualização disponível')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                tr('Versão atual: {version}', {
+                  'version': update.currentVersion,
+                }),
+              ),
+              Text(
+                tr('Nova versão: {version}', {'version': update.latestVersion}),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                tr(
+                  'O APK será baixado no navegador. Ao terminar, abra o arquivo baixado e confirme a instalação.',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(tr('Cancelar')),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              icon: const Icon(Icons.download),
+              label: Text(tr('Baixar APK')),
+            ),
+          ],
+        ),
+      );
+      if (shouldDownload != true || !mounted) return;
+      try {
+        final opened = await launchUrl(
+          update.apkUrl,
+          mode: LaunchMode.externalApplication,
+        );
+        if (!opened && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr('Não foi possível abrir o download do APK.')),
+            ),
+          );
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr('Não foi possível abrir o download do APK.')),
+            ),
+          );
+        }
+      }
+    } catch (_) {
+      if (!mounted) return;
+      final message = tr('Não foi possível verificar atualizações agora.');
+      setState(() => _appUpdateStatus = message);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) setState(() => _isCheckingAppUpdate = false);
     }
   }
 
@@ -497,6 +595,29 @@ class ConfigPageState extends State<ConfigPage> {
                   ),
                 ),
               ),
+              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.system_update_alt),
+                  title: Text(tr('Atualizações do aplicativo')),
+                  subtitle: Text(
+                    _appUpdateStatus ??
+                        tr(
+                          'Verifique e baixe a versão mais recente do Command.',
+                        ),
+                  ),
+                  trailing: _isCheckingAppUpdate
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : TextButton(
+                          onPressed: _checkAppUpdate,
+                          child: Text(tr('Verificar agora')),
+                        ),
+                  onTap: _isCheckingAppUpdate ? null : _checkAppUpdate,
+                ),
             ],
           ),
         ),

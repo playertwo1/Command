@@ -140,7 +140,8 @@ jobs:
         run: |
           flutter pub get
           flutter test
-          flutter build apk --release --build-name=${{ needs.version.outputs.version || '0.0.0' }} --build-number=${{ github.run_number }}
+          android_build_number=$((1000 + GITHUB_RUN_NUMBER))
+          flutter build apk --release --build-name=${{ needs.version.outputs.version || '0.0.0' }} --build-number=$android_build_number
 
       - name: Renomeia o APK
         run: cp app/build/app/outputs/flutter-apk/app-release.apk Command.apk

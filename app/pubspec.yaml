@@ -38,6 +38,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   top_snackbar_flutter: ^3.1.0
   http: ^1.1.0
+  package_info_plus: ^8.3.1
   shared_preferences: ^2.0.18
   flutter_secure_storage: ^10.3.4
 
