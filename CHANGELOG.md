@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/playertwo1/Command/compare/command-v1.8.0...command-v1.9.0) (2026-11-08)
+
+
+### Features
+
+* **app:** pick a real file and choose the PC destination folder when sending ([962993d](https://github.com/playertwo1/Command/commit/962993d1da3858f29d610b847f593170434b5a0c))
+
 # [1.8.0](https://github.com/playertwo1/Command/compare/command-v1.7.1...command-v1.8.0) (2026-11-07)
 
 
