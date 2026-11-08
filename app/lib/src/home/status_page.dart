@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:command/core/core.dart';
@@ -15,7 +14,9 @@ import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
 import '../desktop_stream/desktop_stream_controller.dart';
 import '../desktop_stream/desktop_live_stream_viewer.dart';
+import 'package:file_selector/file_selector.dart';
 import '../transfers/remote_file_manager_page.dart';
+import '../transfers/share_receiver_sheet.dart';
 import 'local_quick_command_bar.dart';
 import '../routines/workspace_routines_card.dart';
 import '../power/power_control_card.dart';
@@ -569,68 +570,40 @@ class _StatusPageState extends State<StatusPage> {
     }
   }
 
-  Future<void> _uploadTestFile() async {
+  /// Escolhe um arquivo do celular e abre a folha de envio, que lista as pastas de destino do PC.
+  Future<void> _pickAndSendFile() async {
     final client = _targetClient;
     if (client == null || _uploadingInbound) return;
 
     setState(() => _uploadingInbound = true);
-
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final fileName = 'mobile_report_$timestamp.csv';
-      final content =
-          'id,timestamp,source,status\n1,$timestamp,AndroidEmulator,OK\n';
-      final bytes = Uint8List.fromList(utf8.encode(content));
-      final expectedSha256 = sha256.convert(bytes).toString();
-
-      final result = await client.uploadInboundFile(
-        fileName: fileName,
-        bytes: bytes,
-        expectedSha256: expectedSha256,
-        deviceId: _targetPc?.id,
+      final picked = await openFile();
+      if (picked == null || !mounted) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => ShareReceiverSheet(
+          fileName: picked.name,
+          fileBytes: bytes,
+          client: client,
+          targetPc: _targetPc,
+          onCompleted: _fetchJobs,
+        ),
       );
-
-      if (mounted) {
-        if (result.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Arquivo "$fileName" enviado com sucesso para o PC! (SHA-256 verificado)',
-              ),
-              backgroundColor: const Color(0xFF34D5A0),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Falha no upload (sem retry automático): ${result.message}',
-              ),
-              backgroundColor: const Color(0xFFF87171),
-            ),
-          );
-        }
-      }
-      await _fetchJobs();
     } catch (e) {
       if (mounted) {
-        String msg = e.toString();
-        if (e is DioException && e.response?.statusCode == 409) {
-          msg = 'Conflito (409): O arquivo já existe na pasta inbound do PC.';
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Erro ao enviar arquivo (sem retry automático): $msg',
-            ),
+            content: Text('Erro ao escolher arquivo: $e'),
             backgroundColor: const Color(0xFFF87171),
           ),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _uploadingInbound = false);
-      }
+      if (mounted) setState(() => _uploadingInbound = false);
     }
   }
 
@@ -3451,10 +3424,10 @@ class _StatusPageState extends State<StatusPage> {
                 label: Text(
                   _uploadingInbound
                       ? tr('Enviando para o PC...')
-                      : tr('Enviar Arquivo para o PC (Inbound)'),
+                      : tr('Enviar Arquivo para o PC'),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                onPressed: _uploadingInbound ? null : _uploadTestFile,
+                onPressed: _uploadingInbound ? null : _pickAndSendFile,
               ),
             ),
           ],

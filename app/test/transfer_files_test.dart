@@ -181,7 +181,7 @@ void main() {
       expect(find.text('relatorio_vendas.csv'), findsOneWidget);
       expect(find.textContaining('12.2 KB'), findsOneWidget);
       expect(find.byIcon(Icons.download), findsOneWidget);
-      expect(find.text('Enviar Arquivo para o PC (Inbound)'), findsOneWidget);
+      expect(find.text('Enviar Arquivo para o PC'), findsOneWidget);
     });
 
     testWidgets('Aciona download e valida integridade SHA-256', (tester) async {
@@ -226,7 +226,7 @@ void main() {
       expect(find.textContaining('Download concluído! SHA-256 verificado'), findsOneWidget);
     });
 
-    testWidgets('Aciona upload para o PC (inbound)', (tester) async {
+    testWidgets('Exibe o botão de enviar arquivo ao PC', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -243,20 +243,16 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.scrollUntilVisible(
-        find.text('Enviar Arquivo para o PC (Inbound)'),
+        find.text('Enviar Arquivo para o PC'),
         300,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      final uploadBtn = find.text('Enviar Arquivo para o PC (Inbound)');
+      final uploadBtn = find.text('Enviar Arquivo para o PC');
       expect(uploadBtn, findsOneWidget);
 
-      await tester.tap(uploadBtn);
-      await tester.pumpAndSettle();
-
-      expect(client.uploadCalls, 1);
-      expect(find.textContaining('enviado com sucesso para o PC!'), findsOneWidget);
+      // O seletor de arquivos é um canal de plataforma; o envio em si é coberto por share_receiver_test.
     });
   });
 }
