@@ -12,6 +12,8 @@ class ShareReceiverSheet extends StatefulWidget {
   final SavedPc? targetPc;
   final VoidCallback? onCompleted;
 
+  static const int maxFileSizeBytes = 100 * 1024 * 1024; // 100 MiB, limite do PC
+
   const ShareReceiverSheet({
     super.key,
     required this.fileName,
@@ -32,7 +34,7 @@ class _ShareReceiverSheetState extends State<ShareReceiverSheet> {
   late final String _sha256Hash;
   List<DestinationFolder> _destinations = [];
   String _selectedId = 'inbound';
-  static const int maxFileSizeBytes = 100 * 1024 * 1024; // 100 MiB
+  static const int maxFileSizeBytes = ShareReceiverSheet.maxFileSizeBytes;
 
   @override
   void initState() {

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:command/core/core.dart';
@@ -14,7 +15,7 @@ import 'metric_sparkline.dart';
 import 'screenshot_viewer.dart';
 import '../desktop_stream/desktop_stream_controller.dart';
 import '../desktop_stream/desktop_live_stream_viewer.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import '../transfers/remote_file_manager_page.dart';
 import '../transfers/share_receiver_sheet.dart';
 import 'local_quick_command_bar.dart';
@@ -577,9 +578,22 @@ class _StatusPageState extends State<StatusPage> {
 
     setState(() => _uploadingInbound = true);
     try {
-      final picked = await openFile();
-      if (picked == null || !mounted) return;
-      final bytes = await picked.readAsBytes();
+      // file_picker copia o arquivo para o cache em disco; o file_selector o carregava
+      // inteiro na memória e derrubava o app (OOM) com arquivos grandes.
+      final picked = (await FilePicker.pickFiles())?.files.single;
+      if (picked == null || picked.path == null || !mounted) return;
+      if (picked.size > ShareReceiverSheet.maxFileSizeBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '"${picked.name}" passa do limite de 100 MiB por arquivo do PC.',
+            ),
+            backgroundColor: const Color(0xFFF87171),
+          ),
+        );
+        return;
+      }
+      final bytes = await File(picked.path!).readAsBytes();
       if (!mounted) return;
       await showModalBottomSheet<void>(
         context: context,
